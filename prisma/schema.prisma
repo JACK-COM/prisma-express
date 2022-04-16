@@ -7,3 +7,23 @@ datasource db {
   url      = env("DB_URL")
 }
 
+enum Authenticator {
+  facebook
+  google
+  twitter
+  other
+}
+
+// A user
+model User {
+  id          Int           @id @default(autoincrement())
+  email       String        @unique @db.VarChar(255)
+  // Authentication source (facebook, google, twitter, other)
+  auth_source Authenticator
+  // Account creation date
+  created     DateTime      @default(now())
+  // Last login date
+  last_seen   DateTime      @default(now())
+  // Account password
+  password    String        @db.VarChar(255)
+}

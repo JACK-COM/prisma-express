@@ -48,7 +48,7 @@ export function verifyPassword(password: string) {
 
 /** Regex-check string conforms to email pattern */
 export function verifyEmail(email: string) {
-  return /\S+@\S+\.\S+/.test(email);
+  return new RegExp(/^\w{3,}@\w+\.\w+$/).test(email);
 }
 
 /** Check no pre-existing user with `email` */

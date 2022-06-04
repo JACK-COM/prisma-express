@@ -12,9 +12,9 @@ const prisma = new PrismaClient();
 const User = prisma.user;
 
 export async function signUp(req: any, res: any) {
-  const { display_name, auth_source, email, passcode } = req.body;
+  const { display_name, auth_source, email, password } = req.body;
   const data: any = { display_name, auth_source, email };
-  data.passcode = encrypt(passcode);
+  data.password = encrypt(password);
 
   const isUnique = await checkUserExists(data.email);
   let message: string = "";
@@ -59,19 +59,19 @@ export async function signUp(req: any, res: any) {
 }
 
 export async function login(req: any, res: any) {
-  const { email, passcode } = req.body;
+  const { email, password } = req.body;
   let message = "Missing fields are required";
-  if (!email || !passcode) return res.status(404).json({ message });
+  if (!email || !password) return res.status(404).json({ message });
 
   const user = await User.findFirst({ where: { email } });
   message = "User not found";
   if (!user) return res.status(404).json({ message });
 
-  const validPasscode = await comparePassword(passcode, user.passcode);
+  const validPwd = await comparePassword(password, user.password);
   message =
     "The username or password are incorrect. Please try again, or contact a site admin.";
 
-  if (!validPasscode) {
+  if (!validPwd) {
     return res.status(401).json({ message });
   }
 

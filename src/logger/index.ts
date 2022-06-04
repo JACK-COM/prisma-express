@@ -1,9 +1,6 @@
 import winston from "winston";
 
 const clear = `\x1b[0m`;
-// const Blink = (s: any) => `\x1b[5m${s}${clear}`;
-// const Green = (s: any) => Bright(`\x1b[32m${s}${clear}`);
-// const Underscore = (s: any) => `\x1b[4m${s}${clear}`;
 const Blue = (s: any) => Bright(`\x1b[34m${s}${clear}`);
 const Bright = (s: string) => `\x1b[1m${s}${clear}`;
 const Dim = (s: any) => Bright(`\x1b[2m${s}${clear}`);

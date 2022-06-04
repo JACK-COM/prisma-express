@@ -1,17 +1,25 @@
-import { PrismaClient, User } from "@prisma/client";
-import { prepDBUser, pruneDBUser } from "../../utils";
+import { PrismaClient } from "@prisma/client";
+import logger from "../../logger";
+import { DateTime } from "luxon";
 
 const UserDB = new PrismaClient().user;
 
-const requiredFields = ["display_name", "email", "auth_source"];
+const requiredFields = ["display_name", "email", "authSource"];
+
+const prepDBUser = (src: any) => ({
+  authSource: src.authSource,
+  email: src.email,
+  password: src.password,
+});
 
 /** create user record */
 export function createUser(req: any, res: any) {
-  let data = prepDBUser(req.body) as User;
+  const created = DateTime.now().toUTC().toJSDate();
+  const data = { created, ...prepDBUser(req.body) };
   let message = "Missing required fields to create a new user.";
   const missingFields = requiredFields.some((x) => !data[x]);
 
-  if (missingFields || !data.passcode) {
+  if (missingFields || !data.password) {
     res.status(400).send({ message });
   }
 
@@ -21,8 +29,8 @@ export function createUser(req: any, res: any) {
       res.send({ message });
     })
     .catch((err: any) => {
+      logger.error(err);
       message =
-        err.message ||
         "User was not created. Please check your entries and try again.";
       res.status(500).send({ message });
     });
@@ -33,9 +41,9 @@ export function findAllUser(_req: any, res: any) {
   UserDB.findMany()
     .then((data: any) => res.send(data))
     .catch((err: { message: any }) => {
+      logger.error(err);
       res.status(500).send({
-        message:
-          err.message || "The users could not be retrieved. Please try again.",
+        message: "The users could not be retrieved. Please try again.",
       });
     });
 }
@@ -47,7 +55,7 @@ export function findOneUser(req: any, res: any) {
     .then((data) => {
       return data === null
         ? res.status(400).json({ message: "User not found" })
-        : res.send(pruneDBUser(data));
+        : res.send({ email: data.email, lastSeen: data.lastSeen });
     })
     .catch((_error) => {
       res.status(500).send({

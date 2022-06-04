@@ -16,14 +16,14 @@ enum Authenticator {
 
 // A user
 model User {
-  id          Int           @id @default(autoincrement())
-  email       String        @unique @db.VarChar(255)
+  id         Int           @id @default(autoincrement())
+  email      String        @unique @db.VarChar(255)
   // Authentication source (facebook, google, twitter, other)
-  auth_source Authenticator
+  authSource Authenticator
   // Account creation date
-  created     DateTime      @default(now())
+  created    DateTime      @default(now())
   // Last login date
-  last_seen   DateTime      @default(now())
+  lastSeen   DateTime      @default(now())
   // Account password
-  password    String        @db.VarChar(255)
+  password   String        @db.VarChar(255)
 }

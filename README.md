@@ -5,9 +5,7 @@ Forked from [**AWallace's version**](https://github.com/vawallace/base-node-expr
 
 ---
 
-## Table of contents
 - [🚄 *Prisma-Express*](#-prisma-express)
-  - [Table of contents](#table-of-contents)
   - [Getting Started](#getting-started)
     - [Installing dependencies](#installing-dependencies)
     - [Configuration](#configuration)
@@ -47,8 +45,9 @@ Then you can follow the next steps:
    The example in (1) would use `postgresql`: Prisma also supports `mysql`, `sqlite`, `sqlserver` and `mongodb`: 
 3. **Check the `schema.prisma` file**. It only contains model definitions for a single `Users` table.\
    You can alter the table to your liking, or add more tables if you wish. Take care of this part before syncing the database.
+   > The `schema.prisma` file can be changed often. However, breaking changes may wipe your seed data if you use `prisma db push`
 4. Run `npx prisma db push` (mapped to `npm run prisma-sync`) to create tables in your database from the **Prisma** schema.
-5. Run `prisma generate` to generate the Prisma Client. You can then start querying your database.
+5. Run `npx prisma generate` to generate the Prisma Client. You can now access your database.
 
 
 ---

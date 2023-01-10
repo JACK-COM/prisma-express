@@ -30,7 +30,7 @@ This gets out of the way so you can configure what matters. You will need to
 
 1. Create a new file `{ProjectRoot}/.env` 
 2. Copy Contents from `{ProjectRoot}/env.sample` 
-3. Generate random values for the `JWT_SEC` and `ENCRYPT` constants.
+3. (OPTIONAL) Run `npm run generate-keys` to generate random values for the `JWT_SEC` and `ENCRYPT` constants.
 
 ### Database | Prisma
 If you don't have it installed, you will want to `npx prisma && npx prisma init` to get [Prisma]() on your machine.\

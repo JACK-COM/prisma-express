@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "dotenv -e .env.development -- ts-node-dev --transpile-only --no-notify src/server.ts",
+    "generate-keys": "ts-node-dev gen-keys.ts",
     "build": "rm -rf lib/ && tsc",
     "prisma-syunc": "prisma db push"
   },

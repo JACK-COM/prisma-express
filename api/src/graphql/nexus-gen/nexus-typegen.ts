@@ -4,7 +4,7 @@
  */
 
 
-import type { DBContext } from "../context"
+import type { DBContext } from "./../context"
 import type { core } from "nexus"
 declare global {
   interface NexusGenCustomInputMethods<TypeName extends string> {

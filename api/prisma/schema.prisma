@@ -65,24 +65,25 @@ enum WorldType {
 
 // A user
 model User {
-  id          Int               @id @default(autoincrement())
-  email       String            @unique @db.VarChar(255)
-  displayName String
-  authSource  Authenticator // Authenticator (facebook, google, twitter, other)
-  password    String            @db.VarChar(255) // Account password
-  created     DateTime          @default(now()) // Account creation date
-  lastSeen    DateTime          @default(now()) // Last login date
-  Books       Book[]
-  Chapters    Chapter[]
-  Characters  Character[]
-  Events      Event[]
-  Groups      PopulationGroup[]
-  Locations   Location[]
-  Paragraphs  Paragraph[]
-  Scenes      Scene[]
-  Timelines   Timeline[]
-  Worlds      World[]
-  Series      Series[]
+  id            Int               @id @default(autoincrement())
+  email         String            @unique @db.VarChar(255)
+  displayName   String
+  authSource    Authenticator // Authenticator (facebook, google, twitter, other)
+  password      String            @db.VarChar(255) // Account password
+  created       DateTime          @default(now()) // Account creation date
+  lastSeen      DateTime          @default(now()) // Last login date
+  Books         Book[]
+  Chapters      Chapter[]
+  Characters    Character[]
+  Events        Event[]
+  Groups        PopulationGroup[]
+  Locations     Location[]
+  Paragraphs    Paragraph[]
+  Scenes        Scene[]
+  Timelines     Timeline[]
+  Worlds        World[]
+  Series        Series[]
+  TimelineEvent TimelineEvent[]
 }
 
 // A Chapter is a collection of one or more Scenes. 
@@ -106,10 +107,10 @@ model Chapter {
   name        String
   description String
   authorId    Int? // ( references User )
+  bookId      Int?
   Scenes      Scene[]
   Author      User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
   Book        Book?   @relation(fields: [bookId], references: [id])
-  bookId      Int?
 }
 
 // A Character is a significant actor in a World or other location.
@@ -134,7 +135,8 @@ model Character {
 model Event {
   id            Int              @id @default(autoincrement())
   name          String
-  type          EventTarget      @default(World)
+  description   String
+  target        EventTarget      @default(World)
   polarity      EventPolarity    @default(Neutral) // ( references Event Polarity )
   authorId      Int? // ( references User )
   characterId   Int? // ( references Character | nullable )
@@ -246,10 +248,12 @@ model TimelineEvent {
   id         Int      @id @default(autoincrement())
   eventId    Int
   order      Int
+  authorId   Int? // ( references User | nullable )
   timelineId Int
+  Scene      Scene[]
+  Author     User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
   Event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   Timeline   Timeline @relation(fields: [timelineId], references: [id], onDelete: Cascade)
-  Scene      Scene[]
 }
 
 // A world is a super-set of locations
@@ -261,9 +265,9 @@ model World {
   name        String
   type        WorldType         @default(Universe)
   description String
-  Location    Location[]
-  Timeline    Timeline[]
-  Event       Event[]
+  Locations   Location[]
+  Timelines   Timeline[]
+  Events      Event[]
   Groups      PopulationGroup[]
   Characters  Character[]
 }

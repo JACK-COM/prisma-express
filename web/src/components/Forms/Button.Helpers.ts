@@ -1,12 +1,16 @@
 import { ComponentPropsWithRef } from "react";
 import { AppTheme } from "shared";
 
-type AllButtonProps = ComponentPropsWithRef<"button"> & {
+interface AllButtonProps extends ComponentPropsWithRef<"button"> {
+  /** Application Theme */
   theme: AppTheme;
+  /** Circular button when `true` */
   round?: boolean;
+  /** Button size preset */
   size?: "sm" | "md" | "lg";
+  /** Button theme preset */
   variant?: "accent" | "outlined" | "transparent";
-};
+}
 
 export default AllButtonProps;
 
@@ -36,9 +40,15 @@ export function border({ round, variant, disabled, theme }: AllButtonProps) {
   return `1px ${style} ${theme.colors.accent}`;
 }
 
-export function borderRadius({ theme }: AllButtonProps) {
+export function padding({ theme, size }: AllButtonProps) {
+  const { sizes } = theme;
+  return size === "sm" ? sizes.xs : sizes.sm;
+}
+
+export function borderRadius({ theme, round }: AllButtonProps) {
+  if (round) return "100%";
   const { rounded } = theme.presets;
-  return rounded.md;
+  return rounded.sm;
 }
 
 export function textColor({ variant, disabled, theme }: AllButtonProps) {

@@ -7,7 +7,7 @@ import AllButtonProps, * as UI from "./Button.Helpers";
 const defaultButtonCSS = css`
   align-items: center;
   background-color: ${UI.bgColor};
-  border-radius: ${({ theme }) => theme.presets.rounded.sm};
+  border-radius: ${UI.borderRadius};
   border: ${UI.border};
   color: ${UI.textColor};
   cursor: pointer;
@@ -15,7 +15,7 @@ const defaultButtonCSS = css`
   font-family: "Roboto", sans-serif;
   font-weight: 500;
   margin: 0;
-  padding: ${({ theme }) => theme.sizes.sm};
+  padding: ${UI.padding};
   place-content: center;
   transition: border-color 0.25s;
   width: ${UI.width};

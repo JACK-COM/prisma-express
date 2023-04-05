@@ -1,10 +1,10 @@
-# ⚒ **Mythos Forge**
+# ⚒ **MythosForge**
 
 A story world builder. Inspired by [**AWallace's version**](https://github.com/vawallace/novel-manager).
 
 ---
 
-- [⚒ **Mythos Forge**](#-mythos-forge)
+- [⚒ **MythosForge**](#-mythos-forge)
   - [Getting started](#getting-started)
     - [Server](#server)
     - [Frontend](#frontend)

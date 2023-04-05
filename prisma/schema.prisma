@@ -7,23 +7,263 @@ datasource db {
   url      = env("DB_URL")
 }
 
+// ENUMS
+
 enum Authenticator {
-  facebook
   google
-  twitter
+  magic
   other
 }
 
+// The general climate of a setting.
+enum Climate {
+  Warm
+  Temperate
+  Polar
+}
+
+// The type of significant Event that occurs in a World
+enum EventPolarity {
+  PositiveExpected
+  PositiveUnexpected
+  Neutral
+  NegativeExpected
+  NegativeUnexpected
+}
+
+// The target of a significant Event that occurs in a World
+enum EventTarget {
+  World // ( affects all characters in a World )
+  Local // ( affects only characters in a specific Location )
+  Person // ( affects one or more specific Characters )
+}
+
+// A type of Group (super-set of Character types) 
+enum GroupType {
+  Culture
+  Philosophy
+  Trade
+  Other
+}
+
+// Used to describe the relative abundance of resources. 
+enum Richness {
+  Abundant
+  Adequate
+  Sparse
+  Barren
+}
+
+// The type of World (super-set of locations) 
+enum WorldType {
+  Universe
+  Realm
+  Other
+}
+
+// MODELS
+
 // A user
 model User {
-  id         Int           @id @default(autoincrement())
-  email      String        @unique @db.VarChar(255)
-  // Authentication source (facebook, google, twitter, other)
-  authSource Authenticator
-  // Account creation date
-  created    DateTime      @default(now())
-  // Last login date
-  lastSeen   DateTime      @default(now())
-  // Account password
-  password   String        @db.VarChar(255)
+  id          Int               @id @default(autoincrement())
+  email       String            @unique @db.VarChar(255)
+  displayName String
+  authSource  Authenticator // Authenticator (facebook, google, twitter, other)
+  password    String            @db.VarChar(255) // Account password
+  created     DateTime          @default(now()) // Account creation date
+  lastSeen    DateTime          @default(now()) // Last login date
+  Books       Book[]
+  Chapters    Chapter[]
+  Characters  Character[]
+  Events      Event[]
+  Groups      PopulationGroup[]
+  Locations   Location[]
+  Paragraphs  Paragraph[]
+  Scenes      Scene[]
+  Timelines   Timeline[]
+  Worlds      World[]
+  Series      Series[]
+}
+
+// A Chapter is a collection of one or more Scenes. 
+model Book {
+  id          Int       @id @default(autoincrement())
+  order       Int?
+  title       String
+  description String
+  genre       String
+  authorId    Int? // ( references User )
+  seriesId    Int?
+  Chapters    Chapter[]
+  Author      User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Series      Series?   @relation(fields: [seriesId], references: [id])
+}
+
+// A Chapter is a collection of one or more Scenes. 
+model Chapter {
+  id          Int     @id @default(autoincrement())
+  order       Int
+  name        String
+  description String
+  authorId    Int? // ( references User )
+  Scenes      Scene[]
+  Author      User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Book        Book?   @relation(fields: [bookId], references: [id])
+  bookId      Int?
+}
+
+// A Character is a significant actor in a World or other location.
+model Character {
+  id          Int              @id @default(autoincrement())
+  name        String
+  description String
+  authorId    Int? // ( references User )
+  groupId     Int? // ( references Group | nullable )
+  locationId  Int? // ( references Location | nullable )
+  worldId     Int // ( references World )
+  Event       Event[] // Events affecting this character
+  Scene       Scene[] // Scenes where this character appears
+  Paragraph   Paragraph[] // Paragraphs where this character appears
+  Author      User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Group       PopulationGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  Location    Location?        @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  World       World            @relation(fields: [worldId], references: [id], onDelete: Cascade)
+}
+
+// An Event is a significant occurrence in a World or other location that acts as a story catalyst. It may affect a World, a Location, or one or more Characters.
+model Event {
+  id            Int              @id @default(autoincrement())
+  name          String
+  type          EventTarget      @default(World)
+  polarity      EventPolarity    @default(Neutral) // ( references Event Polarity )
+  authorId      Int? // ( references User )
+  characterId   Int? // ( references Character | nullable )
+  groupId       Int? // ( references Group | nullable )
+  locationId    Int // ( references Location | nullable )
+  worldId       Int // ( references World )
+  TimelineEvent TimelineEvent[] // Timelines that include this Event
+  Author        User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Character     Character?       @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  Group         PopulationGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  Location      Location         @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  World         World            @relation(fields: [worldId], references: [id], onDelete: Cascade)
+}
+
+// A Location is typically a place on a world, but can also be a subregion or setting in another location (e.g. a city on a planet; a region in a city; a house in a city region).
+model Location {
+  id          Int               @id @default(autoincrement())
+  name        String
+  description String
+  authorId    Int?
+  worldId     Int // ( references World )
+  climate     Climate
+  fauna       Richness          @default(Adequate)
+  flora       Richness          @default(Adequate)
+  Characters  Character[]
+  Events      Event[]
+  Groups      PopulationGroup[]
+  Scenes      Scene[]
+  Author      User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  World       World             @relation(fields: [worldId], references: [id], onDelete: Cascade)
+}
+
+// A Paragraph is a literal paragraph in a story. They can be combined to create scenes. 
+model Paragraph {
+  id          Int        @id @default(autoincrement())
+  order       Int
+  text        String
+  authorId    Int? // ( references User )
+  characterId Int?
+  sceneId     Int?
+  Author      User?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Scene       Scene?     @relation(fields: [sceneId], references: [id], onDelete: SetNull)
+  Character   Character? @relation(fields: [characterId], references: [id])
+}
+
+// A Group is a collection of Characters in a World or other location.
+model PopulationGroup {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String // ( optional )
+  worldId     Int // ( references World )
+  locationId  Int // ( references Location | nullable )
+  authorId    Int? // ( references User )
+  type        GroupType   @default(Culture) // ( references Group Type )
+  Character   Character[]
+  Event       Event[]
+  Author      User?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Location    Location    @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  World       World       @relation(fields: [worldId], references: [id], onDelete: Cascade)
+}
+
+// A Scene is a collection of Paragraphs where one or more Characters interact with (each other or a) distinct setting within a Location. A Scene happens in the context of a Story Chapter.
+model Scene {
+  id             Int            @id @default(autoincrement())
+  order          Int
+  name           String
+  description    String
+  authorId       Int? // ( references User )
+  chapterId      Int // ( references Chapter | nullable )
+  characterId    Int?
+  eventContextId Int? // ( references TimelineEvent | nullable )
+  locationId     Int // ( references Location | nullable )
+  timelineId     Int? // ( references Timeline | nullable )
+  Paragraphs     Paragraph[] // ( references Paragraph | List )
+  Author         User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Chapter        Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  Character      Character?     @relation(fields: [characterId], references: [id])
+  EventContext   TimelineEvent? @relation(fields: [eventContextId], references: [id], onDelete: SetNull)
+  Location       Location       @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  Timeline       Timeline?      @relation(fields: [timelineId], references: [id], onDelete: SetNull)
+}
+
+// A Series is a collection of two or more Books. 
+model Series {
+  id          Int    @id @default(autoincrement())
+  order       Int?
+  title       String
+  description String
+  genre       String
+  authorId    Int? // ( references User )
+  Books       Book[]
+  Author      User?  @relation(fields: [authorId], references: [id], onDelete: SetNull)
+}
+
+// A named Event-sequence in a World or other location
+model Timeline {
+  id             Int             @id @default(autoincrement())
+  name           String
+  worldId        Int // ( references World )
+  authorId       Int? // ( references User | nullable )
+  Scenes         Scene[]
+  TimelineEvents TimelineEvent[]
+  Author         User?           @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  World          World           @relation(fields: [worldId], references: [id], onDelete: Restrict)
+}
+
+//  Associations of Events to Timelines
+model TimelineEvent {
+  id         Int      @id @default(autoincrement())
+  eventId    Int
+  order      Int
+  timelineId Int
+  Event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  Timeline   Timeline @relation(fields: [timelineId], references: [id], onDelete: Cascade)
+  Scene      Scene[]
+}
+
+// A world is a super-set of locations
+model World {
+  id          Int               @id @default(autoincrement())
+  Author      User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId    Int?
+  public      Boolean           @default(true)
+  name        String
+  type        WorldType         @default(Universe)
+  description String
+  Location    Location[]
+  Timeline    Timeline[]
+  Event       Event[]
+  Groups      PopulationGroup[]
+  Characters  Character[]
 }

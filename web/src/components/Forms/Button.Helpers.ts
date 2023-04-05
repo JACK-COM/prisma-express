@@ -1,8 +1,8 @@
 import { ComponentPropsWithRef } from "react";
-import { DefaultTheme } from "styled-components";
+import { AppTheme } from "shared";
 
 type AllButtonProps = ComponentPropsWithRef<"button"> & {
-  theme: DefaultTheme;
+  theme: AppTheme;
   round?: boolean;
   size?: "sm" | "md" | "lg";
   variant?: "accent" | "outlined" | "transparent";

@@ -12,10 +12,12 @@ const defaultButtonCSS = css`
   color: ${UI.textColor};
   cursor: pointer;
   display: inline-flex;
-  font-family: "Outfit", sans-serif;
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
   margin: 0;
   padding: ${({ theme }) => theme.sizes.sm};
   place-content: center;
+  transition: border-color 0.25s;
   width: ${UI.width};
 
   &:not([disabled]):hover {

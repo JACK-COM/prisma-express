@@ -3,9 +3,12 @@ import Button from "../Forms/Button";
 
 // More on how to set up stories at: https://storybook.js.org/docs/7.0/react/writing-stories/introduction
 const meta = {
+  /** Storybook HTML Page title */
   title: "Example/Button",
+  /** React Component reference */
   component: Button,
   tags: ["autodocs"],
+
   /** Controls for changing/previewing component props */
   argTypes: {
     size: { control: "radio", options: ["sm", "md", "lg"], defaultValue: "md" },
@@ -14,10 +17,9 @@ const meta = {
       options: [undefined, "accent", "outlined", "transparent"]
     }
   },
+
   /** Default props for all instances */
-  args: {
-    children: "Button"
-  }
+  args: { children: "Button" }
 } satisfies Meta<typeof Button>;
 
 export default meta;

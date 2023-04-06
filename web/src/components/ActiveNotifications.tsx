@@ -18,7 +18,7 @@ const NotificationGroup = styled(FlexColumn)`
   z-index: 9999;
 
   ${AutoDismissNotification} {
-    border-radius: ${({ theme }) => theme.presets.rounded.sm};
+    border-radius: ${({ theme }) => theme.presets.round.sm};
   }
 
   @media screen and (max-width: 600px) {

@@ -15,14 +15,52 @@ const THEME: GlobalTheme = {
   Dark: DARK_THEME,
   Light: LIGHT_THEME,
   GLOBAL: createGlobalStyle`
+  #root {
+    margin: 0;
+    width: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    a:nth-of-type(2) .logo {
+      animation: logo-spin infinite 20s linear;
+    }
+  }
+
+  .card {
+    padding: 2em;
+  }
+
+  .read-the-docs {
+    color: #888;
+  }
+
+  .ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: $parent;
+  } 
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .sticky {
+    position: sticky;
+    z-index: 999;
+  }
+
+  html *:not(code) { font-family: "Open Sans", sans-serif; }
+
   body {
     background-color: ${({ theme: t }: ThemeProps<AppTheme>) =>
       t.colors.bgColor};
     color: ${({ theme }) => theme.colors.primary};
-  
-    a {
-      color: ${({ theme }) => theme.colors.accent};
-    }
 
     .accent { 
       background-color: ${({ theme }) => theme.colors.accent}; 
@@ -70,6 +108,16 @@ const THEME: GlobalTheme = {
     .warning--text{ 
       color: ${({ theme }) => theme.colors.warning}; 
     }
+  
+    a {
+      color: ${({ theme }) => theme.colors.accent};
+    }
+  }
+  code {
+    background-color: #07C;
+    border-radius: ${({ theme }) => theme.presets.round.xs};
+    display: inline-block;
+    padding: ${({ theme }) => `0 ${theme.sizes.xxs}`};
   }
   `
 };

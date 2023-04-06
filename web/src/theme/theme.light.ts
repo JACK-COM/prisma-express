@@ -16,8 +16,8 @@ const LIGHT_THEME: AppTheme = {
     error: "#db1c1c",
     errorDark: "#c73636",
     primary: "#282c34",
-    secondary: "",
-    warning: ""
+    secondary: "#07C",
+    warning: "#f5d84c"
   },
 
   ...shared

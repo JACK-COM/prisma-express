@@ -4,11 +4,16 @@ import styled, { css } from "styled-components";
 
 type ReactText = string | number;
 const sharedInputStyles = css`
-  border-radius: ${({ theme }) => theme.presets.rounded.sm};
-  font-size: 16px;
+  border-radius: ${({ theme }) => theme.presets.round.sm};
+  border: 1px solid ${({ theme }) => theme.colors.semitransparent};
+  font-size: 0.9em;
   height: ${({ theme }) => theme.sizes.lg};
   line-height: ${({ theme }) => theme.sizes.lg};
   padding: ${({ theme }) => theme.sizes.xs};
+
+  @media screen and (max-width: 900px) {
+    font-size: 16px;
+  }
 `;
 const sharedRadioStyles = css`
   display: inline-block;
@@ -18,7 +23,7 @@ const sharedRadioStyles = css`
 `;
 export const Fieldset = styled.fieldset`
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
-  border-radius: ${({ theme }) => theme.presets.rounded.sm};
+  border-radius: ${({ theme }) => theme.presets.round.sm};
   padding: ${({ theme }) => theme.sizes.sm};
   margin-bottom: ${({ theme }) => theme.sizes.lg};
   width: calc(100% - 2px) !important;
@@ -41,24 +46,27 @@ export const Textarea = styled.textarea`
   height: 120px;
 `;
 export const Label = styled.label<{ direction?: "row" | "column" }>`
-  display: flex;
-  flex-direction: ${({ direction = "column" }) => direction};
+  align-items: ${({ direction }) =>
+    direction === "row" ? "center" : undefined};
+  display: grid;
+  grid-template-columns: ${({ direction }) =>
+    direction === "column" ? "auto" : "max-content auto"};
 
-  > span,
   .label {
-    color: #e89458;
+    color: ${({ theme }) => theme.colors.secondary};
     font-weight: bold;
+    padding-right: ${({ direction, theme }) =>
+      direction === "row" ? theme.sizes.sm : undefined};
   }
 `;
-export const RadioInput = styled.input.attrs({ type: "radio" })`
+export const RadioInput = styled(Input).attrs({ type: "radio" })`
   ${sharedRadioStyles}
 `;
-export const CheckboxInput = styled.input.attrs({ type: "checkbox" })`
+export const CheckboxInput = styled(Input).attrs({ type: "checkbox" })`
   ${sharedRadioStyles}
 `;
 export const RadioLabel = styled(Label)`
   align-items: center;
-  display: grid;
   gap: 0.33rem;
   grid-template-columns: min-content auto;
 
@@ -67,11 +75,12 @@ export const RadioLabel = styled(Label)`
     width: initial;
   }
 `;
-export const Legend = styled.legend`
+export const Legend = styled.legend.attrs({ className: "h3" })`
   color: ${({ theme }) => theme.colors.secondary};
-  font-size: ${({ theme }) => theme.sizes.md};
+  font-size: larger;
   font-weight: 600;
   line-height: ${({ theme }) => theme.sizes.md};
+  padding: 0;
 
   &::after {
     content: "*";
@@ -81,7 +90,7 @@ export const Legend = styled.legend`
   }
 `;
 export const Hint = styled.div`
-  font-size: ${({ theme }) => theme.sizes.sm};
+  font-size: smaller;
   line-height: ${({ theme }) => theme.sizes.md};
   margin: 0;
   opacity: 0.7;
@@ -97,9 +106,11 @@ type SelectProps = ComponentPropsWithRef<"select"> & {
   data: any[];
   itemText(d: any): ReactText;
   itemValue(d: any): ReactText;
+  wide?: boolean;
 };
-const SelectDropdown = styled.select`
+const StyledSelect = styled.select<{ wide?: boolean }>`
   ${sharedInputStyles};
+  width: ${({ wide = false }) => (wide ? "100%" : "auto")};
 `;
 export const Select = styled((props: SelectProps) => {
   const {
@@ -111,7 +122,7 @@ export const Select = styled((props: SelectProps) => {
     ...rest
   } = props;
   return (
-    <SelectDropdown disabled={!data.length} onInput={onChange} {...rest}>
+    <StyledSelect disabled={!data.length} onInput={onChange} {...rest}>
       {data.length > 0 && <option value="null">{placeholder}</option>}
       {data.map((d, i) => (
         <option key={i} value={itemValue(d)}>
@@ -119,13 +130,9 @@ export const Select = styled((props: SelectProps) => {
         </option>
       ))}
       {data.length === 0 && <option value="null">No items to display</option>}
-    </SelectDropdown>
+    </StyledSelect>
   );
 })``;
-
-export const WideSelect = styled(Select)`
-  width: 100%;
-`;
 
 export const Form = styled.form`
   margin: ${({ theme }) => theme.sizes.md} 0;
@@ -134,7 +141,7 @@ export const Form = styled.form`
   width: 100%;
 
   @media screen and (max-width: 500px) {
-    ${Select},${WideSelect} {
+    ${Select} {
       width: 100%;
     }
   }

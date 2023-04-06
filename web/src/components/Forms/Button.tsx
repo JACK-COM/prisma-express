@@ -26,12 +26,13 @@ const defaultButtonCSS = css`
   margin: 0;
   padding: ${UI.padding};
   place-content: center;
-  transition: border-color 0.25s;
+  text-decoration: none;
+  transition: border-color 150ms background-color 150ms filter 150ms;
   width: ${UI.width};
 
   &:not([disabled]):hover {
     background-color: ${UI.bgColorHover};
-    box-shadow: 0 1px 2px #030630e2;
+    box-shadow: 0 1px 0.4em #030630b5;
     filter: drop-shadow(0 0 1.2em #aa64ffaa);
     transform: scale(0.99, 0.99);
     transition: 0.12s linear;
@@ -48,13 +49,14 @@ const defaultButtonCSS = css`
 const ButtonBase = styled.button<AllButtonProps>`
   ${defaultButtonCSS}
 `;
-const DefaultButton = styled(ButtonBase)``;
-export default DefaultButton;
+export const Button = styled(ButtonBase)``;
+export default Button;
 
 export const ButtonLink = styled.a`
   ${defaultButtonCSS}
   color: inherit;
-  height: auto;
+  padding: ${({ theme }) => theme.sizes.xs};
+
 `;
 export const StyledLink = styled(Link)`
   ${defaultButtonCSS}
@@ -62,17 +64,26 @@ export const StyledLink = styled(Link)`
   height: auto;
 `;
 type WithIconProps = {
+  /** Name of Material Icon to apply (e.g. `account_circle`) */
   icon: string;
+  /** Link or Button text */
   text: string | JSX.Element;
 };
-type LinkWithIconProps = Pick<ComponentPropsWithRef<"a">, "title" | "target"> &
-  WithIconProps & { href: string; external?: boolean };
+type LinkWithIconProps = Pick<
+  ComponentPropsWithRef<"a">,
+  "title" | "target" | "href"
+> &
+  WithIconProps & {
+    /** Appends `target=_blank` attribute when true */
+    external?: boolean;
+  };
 
+/** An anchor tag that looks mostly like the buttons used on the site */
 export const LinkWithIcon = (props: LinkWithIconProps) => {
-  const { icon, text, external, href, ...linkProps } = props;
+  const { icon, text, external, href = "", ...linkProps } = props;
 
   return external ? (
-    <ButtonLink target="_blank" href={href} {...linkProps}>
+    <ButtonLink size="sm" target="_blank" href={href} {...linkProps}>
       <MatIcon icon={icon} />
       {text}
     </ButtonLink>
@@ -89,15 +100,21 @@ export const ButtonWithIcon = (props: ButtonWithIconProps) => {
   const { icon, text, ...buttonProps } = props;
 
   return (
-    <DefaultButton {...buttonProps}>
+    <Button {...buttonProps}>
       <MatIcon icon={icon} />
       &nbsp;
       {text}
-    </DefaultButton>
+    </Button>
   );
 };
 
-export const RoundButton = styled(ButtonBase).attrs({ round: true })``;
+export const RoundButton = styled(ButtonBase).attrs({
+  round: true,
+  size: "lg"
+})`
+  height: ${UI.width};
+  width: ${UI.width};
+`;
 
 export const TransparentButton = styled(ButtonBase).attrs({
   variant: "transparent"

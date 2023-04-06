@@ -34,21 +34,23 @@ export function bgColorHover({ theme, variant, disabled }: AllButtonProps) {
   return bgColor({ theme, variant, disabled });
 }
 
-export function border({ round, variant, disabled, theme }: AllButtonProps) {
-  if (round || variant === "transparent") return 0;
+export function border({ variant, disabled, theme }: AllButtonProps) {
+  if (variant === "transparent") return 0;
   const style = disabled ? "dotted" : "solid";
-  return `1px ${style} ${theme.colors.accent}`;
+  const borderColor = variant === "outlined" ? textColor : bgColor;
+  return `1px ${style} ${borderColor({ theme, variant, disabled })}`;
 }
 
-export function padding({ theme, size }: AllButtonProps) {
+export function padding({ theme, size, round }: AllButtonProps) {
   const { sizes } = theme;
+  if (round) return '0.8rem'
   return size === "sm" ? sizes.xs : sizes.sm;
 }
 
 export function borderRadius({ theme, round }: AllButtonProps) {
   if (round) return "100%";
-  const { rounded } = theme.presets;
-  return rounded.sm;
+  const { round: corners } = theme.presets;
+  return corners.sm;
 }
 
 export function textColor({ variant, disabled, theme }: AllButtonProps) {
@@ -57,6 +59,7 @@ export function textColor({ variant, disabled, theme }: AllButtonProps) {
   return variant === "transparent" ? primary : secondary;
 }
 
-export function width({ size }: AllButtonProps) {
+export function width({ theme, size, round }: AllButtonProps) {
+  if (round) return theme.sizes.md;
   return size === "lg" ? "100%" : "initial";
 }

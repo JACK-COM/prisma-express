@@ -1,16 +1,13 @@
 import { useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Paths } from "../routes/index";
-import { useGlobalUser } from "../hooks/GlobalUser";
-import ListView from "./Common/ListView";
-import { API_BASE } from "../utils/constants";
-import { ButtonLink } from "./Forms/Button";
-import { MatIcon } from "./Common/Containers";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Paths } from "routes/index";
+import { useGlobalUser } from "hooks/GlobalUser";
+import { API_BASE } from "utils/constants";
+import ListView from "components/Common/ListView";
+import { MatIcon } from "components/Common/Containers";
+import { ButtonLink, StyledLink } from "components/Forms/Button";
 
-const StyledLink = styled(Link)`
-  font-size: 0.8rem;
-`;
 const Menu = styled.nav`
   align-items: center;
   display: grid;
@@ -62,7 +59,6 @@ const AppNav = () => {
       />
 
       <ButtonLink
-        size="sm"
         className={authClass}
         href={authUrl}
         onClick={onAuth}

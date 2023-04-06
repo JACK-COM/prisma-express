@@ -56,7 +56,7 @@ type ContentProps = { centered?: boolean };
 const ModalContents = styled(FlexColumn).attrs({ padded: true })<ContentProps>`
   ${contentWidthBoundary}
   background: ${({ theme }) => theme.colors.bgColor};
-  border-radius: ${({ theme }) => theme.presets.rounded.default};
+  border-radius: ${({ theme }) => theme.presets.round.default};
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
   color: ${({ theme }) => theme.colors.primary};
   height: 50vmin;

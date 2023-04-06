@@ -11,14 +11,13 @@ import shared from "./theme.shared";
 const DARK_THEME: AppTheme = {
   colors: {
     accent: "#36b4c7",
-    // bgColor: "red",
     bgColor: "#17141d",
     semitransparent: "#7a7a7a42",
     error: "#c73636",
     errorDark: "#951010",
     primary: "#f7f7f7",
-    secondary: "#001586",
-    warning: ""
+    secondary: "#e89458",
+    warning: "#f5d84c"
   },
 
   ...shared

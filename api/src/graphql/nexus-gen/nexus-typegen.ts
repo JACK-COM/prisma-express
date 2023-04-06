@@ -32,7 +32,14 @@ export interface NexusGenInputs {
 }
 
 export interface NexusGenEnums {
-  Temperature: "cool" | "hot" | "warm"
+  Authenticator: "google" | "magic" | "other"
+  Climate: "cool" | "hot" | "warm"
+  EventPolarity: "NegativeExpected" | "NegativeUnexpected" | "Neutral" | "PositiveExpected" | "PositiveUnexpected"
+  EventTarget: "Local" | "Person" | "World"
+  GroupType: "Culture" | "Other" | "Philosophy" | "Trade"
+  Richness: "Abundant" | "Adequate" | "Barren" | "Sparse"
+  UserRole: "Author" | "Reader"
+  WorldType: "Other" | "Realm" | "Universe"
 }
 
 export interface NexusGenScalars {
@@ -45,6 +52,15 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenObjects {
+  MFUser: { // root type
+    authSource: NexusGenEnums['Authenticator']; // Authenticator!
+    created: NexusGenScalars['CsDateTime']; // CsDateTime!
+    displayName: number; // Int!
+    email: number; // Int!
+    id: number; // Int!
+    lastSeen: NexusGenScalars['CsDateTime']; // CsDateTime!
+    role: NexusGenEnums['UserRole']; // UserRole!
+  }
   Query: {};
 }
 
@@ -59,12 +75,30 @@ export type NexusGenRootTypes = NexusGenObjects
 export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars & NexusGenEnums
 
 export interface NexusGenFieldTypes {
+  MFUser: { // field return type
+    authSource: NexusGenEnums['Authenticator']; // Authenticator!
+    created: NexusGenScalars['CsDateTime']; // CsDateTime!
+    displayName: number; // Int!
+    email: number; // Int!
+    id: number; // Int!
+    lastSeen: NexusGenScalars['CsDateTime']; // CsDateTime!
+    role: NexusGenEnums['UserRole']; // UserRole!
+  }
   Query: { // field return type
     ok: boolean; // Boolean!
   }
 }
 
 export interface NexusGenFieldTypeNames {
+  MFUser: { // field return type name
+    authSource: 'Authenticator'
+    created: 'CsDateTime'
+    displayName: 'Int'
+    email: 'Int'
+    id: 'Int'
+    lastSeen: 'CsDateTime'
+    role: 'UserRole'
+  }
   Query: { // field return type name
     ok: 'Boolean'
   }

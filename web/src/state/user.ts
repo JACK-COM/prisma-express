@@ -7,7 +7,7 @@ import { UserRole, NullableString } from "utils/types";
  * call `store.appsCount( number )`. You can create as many state instances as
  * you need.
  */
-export const User = createState({
+export const GlobalUser = createState({
   authenticated: false,
   initialized: false,
   loading: false,
@@ -18,5 +18,5 @@ export const User = createState({
   lastSeen: ""
 });
 
-export type GlobalStore = ReturnType<typeof User.getState>;
-export type GlobalStoreKey = keyof GlobalStore;
+export type GlobalUserInstance = ReturnType<typeof GlobalUser.getState>;
+export type GlobalUserInstanceKey = keyof GlobalUserInstance;

@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 import { scalarType } from "nexus";
 
+/** Custom Date-time scalar for date fields */
 export const CsDateTime = scalarType({
   name: "CsDateTime",
   asNexusMethod: "date",

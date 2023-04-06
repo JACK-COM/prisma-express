@@ -8,9 +8,9 @@ A story world builder. Inspired by [**AWallace's version**](https://github.com/v
   - [Getting Started](#getting-started)
     - [Installing dependencies](#installing-dependencies)
     - [Install NPM dependencies.](#install-npm-dependencies)
-    - [Configuration](#configuration)
-    - [Database | Prisma](#database--prisma)
-      - [Create Tables and Prisma Client](#create-tables-and-prisma-client)
+    - [.env File Configuration](#env-file-configuration)
+    - [Database | Tables and Prisma Client](#database--tables-and-prisma-client)
+    - [Authentication](#authentication)
   - [Running](#running)
   - [Contributing](#contributing)
 
@@ -30,32 +30,34 @@ $. npm install
 ```
 
 
-### Configuration
+### .env File Configuration
 
-1. Create a new file `{ProjectRoot}/.env` 
-2. Copy Contents from `{ProjectRoot}/env.sample` 
-3. (OPTIONAL) Run `npm run generate-keys` to generate random values for the `JWT_SEC` and `ENCRYPT` constants.
-
-### Database | Prisma
-1. Set the `DATABASE_URL` in the `.env` file to point to your newly-created database.\
+1. Create a new file `api/.env` 
+2. Copy Contents from `api/env.sample` 
+3. Run `npm run generate-keys` to generate values for the `JWT_SEC` and `ENCRYPT` constants.
+4. Set the `DATABASE_URL` in the `.env` file to point to your postgres database.\
    The end result should look something like this:
    ```
    DB_URL="postgresql://username:password@localhost:5432/database_name"
    ```
-   Replace `username` and `password` with your database user's credentials.
-2. Set the `provider` of the `datasource` block in schema.prisma to `postgres`.\
-   Prisma also supports `mysql`, `sqlite`, `sqlserver` and `mongodb`.
-3. **Review the `schema.prisma` file**. It contains ALL model definitions for the application.
-   > The `schema.prisma` file can be changed often. However, breaking changes may wipe your seed data if you use `prisma db push`
+   Replace `username` and `password` with your database user's credentials. 
+   > Prisma also supports `mysql`, `sqlite`, `sqlserver` and `mongodb`.
 
-#### Create Tables and Prisma Client
+### Database | Tables and Prisma Client setup
 Run the following to create tables in your database from the **Prisma** schema.
 ```bash
 $. npm run prisma-sync
 ```
-This is an alias for `npx prisma db push` and `npx prisma generate`, so a Prisma Client will be generated when you do this. You can now access your database.
+This is an alias for `npx prisma db push` and `npx prisma generate`, so a Prisma Client will be generated when you do this (if one has not been already). You can now access your database.
 
 > `npx prisma db push` will **wipe** your database if it needs to make breaking changes. It can and should only be used in a development/greenfield context. 
+
+
+### Adding Tables and Database migrations
+Using Prisma involves three steps:
+1. Modify the `schema.prisma` file to include your new **models** and/or **enums**
+2. Run `
+   
 
 
 ---

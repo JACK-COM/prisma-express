@@ -1,3 +1,4 @@
+/** Global Size presets */
 const sizes = {
   xxs: "0.125rem",
   xs: "0.3rem",
@@ -10,19 +11,21 @@ const sizes = {
   xxxlg: "4.8rem"
 };
 
+/** Global */
 const presets = {
-  elevated: {
+  elevate: {
     md: `0 ${sizes.xs} ${sizes.xs}`,
     sm: `0 ${sizes.xxs} ${sizes.xs}`,
     lg: `0 ${sizes.sm} ${sizes.xs}`,
     xlg: `0 ${sizes.default} ${sizes.xs}`
   },
 
-  rounded: {
+  round: {
     xlg: `72px`,
     lg: `48px`,
     md: `16px`,
-    sm: `4px`
+    sm: `8px`,
+    xs: `4px`
   }
 };
 
@@ -30,7 +33,7 @@ const presets = {
  * Defines additional properties you want to access when using styled
  * components. The properties of `shared` can be accessed inline using
  * the `theme` object, e.g.:
- * border-radius: ${({ theme }) => theme.presets.rounded.xlg}; // 72px
+ * border-radius: ${({ theme }) => theme.presets.round.xlg}; // 72px
  *
  */
 const shared = {

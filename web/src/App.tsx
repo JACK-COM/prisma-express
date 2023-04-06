@@ -1,9 +1,8 @@
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import "./App.scss";
-import Button from "./components/Forms/Button";
-import THEME, { getTheme, GlobalTheme, ThemeInstance } from "./theme/index";
+import THEME from "./theme/index";
 import { GlobalUser } from "./state";
 import { AUTH_ROUTE } from "./utils";
 import AppHeader from "components/AppHeader";

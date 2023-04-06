@@ -29,7 +29,7 @@ export type AppTheme = ThemeProps<{
   };
 
   presets: {
-    elevated: DefaultSizes;
-    rounded: DefaultSizes;
+    elevate: DefaultSizes;
+    round: DefaultSizes;
   };
 }>["theme"];

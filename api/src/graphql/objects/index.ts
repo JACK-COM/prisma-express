@@ -7,3 +7,4 @@
 
 export * from "./enums";
 export * from "./CDateTime";
+export * from "./MFUser";

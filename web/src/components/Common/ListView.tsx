@@ -1,6 +1,6 @@
 import React, { ReactNode, ReactText } from "react";
 import styled from "styled-components";
-import { noOp } from "utils/index";
+import { noOp } from "../../utils/index";
 
 export type ListViewProps<T> = {
   data: T[];

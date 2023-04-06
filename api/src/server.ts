@@ -10,7 +10,7 @@ import { context } from "./graphql/context";
 import logger from "./logger";
 import { configurePassport } from "./services/passport";
 
-const PORT = process.env.PORT || 4001;
+const { PORT = 4001, UIPORT = 3000 } = process.env;
 const env = process.env.NODE_ENV || "development";
 
 /** Run server */
@@ -23,7 +23,10 @@ async function main() {
   app.use(express.urlencoded({ extended: false }));
 
   // CORS
-  const origin = ["http://localhost:5173", "https://studio.apollographql.com"];
+  const origin = [
+    `http://localhost:${UIPORT}`,
+    "https://studio.apollographql.com"
+  ];
   app.use("*", cors({ credentials: true, origin }), json());
 
   configureRateLimiter(app); // rate Limiter

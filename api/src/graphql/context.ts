@@ -1,4 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
+
+export type CtxUser = Pick<User, "id" | "role" | "email" | "lastSeen">;
 
 /**
  * `PrismaClient` instance with all tables. Contents will be determined

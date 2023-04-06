@@ -8,6 +8,9 @@ import { API_BASE } from "../utils/constants";
 import { ButtonLink } from "./Forms/Button";
 import { MatIcon } from "./Common/Containers";
 
+const StyledLink = styled(Link)`
+  font-size: 0.8rem;
+`;
 const Menu = styled.nav`
   align-items: center;
   display: grid;
@@ -53,7 +56,9 @@ const AppNav = () => {
         row
         className="menu-items slide-in-right"
         data={routes}
-        itemText={({ path, text }: any) => <Link to={path}>{text}</Link>}
+        itemText={({ path, text }: any) => (
+          <StyledLink to={path}>{text}</StyledLink>
+        )}
       />
 
       <ButtonLink
@@ -63,7 +68,7 @@ const AppNav = () => {
         onClick={onAuth}
         title={authTitle}
       >
-        <MatIcon icon="person" />
+        <MatIcon icon="account_circle" />
         {authText}
       </ButtonLink>
     </Menu>

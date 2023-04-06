@@ -105,7 +105,12 @@ async function verify(
   const [{ value: email }] = profile.emails;
   const internalUser =
     (await getUser({ email })) ||
-    (await upsertUser({ email, auth: getAuthIssuer(issuer) }));
+    (await upsertUser({
+      email,
+      role: 'Author',
+      displayName: email,
+      authSource: getAuthIssuer(issuer)
+    }));
 
   return cb(null, toCtxUser(internalUser));
 }

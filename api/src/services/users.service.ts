@@ -45,23 +45,18 @@ export async function updateUser(where: UserByIdInput | SearchUserInput) {
 
 /** Require user `id` to match or exceed role `role` */
 export async function requireRole(id: UserByIdInput["id"], role: User["role"]) {
-  const { role: userRole } = (await getUser({ id })) || { role: "researcher" };
+  const { role: userRole } = (await getUser({ id })) || { role: "Reader" };
   return isAuthorized(userRole, role);
 }
 
-const roleRanks: User["role"][] = [
-  "researcher",
-  "dataentry",
-  "moderator",
-  "admin"
-];
+const roleRanks: User["role"][] = ["Reader", "Author"];
 
 /** Check whether `userRole` matches or exceeds `ref` */
 export function isAuthorized(
   userRole?: User["role"],
-  ref: User["role"] = "moderator"
+  ref: User["role"] = "Author"
 ) {
-  return roleRanks.indexOf(userRole || "researcher") >= roleRanks.indexOf(ref);
+  return roleRanks.indexOf(userRole || "Reader") >= roleRanks.indexOf(ref);
 }
 
 /** delete user record matching params */

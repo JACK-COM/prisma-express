@@ -54,7 +54,7 @@ type PCProps = FlexContainerProps & { minHeight?: string };
 export const PageContainer = styled(FlexColumn)<PCProps>`
   justify-content: flex-start;
   margin: 0 auto;
-  max-width: 80vmin;
+  max-width: 1280px;
   min-height: ${({ minHeight = "70vmax" }) => minHeight};
   text-align: left;
 
@@ -76,7 +76,7 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
   }
 
   @media screen and (min-width: 1200px) {
-    max-width: 1000px;
+    max-width: 1280px;
   }
 
   @media screen and (max-width: 1200px) {
@@ -132,7 +132,7 @@ const Icon = styled.span.attrs({ className: "material-icons" })``;
 export const MatIcon = ({ icon }: { icon: string }) => <Icon>{icon}</Icon>;
 
 export const GridItem = styled(GridContainer)`
-  background-color: #17141d;
+  background-color: inherit;
   border: 1px solid #232325;
   grid-template-columns: ${({ columns = "auto 4.8rem" }) => columns};
   margin-bottom: 1rem;

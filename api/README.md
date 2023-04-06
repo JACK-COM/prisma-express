@@ -9,8 +9,8 @@ A story world builder. Inspired by [**AWallace's version**](https://github.com/v
     - [Installing dependencies](#installing-dependencies)
     - [Install NPM dependencies.](#install-npm-dependencies)
     - [.env File Configuration](#env-file-configuration)
-    - [Database | Tables and Prisma Client](#database--tables-and-prisma-client)
-    - [Authentication](#authentication)
+    - [Database | Tables and Prisma Client setup](#database--tables-and-prisma-client-setup)
+    - [Adding Tables and Database migrations](#adding-tables-and-database-migrations)
   - [Running](#running)
   - [Contributing](#contributing)
 
@@ -63,7 +63,7 @@ Using Prisma involves three steps:
 ---
 
 ## Running
-Run the project on `localhost:3002`:
+Run the project on `localhost:4001`:
 ```bash
 $. npm run start
 ```

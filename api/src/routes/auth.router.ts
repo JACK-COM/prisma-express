@@ -6,7 +6,8 @@ const GOOGLE_LOGIN = "/login/google";
 const GOOGLE_LOGOUT = "/logout/google";
 const LOGGED_IN = "/authenticated";
 const GOOGLE_LOGIN_REDIRECT = "/oauth2/redirect/google";
-const UI_REDIRECT = "http://localhost:5173/login";
+const { UIPORT = 3000 } = process.env;
+const UI_REDIRECT = `http://localhost:${UIPORT}/login`;
 
 export default function configureAuthRoutes(
   app: Express,

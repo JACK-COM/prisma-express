@@ -5,10 +5,13 @@ import LIGHT_THEME from "./theme.light";
 import { AppTheme } from "shared";
 
 export type UIThemeType = "Dark" | "Light";
+export type GlobalTheme = Record<UIThemeType, AppTheme> & {
+  GLOBAL: ReturnType<typeof createGlobalStyle>;
+};
 const THEME_KEY = "app-theme";
 
 /* Global Application Style Theme */
-const THEME: Record<UIThemeType, AppTheme> & { GLOBAL: any } = {
+const THEME: GlobalTheme = {
   Dark: DARK_THEME,
   Light: LIGHT_THEME,
   GLOBAL: createGlobalStyle`
@@ -78,9 +81,7 @@ export type ThemeInstance = ReturnType<typeof GlobalTheme.getState>;
 export function getTheme(): UIThemeType {
   const { theme } = GlobalTheme.getState();
   if (!theme.length) {
-    return setTheme(
-      (window.localStorage.getItem(THEME_KEY) || "Dark") as UIThemeType
-    );
+    return setTheme((localStorage.getItem(THEME_KEY) || "Dark") as UIThemeType);
   }
 
   return theme;
@@ -88,8 +89,8 @@ export function getTheme(): UIThemeType {
 
 /** Set current UI theme */
 export function setTheme(newTheme: UIThemeType): UIThemeType {
+  localStorage.setItem(THEME_KEY, newTheme);
   GlobalTheme.theme(newTheme);
-  window.localStorage.setItem(THEME_KEY, newTheme);
   return newTheme;
 }
 

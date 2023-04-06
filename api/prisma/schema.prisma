@@ -54,7 +54,13 @@ enum Richness {
   Barren
 }
 
-// The type of World (super-set of locations) 
+// A type of application user
+enum UserRole {
+  Author
+  Reader
+}
+
+// A type of World (super-set of locations) 
 enum WorldType {
   Universe
   Realm
@@ -69,7 +75,8 @@ model User {
   email         String            @unique @db.VarChar(255)
   displayName   String
   authSource    Authenticator // Authenticator (facebook, google, twitter, other)
-  password      String            @db.VarChar(255) // Account password
+  password      String?           @db.VarChar(255) // Account password
+  role          UserRole
   created       DateTime          @default(now()) // Account creation date
   lastSeen      DateTime          @default(now()) // Last login date
   Books         Book[]
@@ -115,20 +122,30 @@ model Chapter {
 
 // A Character is a significant actor in a World or other location.
 model Character {
-  id          Int              @id @default(autoincrement())
-  name        String
-  description String
-  authorId    Int? // ( references User )
-  groupId     Int? // ( references Group | nullable )
-  locationId  Int? // ( references Location | nullable )
-  worldId     Int // ( references World )
-  Event       Event[] // Events affecting this character
-  Scene       Scene[] // Scenes where this character appears
-  Paragraph   Paragraph[] // Paragraphs where this character appears
-  Author      User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  Group       PopulationGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  Location    Location?        @relation(fields: [locationId], references: [id], onDelete: SetNull)
-  World       World            @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  description           String
+  authorId              Int? // ( references User )
+  groupId               Int? // ( references Group | nullable )
+  locationId            Int? // ( references Location | nullable )
+  worldId               Int // ( references World )
+  Event                 Event[] // Events affecting this character
+  Scene                 Scene[] // Scenes where this character appears
+  Paragraph             Paragraph[] // Paragraphs where this character appears
+  Author                User?                   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Group                 PopulationGroup?        @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  Location              Location?               @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  World                 World                   @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  CharacterRelationship CharacterRelationship[]
+}
+
+// An Event is a significant occurrence in a World or other location that acts as a story catalyst. It may affect a World, a Location, or one or more Characters.
+model CharacterRelationship {
+  id           Int       @id @default(autoincrement())
+  characterId  Int // ( references Character  )
+  targetId     Int // ( references Character | no relation )
+  relationship String
+  Character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 }
 
 // An Event is a significant occurrence in a World or other location that acts as a story catalyst. It may affect a World, a Location, or one or more Characters.

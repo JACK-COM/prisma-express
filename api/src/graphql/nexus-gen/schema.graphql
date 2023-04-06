@@ -2,16 +2,79 @@
 ### Do not make changes to this file directly
 
 
+"""User authentication provider"""
+enum Authenticator {
+  google
+  magic
+  other
+}
+
+"""The general climate of a setting."""
+enum Climate {
+  cool
+  hot
+  warm
+}
+
 """UTC Date-time"""
 scalar CsDateTime
+
+"""The type of significant Event that occurs in a World."""
+enum EventPolarity {
+  NegativeExpected
+  NegativeUnexpected
+  Neutral
+  PositiveExpected
+  PositiveUnexpected
+}
+
+"""The target of a significant Event that occurs in a World"""
+enum EventTarget {
+  Local
+  Person
+  World
+}
+
+"""A super-set of Character types (e.g. trade profession)"""
+enum GroupType {
+  Culture
+  Other
+  Philosophy
+  Trade
+}
+
+"""An Application user"""
+type MFUser {
+  authSource: Authenticator!
+  created: CsDateTime!
+  displayName: Int!
+  email: Int!
+  id: Int!
+  lastSeen: CsDateTime!
+  role: UserRole!
+}
 
 type Query {
   ok: Boolean!
 }
 
-"""Vague measure of pressure in system"""
-enum Temperature {
-  cool
-  hot
-  warm
+"""Relative abundance of resources."""
+enum Richness {
+  Abundant
+  Adequate
+  Barren
+  Sparse
+}
+
+"""A type of application user"""
+enum UserRole {
+  Author
+  Reader
+}
+
+"""A type of World (super-set of locations) """
+enum WorldType {
+  Other
+  Realm
+  Universe
 }

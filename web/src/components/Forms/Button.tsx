@@ -56,7 +56,6 @@ export const ButtonLink = styled.a`
   ${defaultButtonCSS}
   color: inherit;
   padding: ${({ theme }) => theme.sizes.xs};
-
 `;
 export const StyledLink = styled(Link)`
   ${defaultButtonCSS}
@@ -76,19 +75,27 @@ type LinkWithIconProps = Pick<
   WithIconProps & {
     /** Appends `target=_blank` attribute when true */
     external?: boolean;
+    /** Style variant */
+    variant?: AllButtonProps["variant"];
   };
 
 /** An anchor tag that looks mostly like the buttons used on the site */
 export const LinkWithIcon = (props: LinkWithIconProps) => {
-  const { icon, text, external, href = "", ...linkProps } = props;
+  const { icon, text, external, href = "", variant, ...linkProps } = props;
 
   return external ? (
-    <ButtonLink size="sm" target="_blank" href={href} {...linkProps}>
+    <ButtonLink
+      size="sm"
+      target="_blank"
+      href={href}
+      variant={variant}
+      {...linkProps}
+    >
       <MatIcon icon={icon} />
       {text}
     </ButtonLink>
   ) : (
-    <StyledLink to={href} {...linkProps}>
+    <StyledLink to={href} variant={variant} {...linkProps}>
       <MatIcon icon={icon} />
       {text}
     </StyledLink>

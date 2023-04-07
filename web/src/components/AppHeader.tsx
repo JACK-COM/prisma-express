@@ -28,6 +28,11 @@ const HeaderContainer = styled(GridContainer)`
   justify-content: space-between;
   padding: 0.3rem 0.5rem 0;
   top: 0;
+
+  @media screen and (max-width: 767px) {
+    height: fit-content;
+    grid-template-columns: auto;
+  }
 `;
 
 const AppHeader = () => {

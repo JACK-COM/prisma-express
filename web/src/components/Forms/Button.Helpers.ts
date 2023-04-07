@@ -43,7 +43,7 @@ export function border({ variant, disabled, theme }: AllButtonProps) {
 
 export function padding({ theme, size, round }: AllButtonProps) {
   const { sizes } = theme;
-  if (round) return '0.8rem'
+  if (round) return "0.8rem";
   return size === "sm" ? sizes.xs : sizes.sm;
 }
 
@@ -56,7 +56,7 @@ export function borderRadius({ theme, round }: AllButtonProps) {
 export function textColor({ variant, disabled, theme }: AllButtonProps) {
   const { primary, secondary, accent } = theme.colors;
   if (disabled) return accent;
-  return variant === "transparent" ? primary : secondary;
+  return variant === "transparent" ? secondary : primary;
 }
 
 export function width({ theme, size, round }: AllButtonProps) {

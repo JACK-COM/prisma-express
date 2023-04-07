@@ -44,18 +44,19 @@ export const Code = styled.code`
   padding: ${({ theme }) => theme.sizes.sm};
 `;
 
-export const GridContainer = styled.div<{ columns?: string }>`
+export const GridContainer = styled.div<{ columns?: string; gap?: string }>`
   display: grid;
   grid-template-columns: ${({ columns = "auto auto" }) => columns};
-  grid-gap: 0;
+  grid-gap: ${({ gap = 0 }) => gap};
 `;
 
 type PCProps = FlexContainerProps & { minHeight?: string };
 export const PageContainer = styled(FlexColumn)<PCProps>`
+  height: fit-content;
   justify-content: flex-start;
   margin: 0 auto;
   max-width: 1280px;
-  min-height: ${({ minHeight = "70vmax" }) => minHeight};
+  min-height: ${({ minHeight = "70vh" }) => minHeight};
   text-align: left;
 
   > h1,

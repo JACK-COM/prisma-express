@@ -12,6 +12,10 @@ const Menu = styled.nav`
   align-items: center;
   display: grid;
   grid-template-columns: repeat(2, max-content);
+
+  ${ListView} li {
+    padding-left: 0;
+   }
 `;
 const API = API_BASE;
 
@@ -35,6 +39,7 @@ const AppNav = () => {
   // else routes.push(Paths.Categories.Index);
 
   // Write path to localStorage for login/logout
+  // This allows a user to maintain context when they login via Google
   useEffect(() => {
     const current = pathname === "/login" ? "/" : pathname;
     const lastViewed = localStorage.getItem("nextPath") || current;

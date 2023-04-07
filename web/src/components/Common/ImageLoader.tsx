@@ -8,7 +8,7 @@ type ImageLoaderProps = {
 
 const ImageLoader = styled((props: ImageLoaderProps) => {
   const { src, icon = false, className = "", ...rest } = props;
-  const cName = `${className} slide-down-fade-in`.trim();
+  const cName = `${className} scale-in`.trim();
   const [imgSrc, setSrc] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);

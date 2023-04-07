@@ -16,7 +16,7 @@
       "noImplicitAny": false,
       "noImplicitReturns": true,
       "outDir": "./lib/",
-      "rootDir": "./src",
+      "rootDir": "src/",
       "sourceMap": false,
       "strict": true,
       "target": "es5"

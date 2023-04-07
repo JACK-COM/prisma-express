@@ -1,5 +1,6 @@
 import { PrismaClient, User } from "@prisma/client";
 
+/** This is the user object obtained by passport and injected into global graphql context */
 export type CtxUser = Pick<User, "id" | "role" | "email" | "lastSeen">;
 
 /**
@@ -13,6 +14,11 @@ const db = new PrismaClient();
  * all tables and/or any other static data you want to share globally with graphql.
  */
 export interface DBContext {
+  /** Authenticated user, if present. Injected in `server.ts` */
+  user?: CtxUser;
+
+  // TABLES
+
   /** `Users` table */
   Users: PrismaClient["user"];
   /** `Books` table */

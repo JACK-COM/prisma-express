@@ -6,6 +6,7 @@ type ImageLoaderProps = {
   icon?: boolean;
 } & ComponentPropsWithRef<"img">;
 
+/** Default application image loader with some light animation */
 const ImageLoader = styled((props: ImageLoaderProps) => {
   const { src, icon = false, className = "", ...rest } = props;
   const cName = `${className} scale-in`.trim();

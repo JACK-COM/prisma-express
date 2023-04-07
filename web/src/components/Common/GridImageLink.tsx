@@ -26,7 +26,7 @@ const LinkContainer = styled(StyledLink)<{ order?: string }>`
 `;
 
 /**
- * `GridImageLink` is an image with a title that links to a page
+ * `GridImageLink` is an image with a title that links to a page. It doesn't have a max width.
  * @param props
  * @returns `GridImageLink`
  */

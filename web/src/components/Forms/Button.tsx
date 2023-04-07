@@ -49,14 +49,17 @@ const defaultButtonCSS = css`
 const ButtonBase = styled.button<AllButtonProps>`
   ${defaultButtonCSS}
 `;
+/** Default Application button */
 export const Button = styled(ButtonBase)``;
 export default Button;
 
+/** Anchor tag with app button styles (and some props) */
 export const ButtonLink = styled.a`
   ${defaultButtonCSS}
   color: inherit;
   padding: ${({ theme }) => theme.sizes.xs};
 `;
+/** `<Link>` component with app button styles (and some props) */
 export const StyledLink = styled(Link)`
   ${defaultButtonCSS}
   color: inherit;
@@ -79,7 +82,7 @@ type LinkWithIconProps = Pick<
     variant?: AllButtonProps["variant"];
   };
 
-/** An anchor tag that looks mostly like the buttons used on the site */
+/** An anchor tag with button stylings and an inline icon */
 export const LinkWithIcon = (props: LinkWithIconProps) => {
   const { icon, text, external, href = "", variant, ...linkProps } = props;
 
@@ -103,6 +106,7 @@ export const LinkWithIcon = (props: LinkWithIconProps) => {
 };
 type ButtonWithIconProps = Partial<AllButtonProps> & WithIconProps;
 
+/** A button with an inline icon */
 export const ButtonWithIcon = (props: ButtonWithIconProps) => {
   const { icon, text, ...buttonProps } = props;
 
@@ -115,6 +119,7 @@ export const ButtonWithIcon = (props: ButtonWithIconProps) => {
   );
 };
 
+/** A circular button */
 export const RoundButton = styled(ButtonBase).attrs({
   round: true,
   size: "lg"
@@ -123,10 +128,12 @@ export const RoundButton = styled(ButtonBase).attrs({
   width: ${UI.width};
 `;
 
+/** A transparent button (no background color) */
 export const TransparentButton = styled(ButtonBase).attrs({
   variant: "transparent"
 })``;
 
+/** A wide button (full-width; accepts other button props except size) */
 export const WideButton = styled(ButtonBase).attrs({ size: "lg" })`
   bottom: 0;
   position: sticky;

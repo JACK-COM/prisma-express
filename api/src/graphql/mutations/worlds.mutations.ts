@@ -9,7 +9,7 @@ import * as WorldsService from "../../services/worlds.service";
 /**
  * Create or update a new `World` for a given `User` (Author role)
  */
-export const upsertWorldMutation = mutationField("createWorld", {
+export const upsertWorldMutation = mutationField("upsertWorld", {
   // The GraphQL type returned by this mutation
   type: "MFWorld",
 

@@ -16,12 +16,9 @@ const { Worlds } = context;
 /** create world record */
 export async function upsertWorld(newWorld: CreateWorldInput) {
   const data: CreateWorldInput = { ...newWorld };
-
-  return Worlds.upsert({
-    create: data,
-    update: data,
-    where: { id: newWorld.id }
-  });
+  return data.id
+    ? Worlds.update({ data, where: { id: newWorld.id } })
+    : Worlds.create({ data });
 }
 
 /** find all world records matching params */

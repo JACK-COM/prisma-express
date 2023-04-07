@@ -62,7 +62,6 @@ export const ButtonLink = styled.a`
 /** `<Link>` component with app button styles (and some props) */
 export const StyledLink = styled(Link)`
   ${defaultButtonCSS}
-  color: inherit;
   height: auto;
 `;
 type WithIconProps = {

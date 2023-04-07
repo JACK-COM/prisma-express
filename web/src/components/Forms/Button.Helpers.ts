@@ -54,9 +54,9 @@ export function borderRadius({ theme, round }: AllButtonProps) {
 }
 
 export function textColor({ variant, disabled, theme }: AllButtonProps) {
-  const { primary, secondary, accent } = theme.colors;
+  const { primary, accent } = theme.colors;
   if (disabled) return accent;
-  return variant === "transparent" ? secondary : primary;
+  return variant === "transparent" ? accent : primary;
 }
 
 export function width({ theme, size, round }: AllButtonProps) {

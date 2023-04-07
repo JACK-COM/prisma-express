@@ -54,6 +54,7 @@ type PCProps = FlexContainerProps & { minHeight?: string };
 export const PageContainer = styled(FlexColumn)<PCProps>`
   height: fit-content;
   justify-content: flex-start;
+  padding-top: 1rem;
   margin: 0 auto;
   max-width: 1280px;
   min-height: ${({ minHeight = "70vh" }) => minHeight};
@@ -81,7 +82,7 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
 `;
 
 export const PageTitle = styled.h1.attrs({ className: "h3" })`
-  margin-bottom: 0.25rem;
+  margin-top: 0.25rem;
 `;
 
 export const Figure = styled.figure`

@@ -27,6 +27,8 @@ const THEME: GlobalTheme = {
   }
 
   .card {
+    border: ${({ theme }) => `1px dashed ${theme.colors.semitransparent}`};
+    border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
     padding: 2em;
   }
 

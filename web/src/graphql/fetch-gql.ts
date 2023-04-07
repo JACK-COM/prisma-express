@@ -7,7 +7,7 @@ type OnGQLResolve<T> = { (x: AsChild<T>): T };
 /** Generic graphql Fetch options */
 type FetchGQLOpts<T> = {
   /** grapqhl server endpoint */
-  url: string;
+  url?: string;
   /** grapqhl query string */
   query: string;
   /** grapqhl request variables (if any) */
@@ -20,7 +20,13 @@ type FetchGQLOpts<T> = {
 
 /** Abstraction for making server graphql queries */
 export async function fetchGQL<T>(opts: FetchGQLOpts<T>) {
-  const { url, query, variables, onResolve, fallbackResponse = {} as T } = opts;
+  const {
+    url = "http://localhost:4001/graphql",
+    query,
+    variables,
+    onResolve,
+    fallbackResponse = {} as T
+  } = opts;
   const body = variables
     ? JSON.stringify({ query, variables })
     : JSON.stringify({ query });
@@ -50,9 +56,7 @@ type CancelableProps<T> = {
 };
 
 /** Halt a request if it takes longer than `timeout` to resolve */
-export async function withTimeout<T>(
-  opts: CancelableProps<T>
-): Promise<T> {
+export async function withTimeout<T>(opts: CancelableProps<T>): Promise<T> {
   const { request, fallbackResponse, controller, timeout = 3500 } = opts;
   return new Promise((resolve) => {
     const call = typeof request === "function";

@@ -1,6 +1,7 @@
 import { FlexRow, GridContainer } from "components/Common/Containers";
 import { ComponentPropsWithRef } from "react";
 import styled, { css } from "styled-components";
+import { noOp } from "utils";
 
 type ReactText = string | number;
 const sharedInputStyles = css`
@@ -102,10 +103,14 @@ export const HintList = styled.ul`
   padding-left: ${({ theme }) => theme.sizes.sm};
 `;
 
-type SelectProps = ComponentPropsWithRef<"select"> & {
-  data: any[];
-  itemText(d: any): ReactText;
-  itemValue(d: any): ReactText;
+type SelectProps<T = any> = Omit<
+  ComponentPropsWithRef<"select">,
+  "onChange"
+> & {
+  data: T[];
+  itemText(d: T): ReactText;
+  itemValue(d: T): ReactText;
+  onChange?: (e: T) => void;
   wide?: boolean;
 };
 const StyledSelect = styled.select<{ wide?: boolean }>`
@@ -114,7 +119,7 @@ const StyledSelect = styled.select<{ wide?: boolean }>`
 `;
 export const Select = styled((props: SelectProps) => {
   const {
-    onChange,
+    onChange = noOp,
     data,
     itemValue,
     itemText,
@@ -122,7 +127,11 @@ export const Select = styled((props: SelectProps) => {
     ...rest
   } = props;
   return (
-    <StyledSelect disabled={!data.length} onInput={onChange} {...rest}>
+    <StyledSelect
+      disabled={!data.length}
+      onInput={(e) => onChange(e.currentTarget.value)}
+      {...rest}
+    >
       {data.length > 0 && <option value="null">{placeholder}</option>}
       {data.map((d, i) => (
         <option key={i} value={itemValue(d)}>

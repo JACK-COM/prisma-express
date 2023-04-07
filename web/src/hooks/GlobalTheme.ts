@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import THEME, { GlobalTheme, ThemeInstance, getTheme } from "theme";
+import THEME, { GlobalTheme, ThemeInstance, getTheme, setTheme } from "theme";
 import logoLightTheme from "assets/Logo-dark.png";
 import logoDarkTheme from "assets/Logo-white.png";
 
@@ -21,5 +21,5 @@ export function useGlobalTheme() {
     return GlobalTheme.subscribeToKeys(onTheme, ["theme"]);
   }, []);
 
-  return { theme: themeData, logoImage };
+  return { activeTheme, theme: themeData, logoImage, setTheme };
 }

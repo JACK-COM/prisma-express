@@ -291,7 +291,7 @@ type MFWorld {
 
 input MFWorldUpsertInput {
   """Book Author/owner"""
-  authorId: Int!
+  authorId: Int
   description: String!
 
   """World ID"""
@@ -304,7 +304,7 @@ input MFWorldUpsertInput {
 }
 
 type Mutation {
-  createWorld(
+  upsertWorld(
     """The data to create a new world"""
     data: MFWorldUpsertInput!
   ): MFWorld

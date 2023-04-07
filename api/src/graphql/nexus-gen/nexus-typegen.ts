@@ -30,7 +30,7 @@ declare global {
 
 export interface NexusGenInputs {
   MFWorldUpsertInput: { // input type
-    authorId: number; // Int!
+    authorId?: number | null; // Int
     description: string; // String!
     id?: number | null; // Int
     name: string; // String!
@@ -372,7 +372,7 @@ export interface NexusGenFieldTypes {
     type: NexusGenEnums['WorldType']; // WorldType!
   }
   Mutation: { // field return type
-    createWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
+    upsertWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
   }
   Query: { // field return type
     getWorldById: NexusGenRootTypes['MFWorld'] | null; // MFWorld
@@ -530,7 +530,7 @@ export interface NexusGenFieldTypeNames {
     type: 'WorldType'
   }
   Mutation: { // field return type name
-    createWorld: 'MFWorld'
+    upsertWorld: 'MFWorld'
   }
   Query: { // field return type name
     getWorldById: 'MFWorld'
@@ -540,7 +540,7 @@ export interface NexusGenFieldTypeNames {
 
 export interface NexusGenArgTypes {
   Mutation: {
-    createWorld: { // args
+    upsertWorld: { // args
       data: NexusGenInputs['MFWorldUpsertInput']; // MFWorldUpsertInput!
     }
   }

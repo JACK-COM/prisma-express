@@ -41,27 +41,27 @@ export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> =
         text: "Books & Series"
       },
       Books: {
-        path: "/books",
+        path: "/bibliography/books",
         text: "My Books"
       },
       BookById: {
-        path: "/books/:bookId",
+        path: "/bibliography/books/:bookId",
         text: "Manage Book"
       },
       NewBook: {
-        path: "/books/new",
+        path: "/bibliography/books/new",
         text: "New Book"
       },
       NewSeries: {
-        path: "/series/new",
+        path: "/bibliography/series/new",
         text: "New Series"
       },
       Series: {
-        path: "/series",
+        path: "/bibliography/series",
         text: "My Series"
       },
       SeriesById: {
-        path: "/series/:seriesId",
+        path: "/bibliography/series/:seriesId",
         text: "Manage Series"
       }
     },
@@ -72,7 +72,7 @@ export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> =
         text: "Timelines & Events"
       },
       Events: {
-        path: "/events",
+        path: "/timelines/events",
         text: "Major Events"
       }
     },
@@ -83,7 +83,7 @@ export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> =
         text: "Cast & Characters"
       },
       Relationships: {
-        path: "/relationships",
+        path: "/characters/relationships",
         text: "Relationships"
       }
     },
@@ -94,7 +94,7 @@ export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> =
         text: "Worlds & Settings"
       },
       Locations: {
-        path: "/locations",
+        path: "/worlds/locations",
         text: "World Locations"
       }
     }
@@ -114,6 +114,16 @@ export interface RouteDef {
  */
 export function trimLeadingSlash(s: string) {
   return s.replace(/^\/+/, "");
+}
+
+/**
+ * Trim parent segment from a path
+ * @param s String to trim
+ * @returns Trimmed string
+ */
+export function trimParent(s: string, parent: string) {
+  const exp = new RegExp(`^\/${parent}\/`);
+  return s.replace(exp, "");
 }
 
 /**

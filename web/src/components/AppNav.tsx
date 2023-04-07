@@ -14,7 +14,7 @@ const Menu = styled.nav`
   grid-template-columns: repeat(2, max-content);
 
   ${ListView} li {
-    padding-left: 0;
+    padding: 0;
    }
 `;
 const API = API_BASE;
@@ -41,7 +41,7 @@ const AppNav = () => {
   // Write path to localStorage for login/logout
   // This allows a user to maintain context when they login via Google
   useEffect(() => {
-    const current = pathname === "/login" ? "/" : pathname;
+    const current = pathname === "/login" ? "/dashboard" : pathname;
     const lastViewed = localStorage.getItem("nextPath") || current;
     const authenticating = localStorage.getItem("authenticating") === "1";
 
@@ -59,7 +59,7 @@ const AppNav = () => {
         className="menu-items slide-in-right"
         data={routes}
         itemText={({ path, text }: any) => (
-          <StyledLink to={path}>{text}</StyledLink>
+          <StyledLink variant="transparent" to={path}>{text}</StyledLink>
         )}
       />
 

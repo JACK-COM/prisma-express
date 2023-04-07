@@ -59,15 +59,6 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
   min-height: ${({ minHeight = "70vh" }) => minHeight};
   text-align: left;
 
-  > h1,
-  > h2,
-  > h3,
-  > h4,
-  > h5,
-  > h6 {
-    margin: 0.5rem 0;
-  }
-
   > hr {
     background-color: ${({ theme }) => theme.colors.primary};
     border: 0;
@@ -87,6 +78,10 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
   @media screen and (max-width: 768px) {
     max-width: 100%;
   }
+`;
+
+export const PageTitle = styled.h1.attrs({ className: "h3" })`
+  margin-bottom: 0.25rem;
 `;
 
 export const Figure = styled.figure`

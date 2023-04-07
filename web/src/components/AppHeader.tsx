@@ -5,11 +5,15 @@ import { FlexRow, GridContainer } from "./Common/Containers";
 import { useGlobalTheme } from "hooks/GlobalTheme";
 
 const LogoLink = styled(Link)`
+  align-items: center;
+  display: flex;
+
   .logo {
     display: block;
-    height: 60px;
+    height: 40px;
     pointer-events: none;
     transition: filter 300ms;
+    width: auto !important;
     will-change: filter;
   }
 
@@ -22,11 +26,12 @@ const LogoLink = styled(Link)`
   }
 `;
 const HeaderContainer = styled(GridContainer)`
-  background-color: ${({ theme }) => theme.colors.bgColor};
+  background-color: black;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.semitransparent};
   color: ${({ theme }) => theme.colors.primary};
   height: 60px;
   justify-content: space-between;
-  padding: 0.3rem 0.5rem 0;
+  padding: 0 0.5rem;
   top: 0;
 
   @media screen and (max-width: 767px) {

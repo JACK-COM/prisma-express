@@ -1,10 +1,13 @@
 import styled from "styled-components";
-import { GridContainer, PageContainer } from "components/Common/Containers";
+import {
+  GridContainer,
+  PageContainer,
+  PageTitle
+} from "components/Common/Containers";
 import GridImageLink from "components/Common/GridImageLink";
 import { useGlobalWindow } from "hooks/GlobalWindow";
 import { useMemo } from "react";
-import { useNavigate } from "react-router";
-import { Paths, RouteDef } from "routes";
+import { Paths } from "routes";
 // Grid images
 import worlds from "assets/mystic-world.png";
 import timelines from "assets/mystic-time.png";
@@ -22,7 +25,6 @@ const Controls = styled(GridContainer)`
 `;
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   const { width } = useGlobalWindow();
   const [gridColumns, gridGap] = useMemo(() => {
     if (width > 1280) return [4, "1rem"];
@@ -31,12 +33,10 @@ const Dashboard = () => {
     return [1, "0.25rem"];
   }, [width]);
 
-  const goTo = (section: RouteDef) => navigate(section.path);
-
   return (
     <PageContainer>
-      <h1>Dashboard</h1>
-      <p>Jump to a section</p>
+      <PageTitle>Dashboard</PageTitle>
+      <p>Jump to a section:</p>
 
       <Controls columns={`repeat(${gridColumns},1fr)`} gap={gridGap}>
         {userSections.map(({ data, src }, i) => (

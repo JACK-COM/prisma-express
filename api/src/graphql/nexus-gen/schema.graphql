@@ -43,19 +43,280 @@ enum GroupType {
   Trade
 }
 
+"""A collection of story `Chapters`"""
+type MFBook {
+  Author: MFUser
+  Chapters: [MFChapter]!
+
+  """Book Author/owner"""
+  authorId: Int
+  created: CsDateTime!
+  description: String!
+  genre: String!
+  id: Int!
+  lastSeen: CsDateTime!
+  order: Int
+
+  """Book series (e.g. 'Foundation Trilogy')"""
+  seriesId: Int
+  title: String!
+}
+
+"""A collection of Story `Scenes`"""
+type MFChapter {
+  Author: MFUser
+  Book: MFBook
+  Scenes: [MFScene]!
+
+  """Author owner"""
+  authorId: Int
+
+  """Chapter's Book id"""
+  bookId: Int
+  created: CsDateTime!
+  description: String!
+  id: Int!
+  lastSeen: CsDateTime!
+  name: String!
+  order: Int!
+}
+
+"""A significant actor in a `World`"""
+type MFCharacter {
+  CharacterRelationship: [MFCharacterRelationship]!
+
+  """Author owner"""
+  authorId: Int
+  description: String!
+
+  """`Group` identifier id (optional)"""
+  groupId: Int
+  id: Int!
+
+  """Character's `Location` id"""
+  locationId: Int
+  name: String!
+
+  """Character's `World` id"""
+  worldId: Int!
+}
+
+"""A linear relationship betwen actors in a `World`"""
+type MFCharacterRelationship {
+  characterId: Int!
+  id: Int!
+  relationship: String!
+  targetId: Int!
+}
+
+"""
+A significant occurrence in a World or other location that acts as a story catalyst. 
+"""
+type MFEvent {
+  """Event Author"""
+  authorId: Int
+
+  """`Character` target (optional)"""
+  characterId: Int
+  description: String!
+
+  """`Group` target (optional)"""
+  groupId: Int
+  id: Int!
+
+  """`Location` target (optional)"""
+  locationId: Int
+  name: String!
+  polarity: EventPolarity!
+  target: EventTarget!
+
+  """Event target `World`"""
+  worldId: Int!
+}
+
+"""A fixed, recurring setting in a World. """
+type MFLocation {
+  Characters: [MFCharacter]
+  Events: [MFEvent]
+  Groups: [MFPopulationGroup]
+  Scenes: [MFScene]
+
+  """Event Author"""
+  authorId: Int
+  climate: Climate!
+  description: String!
+  fauna: Richness!
+  flora: Richness!
+  id: Int!
+  name: String!
+
+  """Event target `World`"""
+  worldId: Int!
+}
+
+"""A single paragraph in a story. """
+type MFParagraph {
+  """Paragraph Author"""
+  authorId: Int
+
+  """Paragraph target `Character`"""
+  characterId: Int
+  id: Int!
+  order: Int!
+
+  """Paragraph parent `Scene`"""
+  sceneId: Int
+  text: String!
+}
+
+"""A collection of `Characters` (e.g. profession or religion)"""
+type MFPopulationGroup {
+  Character: [MFCharacter]!
+  Event: [MFEvent]!
+
+  """Group Author"""
+  authorId: Int
+  description: String!
+  id: Int!
+
+  """`PopulationGroup`'s location id"""
+  locationId: Int
+  name: String!
+
+  """Group type"""
+  type: GroupType!
+
+  """`PopulationGroup`'s World id"""
+  worldId: Int!
+}
+
+"""A collecton of Story `Paragraphs`"""
+type MFScene {
+  Paragraphs: [MFParagraph]!
+
+  """Scene Author"""
+  authorId: Int
+
+  """Scene parent `Chapter`"""
+  chapterId: Int!
+
+  """Scene target `Character`"""
+  characterId: Int
+  description: String!
+
+  """Main `Event` affecting `Scene`"""
+  eventContextId: Int
+  id: Int!
+
+  """Scene `Location` (setting)"""
+  locationId: Int!
+  name: String!
+  order: Int!
+
+  """Context `Event` Timeline (optional)"""
+  timelineId: Int
+}
+
+"""A collection of `Books` (e.g. a trilogy)"""
+type MFSeries {
+  Author: MFUser
+  Books: [MFBook]!
+
+  """Book Author/owner"""
+  authorId: Int
+  description: String!
+  genre: String!
+  id: Int!
+  order: Int
+  title: String!
+}
+
+"""A collection of Story `Scenes`"""
+type MFTimeline {
+  Scenes: [MFScene]!
+
+  """Timeline Author"""
+  authorId: Int
+  description: String!
+  id: Int!
+  name: String!
+  order: Int!
+
+  """Timeline's `World` id"""
+  worldId: Int!
+}
+
+"""A linear `Event`-to-`Timeline` relationship"""
+type MFTimelineEvent {
+  Scenes: [MFScene]
+
+  """Timeline Author"""
+  authorId: Int
+
+  """Target `Event` id"""
+  eventId: Int!
+  id: Int!
+  order: Int!
+
+  """Target `Timeline` id"""
+  timelineId: Int!
+}
+
 """An Application user"""
 type MFUser {
   authSource: Authenticator!
   created: CsDateTime!
-  displayName: Int!
-  email: Int!
+  displayName: String!
+  email: String!
   id: Int!
   lastSeen: CsDateTime!
   role: UserRole!
 }
 
+"""A collection of `Locations`"""
+type MFWorld {
+  Event: [MFEvent]
+  Groups: [MFPopulationGroup]
+  Locations: [MFLocation]
+  Timelines: [MFTimeline]
+
+  """Book Author/owner"""
+  authorId: Int
+  description: String!
+  id: Int!
+  name: String!
+  public: Boolean!
+  type: WorldType!
+}
+
+input MFWorldUpsertInput {
+  """Book Author/owner"""
+  authorId: Int!
+  description: String!
+
+  """World ID"""
+  id: Int
+  name: String!
+
+  """Is this world public?"""
+  public: Boolean = false
+  type: WorldType!
+}
+
+type Mutation {
+  createWorld(
+    """The data to create a new world"""
+    data: MFWorldUpsertInput!
+  ): MFWorld
+}
+
 type Query {
-  ok: Boolean!
+  getWorldById(id: Int!): MFWorld
+
+  """
+  List/filter multiple `Worlds`. Author can view their own worlds, a reader can view public worlds
+  """
+  listWorlds(authorId: Int, description: String, id: Int, name: String, publicWorlds: Boolean = true): [MFWorld]
 }
 
 """Relative abundance of resources."""

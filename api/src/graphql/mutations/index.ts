@@ -1,7 +1,7 @@
 /**
  * @module Mutations
  *
- * All `mutations` in this directory
+ * Export all `mutations` from this directory
  */
 
-export {};
+export * from "./worlds.mutations";

@@ -6,14 +6,14 @@ export const MFUser = objectType({
   description: "An Application user",
   definition(t) {
     t.nonNull.int("id");
-    t.nonNull.int("email");
-    t.nonNull.int("displayName");
+    t.nonNull.string("email");
+    t.nonNull.string("displayName");
     t.nonNull.field("authSource", { type: "Authenticator" });
     t.nonNull.field("role", { type: "UserRole" });
     t.nonNull.field("created", { type: "CsDateTime" });
     t.nonNull.field("lastSeen", { type: "CsDateTime" });
 
-    // List properties: uncomment when these objects exist
+    // List properties 
     // t.list.field("Books", { type: "MFBook" });
     // t.list.field("Chapters", { type: "MFChapter" });
     // t.list.field("Characters", { type: "MFCharacter" });
@@ -22,9 +22,10 @@ export const MFUser = objectType({
     // t.list.field("Locations", { type: "MFLocation" });
     // t.list.field("Paragraphs", { type: "MFParagraph" });
     // t.list.field("Scenes", { type: "MFScene" });
-    // t.list.field("Timelines", { type: "MFTimeline" });
-    // t.list.field("Worlds", { type: "MFWorld" });
+
     // t.list.field("Series", { type: "MFSeries" });
-    // t.list.field("TimelineEvent", { type: "MFTimelineEvent" });
+    // t.list.field("Timelines", { type: "MFTimeline" });
+    // t.list.field("TimelineEvents", { type: "MFTimelineEvent" });
+    // t.list.field("Worlds", { type: "MFWorld" });
   }
 });

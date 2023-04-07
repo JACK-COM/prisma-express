@@ -8,9 +8,12 @@ import { AUTH_ROUTE } from "./utils";
 import AppHeader from "components/AppHeader";
 import { useGlobalTheme } from "hooks/GlobalTheme";
 import FullScreenLoader from "components/Common/FullscreenLoader";
+import { Paths, wildcard } from "routes";
 
 const Dashboard = lazy(() => import("./routes/Dashboard"));
 const Home = lazy(() => import("./routes/Home"));
+const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
+const NotFound = lazy(() => import("./routes/NotFound"));
 
 function App() {
   const { theme } = useGlobalTheme();
@@ -35,7 +38,18 @@ function App() {
 
             <Routes>
               <Route
-                path="/dashboard"
+                // Application Home
+                index
+                element={
+                  <Suspense fallback={<FullScreenLoader />}>
+                    <Home />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                // Author dashboard
+                path={Paths.Dashboard.Index.path}
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
                     <Dashboard />
@@ -44,10 +58,51 @@ function App() {
               />
 
               <Route
+                // Events and Timelines
+                path={wildcard(Paths.Timelines.Index.path)}
+                element={
+                  <Suspense fallback={<FullScreenLoader />}>
+                    <Dashboard />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                // Books and Series
+                path={wildcard(Paths.BooksAndSeries.Index.path)}
+                element={
+                  <Suspense fallback={<FullScreenLoader />}>
+                    <Dashboard />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                // Cast and Characters
+                path={wildcard(Paths.Characters.Index.path)}
+                element={
+                  <Suspense fallback={<FullScreenLoader />}>
+                    <Dashboard />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                // Worlds and settings
+                path={wildcard(Paths.Worlds.Index.path)}
+                element={
+                  <Suspense fallback={<FullScreenLoader />}>
+                    <WorldsRoute />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                // Not Found
                 path="*"
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
-                    <Home />
+                    <NotFound />
                   </Suspense>
                 }
               />

@@ -17,7 +17,7 @@ export async function upsertUser(newUser: CreateUserInput) {
   const today = DateTime.now().toISO();
   const data: CreateUserInput = {
     ...newUser,
-    role: newUser.role || "Reader",
+    role: newUser.role || "Author",
     created: today,
     lastSeen: today
   };

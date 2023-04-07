@@ -29,6 +29,14 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  MFWorldUpsertInput: { // input type
+    authorId: number; // Int!
+    description: string; // String!
+    id?: number | null; // Int
+    name: string; // String!
+    public?: boolean | null; // Boolean
+    type: NexusGenEnums['WorldType']; // WorldType!
+  }
 }
 
 export interface NexusGenEnums {
@@ -200,6 +208,7 @@ export interface NexusGenObjects {
     public: boolean; // Boolean!
     type: NexusGenEnums['WorldType']; // WorldType!
   }
+  Mutation: {};
   Query: {};
 }
 
@@ -362,8 +371,12 @@ export interface NexusGenFieldTypes {
     public: boolean; // Boolean!
     type: NexusGenEnums['WorldType']; // WorldType!
   }
+  Mutation: { // field return type
+    createWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
+  }
   Query: { // field return type
-    ok: boolean; // Boolean!
+    getWorldById: NexusGenRootTypes['MFWorld'] | null; // MFWorld
+    listWorlds: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
   }
 }
 
@@ -516,12 +529,33 @@ export interface NexusGenFieldTypeNames {
     public: 'Boolean'
     type: 'WorldType'
   }
+  Mutation: { // field return type name
+    createWorld: 'MFWorld'
+  }
   Query: { // field return type name
-    ok: 'Boolean'
+    getWorldById: 'MFWorld'
+    listWorlds: 'MFWorld'
   }
 }
 
 export interface NexusGenArgTypes {
+  Mutation: {
+    createWorld: { // args
+      data: NexusGenInputs['MFWorldUpsertInput']; // MFWorldUpsertInput!
+    }
+  }
+  Query: {
+    getWorldById: { // args
+      id: number; // Int!
+    }
+    listWorlds: { // args
+      authorId?: number | null; // Int
+      description?: string | null; // String
+      id?: number | null; // Int
+      name?: string | null; // String
+      publicWorlds: boolean | null; // Boolean
+    }
+  }
 }
 
 export interface NexusGenAbstractTypeMembers {
@@ -532,7 +566,7 @@ export interface NexusGenTypeInterfaces {
 
 export type NexusGenObjectNames = keyof NexusGenObjects;
 
-export type NexusGenInputNames = never;
+export type NexusGenInputNames = keyof NexusGenInputs;
 
 export type NexusGenEnumNames = keyof NexusGenEnums;
 

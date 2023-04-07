@@ -12,11 +12,11 @@ const LIGHT_THEME: AppTheme = {
   colors: {
     accent: "#36b4c7",
     bgColor: "#f7f7f7",
-    semitransparent: "#ececec33",
     error: "#db1c1c",
     errorDark: "#c73636",
     primary: "#282c34",
     secondary: "#07C",
+    semitransparent: "#ececec33",
     warning: "#f5d84c"
   },
 

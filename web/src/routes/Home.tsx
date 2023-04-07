@@ -1,4 +1,4 @@
-import { PageContainer } from "components/Common/Containers";
+import { PageContainer, PageTitle } from "components/Common/Containers";
 import Button from "components/Forms/Button";
 import reactLogo from "assets/react.svg";
 import viteLogo from "/vite.svg";
@@ -8,7 +8,7 @@ const Home = () => {
   const [count, setCount] = useState(0);
   return (
     <PageContainer>
-      <h1>Home</h1>
+      <PageTitle>Home</PageTitle>
 
       <div>
         <a href="https://vitejs.dev" target="_blank">

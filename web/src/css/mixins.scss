@@ -48,7 +48,7 @@ $xtiny: 0.05rem;
 }
 
 @mixin heading-font() {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Source Serif 4', serif;
 }
 
 @mixin h1 {
@@ -79,7 +79,8 @@ $xtiny: 0.05rem;
 
 @mixin heading($font-size: 1.2rem) {
   @include heading-font();
-  font-weight: 600;
+  font-weight: 500;
   font-size: $font-size;
   line-height: $font-size;
 }
+

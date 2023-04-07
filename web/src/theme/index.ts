@@ -55,12 +55,24 @@ const THEME: GlobalTheme = {
     z-index: 999;
   }
 
-  html *:not(code) { font-family: "Open Sans", sans-serif; }
+  html {
+    height: 100vh;
+    overflow: hidden;
+  }
 
   body {
     background-color: ${({ theme: t }: ThemeProps<AppTheme>) =>
       t.colors.bgColor};
     color: ${({ theme }) => theme.colors.primary};
+    font-family: 'Source Sans 3', sans-serif;
+    height: 100%;
+    margin: 0;
+    min-height: 100vh;
+    overflow-y: auto;
+
+    *:not(code) { 
+      box-sizing: border-box;
+    }
 
     .accent { 
       background-color: ${({ theme }) => theme.colors.accent}; 
@@ -113,10 +125,12 @@ const THEME: GlobalTheme = {
       color: ${({ theme }) => theme.colors.accent};
     }
   }
+
   code {
     background-color: #07C;
     border-radius: ${({ theme }) => theme.presets.round.xs};
     display: inline-block;
+    font-family: monospace; 
     padding: ${({ theme }) => `0 ${theme.sizes.xxs}`};
   }
   `

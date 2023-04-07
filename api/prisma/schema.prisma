@@ -132,11 +132,11 @@ model Character {
   Event                 Event[] // Events affecting this character
   Scene                 Scene[] // Scenes where this character appears
   Paragraph             Paragraph[] // Paragraphs where this character appears
+  CharacterRelationship CharacterRelationship[]
   Author                User?                   @relation(fields: [authorId], references: [id], onDelete: SetNull)
   Group                 PopulationGroup?        @relation(fields: [groupId], references: [id], onDelete: SetNull)
   Location              Location?               @relation(fields: [locationId], references: [id], onDelete: SetNull)
   World                 World                   @relation(fields: [worldId], references: [id], onDelete: Cascade)
-  CharacterRelationship CharacterRelationship[]
 }
 
 // An Event is a significant occurrence in a World or other location that acts as a story catalyst. It may affect a World, a Location, or one or more Characters.
@@ -158,13 +158,13 @@ model Event {
   authorId      Int? // ( references User )
   characterId   Int? // ( references Character | nullable )
   groupId       Int? // ( references Group | nullable )
-  locationId    Int // ( references Location | nullable )
+  locationId    Int? // ( references Location | nullable )
   worldId       Int // ( references World )
   TimelineEvent TimelineEvent[] // Timelines that include this Event
   Author        User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
   Character     Character?       @relation(fields: [characterId], references: [id], onDelete: SetNull)
   Group         PopulationGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  Location      Location         @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  Location      Location?        @relation(fields: [locationId], references: [id], onDelete: SetNull)
   World         World            @relation(fields: [worldId], references: [id], onDelete: Cascade)
 }
 
@@ -175,7 +175,7 @@ model Location {
   description String
   authorId    Int?
   worldId     Int // ( references World )
-  climate     Climate
+  climate     Climate           @default(Temperate)
   fauna       Richness          @default(Adequate)
   flora       Richness          @default(Adequate)
   Characters  Character[]
@@ -190,7 +190,7 @@ model Location {
 model Paragraph {
   id          Int        @id @default(autoincrement())
   order       Int
-  text        String
+  text        String     @db.Text()
   authorId    Int? // ( references User )
   characterId Int?
   sceneId     Int?
@@ -203,15 +203,15 @@ model Paragraph {
 model PopulationGroup {
   id          Int         @id @default(autoincrement())
   name        String
-  description String // ( optional )
-  worldId     Int // ( references World )
-  locationId  Int // ( references Location | nullable )
-  authorId    Int? // ( references User )
+  description String      @db.Text()
   type        GroupType   @default(Culture) // ( references Group Type )
+  authorId    Int? // ( references User )
+  locationId  Int? // ( references Location | nullable )
+  worldId     Int // ( references World )
   Character   Character[]
   Event       Event[]
   Author      User?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  Location    Location    @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  Location    Location?   @relation(fields: [locationId], references: [id], onDelete: Restrict)
   World       World       @relation(fields: [worldId], references: [id], onDelete: Cascade)
 }
 
@@ -252,8 +252,8 @@ model Series {
 model Timeline {
   id             Int             @id @default(autoincrement())
   name           String
-  worldId        Int // ( references World )
   authorId       Int? // ( references User | nullable )
+  worldId        Int // ( references World )
   Scenes         Scene[]
   TimelineEvents TimelineEvent[]
   Author         User?           @relation(fields: [authorId], references: [id], onDelete: SetNull)
@@ -263,9 +263,9 @@ model Timeline {
 //  Associations of Events to Timelines
 model TimelineEvent {
   id         Int      @id @default(autoincrement())
-  eventId    Int
   order      Int
   authorId   Int? // ( references User | nullable )
+  eventId    Int
   timelineId Int
   Scene      Scene[]
   Author     User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
@@ -276,15 +276,15 @@ model TimelineEvent {
 // A world is a super-set of locations
 model World {
   id          Int               @id @default(autoincrement())
-  Author      User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  authorId    Int?
   public      Boolean           @default(true)
   name        String
-  type        WorldType         @default(Universe)
   description String
+  type        WorldType         @default(Universe)
+  authorId    Int?
   Locations   Location[]
   Timelines   Timeline[]
   Events      Event[]
   Groups      PopulationGroup[]
   Characters  Character[]
+  Author      User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
 }

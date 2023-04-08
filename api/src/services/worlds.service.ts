@@ -16,23 +16,24 @@ const { Worlds } = context;
 /** create world record */
 export async function upsertWorld(newWorld: CreateWorldInput) {
   const data: CreateWorldInput = { ...newWorld };
-
-  return Worlds.upsert({
-    create: data,
-    update: data,
-    where: { id: newWorld.id }
-  });
+  return data.id
+    ? Worlds.update({ data, where: { id: newWorld.id } })
+    : Worlds.create({ data });
 }
 
 /** find all world records matching params */
 export async function findAllWorld(filters: SearchWorldInput) {
-  const where: Prisma.WorldFindManyArgs["where"] = { OR: {} };
-  if (filters.authorId) where.authorId = filters.authorId;
-  if (filters.id) where.id = filters.id;
-  if (filters.name) where.name = { contains: filters.name };
-  if (filters.description)
-    where.description = { contains: filters.description };
-  return Worlds.findMany({ where });
+  const OR: Prisma.WorldFindManyArgs["where"] = {};
+  if (filters.authorId) OR.authorId = filters.authorId;
+  if (filters.id) OR.id = filters.id;
+  if (filters.name) OR.name = { contains: filters.name };
+  if (filters.description) OR.description = { contains: filters.description };
+  const worlds =
+    Object.keys(OR).length > 0
+      ? await Worlds.findMany({ where: { OR } })
+      : await Worlds.findMany();
+
+  return worlds;
 }
 
 /** find one world record matching params */

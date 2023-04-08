@@ -69,11 +69,7 @@
 
 @keyframes pulse {
   0% {
-    transform: scale(1, 1);
-  }
-
-  50% {
-    transform: scale(2, 2);
+    transform: scale(0.98, 0.98);
   }
 
   100% {
@@ -98,7 +94,7 @@
   }
 
   100% {
-    transform: scale(1, 1);
+    transform: scale(1);
     opacity: 1;
   }
 }
@@ -125,7 +121,7 @@
   }
 
   100% {
-    transform: translate(0, 0);
+    transform: translate(0);
     opacity: 1;
   }
 }
@@ -193,10 +189,7 @@
 
 @mixin merge-animations($a1, $a2, $d1: 250ms, $d2: 250ms) {
   animation: $a1 $d1 ease-out forwards, $a2 $d2 ease-out forwards;
-}
-
-@mixin spin {
-  animation: spin 20s linear infinite;
+  animation-fill-mode: forwards;
 }
 
 @mixin spinner($size: 0.75rem) {
@@ -242,10 +235,12 @@
 
 .collapse--horizontal {
   @include merge-animations(fade-out, collapse-horizontal, 400ms);
+  animation-fill-mode: both;
 }
 
 .collapse--vertical {
   @include merge-animations(fade-out, collapse-vertical, 400ms);
+  animation-fill-mode: both;
 }
 
 .expand--horizontal {
@@ -285,10 +280,12 @@
 .rotate-reverse {
   transform: rotate(0deg);
   transition: transform 500ms;
+  animation-fill-mode: forwards;
 }
 
 .scale-in {
   animation: scale-in 180ms ease-out;
+  animation-fill-mode: forwards;
 }
 
 .slide-down-fade-in {
@@ -316,16 +313,11 @@
 }
 
 .spin {
-  animation: spin 2.5s linear;
+  animation: spin 250ms ease-out;
 }
 
 /* Duration helpers */
 .infinite {
   animation-iteration-count: infinite;
-  animation-direction: normal;
-
-  &--alternate {
-    animation-direction: alternate;
-  }
-
+  animation-direction: alternate;
 }

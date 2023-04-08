@@ -2,6 +2,7 @@ import createState from "@jackcom/raphsducks";
 
 export enum MODAL {
   NONE = "None",
+  MANAGE_WORLD = "Create/Edit World",
 }
 
 /** Modals */

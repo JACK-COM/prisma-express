@@ -7,6 +7,8 @@ import styled from "styled-components";
 const Container = styled(GridContainer)`
   align-self: flex-start;
   align-items: center;
+  font-size: smaller;
+  opacity: 0.9;
   width: fit-content;
 `;
 

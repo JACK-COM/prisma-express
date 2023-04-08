@@ -3,14 +3,7 @@
  * @description Queries for the `Worlds` model
  */
 
-import {
-  queryField,
-  nonNull,
-  intArg,
-  stringArg,
-  booleanArg,
-  list
-} from "nexus";
+import { queryField, nonNull, intArg, stringArg, list } from "nexus";
 import * as WorldsService from "../../services/worlds.service";
 
 /**
@@ -65,8 +58,7 @@ export const listWorlds = queryField("listWorlds", {
     id: intArg(),
     authorId: intArg(),
     description: stringArg({ default: undefined }),
-    name: stringArg({ default: undefined }),
-    publicWorlds: booleanArg({ default: true })
+    name: stringArg({ default: undefined })
   },
 
   /**
@@ -79,10 +71,7 @@ export const listWorlds = queryField("listWorlds", {
    * @throws Error if world not found or world is private and user is not the author
    */
   resolve: async (_, args, { user }) => {
-    const { authorId, description, name, publicWorlds } = args;
-    if (!authorId && !description && !name && publicWorlds === undefined) {
-      throw new Error("At least one filter argument is required");
-    }
+    const { authorId, description, name } = args;
 
     // return only public worlds or author
     const worlds = await WorldsService.findAllWorld({

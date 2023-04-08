@@ -7,15 +7,16 @@ import { API_BASE } from "utils/constants";
 import ListView from "components/Common/ListView";
 import { MatIcon } from "components/Common/Containers";
 import { ButtonLink, StyledLink } from "components/Forms/Button";
+import ThemeSelector from "./ThemeSelector";
 
 const Menu = styled.nav`
   align-items: center;
   display: grid;
-  grid-template-columns: repeat(2, max-content);
+  grid-template-columns: repeat(3, max-content);
 
   ${ListView} li {
     padding: 0;
-   }
+  }
 `;
 const API = API_BASE;
 
@@ -54,15 +55,22 @@ const AppNav = () => {
 
   return (
     <Menu className="app-menu">
+      {/* Light/Dark Theme */}
+      <ThemeSelector />
+
+      {/* Navigation Links */}
       <ListView
         row
         className="menu-items slide-in-right"
         data={routes}
         itemText={({ path, text }: any) => (
-          <StyledLink variant="transparent" to={path}>{text}</StyledLink>
+          <StyledLink variant="transparent" to={path}>
+            {text}
+          </StyledLink>
         )}
       />
 
+      {/* Login/Logout Link */}
       <ButtonLink
         className={authClass}
         href={authUrl}

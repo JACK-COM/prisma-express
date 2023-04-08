@@ -78,11 +78,25 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
 
   @media screen and (max-width: 768px) {
     max-width: 100%;
+
+    > header {
+      padding: 0 1rem;
+    }
   }
 `;
 
 export const PageTitle = styled.h1.attrs({ className: "h3" })`
+  margin-bottom: 0;
   margin-top: 0.25rem;
+`;
+
+export const PageDescription = styled.div`
+  font-size: smaller;
+  line-height: ${({ theme }) => theme.sizes.md};
+  margin: 0 0 1.5rem;
+  opacity: 0.7;
+  padding: 0;
+  width: 100%;
 `;
 
 export const Figure = styled.figure`

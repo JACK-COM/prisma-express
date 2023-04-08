@@ -1,5 +1,5 @@
 import Button, { WideButton } from "components/Forms/Button";
-import { MouseEventHandler, useMemo } from "react";
+import { MouseEventHandler, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { noOp } from "utils";
 import { FlexColumn, GridContainer, MatIcon } from "../Common/Containers";
@@ -66,7 +66,7 @@ const ModalContents = styled(FlexColumn).attrs({ padded: true })<ContentProps>`
   height: 80vh;
   overflow-y: auto;
   overflow-x: hidden;
-  place-content: ${({ centered = false }) => (centered ? "center" : "start")}; ;
+  place-content: ${({ centered = false }) => (centered ? "center" : "start")};
 `;
 
 type ModalProps = {
@@ -93,13 +93,22 @@ const Modal = (p: ModalProps) => {
   const rootClass = "modal-root--default";
   const contentEntryClass = "scale-in";
   const modalControlCols = useMemo(
-    () => ((confirmText && cancelText) ? "repeat(2,1fr)" : "auto"),
+    () => (confirmText && cancelText ? "repeat(2,1fr)" : "auto"),
     [confirmText, cancelText]
   );
   const onBGClick: MouseEventHandler<HTMLDivElement> = (e) => {
     const $elem = e.target as HTMLDivElement;
     if ($elem.classList.contains(rootClass)) onClose();
   };
+
+  useEffect(() => {
+    // close modal on ESC key press
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, []);
 
   if (!open) return <></>;
 

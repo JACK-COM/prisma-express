@@ -60,6 +60,6 @@ export function textColor({ variant, disabled, theme }: AllButtonProps) {
 }
 
 export function width({ theme, size, round }: AllButtonProps) {
-  if (round) return theme.sizes.md;
+  if (round) return theme.sizes.lg;
   return size === "lg" ? "100%" : "initial";
 }

@@ -22,15 +22,15 @@ const worldTypes = [WorldType.Universe, WorldType.Realm, WorldType.Other];
 
 /** Create or edit a `World` */
 const CreateWorldForm = (props: CreateWorldProps) => {
-  const onChange = props.onChange || noOp;
+  const { data, onChange = noOp } = props;
   const updateTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...props.data, name: e.target.value });
+    onChange({ ...data, name: e.target.value });
   };
   const updateDescription = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    onChange({ ...props.data, description: e.target.value });
+    onChange({ ...data, description: e.target.value });
   };
   const updateType = (type: WorldType) => {
-    onChange({ ...props.data, type });
+    onChange({ ...data, type });
   };
 
   return (
@@ -44,10 +44,11 @@ const CreateWorldForm = (props: CreateWorldProps) => {
 
       {/* Name */}
       <Label direction="column">
-        <span className="label">World Name</span>
+        <span className="label required">World Name</span>
         <Input
           placeholder="The Plains of Omarai"
           type="text"
+          value={data?.name || ""}
           onChange={updateTitle}
         />
       </Label>
@@ -55,9 +56,10 @@ const CreateWorldForm = (props: CreateWorldProps) => {
 
       {/* Type */}
       <Label direction="column">
-        <span className="label">Select Label</span>
+        <span className="label required">What type of World is it?</span>
         <Select
           data={worldTypes}
+          value={data?.type || ""}
           itemText={(d) => d.valueOf()}
           itemValue={(d) => d}
           placeholder="Select a World Type:"
@@ -71,9 +73,10 @@ const CreateWorldForm = (props: CreateWorldProps) => {
 
       {/* Description */}
       <Label direction="column">
-        <span className="label">Short Description</span>
+        <span className="label required">Short Description</span>
         <Textarea
           placeholder="Enter world description"
+          value={data?.description || ""}
           onChange={updateDescription}
         />
       </Label>

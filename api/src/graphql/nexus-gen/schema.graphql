@@ -316,7 +316,7 @@ type Query {
   """
   List/filter multiple `Worlds`. Author can view their own worlds, a reader can view public worlds
   """
-  listWorlds(authorId: Int, description: String, id: Int, name: String, publicWorlds: Boolean = true): [MFWorld]
+  listWorlds(authorId: Int, description: String, id: Int, name: String): [MFWorld]
 }
 
 """Relative abundance of resources."""

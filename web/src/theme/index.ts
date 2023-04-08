@@ -29,11 +29,7 @@ const THEME: GlobalTheme = {
   .card {
     border: ${({ theme }) => `1px dashed ${theme.colors.semitransparent}`};
     border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
-    padding: 2em;
-  }
-
-  .read-the-docs {
-    color: #888;
+    padding: 1.2em;
   }
 
   .ellipsis {

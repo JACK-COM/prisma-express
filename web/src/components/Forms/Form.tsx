@@ -4,6 +4,12 @@ import styled, { css } from "styled-components";
 import { noOp } from "utils";
 
 type ReactText = string | number;
+const requiredInputStyles = css`
+  content: "*";
+  display: inline-block;
+  color: ${({ theme }) => theme.colors.error};
+  font-size: 1rem;
+`;
 const sharedInputStyles = css`
   border-radius: ${({ theme }) => theme.presets.round.sm};
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
@@ -56,8 +62,13 @@ export const Label = styled.label<{ direction?: "row" | "column" }>`
   .label {
     color: ${({ theme }) => theme.colors.secondary};
     font-weight: bold;
+    display: inline-block;
     padding-right: ${({ direction, theme }) =>
       direction === "row" ? theme.sizes.sm : undefined};
+  }
+
+  .label.required::after {
+    ${requiredInputStyles}
   }
 `;
 export const RadioInput = styled(Input).attrs({ type: "radio" })`
@@ -83,11 +94,8 @@ export const Legend = styled.legend.attrs({ className: "h3" })`
   line-height: ${({ theme }) => theme.sizes.md};
   padding: 0;
 
-  &::after {
-    content: "*";
-    display: ${(props) => (props["aria-required"] ? "inline-block" : "none")};
-    color: ${({ theme }) => theme.colors.error};
-    font-size: 2rem;
+  [aria-required]&::after {
+    ${requiredInputStyles}
   }
 `;
 export const Hint = styled.div`

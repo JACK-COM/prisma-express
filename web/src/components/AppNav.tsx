@@ -55,8 +55,10 @@ const AppNav = () => {
 
   return (
     <Menu className="app-menu">
+      {/* Light/Dark Theme */}
       <ThemeSelector />
 
+      {/* Navigation Links */}
       <ListView
         row
         className="menu-items slide-in-right"
@@ -68,6 +70,7 @@ const AppNav = () => {
         )}
       />
 
+      {/* Login/Logout Link */}
       <ButtonLink
         className={authClass}
         href={authUrl}

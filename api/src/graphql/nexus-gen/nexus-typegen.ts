@@ -553,7 +553,6 @@ export interface NexusGenArgTypes {
       description?: string | null; // String
       id?: number | null; // Int
       name?: string | null; // String
-      publicWorlds: boolean | null; // Boolean
     }
   }
 }

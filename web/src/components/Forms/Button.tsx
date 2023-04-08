@@ -123,6 +123,7 @@ export const RoundButton = styled(ButtonBase).attrs({
   round: true,
   size: "lg"
 })`
+  padding: ${({ theme }) => theme.sizes.sm};
   height: ${UI.width};
   width: ${UI.width};
 `;

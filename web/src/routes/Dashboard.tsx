@@ -13,8 +13,9 @@ import worlds from "assets/mystic-world.png";
 import timelines from "assets/mystic-time.png";
 import characters from "assets/mystic-characters.png";
 import books from "assets/mystic-books.png";
+import { useGlobalUser } from "hooks/GlobalUser";
 
-const userSections = [
+const SECTIONS = [
   { data: Paths.Worlds, src: worlds }, // "Worlds & settings",
   { data: Paths.Timelines, src: timelines }, // "Events & Timelines",
   { data: Paths.Characters, src: characters }, // "Cast & Characters",
@@ -25,6 +26,7 @@ const Controls = styled(GridContainer)`
 `;
 
 const Dashboard = () => {
+  const { email } = useGlobalUser();
   const { width } = useGlobalWindow();
   const [gridColumns, gridGap] = useMemo(() => {
     if (width > 1280) return [4, "1rem"];
@@ -32,14 +34,20 @@ const Dashboard = () => {
     if (width > 400) return [2, "0.4rem"];
     return [1, "0.25rem"];
   }, [width]);
+  const pageTitle = useMemo(() => {
+    return email ? "Dashboard" : "MythosForge Home"
+  }, [email]);
+  const dashSections = [SECTIONS[0]];
+  if (email) dashSections.push(...SECTIONS.slice(1, 3));
+  dashSections.push(SECTIONS[3]);
 
   return (
-    <PageContainer>
-      <PageTitle>Dashboard</PageTitle>
+    <PageContainer id="app-dashboard">
+      <PageTitle>{pageTitle}</PageTitle>
       <p>Jump to a section:</p>
 
       <Controls columns={`repeat(${gridColumns},1fr)`} gap={gridGap}>
-        {userSections.map(({ data, src }, i) => (
+        {dashSections.map(({ data, src }, i) => (
           <GridImageLink
             key={data.Index.text}
             href={data.Index.path}

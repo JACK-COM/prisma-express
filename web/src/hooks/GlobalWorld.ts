@@ -7,6 +7,7 @@ import {
   setGlobalLocation,
   setGlobalWorld,
   setGlobalWorlds,
+  updateLocations,
   updateWorlds
 } from "state";
 
@@ -31,6 +32,7 @@ export function useGlobalWorld(
     setGlobalLocation,
     setGlobalWorld,
     setGlobalWorlds,
+    updateLocations,
     updateWorlds
   };
 }

@@ -47,7 +47,7 @@ export default shared;
 
 /* Shared CSS Helpers */
 
-/** apply line-clamp rule */
+/** apply line-clamp rule (limit number of displayed lines with ellipsis) */
 export function lineclamp(lines: number) {
   return `
     -webkit-line-clamp: ${lines};

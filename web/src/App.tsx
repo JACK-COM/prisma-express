@@ -11,7 +11,6 @@ import FullScreenLoader from "components/Common/FullscreenLoader";
 import { Paths, wildcard } from "routes";
 
 const Dashboard = lazy(() => import("./routes/Dashboard"));
-const Home = lazy(() => import("./routes/Home"));
 const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
 const NotFound = lazy(() => import("./routes/NotFound"));
 
@@ -20,7 +19,7 @@ function App() {
   const checkLoggedIn = async () => {
     const fOpts: RequestInit = { method: "post", credentials: "include" };
     const { user } = await fetch(AUTH_ROUTE, fOpts).then((r) => r.json());
-    if (user) GlobalUser.multiple(user);
+    if (user) GlobalUser.multiple({...user, authenticated: true });
   };
 
   useEffect(() => {
@@ -38,17 +37,16 @@ function App() {
 
             <Routes>
               <Route
-                // Application Home
+                // Application Home + Author dashboard
                 index
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
-                    <Home />
+                    <Dashboard />
                   </Suspense>
                 }
               />
-
               <Route
-                // Author dashboard
+                // Application Home + Author dashboard
                 path={Paths.Dashboard.Index.path}
                 element={
                   <Suspense fallback={<FullScreenLoader />}>

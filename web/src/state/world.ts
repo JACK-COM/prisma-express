@@ -20,6 +20,7 @@ export const GlobalWorld = createState({
 
 export type GlobalWorldInstance = ReturnType<typeof GlobalWorld.getState>;
 export type GlobalWorldInstanceKey = keyof GlobalWorldInstance;
+export type GlobalWorldListKey = "worlds" | "worldLocations";
 
 /** @helper Select a `Location` */
 export const setGlobalLocation = (l: APILocation | null) =>
@@ -37,15 +38,35 @@ export const setGlobalWorlds = (w: APIWorld[]) => GlobalWorld.worlds(w);
  * @param newWorlds New worlds
  */
 export function updateWorlds(newWorlds: APIWorld[]) {
-  const { worlds } = GlobalWorld.getState();
-  const next: APIWorld[] = [...worlds];
-  newWorlds.forEach((w) => {
-    const existing = worlds.findIndex((x) => x.id === w.id);
+  return updateList(newWorlds, "worlds");
+}
+
+/**
+ * Update list of locations in state
+ * @param newWorlds New worlds
+ */
+export function updateLocations(newLocations: APILocation[]) {
+  return updateList(newLocations, "worldLocations");
+}
+
+/**
+ * Update list-key in state
+ * @param newItems New worlds
+ */
+export function updateList<T extends APIData<any>[]>(
+  newItems: T,
+  key: GlobalWorldListKey
+) {
+  const state = GlobalWorld.getState();
+  const old = state[key] as T;
+  const next = [...old];
+  newItems.forEach((w) => {
+    const existing = old.findIndex((x) => x.id === w.id);
     if (existing > -1) next[existing] = { ...next[existing], ...w };
     else next.push(w);
   });
 
-  GlobalWorld.worlds(next);
+  GlobalWorld[key](next);
 }
 
 /**

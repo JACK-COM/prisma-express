@@ -35,7 +35,7 @@ const List = styled(ListView)`
 
 /** ROUTE: List of worlds */
 const WorldsList = () => {
-  const { id, role } = useGlobalUser(["id", "role"]);
+  const { role, authenticated } = useGlobalUser(["role", "authenticated"]);
   const navigate = useNavigate();
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const {
@@ -64,7 +64,7 @@ const WorldsList = () => {
   }, []);
 
   return (
-    <PageContainer>
+    <PageContainer id="world-list">
       <header>
         <Breadcrumbs data={[WorldPaths.Index]} />
         <PageTitle>{WorldPaths.Index.text}</PageTitle>
@@ -74,7 +74,7 @@ const WorldsList = () => {
       </header>
 
       <Card>
-        <h3 className="h4">{id === -1 ? "Public" : "Your"} Worlds</h3>
+        <h3 className="h4">{authenticated ? "Your" : "Public"} Worlds</h3>
         {/* Empty List message */}
         {!worlds.length && (
           <EmptyText>
@@ -107,13 +107,15 @@ const WorldsList = () => {
         />
 
         {/* Add new (button - bottom) */}
-        <AddWorldButton
-          size="lg"
-          icon="public"
-          text="Create New World"
-          variant={worlds.length > 5 ? "transparent" : "outlined"}
-          onClick={() => setGlobalModal(MODAL.MANAGE_WORLD)}
-        />
+        {authenticated && (
+          <AddWorldButton
+            size="lg"
+            icon="public"
+            text="Create New World"
+            variant={worlds.length > 5 ? "transparent" : "outlined"}
+            onClick={() => setGlobalModal(MODAL.MANAGE_WORLD)}
+          />
+        )}
       </Card>
 
       {/* Modal */}

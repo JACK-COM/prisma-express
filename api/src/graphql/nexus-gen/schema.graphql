@@ -11,9 +11,9 @@ enum Authenticator {
 
 """The general climate of a setting."""
 enum Climate {
-  cool
-  hot
-  warm
+  Polar
+  Temperate
+  Warm
 }
 
 """UTC Date-time"""
@@ -154,6 +154,22 @@ type MFLocation {
   worldId: Int!
 }
 
+input MFLocationUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+  climate: Climate
+  description: String!
+  fauna: Richness
+  flora: Richness
+
+  """Location ID"""
+  id: Int
+  name: String!
+
+  """Parent world ID"""
+  worldId: Int!
+}
+
 """A single paragraph in a story. """
 type MFParagraph {
   """Paragraph Author"""
@@ -290,7 +306,7 @@ type MFWorld {
 }
 
 input MFWorldUpsertInput {
-  """Book Author/owner"""
+  """Item Author/owner"""
   authorId: Int
   description: String!
 
@@ -304,6 +320,10 @@ input MFWorldUpsertInput {
 }
 
 type Mutation {
+  upsertLocation(
+    """The data to create a new location"""
+    data: MFLocationUpsertInput!
+  ): MFLocation
   upsertWorld(
     """The data to create a new world"""
     data: MFWorldUpsertInput!
@@ -311,7 +331,13 @@ type Mutation {
 }
 
 type Query {
+  getLocationById(id: Int!): MFLocation
   getWorldById(id: Int!): MFWorld
+
+  """
+  List/filter multiple `Locations`. Author can view their own locations, a reader can view public locations
+  """
+  listLocations(authorId: Int, description: String, id: Int, name: String): [MFLocation]
 
   """
   List/filter multiple `Worlds`. Author can view their own worlds, a reader can view public worlds

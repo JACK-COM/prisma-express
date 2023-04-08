@@ -8,11 +8,10 @@ import { updateWorlds } from "state";
 /** IconContainer */
 const Icon = styled(MatIcon).attrs({ icon: "public" })<WICProps>`
   align-self: center;
+  cursor: ${({ permissions }) =>
+    permissions === "Author" ? "pointer" : "inherit"};
   grid-area: icon;
   margin-right: ${({ theme }) => theme.sizes.sm};
-  margin-left: ${({ theme }) => theme.sizes.sm};
-  cursor: ${({ permissions }) =>
-    permissions === "Author" ? "pointer" : "default"};
   pointer-events: ${({ permissions }) =>
     permissions === "Author" ? "fill" : "none"};
 
@@ -36,7 +35,7 @@ type PublicIconProps = {
 /** Icon that indicates (and toggles) a `World's` public visibility  */
 const WorldPublicIcon = (props: PublicIconProps) => {
   const { permissions, world } = props;
-  const iconClass = world.public ? "icon success--text" : "icon grey--text";
+  const iconClass = world.public ? "icon success--text" : "icon error--text";
   const title = world.public ? "Public World" : "Private World";
   const togglePublic: React.MouseEventHandler = async (e) => {
     if (permissions !== "Author") return;

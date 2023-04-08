@@ -5,3 +5,4 @@
  */
 
 export * from "./worlds.mutations";
+export * from "./locations.mutations";

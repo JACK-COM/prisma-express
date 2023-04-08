@@ -14,7 +14,7 @@ const Container = styled(GridContainer)<WICProps>`
     "icon name"
     "icon description";
   justify-content: left;
-  padding: ${({ theme }) => theme.sizes.xs} 0;
+  padding: ${({ theme }) => theme.sizes.xs};
   width: 100%;
 
   &:hover {

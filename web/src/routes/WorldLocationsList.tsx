@@ -34,7 +34,7 @@ const List = styled(ListView)`
 
 /** ROUTE: List of World `Locations` */
 const WorldLocationsList = () => {
-  const { role } = useGlobalUser(["role"]);
+  const { role, authenticated } = useGlobalUser(["role", "authenticated"]);
   const navigate = useNavigate();
   const {
     active: activeModal,
@@ -75,7 +75,7 @@ const WorldLocationsList = () => {
   }, []);
 
   return (
-    <PageContainer>
+    <PageContainer id="world-locations">
       <header>
         <Breadcrumbs data={[WorldPaths.Index, WorldPaths.Locations]} />
         <PageTitle>{WorldPaths.Locations.text}</PageTitle>
@@ -89,11 +89,10 @@ const WorldLocationsList = () => {
         <h3 className="h4 flex">
           {error || (
             <>
-              Locations in
               {selectedWorld && (
                 <WorldPublicIcon world={selectedWorld} permissions={role} />
               )}
-              {place}
+              {place} Locations
             </>
           )}
         </h3>
@@ -138,13 +137,15 @@ const WorldLocationsList = () => {
         )}
 
         {/* Add new (button - bottom) */}
-        <AddLocationButton
-          size="lg"
-          icon="pin_drop"
-          text="Add a Location"
-          variant={worldLocations.length > 5 ? "transparent" : "outlined"}
-          onClick={() => setGlobalModal(MODAL.MANAGE_LOCATION)}
-        />
+        {authenticated && (
+          <AddLocationButton
+            size="lg"
+            icon="pin_drop"
+            text="Add a Location"
+            variant={worldLocations.length > 5 ? "transparent" : "outlined"}
+            onClick={() => setGlobalModal(MODAL.MANAGE_LOCATION)}
+          />
+        )}
       </Card>
 
       <CreateWorldModal

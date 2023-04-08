@@ -42,3 +42,16 @@ const shared = {
 };
 
 export default shared;
+
+/* Shared CSS Helpers */
+
+/** apply line-clamp rule */
+export function lineclamp(lines: number) {
+  return `
+    -webkit-line-clamp: ${lines};
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  `;
+}

@@ -18,9 +18,9 @@ const OrderedList = styled.ol`
 const UnorderedList = styled.ul`
   list-style: none;
   margin: 0;
-  padding: ${({ theme }) => theme.sizes.sm};
+  padding: 0;
   > * {
-    padding: ${({ theme }) => `0 ${theme.sizes.sm}`};
+    padding: 0;
   }
 `;
 /** Single item in a `ListView` */

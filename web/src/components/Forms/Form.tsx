@@ -1,8 +1,15 @@
 import { FlexRow, GridContainer } from "components/Common/Containers";
 import { ComponentPropsWithRef } from "react";
 import styled, { css } from "styled-components";
+import { noOp } from "utils";
 
 type ReactText = string | number;
+const requiredInputStyles = css`
+  content: "*";
+  display: inline-block;
+  color: ${({ theme }) => theme.colors.error};
+  font-size: 1rem;
+`;
 const sharedInputStyles = css`
   border-radius: ${({ theme }) => theme.presets.round.sm};
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
@@ -55,8 +62,13 @@ export const Label = styled.label<{ direction?: "row" | "column" }>`
   .label {
     color: ${({ theme }) => theme.colors.secondary};
     font-weight: bold;
+    display: inline-block;
     padding-right: ${({ direction, theme }) =>
       direction === "row" ? theme.sizes.sm : undefined};
+  }
+
+  .label.required::after {
+    ${requiredInputStyles}
   }
 `;
 export const RadioInput = styled(Input).attrs({ type: "radio" })`
@@ -82,11 +94,8 @@ export const Legend = styled.legend.attrs({ className: "h3" })`
   line-height: ${({ theme }) => theme.sizes.md};
   padding: 0;
 
-  &::after {
-    content: "*";
-    display: ${(props) => (props["aria-required"] ? "inline-block" : "none")};
-    color: ${({ theme }) => theme.colors.error};
-    font-size: 2rem;
+  [aria-required]&::after {
+    ${requiredInputStyles}
   }
 `;
 export const Hint = styled.div`
@@ -102,10 +111,14 @@ export const HintList = styled.ul`
   padding-left: ${({ theme }) => theme.sizes.sm};
 `;
 
-type SelectProps = ComponentPropsWithRef<"select"> & {
-  data: any[];
-  itemText(d: any): ReactText;
-  itemValue(d: any): ReactText;
+type SelectProps<T = any> = Omit<
+  ComponentPropsWithRef<"select">,
+  "onChange"
+> & {
+  data: T[];
+  itemText(d: T): ReactText;
+  itemValue(d: T): ReactText;
+  onChange?: (e: T) => void;
   wide?: boolean;
 };
 const StyledSelect = styled.select<{ wide?: boolean }>`
@@ -114,7 +127,7 @@ const StyledSelect = styled.select<{ wide?: boolean }>`
 `;
 export const Select = styled((props: SelectProps) => {
   const {
-    onChange,
+    onChange = noOp,
     data,
     itemValue,
     itemText,
@@ -122,7 +135,11 @@ export const Select = styled((props: SelectProps) => {
     ...rest
   } = props;
   return (
-    <StyledSelect disabled={!data.length} onInput={onChange} {...rest}>
+    <StyledSelect
+      disabled={!data.length}
+      onInput={(e) => onChange(e.currentTarget.value)}
+      {...rest}
+    >
       {data.length > 0 && <option value="null">{placeholder}</option>}
       {data.map((d, i) => (
         <option key={i} value={itemValue(d)}>

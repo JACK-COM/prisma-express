@@ -16,7 +16,7 @@ const LIGHT_THEME: AppTheme = {
     errorDark: "#c73636",
     primary: "#282c34",
     secondary: "#07C",
-    semitransparent: "#ececec33",
+    semitransparent: "#cecece99",
     warning: "#f5d84c"
   },
 

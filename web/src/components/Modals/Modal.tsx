@@ -1,5 +1,5 @@
 import Button, { WideButton } from "components/Forms/Button";
-import { MouseEventHandler, useMemo } from "react";
+import { MouseEventHandler, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { noOp } from "utils";
 import { FlexColumn, GridContainer, MatIcon } from "../Common/Containers";
@@ -24,7 +24,7 @@ const ModalContainer = styled(FlexColumn)`
 `;
 /** Shared width of content */
 const contentWidthBoundary = css`
-  width: 50vw;
+  width: 100vw;
   min-width: 300px;
 `;
 const ModalControls = styled(GridContainer)`
@@ -44,11 +44,15 @@ const ModalTitle = styled(GridContainer).attrs({
   columns: "auto min-content"
 })`
   ${contentWidthBoundary}
-  margin-bottom: 0.4rem;
+  background: ${({ theme }) => theme.colors.bgColor};
+  z-index: 1;
 
   .title {
+    align-self: end;
     flex-grow: 1;
     line-height: 2.6rem;
+    margin: 0.8rem 0;
+    padding-left: 0.4rem;
     text-align: left;
   }
 `;
@@ -59,10 +63,10 @@ const ModalContents = styled(FlexColumn).attrs({ padded: true })<ContentProps>`
   border-radius: ${({ theme }) => theme.presets.round.default};
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
   color: ${({ theme }) => theme.colors.primary};
-  height: 50vmin;
+  height: 80vh;
   overflow-y: auto;
   overflow-x: hidden;
-  place-content: ${({ centered = false }) => (centered ? "center" : "start")}; ;
+  place-content: ${({ centered = false }) => (centered ? "center" : "start")};
 `;
 
 type ModalProps = {
@@ -87,15 +91,24 @@ const Modal = (p: ModalProps) => {
     cancelText = ""
   } = p;
   const rootClass = "modal-root--default";
-  const contentEntryClass = "slide-down-fade-in";
+  const contentEntryClass = "scale-in";
   const modalControlCols = useMemo(
-    () => ((confirmText && cancelText) ? "repeat(2,1fr)" : "auto"),
+    () => (confirmText && cancelText ? "repeat(2,1fr)" : "auto"),
     [confirmText, cancelText]
   );
   const onBGClick: MouseEventHandler<HTMLDivElement> = (e) => {
     const $elem = e.target as HTMLDivElement;
     if ($elem.classList.contains(rootClass)) onClose();
   };
+
+  useEffect(() => {
+    // close modal on ESC key press
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, []);
 
   if (!open) return <></>;
 

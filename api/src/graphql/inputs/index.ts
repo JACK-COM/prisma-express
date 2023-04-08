@@ -17,6 +17,6 @@ export const MFWorldUpsertInput = inputObjectType({
     t.nonNull.string("name");
     t.nonNull.string("description");
     t.nonNull.field("type", { type: "WorldType" });
-    t.nonNull.int("authorId", { description: "Book Author/owner" });
+    t.int("authorId", { description: "Book Author/owner" });
   }
 });

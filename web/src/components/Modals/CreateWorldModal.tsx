@@ -47,6 +47,7 @@ export default function CreateWorldModal(props: CreateWorldModalProps) {
 
   useEffect(() => {
     if (data) setFormData({ ...data, ...formData });
+    return () => setFormData({});
   }, [data]);
 
   return (
@@ -55,7 +56,7 @@ export default function CreateWorldModal(props: CreateWorldModalProps) {
       onClose={onClose}
       title="Create New World"
       cancelText="Cancel"
-      confirmText="Create"
+      confirmText={data?.id ? "Update" : "Create"}
       onConfirm={submit}
     >
       <CreateWorldForm data={formData} onChange={setFormData} />

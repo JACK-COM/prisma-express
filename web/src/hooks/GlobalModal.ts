@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MODAL, Modal, ModalStore, ModalStoreKey } from "state";
+import { MODAL, Modal, ModalStore, ModalStoreKey, clearGlobalModal } from "state";
 
 type HookState = Partial<ModalStore>;
 
@@ -15,8 +15,11 @@ export function useGlobalModal(keys: ModalStoreKey[] = ["active"]) {
 
   return {
     ...state,
+    MODAL,
 
     // Helpers
+    clearGlobalModal,
     setGlobalModal: (m: MODAL) => Modal.active(m)
   };
+
 }

@@ -13,6 +13,13 @@ export const ExLink = styled.a.attrs({
 /** General-purpose default container */
 export const BaseContainer = styled.section``;
 
+/** UI bordered section */
+export const Card = styled(BaseContainer).attrs({ className: "card" })`
+  border: ${({ theme }) => `1px dashed ${theme.colors.semitransparent}`};
+  border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
+  padding: 1.2em;
+`;
+
 /** Page or View description element */
 export const Description = styled.p<{ lines?: number }>`
   -webkit-box-orient: vertical;
@@ -139,8 +146,11 @@ export const Section = styled(FlexColumn)`
   }
 `;
 
-const Icon = styled.span.attrs({ className: "material-icons" })``;
-export const MatIcon = ({ icon }: { icon: string }) => <Icon>{icon}</Icon>;
+const Icon = styled.span``;
+type MatIconProps = { icon: string; className?: string };
+export const MatIcon = ({ icon, className = "" }: MatIconProps) => (
+  <Icon className={`material-icons ${className}`.trim()}>{icon}</Icon>
+);
 
 export const GridItem = styled(GridContainer)`
   background-color: inherit;

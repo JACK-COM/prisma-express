@@ -1,22 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import styled from "styled-components";
 import Breadcrumbs from "components/Common/Breadcrumbs";
 import {
+  Card,
   PageContainer,
   PageDescription,
   PageTitle
 } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
-import { Paths } from "routes";
+import { Paths, replaceId } from "routes";
 import { listWorlds } from "graphql/requests/worlds.graphql";
 import CreateWorldModal from "components/Modals/CreateWorldModal";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { MODAL, setGlobalWorlds } from "state";
 import { APIData, World } from "utils/types";
 import ListView from "components/Common/ListView";
-import { Hint } from "components/Forms/Form";
-import { lineclamp } from "theme/theme.shared";
 import { useGlobalWorld } from "hooks/GlobalWorld";
+import { useGlobalUser } from "hooks/GlobalUser";
+import { useNavigate } from "react-router";
+import { WorldItem } from "../components/WorldItem";
 
 const { Worlds: WorldPaths } = Paths;
 const AddWorldButton = styled(ButtonWithIcon).attrs({ variant: "outlined" })`
@@ -29,41 +30,25 @@ const List = styled(ListView)`
   margin: ${({ theme }) => theme.sizes.md} 0;
 `;
 
-const WorldItemContainer = styled.div`
-  border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
-  cursor: pointer;
-  padding: ${({ theme }) => theme.sizes.xs} 0;
-  width: 100%;
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.semitransparent};
-  }
-`;
-const WorldItemHint = styled(Hint)`
-  ${lineclamp(1)};
-  width: 100%;
-`;
-type WorldItemProps = { world: World };
-const WorldItem = ({ world }: WorldItemProps) => {
-  return (
-    <WorldItemContainer>
-      <b>{world.name}</b>
-      <WorldItemHint>{world.description}</WorldItemHint>
-    </WorldItemContainer>
-  );
-};
-
 /** ROUTE: List of worlds */
 const WorldsList = () => {
-  const { active, setGlobalModal } = useGlobalModal();
-  const { selectedWorld, worlds, setGlobalWorld } = useGlobalWorld();
+  const { id, role } = useGlobalUser(["id", "role"]);
+  const navigate = useNavigate();
+  const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
+  const { selectedWorld, worlds, setGlobalWorld, setGlobalWorlds } =
+    useGlobalWorld(["selectedWorld", "worlds"]);
   const loadWorlds = async () => setGlobalWorlds(await listWorlds());
-  const selectWorld = (world: APIData<World>) => {
+  const onEditWorld = (world: APIData<World>) => {
     setGlobalWorld(world);
     setGlobalModal(MODAL.MANAGE_WORLD);
+  };
+  const onSelectWorld = ({ id }: APIData<World>) => {
+    navigate(replaceId(WorldPaths.Locations.path, id));
   };
 
   useEffect(() => {
     loadWorlds();
+    return () => setGlobalWorld(null);
   }, []);
 
   return (
@@ -76,8 +61,8 @@ const WorldsList = () => {
         </PageDescription>
       </header>
 
-      <div className="card">
-        <h3 className="h4">Your Worlds</h3>
+      <Card>
+        <h3 className="h4">{id === -1 ? "Public" : "Your"} Worlds</h3>
         {/* List */}
         {!worlds?.length && (
           <EmptyText>
@@ -87,8 +72,14 @@ const WorldsList = () => {
 
         <List
           data={worlds || []}
-          itemText={(world: World) => <WorldItem world={world} />}
-          onItemClick={selectWorld}
+          itemText={(world: APIData<World>) => (
+            <WorldItem
+              world={world}
+              onEdit={onEditWorld}
+              onSelect={onSelectWorld}
+              permissions={role}
+            />
+          )}
         />
 
         {/* Add new (button) */}
@@ -98,11 +89,15 @@ const WorldsList = () => {
           text="Create New World"
           onClick={() => setGlobalModal(MODAL.MANAGE_WORLD)}
         />
-      </div>
+      </Card>
 
       <CreateWorldModal
         data={selectedWorld}
         open={active === MODAL.MANAGE_WORLD}
+        onClose={() => {
+          setGlobalWorld(null);
+          clearGlobalModal();
+        }}
       />
     </PageContainer>
   );

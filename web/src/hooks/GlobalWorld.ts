@@ -3,12 +3,11 @@ import {
   GlobalWorld,
   GlobalWorldInstance,
   GlobalWorldInstanceKey,
+  clearGlobalWorld,
   setGlobalWorld,
   setGlobalWorlds,
-  updateWorlds,
-  clearGlobalWorld
+  updateWorlds
 } from "state";
-import { World } from "utils/types";
 
 type HookState = Partial<GlobalWorldInstance>;
 
@@ -27,9 +26,9 @@ export function useGlobalWorld(
     ...state,
 
     // Helpers
+    clearGlobalWorld,
     setGlobalWorld,
     setGlobalWorlds,
-    updateWorlds,
-    clearGlobalWorld
+    updateWorlds
   };
 }

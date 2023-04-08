@@ -10,7 +10,7 @@ export const GlobalWorld = createState({
 export type GlobalWorldInstance = ReturnType<typeof GlobalWorld.getState>;
 export type GlobalWorldInstanceKey = keyof GlobalWorldInstance;
 
-export const setGlobalWorld = (w: APIData<World>) =>
+export const setGlobalWorld = (w: APIData<World> | null) =>
   GlobalWorld.selectedWorld(w);
 export const setGlobalWorlds = (w: APIData<World>[]) => GlobalWorld.worlds(w);
 

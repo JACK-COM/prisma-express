@@ -44,7 +44,7 @@ export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> =
         path: "/bibliography/books",
         text: "My Books"
       },
-      BookById: {
+      ManageBook: {
         path: "/bibliography/books/:bookId",
         text: "Manage Book"
       },
@@ -94,7 +94,7 @@ export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> =
         text: "Worlds & Settings"
       },
       Locations: {
-        path: "/worlds/locations",
+        path: "/worlds/:worldId/locations",
         text: "World Locations"
       }
     }
@@ -105,6 +105,11 @@ export interface RouteDef {
   text: string;
   component?: any;
   render?: (p?: any) => JSX.Element;
+}
+
+// Replace id wildcard with actual id
+export function replaceId(path: string, id: string|number) {
+  return path.replace(/:\b(\w*Id)/, id.toString());
 }
 
 /**

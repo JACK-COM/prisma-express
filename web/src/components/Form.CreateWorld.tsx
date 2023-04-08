@@ -3,10 +3,13 @@ import { noOp } from "../utils";
 import { World, WorldType } from "../utils/types";
 import {
   Form,
+  FormRow,
   Hint,
   Input,
   Label,
   Legend,
+  RadioInput,
+  RadioLabel,
   Select,
   Textarea
 } from "components/Forms/Form";
@@ -23,14 +26,13 @@ const worldTypes = [WorldType.Universe, WorldType.Realm, WorldType.Other];
 /** Create or edit a `World` */
 const CreateWorldForm = (props: CreateWorldProps) => {
   const { data, onChange = noOp } = props;
-  const updateTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...data, name: e.target.value });
-  };
+  const updatePublic = (e: boolean) => onChange({ ...data, public: e });
+  const updateType = (type: WorldType) => onChange({ ...data, type });
   const updateDescription = (e: ChangeEvent<HTMLTextAreaElement>) => {
     onChange({ ...data, description: e.target.value });
   };
-  const updateType = (type: WorldType) => {
-    onChange({ ...data, type });
+  const updateTitle = (e: ChangeEvent<HTMLInputElement>) => {
+    onChange({ ...data, name: e.target.value });
   };
 
   return (
@@ -53,6 +55,34 @@ const CreateWorldForm = (props: CreateWorldProps) => {
         />
       </Label>
       <Hint>Enter a name for your world.</Hint>
+
+      {/* Public/Private */}
+      <Label direction="column">
+        <span className="label">Is this world public?</span>
+        <Hint>
+          Select <b>Public</b> if you would like other users to see and build on
+          this idea.
+        </Hint>
+
+        <FormRow>
+          <RadioLabel>
+            <span>Public</span>
+            <RadioInput
+              checked={data?.public || false}
+              name="isPublic"
+              onChange={() => updatePublic(true)}
+            />
+          </RadioLabel>
+          <RadioLabel>
+            <span>Private</span>
+            <RadioInput
+              checked={!data?.public}
+              name="isPublic"
+              onChange={() => updatePublic(false)}
+            />
+          </RadioLabel>
+        </FormRow>
+      </Label>
 
       {/* Type */}
       <Label direction="column">

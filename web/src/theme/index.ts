@@ -26,12 +26,6 @@ const THEME: GlobalTheme = {
     }
   }
 
-  .card {
-    border: ${({ theme }) => `1px dashed ${theme.colors.semitransparent}`};
-    border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
-    padding: 1.2em;
-  }
-
   .ellipsis {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -114,6 +108,12 @@ const THEME: GlobalTheme = {
     }
     .secondary--text{ 
       color: ${({ theme }) => theme.colors.secondary}; 
+    }
+    .success--text{ 
+      color: #2ca258; 
+    }
+    .grey--text{ 
+      color: #dcdcdc; 
     }
     .warning--text{ 
       color: ${({ theme }) => theme.colors.warning}; 

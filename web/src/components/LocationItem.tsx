@@ -1,12 +1,11 @@
 import styled from "styled-components";
-import { APIData, UserRole, World } from "utils/types";
+import { APIData, UserRole, Location, World } from "utils/types";
 import { noOp } from "utils";
 import { lineclamp } from "theme/theme.shared";
-import { GridContainer, MatIcon } from "./Common/Containers";
-import { Hint } from "./Forms/Form";
-import WorldPublicIcon from "./WorldPublicIcon";
+import { GridContainer, MatIcon } from "components/Common/Containers";
+import { Hint } from "components/Forms/Form";
 
-export type WICProps = { permissions: UserRole };
+type WICProps = { permissions: UserRole };
 const Container = styled(GridContainer)<WICProps>`
   border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
   cursor: pointer;
@@ -21,6 +20,23 @@ const Container = styled(GridContainer)<WICProps>`
     background-color: ${({ theme }) => theme.colors.semitransparent};
   }
 `;
+const Icon = styled(MatIcon).attrs({ icon: "pin_drop" })<WICProps>`
+  align-self: center;
+  grid-area: icon;
+  margin-right: ${({ theme }) => theme.sizes.sm};
+  pointer-events: ${({ permissions }) =>
+    permissions === "Author" ? "fill" : "none"};
+
+  &:active,
+  &:focus {
+    animation: beacon 400ms linear;
+  }
+
+  &:hover {
+    animation: spin 300ms linear;
+    color: ${({ theme }) => theme.colors.accent};
+  }
+`;
 const Description = styled(Hint)`
   ${lineclamp(1)};
   grid-area: description;
@@ -30,7 +46,6 @@ const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<WICProps>`
   grid-area: name;
   pointer-events: ${({ permissions }) =>
     permissions === "Author" ? "fill" : "none"};
-  width: fit-content;
 
   &:hover {
     color: ${({ theme }) => theme.colors.accent};
@@ -44,41 +59,45 @@ const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<WICProps>`
   }
 `;
 
-type WorldItemProps = {
+type LocationItemProps = {
   world: APIData<World>;
-  onEdit?: (w: APIData<World>) => void;
-  onSelect?: (w: APIData<World>) => void;
+  location: APIData<Location>;
+  onEdit?: (w: APIData<Location>) => void;
+  onSelect?: (w: APIData<Location>) => void;
   permissions?: UserRole;
 };
 
-const WorldItem = ({
+const LocationItem = ({
   world,
+  location,
   onSelect = noOp,
   onEdit = noOp,
   permissions = "Reader"
-}: WorldItemProps) => {
+}: LocationItemProps) => {
   const { public: isPublic } = world;
+  const iconClass = isPublic ? "icon success--text" : "icon grey--text";
+  const title = isPublic ? "Public Location" : "Private Location";
   const edit: React.MouseEventHandler = (e) => {
     if (permissions !== "Author") return;
     e.stopPropagation();
-    onEdit(world);
+    onEdit(location);
   };
   const select: React.MouseEventHandler = (e) => {
     e.stopPropagation();
-    onSelect(world);
+    onSelect(location);
   };
 
   return (
     <Container onClick={select} permissions={permissions}>
-      <WorldPublicIcon world={world} permissions={permissions} />
+      <Icon permissions={permissions} className={iconClass} title={title} />
 
       <Name permissions={permissions} onClick={edit}>
-        {world.name}
+        {location.name}
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </Name>
-      <Description>{world.description}</Description>
+      <Description>{location.description}</Description>
     </Container>
   );
 };
 
-export default WorldItem;
+export default LocationItem;

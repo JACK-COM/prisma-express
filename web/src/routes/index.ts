@@ -108,7 +108,7 @@ export interface RouteDef {
 }
 
 // Replace id wildcard with actual id
-export function replaceId(path: string, id: string|number) {
+export function insertId(path: string, id: string|number) {
   return path.replace(/:\b(\w*Id)/, id.toString());
 }
 

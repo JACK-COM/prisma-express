@@ -16,6 +16,8 @@ const presets = {
   elevate: {
     md: `0 ${sizes.xs} ${sizes.xs}`,
     sm: `0 ${sizes.xxs} ${sizes.xs}`,
+    xs: `0 1px 2px`,
+    xxs: `0 0 2px`,
     lg: `0 ${sizes.sm} ${sizes.xs}`,
     xlg: `0 ${sizes.default} ${sizes.xs}`
   },

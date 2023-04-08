@@ -79,6 +79,10 @@ const THEME: GlobalTheme = {
       background-color: ${({ theme }) => theme.colors.error}; 
       color: white;
     }
+    .flex {
+      align-items: center;
+      display: flex;
+    }
     .grey {
       background-color: #9c9c9c;
     }

@@ -8,7 +8,7 @@ export type CreateWorldData = {
 } & Pick<World, "public" | "name" | "description" | "type">;
 
 // Use fetchGQL to create a `World` on the server
-export async function createWorld(data: Partial<CreateWorldData>) {
+export async function createOrUpdateWorld(data: Partial<CreateWorldData>) {
   const newWorld = await fetchGQL<APIData<World> | null>({
     query: upsertWorldMutation(),
     variables: { data },

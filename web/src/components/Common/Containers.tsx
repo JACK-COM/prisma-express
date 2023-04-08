@@ -1,3 +1,4 @@
+import { ComponentPropsWithRef } from "react";
 import styled from "styled-components";
 
 type FlexContainerProps = {
@@ -147,9 +148,16 @@ export const Section = styled(FlexColumn)`
 `;
 
 const Icon = styled.span``;
-type MatIconProps = { icon: string; className?: string };
-export const MatIcon = ({ icon, className = "" }: MatIconProps) => (
-  <Icon className={`material-icons ${className}`.trim()}>{icon}</Icon>
+type MatIconProps = {
+  icon: string;
+} & ComponentPropsWithRef<"span">;
+export const MatIcon = ({ icon, ...props }: MatIconProps) => (
+  <Icon
+    className={`material-icons ${props.className || ""}`.trim()}
+    title={props.title || ""}
+    onClick={props.onClick}
+    children={icon}
+  />
 );
 
 export const GridItem = styled(GridContainer)`

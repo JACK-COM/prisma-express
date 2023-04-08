@@ -12,10 +12,10 @@ export const listAuthorsQuery = (args = "") =>
 /** List `Authors` graphql query */
 export const listWorldsQuery = (args: Record<string, any>) =>
   `query ListWorlds(
-    $worldId: Int, $authorId: Int, $description: String, $name: String
+    $id: Int, $authorId: Int, $description: String, $name: String
    ) { 
     listWorlds(
-      id: $worldId, 
+      id: $id, 
       authorId: $authorId, 
       description: $description, 
       name: $name) {

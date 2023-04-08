@@ -4,6 +4,7 @@ import {
   GlobalWorldInstance,
   GlobalWorldInstanceKey,
   clearGlobalWorld,
+  setGlobalLocation,
   setGlobalWorld,
   setGlobalWorlds,
   updateWorlds
@@ -27,6 +28,7 @@ export function useGlobalWorld(
 
     // Helpers
     clearGlobalWorld,
+    setGlobalLocation,
     setGlobalWorld,
     setGlobalWorlds,
     updateWorlds

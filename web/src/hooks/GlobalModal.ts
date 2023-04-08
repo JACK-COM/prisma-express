@@ -1,12 +1,21 @@
 import { useEffect, useState } from "react";
-import { MODAL, Modal, ModalStore, ModalStoreKey, clearGlobalModal } from "state";
+import {
+  MODAL,
+  Modal,
+  ModalStore,
+  ModalStoreKey,
+  clearGlobalModal
+} from "state";
 
-type HookState = Partial<ModalStore>;
+type HookState = Omit<Partial<ModalStore>, "active"> & { active: MODAL };
 
 /** Reusable subscription to `Modal` state  */
 export function useGlobalModal(keys: ModalStoreKey[] = ["active"]) {
   const gState = Modal.getState();
-  const init = keys.reduce((agg, k) => ({ ...agg, [k]: gState[k] }), {});
+  const init: HookState = {
+    ...keys.reduce((agg, k) => ({ ...agg, [k]: gState[k] }), {}),
+    active: gState.active
+  };
   const [state, setState] = useState<HookState>(init);
   const onModal = (s: Partial<ModalStore>) =>
     setState((prev) => ({ ...prev, ...s }));
@@ -21,5 +30,4 @@ export function useGlobalModal(keys: ModalStoreKey[] = ["active"]) {
     clearGlobalModal,
     setGlobalModal: (m: MODAL) => Modal.active(m)
   };
-
 }

@@ -1,12 +1,12 @@
 import CreateWorldForm from "components/Form.CreateWorld";
-import { CreateWorldData, createWorld } from "graphql/requests/worlds.graphql";
+import { CreateWorldData, createOrUpdateWorld } from "graphql/requests/worlds.graphql";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import Modal from "./Modal";
 import { clearGlobalModal, updateWorlds } from "state";
 
 /** Modal props */
-type CreateWorldModalProps = {
+type ManageWorldModalProps = {
   open: boolean;
   data?: Partial<CreateWorldData> | null;
   onClose?: () => void;
@@ -20,8 +20,8 @@ const ErrorMessage = styled.aside.attrs({
   padding: 0.4rem;
 `;
 
-/** Specialized Modal for creating a `World` */
-export default function CreateWorldModal(props: CreateWorldModalProps) {
+/** Specialized Modal for creating/editing a `World` */
+export default function ManageWorldModal(props: ManageWorldModalProps) {
   const { data, open, onClose = clearGlobalModal } = props;
   const [formData, setFormData] = useState<Partial<CreateWorldData>>({});
   const [error, setError] = useState("");
@@ -36,7 +36,7 @@ export default function CreateWorldModal(props: CreateWorldModalProps) {
     if (!formData.description) formData.description = "No description.";
     formData.public = formData.public || false;
     setError("");
-    const resp = await createWorld(formData);
+    const resp = await createOrUpdateWorld(formData);
 
     // Notify
     if (resp) {
@@ -47,6 +47,7 @@ export default function CreateWorldModal(props: CreateWorldModalProps) {
 
   useEffect(() => {
     if (data) setFormData({ ...data, ...formData });
+    return () => setFormData({});
   }, [data]);
 
   return (
@@ -55,7 +56,7 @@ export default function CreateWorldModal(props: CreateWorldModalProps) {
       onClose={onClose}
       title="Create New World"
       cancelText="Cancel"
-      confirmText="Create"
+      confirmText={data?.id ? "Update" : "Create"}
       onConfirm={submit}
     >
       <CreateWorldForm data={formData} onChange={setFormData} />

@@ -29,6 +29,16 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  MFLocationUpsertInput: { // input type
+    authorId?: number | null; // Int
+    climate?: NexusGenEnums['Climate'] | null; // Climate
+    description: string; // String!
+    fauna?: NexusGenEnums['Richness'] | null; // Richness
+    flora?: NexusGenEnums['Richness'] | null; // Richness
+    id?: number | null; // Int
+    name: string; // String!
+    worldId: number; // Int!
+  }
   MFWorldUpsertInput: { // input type
     authorId?: number | null; // Int
     description: string; // String!
@@ -41,7 +51,7 @@ export interface NexusGenInputs {
 
 export interface NexusGenEnums {
   Authenticator: "google" | "magic" | "other"
-  Climate: "cool" | "hot" | "warm"
+  Climate: "Polar" | "Temperate" | "Warm"
   EventPolarity: "NegativeExpected" | "NegativeUnexpected" | "Neutral" | "PositiveExpected" | "PositiveUnexpected"
   EventTarget: "Local" | "Person" | "World"
   GroupType: "Culture" | "Other" | "Philosophy" | "Trade"
@@ -119,6 +129,7 @@ export interface NexusGenObjects {
     Events?: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     Groups?: Array<NexusGenRootTypes['MFPopulationGroup'] | null> | null; // [MFPopulationGroup]
     Scenes?: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
+    World?: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
     authorId?: number | null; // Int
     climate: NexusGenEnums['Climate']; // Climate!
     description: string; // String!
@@ -282,6 +293,7 @@ export interface NexusGenFieldTypes {
     Events: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     Groups: Array<NexusGenRootTypes['MFPopulationGroup'] | null> | null; // [MFPopulationGroup]
     Scenes: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
+    World: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
     authorId: number | null; // Int
     climate: NexusGenEnums['Climate']; // Climate!
     description: string; // String!
@@ -372,10 +384,13 @@ export interface NexusGenFieldTypes {
     type: NexusGenEnums['WorldType']; // WorldType!
   }
   Mutation: { // field return type
+    upsertLocation: NexusGenRootTypes['MFLocation'] | null; // MFLocation
     upsertWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
   }
   Query: { // field return type
+    getLocationById: NexusGenRootTypes['MFLocation'] | null; // MFLocation
     getWorldById: NexusGenRootTypes['MFWorld'] | null; // MFWorld
+    listLocations: Array<NexusGenRootTypes['MFLocation'] | null> | null; // [MFLocation]
     listWorlds: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
   }
 }
@@ -440,6 +455,7 @@ export interface NexusGenFieldTypeNames {
     Events: 'MFEvent'
     Groups: 'MFPopulationGroup'
     Scenes: 'MFScene'
+    World: 'MFWorld'
     authorId: 'Int'
     climate: 'Climate'
     description: 'String'
@@ -530,23 +546,39 @@ export interface NexusGenFieldTypeNames {
     type: 'WorldType'
   }
   Mutation: { // field return type name
+    upsertLocation: 'MFLocation'
     upsertWorld: 'MFWorld'
   }
   Query: { // field return type name
+    getLocationById: 'MFLocation'
     getWorldById: 'MFWorld'
+    listLocations: 'MFLocation'
     listWorlds: 'MFWorld'
   }
 }
 
 export interface NexusGenArgTypes {
   Mutation: {
+    upsertLocation: { // args
+      data: NexusGenInputs['MFLocationUpsertInput']; // MFLocationUpsertInput!
+    }
     upsertWorld: { // args
       data: NexusGenInputs['MFWorldUpsertInput']; // MFWorldUpsertInput!
     }
   }
   Query: {
+    getLocationById: { // args
+      id: number; // Int!
+    }
     getWorldById: { // args
       id: number; // Int!
+    }
+    listLocations: { // args
+      authorId?: number | null; // Int
+      description?: string | null; // String
+      id?: number | null; // Int
+      name?: string | null; // String
+      worldId: number; // Int!
     }
     listWorlds: { // args
       authorId?: number | null; // Int

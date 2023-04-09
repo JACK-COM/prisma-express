@@ -16,6 +16,8 @@ const presets = {
   elevate: {
     md: `0 ${sizes.xs} ${sizes.xs}`,
     sm: `0 ${sizes.xxs} ${sizes.xs}`,
+    xs: `0 1px 2px`,
+    xxs: `0 0 2px`,
     lg: `0 ${sizes.sm} ${sizes.xs}`,
     xlg: `0 ${sizes.default} ${sizes.xs}`
   },
@@ -45,7 +47,7 @@ export default shared;
 
 /* Shared CSS Helpers */
 
-/** apply line-clamp rule */
+/** apply line-clamp rule (limit number of displayed lines with ellipsis) */
 export function lineclamp(lines: number) {
   return `
     -webkit-line-clamp: ${lines};

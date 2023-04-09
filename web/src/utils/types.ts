@@ -1,6 +1,6 @@
 export type ContentStatus = "live" | "draft" | "hidden";
 export type ReporterType = "experiencer" | "observer" | "researcher";
-export type UserRole = "Ruthor" | "Reader";
+export type UserRole = "Author" | "Reader";
 export type NullableString = string | null;
 
 /** Saved data from server. Use when an id is expected on an object */

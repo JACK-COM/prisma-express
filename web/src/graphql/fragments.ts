@@ -9,3 +9,8 @@ export const MFUserFragment = `
 export const MFWorldFragment = `
     id, name, description, type, public, authorId, 
 `;
+
+/** graphql `World` fragment */
+export const MFLocationFragment = `
+    id, name, description, climate, fauna, flora, authorId, worldId, 
+`;

@@ -59,6 +59,11 @@ export function textColor({ variant, disabled, theme }: AllButtonProps) {
   return variant === "transparent" ? accent : primary;
 }
 
+export function textShadow({ variant, theme }: AllButtonProps) {
+  if (variant === "transparent"){ return `${theme.presets.elevate.xs} #222`;}
+  return "none";
+}
+
 export function width({ theme, size, round }: AllButtonProps) {
   if (round) return theme.sizes.lg;
   return size === "lg" ? "100%" : "initial";

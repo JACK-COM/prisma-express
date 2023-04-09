@@ -5,3 +5,4 @@
  */
 
 export * from "./worlds.queries";
+export * from "./locations.queries";

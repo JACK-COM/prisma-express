@@ -18,5 +18,6 @@ export const MFLocation = objectType({
     t.list.field("Events", { type: "MFEvent" });
     t.list.field("Groups", { type: "MFPopulationGroup" });
     t.list.field("Scenes", { type: "MFScene" });
+    t.list.field("World", { type: "MFWorld" });
   }
 });

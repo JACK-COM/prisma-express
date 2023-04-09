@@ -1,3 +1,4 @@
+import { ComponentPropsWithRef } from "react";
 import styled from "styled-components";
 
 type FlexContainerProps = {
@@ -12,6 +13,13 @@ export const ExLink = styled.a.attrs({
 
 /** General-purpose default container */
 export const BaseContainer = styled.section``;
+
+/** UI bordered section */
+export const Card = styled(BaseContainer).attrs({ className: "card" })`
+  border: ${({ theme }) => `1px dashed ${theme.colors.semitransparent}`};
+  border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
+  padding: 1.2em;
+`;
 
 /** Page or View description element */
 export const Description = styled.p<{ lines?: number }>`
@@ -139,8 +147,18 @@ export const Section = styled(FlexColumn)`
   }
 `;
 
-const Icon = styled.span.attrs({ className: "material-icons" })``;
-export const MatIcon = ({ icon }: { icon: string }) => <Icon>{icon}</Icon>;
+const Icon = styled.span``;
+type MatIconProps = {
+  icon: string;
+} & ComponentPropsWithRef<"span">;
+export const MatIcon = ({ icon, ...props }: MatIconProps) => (
+  <Icon
+    className={`material-icons ${props.className || ""}`.trim()}
+    title={props.title || ""}
+    onClick={props.onClick}
+    children={icon}
+  />
+);
 
 export const GridItem = styled(GridContainer)`
   background-color: inherit;

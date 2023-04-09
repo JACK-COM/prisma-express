@@ -1,25 +1,25 @@
 /**
- * @file Worlds.Mutations
- * @description Mutations for the `Worlds` model
+ * @file Locations.Mutations
+ * @description Mutations for the `Locations` model
  */
 
 import { arg, mutationField, nonNull } from "nexus";
-import * as WorldsService from "../../services/worlds.service";
+import * as LocationsService from "../../services/locations.service";
 
 /**
- * Create or update a new `World` for a given `User` (Author role)
+ * Create or update a new `Location` for a given `User` (Author role)
  */
-export const upsertWorldMutation = mutationField("upsertWorld", {
+export const upsertLocationMutation = mutationField("upsertLocation", {
   // The GraphQL type returned by this mutation
-  type: "MFWorld",
+  type: "MFLocation",
 
   // Input arguments for this mutation. Every key will be required on the `args` object
   // sent to the mutation by the client
   args: {
     data: nonNull(
       arg({
-        type: "MFWorldUpsertInput",
-        description: "The data to create a new world"
+        type: "MFLocationUpsertInput",
+        description: "The data to create a new location"
       })
     )
   },
@@ -30,30 +30,32 @@ export const upsertWorldMutation = mutationField("upsertWorld", {
    * @param args Args (everything defined in `args` property above)
    * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
    * database directly, or to access the authenticated `user` if the request has one.
-   * @returns `MFWorld` object from service
+   * @returns `MFLocation` object from service
    */
   resolve: async (_, { data }, { user }) => {
     // require authentication
     if (!user?.id) {
-      throw new Error("You must be logged in to create a world");
+      throw new Error("You must be logged in to create a location");
     }
 
     // require Author role
     if (user.role !== "Author") {
-      throw new Error("Author role required to create a world");
+      throw new Error("Author role required to create a location");
     }
 
     // require ownership
     if (data.id && data.authorId !== user.id) {
-      throw new Error("You do not own this world");
+      throw new Error("You do not own this location");
     }
 
     // append authorId and data
-    return WorldsService.upsertWorld({
+    return LocationsService.upsertLocation({
       ...data,
       authorId: user.id,
-      id: data.id || undefined,
-      public: data.public || false
+      climate: data.climate || undefined,
+      fauna: data.fauna || undefined,
+      flora: data.flora || undefined,
+      id: data.id || undefined
     });
   }
 });

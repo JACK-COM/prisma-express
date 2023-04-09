@@ -4,17 +4,20 @@ A story world builder. Inspired by [**AWallace's version**](https://github.com/v
 
 ---
 
-- [⚒ **MythosForge**](#-mythos-forge)
+- [⚒ **MythosForge**](#-mythosforge)
   - [Getting started](#getting-started)
     - [Server](#server)
     - [Frontend](#frontend)
+  - [AWS Server Management via Terraform](#aws-server-management-via-terraform)
 
 ---
 
 This is a monorepo. Clientside code can be found in the `web/` directory; server stuff is in the `api/` directory. Each should have its own README with setup instructions.
 
 ## Getting started
-In order to run the development envrionment from the root folder run `make dev`
+In order to run the development environment from the root folder run `make dev`. This will start up both the server and UI, with log outputs in a single terminal.\
+If you would like to run them in separate instances, continue reading.
+
 
 ### Server
 Run the following from the repository root. You will need a `postgres` database called `mythos_forge`. 

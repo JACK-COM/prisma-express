@@ -14,7 +14,7 @@ dev-api:
 	cd ./api && npm install && npm run start
 
 build:
-	cd ./web && npm run build && cd ../api && npm run build
+	cd ./web && npm install && npm run build && cd ../api && npm install && npm run build
 
 tf-init:
 	cd ./terraform && terraform init

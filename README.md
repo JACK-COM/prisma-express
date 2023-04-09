@@ -34,3 +34,14 @@ $. npm run start # (runs on :5173 unless you override PORT in .env)
 ```
 The **MythosForge** frontend uses ReactJS with ViteJS for bundling. 
 
+## AWS Server Management via Terraform
+To get started make sure that AWS-cli and Terraform are installed globally.
+1. Configure your AWS keys by running `aws configure`
+2. Run `touch ./terraform/secrets.tfvars`
+3. Add the following vars to the file and add secret values
+```
+db_username=
+db_password=
+```
+4. Run `make terraform-init`
+5. Run `make terraform`

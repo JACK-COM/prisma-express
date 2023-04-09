@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { APIData, UserRole, Location, World, Richness } from "utils/types";
+import { APIData, UserRole, Character, World, Richness } from "utils/types";
 import { noOp } from "utils";
 import { lineclamp } from "theme/theme.shared";
 import { GridContainer, MatIcon } from "components/Common/Containers";
@@ -16,7 +16,7 @@ const Container = styled(GridContainer)<WICProps>`
   padding: ${({ theme }) => theme.sizes.xs} 0;
   width: 100%;
 `;
-const Icon = styled(MatIcon).attrs({ icon: "pin_drop" })<WICProps>`
+const Icon = styled(MatIcon).attrs({ icon: "face" })<WICProps>`
   align-self: center;
   animation: bounce 400ms linear;
   grid-area: icon;
@@ -46,56 +46,53 @@ const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<WICProps>`
   }
 `;
 
-type LocationItemProps = {
-  world: APIData<World>;
-  location: APIData<Location>;
-  onEdit?: (w: APIData<Location>) => void;
-  onSelect?: (w: APIData<Location>) => void;
+type CharacterItemProps = {
+  character: APIData<Character>;
+  onEdit?: (w: APIData<Character>) => void;
+  onSelect?: (w: APIData<Character>) => void;
   permissions?: UserRole;
 };
 
-const LocationItem = ({
-  world,
-  location,
+const CharacterItem = ({
+  character,
   onSelect = noOp,
   onEdit = noOp,
   permissions = "Reader"
-}: LocationItemProps) => {
-  const { public: isPublic } = world;
-  const iconClass = isPublic ? "icon success--text" : "icon grey--text";
-  const title = isPublic ? "Public Location" : "Private Location";
+}: CharacterItemProps) => {
+  const iconClass = "icon grey--text";
   const edit: React.MouseEventHandler = (e) => {
     if (permissions !== "Author") return;
     e.stopPropagation();
-    onEdit(location);
+    onEdit(character);
   };
   const select: React.MouseEventHandler = (e) => {
     e.stopPropagation();
-    onSelect(location);
+    onSelect(character);
   };
 
   return (
     <Container onClick={select} permissions={permissions}>
-      <Icon permissions={permissions} className={iconClass} title={title} />
+      <Icon permissions={permissions} className={iconClass} />
 
       <Name permissions={permissions} onClick={edit}>
-        {location.name}
+        {character.name}
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </Name>
-      <Description>{locationDescription(location)}</Description>
+      <Description>{characterDescription(character)}</Description>
     </Container>
   );
 };
 
-export default LocationItem;
+export default CharacterItem;
 
 /* HELPER */
 
-/** Describe a location by its qualities */
-function locationDescription(location: Location) {
-  if (location.description !== "No description.") return location.description;
+/** Describe a character by its qualities */
+function characterDescription(character: Character) {
+  if (character.description !== "No description.") return character.description;
+  return "A mysterious character";
 
-  const abundance = (lbl: string, rch: Richness) => {
+  /* const abundance = (lbl: string, rch: Richness) => {
     switch (rch) {
       case "Abundant":
         return `abundant ${lbl}`;
@@ -107,7 +104,7 @@ function locationDescription(location: Location) {
     }
   };
 
-  const { climate, flora, fauna } = location;
+  const { climate, flora, fauna } = character;
   const sameFloraFauna = flora === fauna;
   const floraDescription = abundance("vegetation", flora);
   const climateDescription = `${climate} climate`;
@@ -115,5 +112,5 @@ function locationDescription(location: Location) {
     ? `${floraDescription} and animals`
     : `${floraDescription} and ${fauna.toLowerCase()} wildlife`;
 
-  return `${climateDescription} with ${floraFauna}`;
+  return `${climateDescription} with ${floraFauna}`; */
 }

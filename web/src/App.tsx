@@ -12,6 +12,7 @@ import { Paths, wildcard } from "routes";
 
 const Dashboard = lazy(() => import("./routes/Dashboard"));
 const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
+const CharactersRoute = lazy(() => import("./routes/CharactersRoute"));
 const NotFound = lazy(() => import("./routes/NotFound"));
 
 function App() {
@@ -80,7 +81,7 @@ function App() {
                 path={wildcard(Paths.Characters.Index.path)}
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
-                    <Dashboard />
+                    <CharactersRoute />
                   </Suspense>
                 }
               />

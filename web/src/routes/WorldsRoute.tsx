@@ -4,7 +4,6 @@ import WorldsList from "./WorldsList";
 import WorldLocations from "./WorldLocationsList";
 
 const { Worlds: WorldPaths } = Paths;
-
 const trim = (str: string) => trimParent(str, "worlds");
 
 const Worlds = () => {

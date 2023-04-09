@@ -62,7 +62,12 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
 
   useEffect(() => {
     if (data) setFormData({ ...data, ...formData });
-    return () => setFormData({});
+    return () =>
+      setFormData({
+        climate: Climate.Temperate,
+        flora: Richness.Adequate,
+        fauna: Richness.Adequate
+      });
   }, [data]);
 
   return (

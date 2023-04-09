@@ -11,11 +11,9 @@ export const MFCharacter = objectType({
     t.int("authorId", { description: "Author owner" });
     t.int("groupId", { description: "`Group` identifier id (optional)" });
     t.int("locationId", { description: "Character's `Location` id" });
-    t.nonNull.int("worldId", { description: "Character's `World` id" });
+    t.int("worldId", { description: "Character's `World` id" });
 
     // List properties: uncomment if we want to auto-expose these fields
-    t.nonNull.list.field("CharacterRelationship", {
-      type: "MFCharacterRelationship"
-    });
+    t.list.field("CharacterRelationship", { type: "MFCharacterRelationship" });
   }
 });

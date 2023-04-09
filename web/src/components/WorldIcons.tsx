@@ -2,12 +2,16 @@ import styled from "styled-components";
 import { MatIcon } from "components/Common/Containers";
 import { WICProps } from "./WorldItem";
 import { APIData, UserRole, World } from "utils/types";
-import { createOrUpdateWorld } from "graphql/requests/worlds.graphql";
-import { updateWorlds } from "state";
+import {
+  createOrUpdateWorld,
+  deleteWorld
+} from "graphql/requests/worlds.graphql";
+import { updateWorlds, removeWorld } from "state";
 
 /** IconContainer */
 const Icon = styled(MatIcon).attrs({ icon: "public" })<WICProps>`
   align-self: center;
+  animation: shake 280ms linear;
   cursor: ${({ permissions }) =>
     permissions === "Author" ? "pointer" : "inherit"};
   grid-area: icon;
@@ -17,23 +21,22 @@ const Icon = styled(MatIcon).attrs({ icon: "public" })<WICProps>`
 
   &:active,
   &:focus {
-    animation: beacon 400ms linear;
   }
 
   &:hover {
-    animation: spin 300ms linear;
+    animation-name: spin;
     color: ${({ theme }) => theme.colors.accent};
   }
 `;
 
 /** Component Props */
-type PublicIconProps = {
+type WorldIconProps = {
   permissions?: UserRole;
   world: APIData<World>;
 };
 
 /** Icon that indicates (and toggles) a `World's` public visibility  */
-const WorldPublicIcon = (props: PublicIconProps) => {
+export const WorldPublicIcon = (props: WorldIconProps) => {
   const { permissions, world } = props;
   const iconClass = world.public ? "icon success--text" : "icon error--text";
   const title = world.public ? "Public World" : "Private World";
@@ -56,3 +59,26 @@ const WorldPublicIcon = (props: PublicIconProps) => {
 };
 
 export default WorldPublicIcon;
+
+/** Icon that indicates (and toggles) a `World's` public visibility  */
+export const WorldDeleteIcon = (props: WorldIconProps) => {
+  const { permissions, world } = props;
+  const iconClass = world.public ? "icon success--text" : "icon error--text";
+  const title = world.public ? "Public World" : "Private World";
+  const onRemoveWorld: React.MouseEventHandler = async (e) => {
+    if (permissions !== "Author") return;
+    e.stopPropagation();
+    const data = { ...world, public: !world.public };
+    const resp = await deleteWorld(world.id);
+    if (resp) removeWorld(world.id);
+  };
+
+  return (
+    <Icon
+      className={iconClass}
+      onClick={onRemoveWorld}
+      permissions={permissions || "Reader"}
+      title={title}
+    />
+  );
+};

@@ -1,25 +1,23 @@
 /**
- * @file Locations.Mutations
- * @description Mutations for the `Locations` model
+ * @file Characters.Mutations
+ * @description Mutations for the `Characters` model
  */
 
 import { arg, intArg, mutationField, nonNull } from "nexus";
-import * as LocationsService from "../../services/locations.service";
+import * as CharactersService from "../../services/characters.service";
 
-/**
- * Create or update a new `Location` for a given `User` (Author role)
- */
-export const upsertLocationMutation = mutationField("upsertLocation", {
+/** Create or update a new `Character` for a given `User` (Author role) */
+export const upsertCharacterMutation = mutationField("upsertCharacter", {
   // The GraphQL type returned by this mutation
-  type: "MFLocation",
+  type: "MFCharacter",
 
   // Input arguments for this mutation. Every key will be required on the `args` object
   // sent to the mutation by the client
   args: {
     data: nonNull(
       arg({
-        type: "MFLocationUpsertInput",
-        description: "The data to create a new location"
+        type: "MFCharacterUpsertInput",
+        description: "The data to create a new character"
       })
     )
   },
@@ -30,48 +28,44 @@ export const upsertLocationMutation = mutationField("upsertLocation", {
    * @param args Args (everything defined in `args` property above)
    * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
    * database directly, or to access the authenticated `user` if the request has one.
-   * @returns `MFLocation` object from service
+   * @returns `MFCharacter` object from service
    */
   resolve: async (_, { data }, { user }) => {
     // require authentication
     if (!user?.id) {
-      throw new Error("You must be logged in to create a location");
+      throw new Error("You must be logged in to create a character");
     }
 
     // require Author role
     if (user.role !== "Author") {
-      throw new Error("Author role required to create a location");
+      throw new Error("Author role required to create a character");
     }
 
     // require ownership
     if (data.id && data.authorId !== user.id) {
-      throw new Error("You do not own this location");
+      throw new Error("You do not own this character");
     }
 
     // append authorId and data
-    return LocationsService.upsertLocation({
+    return CharactersService.upsertCharacter({
       ...data,
       authorId: user.id,
-      climate: data.climate || undefined,
-      fauna: data.fauna || undefined,
-      flora: data.flora || undefined,
-      id: data.id || undefined
+      id: data.id || undefined,
+      description: data.description || "No description",
     });
   }
 });
 
 /**
- * Delete a `Location` for a given `User` (Author role)
+ * Create or update a new `Character` for a given `User` (Author role)
  */
-export const deleteLocationMutation = mutationField("deleteLocation", {
+export const deleteCharacterMutation = mutationField("deleteCharacter", {
   // The GraphQL type returned by this mutation
-  type: "MFLocation",
+  type: "MFCharacter",
 
   // Input arguments for this mutation. Every key will be required on the `args` object
   // sent to the mutation by the client
-  args: {
-    id: nonNull(intArg())
-  },
+  args: { id: nonNull(intArg()) },
 
   /**
    * Mutation resolver
@@ -79,27 +73,27 @@ export const deleteLocationMutation = mutationField("deleteLocation", {
    * @param args Args (everything defined in `args` property above)
    * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
    * database directly, or to access the authenticated `user` if the request has one.
-   * @returns `MFLocation` object from service
+   * @returns `MFCharacter` object from service
    */
   resolve: async (_, { id }, { user }) => {
     // require authentication
     if (!user?.id) {
-      throw new Error("You must be logged in to perform that action");
+      throw new Error("You must be logged in to create a character");
     }
 
     // require Author role
     if (user.role !== "Author") {
-      throw new Error("Author role required to perform that action");
+      throw new Error("Author role required to create a character");
     }
 
     // require ownership
-    const location = await LocationsService.getLocation({ id });
-    if (!location) throw new Error("Location not found");
-    else if (location.authorId !== user.id) {
-      throw new Error("You do not own this location");
+    const character = await CharactersService.getCharacter({ id });
+    if (!character) throw new Error("Character not found");
+    else if (character.authorId !== user.id) {
+      throw new Error("You do not own this character");
     }
 
     // append authorId and data
-    return LocationsService.deleteLocation({ id });
+    return CharactersService.deleteCharacter({ id });
   }
 });

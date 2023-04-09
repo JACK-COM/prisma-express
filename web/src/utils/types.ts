@@ -149,6 +149,14 @@ export type Character = {
   LocationRelation &
   WorldRelation;
 
+/** A `CharacterRelationship` associates two `Characters` */
+export type CharacterRelationship = {
+  characterId: number; // ( references Character  )
+  targetId: number; // ( references Character | no relation )
+  relationship: string;
+  Character?: Character; // @relation(fields: [characterId], references: [id], onDelete: Cascade)
+};
+
 /** `Event` (`WorldEvent` in UI) is a significant `World` occurrence */
 export type WorldEvent = {
   name: string;

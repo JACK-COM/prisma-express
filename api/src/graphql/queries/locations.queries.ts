@@ -20,7 +20,7 @@ export const getLocationById = queryField("getLocationById", {
   },
 
   /**
-   * Query resolver: this is where the magic happens
+   * Query resolver
    * @param _ Source object (ignored in mutations/queries)
    * @param args Args (everything defined in `args` property above)
    * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
@@ -69,7 +69,7 @@ export const listLocations = queryField("listLocations", {
   },
 
   /**
-   * Query resolver: this is where the magic happens
+   * Query resolver
    * @param _ Source object (ignored in mutations/queries)
    * @param args Args (everything defined in `args` property above)
    * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
@@ -82,7 +82,7 @@ export const listLocations = queryField("listLocations", {
 
     // return only public locations or author
     const world = await getWorld({ id: args.worldId });
-    if (!world || (!world.public && user?.id !== authorId)) return [];
+    if (!world || (!world.public && user?.id !== world.authorId)) return [];
     const locations = await LocationsService.findAllLocation({
       ...args,
       id: args.id || undefined,

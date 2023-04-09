@@ -8,8 +8,7 @@ import {
   PageTitle
 } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
-import { Paths, insertId } from "routes";
-// import {} from "../graphql/requests/locations.graphql";
+import { Paths } from "routes";
 import { listLocations, listWorlds } from "../graphql/requests/worlds.graphql";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, Location, World } from "utils/types";
@@ -18,7 +17,7 @@ import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useNavigate, useParams } from "react-router";
 import LocationItem from "../components/LocationItem";
-import WorldPublicIcon from "components/WorldPublicIcon";
+import WorldPublicIcon from "components/WorldIcons";
 import ManageLocationModal from "components/Modals/ManageLocationModal";
 
 const { Worlds: WorldPaths } = Paths;
@@ -35,7 +34,6 @@ const List = styled(ListView)`
 /** ROUTE: List of World `Locations` */
 const WorldLocationsList = () => {
   const { role, authenticated } = useGlobalUser(["role", "authenticated"]);
-  const navigate = useNavigate();
   const {
     active: activeModal,
     clearGlobalModal,
@@ -49,7 +47,12 @@ const WorldLocationsList = () => {
     setGlobalWorld,
     setGlobalLocation,
     setGlobalLocations
-  } = useGlobalWorld(["selectedWorld", "selectedLocation", "worldLocations"]);
+  } = useGlobalWorld([
+    "selectedWorld",
+    "selectedLocation",
+    "worlds",
+    "worldLocations"
+  ]);
   const [error, setError] = useState<string>();
   const { worldId } = useParams<{ worldId: string }>();
   const place = useMemo(() => selectedWorld?.name || "World", [selectedWorld]);

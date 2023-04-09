@@ -116,9 +116,6 @@ const THEME: GlobalTheme = {
     .success--text{ 
       color: #2ca258; 
     }
-    .grey--text{ 
-      color: #dcdcdc; 
-    }
     .warning--text{ 
       color: ${({ theme }) => theme.colors.warning}; 
     }

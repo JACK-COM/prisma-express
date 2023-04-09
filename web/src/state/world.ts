@@ -36,24 +36,57 @@ export const setGlobalWorld = (w: APIWorld | null) =>
  * @param newWorlds New worlds
  */
 export function updateWorlds(newWorlds: APIWorld[]) {
-  return updateList(newWorlds, "worlds");
+  const { selectedWorld } = GlobalWorld.getState();
+  if (newWorlds.length !== 1 || !selectedWorld) {
+    return updateWorldStateList(newWorlds, "worlds");
+  }
+
+  const worlds = updateWorldStateList(newWorlds, "worlds", true);
+  GlobalWorld.multiple({ worlds, selectedWorld: newWorlds[0] });
 }
 
 /**
  * Update list of locations in state
- * @param newWorlds New worlds
+ * @param newLocations New locations
  */
 export function updateLocations(newLocations: APILocation[]) {
-  return updateList(newLocations, "worldLocations");
+  const { selectedLocation } = GlobalWorld.getState();
+  if (newLocations.length !== 1 || !selectedLocation) {
+    return updateWorldStateList(newLocations, "worldLocations");
+  }
+
+  const worldLocations = updateWorldStateList(
+    newLocations,
+    "worldLocations",
+    true
+  );
+  GlobalWorld.multiple({ worldLocations, selectedLocation: newLocations[0] });
+}
+
+/**
+ * Remove world from list in from state
+ * @param targetId Id of target object
+ */
+export function removeWorld(targetId: number) {
+  return removeFromWorldsList(targetId, "worlds");
+}
+
+/**
+ * Remove location from list in from state
+ * @param targetId Id of target object
+ */
+export function removeLocation(targetId: number) {
+  return removeFromWorldsList(targetId, "worldLocations");
 }
 
 /**
  * Update list-key in state
  * @param newItems New worlds
  */
-export function updateList<T extends APIData<any>[]>(
+export function updateWorldStateList<T extends APIData<any>[]>(
   newItems: T,
-  key: GlobalWorldListKey
+  key: GlobalWorldListKey,
+  returnList = false
 ) {
   const state = GlobalWorld.getState();
   const old = state[key] as T;
@@ -64,6 +97,8 @@ export function updateList<T extends APIData<any>[]>(
     else next.push(w);
   });
 
+  if (returnList) return next;
+
   GlobalWorld[key](next);
 }
 
@@ -71,7 +106,7 @@ export function updateList<T extends APIData<any>[]>(
  * Overwrite a list-key in state
  * @param newItems New worlds
  */
-export function setList<T extends APIData<any>[]>(
+export function setWorldStateList<T extends APIData<any>[]>(
   newItems: T,
   key: GlobalWorldListKey
 ) {
@@ -84,4 +119,16 @@ export function setList<T extends APIData<any>[]>(
  */
 export function clearGlobalWorld() {
   GlobalWorld.selectedWorld(null);
+}
+
+/**
+ * Remove item from list in from state
+ * @param targetId Id of target object
+ */
+function removeFromWorldsList(targetId: number, key: GlobalWorldListKey) {
+  const state = GlobalWorld.getState();
+  const old: any[] = state[key];
+  const next = old.filter((x) => x.id !== targetId);
+
+  GlobalWorld[key](next);
 }

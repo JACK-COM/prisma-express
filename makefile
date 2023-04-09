@@ -1,3 +1,5 @@
+VARS="secrets.tfvars"
+
 # dev env spin up
 dev:
 	npm i -g concurrently
@@ -10,3 +12,9 @@ dev-web:
 dev-api:
 # run dev api
 	cd ./api && npm install && npm run start
+
+tf-init:
+	cd ./terraform && terraform init
+
+terraform-push:
+	cd ./terraform && terraform plan -var-file="$(VARS)" && terraform apply -var-file="$(VARS)"

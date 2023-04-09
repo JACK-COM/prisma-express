@@ -1,5 +1,5 @@
 /** @file GraphQL Queries */
-import { MFUserFragment, MFWorldFragment } from "./fragments";
+import { MFLocationFragment, MFUserFragment, MFWorldFragment } from "./fragments";
 
 /** List `Authors` graphql query */
 export const listAuthorsQuery = (args = "") =>
@@ -9,8 +9,23 @@ export const listAuthorsQuery = (args = "") =>
     } 
   }`;
 
-/** List `Authors` graphql query */
-export const listWorldsQuery = (args: Record<string, any>) =>
+/** List `Worlds` graphql query */
+export const listLocationsQuery = () =>
+  `query ListLocations(
+    $id: Int, $authorId: Int, $worldId: Int!, $description: String, $name: String
+   ) { 
+    listLocations(
+      id: $id, 
+      authorId: $authorId, 
+      worldId: $worldId, 
+      description: $description, 
+      name: $name) {
+      ${MFLocationFragment}
+    } 
+  }`;
+
+/** List `Worlds` graphql query */
+export const listWorldsQuery = () =>
   `query ListWorlds(
     $id: Int, $authorId: Int, $description: String, $name: String
    ) { 

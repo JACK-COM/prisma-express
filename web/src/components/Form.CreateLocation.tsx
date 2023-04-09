@@ -1,6 +1,6 @@
 import { ChangeEvent } from "react";
 import { noOp } from "../utils";
-import { Richness, World, WorldType } from "../utils/types";
+import { Climate, Richness, World, WorldType } from "../utils/types";
 import {
   Form,
   FormRow,
@@ -21,14 +21,15 @@ export type CreateLocationProps = {
 };
 
 /** `WorldTypes` list */
-const worldTypes = [WorldType.Universe, WorldType.Realm, WorldType.Other];
+const climates = [Climate.Warm, Climate.Temperate, Climate.Polar];
+const abundance = [Richness.Sparse, Richness.Adequate, Richness.Abundant];
 
 /** Create or edit a `World` */
 const CreateLocationForm = (props: CreateLocationProps) => {
   const { data, onChange = noOp } = props;
+  const updateClimate = (e: Climate) => onChange({ ...data, climate: e });
   const updateFlora = (e: Richness) => onChange({ ...data, flora: e });
   const updateFauna = (e: Richness) => onChange({ ...data, fauna: e });
-  const updateType = (type: WorldType) => onChange({ ...data, type });
   const updateDescription = (e: ChangeEvent<HTMLTextAreaElement>) => {
     onChange({ ...data, description: e.target.value });
   };
@@ -38,80 +39,99 @@ const CreateLocationForm = (props: CreateLocationProps) => {
 
   return (
     <Form>
-      <Legend>New World or Universe</Legend>
+      <Legend>New Location</Legend>
       <Hint>
-        A <b>Location</b> is <b>a unique setting</b> in a <b>world</b>. It
-        can be anything from a planet or galaxy to a dimension with neither
-        space nor time -- as long as it contains two or more related settings.
+        A <b>Location</b> is <b>a unique setting</b> in a <b>world</b>. It can
+        be anywhere that a story scene takes place.
       </Hint>
 
       {/* Name */}
       <Label direction="column">
-        <span className="label required">World Name</span>
+        <span className="label required">Location Name</span>
         <Input
-          placeholder="The Plains of Omarai"
+          placeholder="North Omarai"
           type="text"
           value={data?.name || ""}
           onChange={updateTitle}
         />
       </Label>
-      <Hint>Enter a name for your world.</Hint>
+      <Hint>
+        Enter a name for your <b>location</b>.
+      </Hint>
 
       {/* Public/Private */}
       <Label direction="column">
-        <span className="label">Is this world public?</span>
+        <span className="label">How's the climate?</span>
         <Hint>
-          Select <b>Public</b> if you would like other users to see and build on
-          this idea.
+          <b>(Optional)</b> Set the general climate of the region.
         </Hint>
 
-        <FormRow>
-          <RadioLabel>
-            <span>Public</span>
-            <RadioInput
-              checked={data?.public || false}
-              name="isPublic"
-              onChange={() => updatePublic(true)}
-            />
-          </RadioLabel>
-          <RadioLabel>
-            <span>Private</span>
-            <RadioInput
-              checked={!data?.public}
-              name="isPublic"
-              onChange={() => updatePublic(false)}
-            />
-          </RadioLabel>
+        <FormRow columns="repeat(3, 1fr)">
+          {climates.map((clim) => (
+            <RadioLabel key={clim.valueOf()}>
+              <span>{clim.valueOf()}</span>
+              <RadioInput
+                checked={data?.climate === clim}
+                name="local-climate"
+                onChange={() => updateClimate(clim)}
+              />
+            </RadioLabel>
+          ))}
         </FormRow>
       </Label>
 
-      {/* Type */}
+      {/* Plant-life */}
       <Label direction="column">
-        <span className="label required">What type of World is it?</span>
-        <Select
-          data={worldTypes}
-          value={data?.type || ""}
-          itemText={(d) => d.valueOf()}
-          itemValue={(d) => d}
-          placeholder="Select a World Type:"
-          onChange={updateType}
-        />
+        <span className="label">What about the plant life?</span>
+
+        <FormRow columns="repeat(3, 1fr)">
+          {abundance.map((c) => (
+            <RadioLabel key={c.valueOf()}>
+              <span>{c.valueOf()}</span>
+              <RadioInput
+                checked={data?.flora === c}
+                name="local-flora"
+                onChange={() => updateFlora(c)}
+              />
+            </RadioLabel>
+          ))}
+        </FormRow>
       </Label>
       <Hint>
-        Select <b>Realm</b> if e.g. you've got a mystical or transdimensional
-        space.
+        Optional field. Select <b>adequate</b> if you don't really care.
+      </Hint>
+
+      {/* Animal-life */}
+      <Label direction="column">
+        <span className="label">What about the animal life?</span>
+
+        <FormRow columns="repeat(3, 1fr)">
+          {abundance.map((r) => (
+            <RadioLabel key={r.valueOf()}>
+              <span>{r.valueOf()}</span>
+              <RadioInput
+                checked={data?.fauna === r}
+                name="local-fauna"
+                onChange={() => updateFauna(r)}
+              />
+            </RadioLabel>
+          ))}
+        </FormRow>
+      </Label>
+      <Hint>
+        Optional field. Select <b>sparse</b> if this place is a desert.
       </Hint>
 
       {/* Description */}
       <Label direction="column">
-        <span className="label required">Short Description</span>
+        <span className="label">Short Description</span>
         <Textarea
-          placeholder="Enter world description"
+          placeholder="Enter location description"
           value={data?.description || ""}
           onChange={updateDescription}
         />
       </Label>
-      <Hint>Describe your world as a series of short writing-prompts.</Hint>
+      <Hint>Gve yourself some inspiration.</Hint>
     </Form>
   );
 };

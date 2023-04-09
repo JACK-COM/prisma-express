@@ -1,6 +1,10 @@
 import fetchGQL from "graphql/fetch-gql";
 import { upsertLocationMutation, upsertWorldMutation } from "graphql/mutations";
-import { listWorldsQuery } from "graphql/queries";
+import {
+  listWorldsQuery,
+  listAuthorsQuery,
+  listLocationsQuery
+} from "graphql/queries";
 import { APIData, Location, World } from "utils/types";
 
 /** Data required to create a world */
@@ -49,7 +53,7 @@ type WorldFilters = Pick<
 >;
 export async function listWorlds(filters: Partial<WorldFilters> = {}) {
   const newWorld = await fetchGQL<APIData<World>[]>({
-    query: listWorldsQuery(filters),
+    query: listWorldsQuery(),
     variables: { ...filters },
     onResolve: ({ listWorlds: list }) => list,
     fallbackResponse: []
@@ -59,7 +63,22 @@ export async function listWorlds(filters: Partial<WorldFilters> = {}) {
 }
 
 // Use fetchGQL to list all `Locations` on a world (with optional filters)
-type LocationFilters = Pick<
-  APIData<Location>,
-  "id" | "name" | "description" | "climate" | "flora" | "fauna" | "worldId"
+type LocationFilters = { worldId: number } & Partial<
+  Pick<
+    APIData<Location>,
+    "id" | "name" | "description" | "climate" | "flora" | "fauna"
+  >
 >;
+
+export async function listLocations(
+  filters: LocationFilters = { worldId: -1 }
+) {
+  const newLocation = await fetchGQL<APIData<Location>[]>({
+    query: listLocationsQuery(),
+    variables: { ...filters, worldId: filters.worldId },
+    onResolve: ({ listLocations: list }) => list,
+    fallbackResponse: []
+  });
+
+  return newLocation;
+}

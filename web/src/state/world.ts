@@ -20,6 +20,7 @@ export const GlobalWorld = createState({
 
 export type GlobalWorldInstance = ReturnType<typeof GlobalWorld.getState>;
 export type GlobalWorldInstanceKey = keyof GlobalWorldInstance;
+/** All lists in state */
 export type GlobalWorldListKey = "worlds" | "worldLocations";
 
 /** @helper Select a `Location` */
@@ -29,9 +30,6 @@ export const setGlobalLocation = (l: APILocation | null) =>
 /** @helper Select a `World` */
 export const setGlobalWorld = (w: APIWorld | null) =>
   GlobalWorld.selectedWorld(w);
-
-/** @helper Set a list of `Worlds` */
-export const setGlobalWorlds = (w: APIWorld[]) => GlobalWorld.worlds(w);
 
 /**
  * Update list of worlds in state
@@ -67,6 +65,17 @@ export function updateList<T extends APIData<any>[]>(
   });
 
   GlobalWorld[key](next);
+}
+
+/**
+ * Overwrite a list-key in state
+ * @param newItems New worlds
+ */
+export function setList<T extends APIData<any>[]>(
+  newItems: T,
+  key: GlobalWorldListKey
+) {
+  GlobalWorld[key](newItems);
 }
 
 /**

@@ -8,17 +8,12 @@ import { Hint } from "components/Forms/Form";
 type WICProps = { permissions: UserRole };
 const Container = styled(GridContainer)<WICProps>`
   border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
-  cursor: pointer;
   grid-template-areas:
     "icon name"
     "icon description";
   justify-content: left;
   padding: ${({ theme }) => theme.sizes.xs} 0;
   width: 100%;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.semitransparent};
-  }
 `;
 const Icon = styled(MatIcon).attrs({ icon: "pin_drop" })<WICProps>`
   align-self: center;
@@ -44,6 +39,7 @@ const Description = styled(Hint)`
 `;
 const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<WICProps>`
   grid-area: name;
+  cursor: pointer;
   pointer-events: ${({ permissions }) =>
     permissions === "Author" ? "fill" : "none"};
 
@@ -55,7 +51,6 @@ const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<WICProps>`
     display: inline-block;
     padding: ${({ theme }) => theme.sizes.xs};
     font-size: smaller;
-    cursor: pointer;
   }
 `;
 

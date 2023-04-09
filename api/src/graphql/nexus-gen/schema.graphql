@@ -140,6 +140,7 @@ type MFLocation {
   Events: [MFEvent]
   Groups: [MFPopulationGroup]
   Scenes: [MFScene]
+  World: [MFWorld]
 
   """Event Author"""
   authorId: Int
@@ -337,7 +338,7 @@ type Query {
   """
   List/filter multiple `Locations`. Author can view their own locations, a reader can view public locations
   """
-  listLocations(authorId: Int, description: String, id: Int, name: String): [MFLocation]
+  listLocations(authorId: Int, description: String, id: Int, name: String, worldId: Int!): [MFLocation]
 
   """
   List/filter multiple `Worlds`. Author can view their own worlds, a reader can view public worlds

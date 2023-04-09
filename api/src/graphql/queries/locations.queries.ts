@@ -63,6 +63,7 @@ export const listLocations = queryField("listLocations", {
   args: {
     id: intArg(),
     authorId: intArg(),
+    worldId: nonNull(intArg()),
     description: stringArg({ default: undefined }),
     name: stringArg({ default: undefined })
   },
@@ -80,12 +81,16 @@ export const listLocations = queryField("listLocations", {
     const { authorId, description, name } = args;
 
     // return only public locations or author
+    const world = await getWorld({ id: args.worldId });
+    if (!world || (!world.public && user?.id !== authorId)) return [];
     const locations = await LocationsService.findAllLocation({
+      ...args,
       id: args.id || undefined,
       authorId: authorId || undefined,
       description: description || undefined,
       name: name || undefined
     });
-    return locations.filter((l) => l.World.public || user?.id === l.authorId);
+
+    return locations;
   }
 });

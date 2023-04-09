@@ -10,6 +10,7 @@ import { clearGlobalModal } from "state";
 import { Climate } from "utils/types";
 import { Richness } from "utils/types";
 import { useGlobalWorld } from "hooks/GlobalWorld";
+import CreateLocationForm from "components/Form.CreateLocation";
 
 /** Modal props */
 type ManageLocationModalProps = {
@@ -30,9 +31,13 @@ const ErrorMessage = styled.aside.attrs({
 /** Specialized Modal for creating/editing a World `Location` */
 export default function ManageLocationModal(props: ManageLocationModalProps) {
   const { data, open, onClose = clearGlobalModal, worldId } = props;
-  const { updateLocations } = useGlobalWorld(["selectedLocation"]);
-  const [formData, setFormData] = useState<Partial<CreateLocationData>>({});
+  const { updateLocations } = useGlobalWorld(["worldLocations"]);
   const [error, setError] = useState("");
+  const [formData, setFormData] = useState<Partial<CreateLocationData>>({
+    climate: Climate.Temperate,
+    flora: Richness.Adequate,
+    fauna: Richness.Adequate
+  });
   const submit = async () => {
     // Validate
     if (!formData.name) return setError("Name is required.");
@@ -69,7 +74,7 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
       confirmText={data?.id ? "Update" : "Create"}
       onConfirm={submit}
     >
-      <CreateWorldForm data={formData} onChange={setFormData} />
+      <CreateLocationForm data={formData} onChange={setFormData} />
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </Modal>
   );

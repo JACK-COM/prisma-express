@@ -10,8 +10,7 @@ import {
 import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths, insertId } from "routes";
 // import {} from "../graphql/requests/locations.graphql";
-import { listWorlds } from "../graphql/requests/worlds.graphql";
-import CreateWorldModal from "components/Modals/ManageWorldModal";
+import { listLocations, listWorlds } from "../graphql/requests/worlds.graphql";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, Location, World } from "utils/types";
 import ListView from "components/Common/ListView";
@@ -20,6 +19,7 @@ import { useGlobalUser } from "hooks/GlobalUser";
 import { useNavigate, useParams } from "react-router";
 import LocationItem from "../components/LocationItem";
 import WorldPublicIcon from "components/WorldPublicIcon";
+import ManageLocationModal from "components/Modals/ManageLocationModal";
 
 const { Worlds: WorldPaths } = Paths;
 const AddLocationButton = styled(ButtonWithIcon)`
@@ -44,29 +44,42 @@ const WorldLocationsList = () => {
   } = useGlobalModal();
   const {
     selectedWorld,
+    selectedLocation,
     worldLocations = [],
     setGlobalWorld,
-    setGlobalLocation
-  } = useGlobalWorld(["selectedWorld", "worldLocations"]);
+    setGlobalLocation,
+    setGlobalLocations
+  } = useGlobalWorld(["selectedWorld", "selectedLocation", "worldLocations"]);
   const [error, setError] = useState<string>();
   const { worldId } = useParams<{ worldId: string }>();
   const place = useMemo(() => selectedWorld?.name || "World", [selectedWorld]);
   const loadComponentData = async () => {
-    if (selectedWorld || !worldId || isNaN(Number(worldId))) return;
-    const [world] = await listWorlds({ id: Number(worldId) });
-    setGlobalWorld(world);
+    if (!worldId || isNaN(Number(worldId))) return;
+    const [[world], locations] = await Promise.all([
+      selectedWorld ? [selectedWorld] : listWorlds({ id: Number(worldId) }),
+      listLocations({ worldId: Number(worldId) })
+    ]);
     if (!world) setError("World not found");
+    else {
+      setGlobalWorld(world);
+      setGlobalLocations(locations);
+    }
+  };
+  const clearModalData = () => {
+    setGlobalLocation(null);
+    clearGlobalModal();
   };
   const clearComponentData = () => {
+    clearModalData();
     setGlobalWorld(null);
-    clearGlobalModal();
+    setGlobalLocations([]);
   };
   const onEditLocation = (location: APIData<Location>) => {
     setGlobalLocation(location);
     setGlobalModal(MODAL.MANAGE_LOCATION);
   };
-  const onSelectLocation = ({ id }: APIData<Location>) => {
-    navigate(insertId(WorldPaths.Locations.path, id));
+  const onSelectLocation = (location: APIData<Location>) => {
+    setGlobalLocation(location);
   };
 
   useEffect(() => {
@@ -148,11 +161,14 @@ const WorldLocationsList = () => {
         )}
       </Card>
 
-      <CreateWorldModal
-        data={selectedWorld}
-        open={activeModal === MODAL.MANAGE_LOCATION}
-        onClose={clearComponentData}
-      />
+      {selectedWorld && (
+        <ManageLocationModal
+          data={selectedLocation}
+          open={activeModal === MODAL.MANAGE_LOCATION}
+          onClose={clearModalData}
+          worldId={selectedWorld.id}
+        />
+      )}
     </PageContainer>
   );
 };

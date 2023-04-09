@@ -4,15 +4,15 @@ import { noOp } from "utils";
 import { lineclamp } from "theme/theme.shared";
 import { GridContainer, MatIcon } from "./Common/Containers";
 import { Hint } from "./Forms/Form";
-import WorldPublicIcon from "./WorldPublicIcon";
+import WorldPublicIcon from "./WorldIcons";
 
 export type WICProps = { permissions: UserRole };
 const Container = styled(GridContainer)<WICProps>`
   border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
   cursor: pointer;
   grid-template-areas:
-    "icon name"
-    "icon description";
+    "icon name trash"
+    "icon description trash";
   justify-content: left;
   padding: ${({ theme }) => theme.sizes.xs};
   width: 100%;
@@ -57,7 +57,6 @@ const WorldItem = ({
   onEdit = noOp,
   permissions = "Reader"
 }: WorldItemProps) => {
-  const { public: isPublic } = world;
   const edit: React.MouseEventHandler = (e) => {
     if (permissions !== "Author") return;
     e.stopPropagation();

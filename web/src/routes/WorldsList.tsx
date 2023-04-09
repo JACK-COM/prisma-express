@@ -9,10 +9,7 @@ import {
 } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths, insertId } from "routes";
-import {
-  createOrUpdateWorld,
-  listWorlds
-} from "graphql/requests/worlds.graphql";
+import { listWorlds } from "graphql/requests/worlds.graphql";
 import CreateWorldModal from "components/Modals/ManageWorldModal";
 import ListView from "components/Common/ListView";
 import WorldItem from "components/WorldItem";

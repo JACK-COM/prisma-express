@@ -19,7 +19,7 @@ export const getWorldById = queryField("getWorldById", {
   },
 
   /**
-   * Query resolver: this is where the magic happens
+   * Query resolver
    * @param _ Source object (ignored in mutations/queries)
    * @param args Args (everything defined in `args` property above)
    * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
@@ -62,7 +62,7 @@ export const listWorlds = queryField("listWorlds", {
   },
 
   /**
-   * Query resolver: this is where the magic happens
+   * Query resolver
    * @param _ Source object (ignored in mutations/queries)
    * @param args Args (everything defined in `args` property above)
    * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access

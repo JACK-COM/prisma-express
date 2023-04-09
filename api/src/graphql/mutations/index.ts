@@ -6,3 +6,4 @@
 
 export * from "./worlds.mutations";
 export * from "./locations.mutations";
+export * from "./characters.mutations";

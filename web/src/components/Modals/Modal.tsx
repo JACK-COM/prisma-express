@@ -3,6 +3,7 @@ import { MouseEventHandler, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { noOp } from "utils";
 import { FlexColumn, GridContainer, MatIcon } from "../Common/Containers";
+import { textShadow } from "components/Forms/Button.Helpers";
 
 const ModalContainer = styled(FlexColumn)`
   height: 100vh;
@@ -37,6 +38,7 @@ const ModalControls = styled(GridContainer)`
   padding: 0.4rem;
 
   > button {
+    font-weight: bolder;
     margin: 0;
   }
 `;

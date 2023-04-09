@@ -6,7 +6,7 @@ import {
   clearGlobalWorld,
   setGlobalLocation,
   setGlobalWorld,
-  setList,
+  setWorldStateList,
   updateLocations,
   updateWorlds
 } from "state";
@@ -25,9 +25,6 @@ export function useGlobalWorld(
 
   useEffect(() => GlobalWorld.subscribeToKeys(onWorld, keys), []);
 
-  /** @helper Set a list of `Worlds` */
-
-  /** @helper Set a list of `Locations` */
   return {
     ...state,
 
@@ -35,9 +32,9 @@ export function useGlobalWorld(
     clearGlobalWorld,
     setGlobalLocation,
     setGlobalWorld,
-    setGlobalWorlds: (w: APIData<World>[]) => setList(w, "worlds"),
+    setGlobalWorlds: (w: APIData<World>[]) => setWorldStateList(w, "worlds"),
     setGlobalLocations: (w: APIData<Location>[]) =>
-      setList(w, "worldLocations"),
+      setWorldStateList(w, "worldLocations"),
     updateLocations,
     updateWorlds
   };

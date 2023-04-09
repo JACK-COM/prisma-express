@@ -29,6 +29,15 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  MFCharacterUpsertInput: { // input type
+    authorId?: number | null; // Int
+    description: string | null; // String
+    groupId?: number | null; // Int
+    id?: number | null; // Int
+    locationId?: number | null; // Int
+    name: string; // String!
+    worldId: number; // Int!
+  }
   MFLocationUpsertInput: { // input type
     authorId?: number | null; // Int
     climate?: NexusGenEnums['Climate'] | null; // Climate
@@ -97,14 +106,14 @@ export interface NexusGenObjects {
     order: number; // Int!
   }
   MFCharacter: { // root type
-    CharacterRelationship: Array<NexusGenRootTypes['MFCharacterRelationship'] | null>; // [MFCharacterRelationship]!
+    CharacterRelationship?: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
     authorId?: number | null; // Int
     description: string; // String!
     groupId?: number | null; // Int
     id: number; // Int!
     locationId?: number | null; // Int
     name: string; // String!
-    worldId: number; // Int!
+    worldId?: number | null; // Int
   }
   MFCharacterRelationship: { // root type
     characterId: number; // Int!
@@ -261,14 +270,14 @@ export interface NexusGenFieldTypes {
     order: number; // Int!
   }
   MFCharacter: { // field return type
-    CharacterRelationship: Array<NexusGenRootTypes['MFCharacterRelationship'] | null>; // [MFCharacterRelationship]!
+    CharacterRelationship: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
     authorId: number | null; // Int
     description: string; // String!
     groupId: number | null; // Int
     id: number; // Int!
     locationId: number | null; // Int
     name: string; // String!
-    worldId: number; // Int!
+    worldId: number | null; // Int
   }
   MFCharacterRelationship: { // field return type
     characterId: number; // Int!
@@ -384,13 +393,21 @@ export interface NexusGenFieldTypes {
     type: NexusGenEnums['WorldType']; // WorldType!
   }
   Mutation: { // field return type
+    deleteCharacter: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
+    deleteLocation: NexusGenRootTypes['MFLocation'] | null; // MFLocation
+    deleteWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
+    upsertCharacter: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
     upsertLocation: NexusGenRootTypes['MFLocation'] | null; // MFLocation
     upsertWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
   }
   Query: { // field return type
+    getCharacterById: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
     getLocationById: NexusGenRootTypes['MFLocation'] | null; // MFLocation
+    getRelationshipById: NexusGenRootTypes['MFCharacterRelationship'] | null; // MFCharacterRelationship
     getWorldById: NexusGenRootTypes['MFWorld'] | null; // MFWorld
+    listCharacters: Array<NexusGenRootTypes['MFCharacter'] | null> | null; // [MFCharacter]
     listLocations: Array<NexusGenRootTypes['MFLocation'] | null> | null; // [MFLocation]
+    listRelationships: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
     listWorlds: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
   }
 }
@@ -546,19 +563,39 @@ export interface NexusGenFieldTypeNames {
     type: 'WorldType'
   }
   Mutation: { // field return type name
+    deleteCharacter: 'MFCharacter'
+    deleteLocation: 'MFLocation'
+    deleteWorld: 'MFWorld'
+    upsertCharacter: 'MFCharacter'
     upsertLocation: 'MFLocation'
     upsertWorld: 'MFWorld'
   }
   Query: { // field return type name
+    getCharacterById: 'MFCharacter'
     getLocationById: 'MFLocation'
+    getRelationshipById: 'MFCharacterRelationship'
     getWorldById: 'MFWorld'
+    listCharacters: 'MFCharacter'
     listLocations: 'MFLocation'
+    listRelationships: 'MFCharacterRelationship'
     listWorlds: 'MFWorld'
   }
 }
 
 export interface NexusGenArgTypes {
   Mutation: {
+    deleteCharacter: { // args
+      id: number; // Int!
+    }
+    deleteLocation: { // args
+      id: number; // Int!
+    }
+    deleteWorld: { // args
+      id: number; // Int!
+    }
+    upsertCharacter: { // args
+      data: NexusGenInputs['MFCharacterUpsertInput']; // MFCharacterUpsertInput!
+    }
     upsertLocation: { // args
       data: NexusGenInputs['MFLocationUpsertInput']; // MFLocationUpsertInput!
     }
@@ -567,11 +604,24 @@ export interface NexusGenArgTypes {
     }
   }
   Query: {
+    getCharacterById: { // args
+      id: number; // Int!
+    }
     getLocationById: { // args
+      id: number; // Int!
+    }
+    getRelationshipById: { // args
       id: number; // Int!
     }
     getWorldById: { // args
       id: number; // Int!
+    }
+    listCharacters: { // args
+      authorId?: number | null; // Int
+      description?: string | null; // String
+      id?: number | null; // Int
+      name?: string | null; // String
+      worldId?: number | null; // Int
     }
     listLocations: { // args
       authorId?: number | null; // Int
@@ -579,6 +629,12 @@ export interface NexusGenArgTypes {
       id?: number | null; // Int
       name?: string | null; // String
       worldId: number; // Int!
+    }
+    listRelationships: { // args
+      characterId?: number | null; // Int
+      id?: number | null; // Int
+      relationship?: string | null; // String
+      targetId?: number | null; // Int
     }
     listWorlds: { // args
       authorId?: number | null; // Int

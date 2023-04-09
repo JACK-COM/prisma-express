@@ -55,13 +55,13 @@ export const Button = styled(ButtonBase)``;
 export default Button;
 
 /** Anchor tag with app button styles (and some props) */
-export const ButtonLink = styled.a`
+export const ButtonLink = styled.a<UI.SharedButtonProps>`
   ${defaultButtonCSS}
   color: inherit;
   padding: ${({ theme }) => theme.sizes.xs};
 `;
 /** `<Link>` component with app button styles (and some props) */
-export const StyledLink = styled(Link)`
+export const StyledLink = styled(Link)<UI.SharedButtonProps>`
   ${defaultButtonCSS}
   height: auto;
   text-shadow: ${UI.textShadow} !important;
@@ -88,13 +88,7 @@ export const LinkWithIcon = (props: LinkWithIconProps) => {
   const { icon, text, external, href = "", variant, ...linkProps } = props;
 
   return external ? (
-    <ButtonLink
-      size="sm"
-      target="_blank"
-      href={href}
-      variant={variant}
-      {...linkProps}
-    >
+    <ButtonLink target="_blank" href={href} variant={variant} {...linkProps}>
       <MatIcon icon={icon} />
       {text}
     </ButtonLink>

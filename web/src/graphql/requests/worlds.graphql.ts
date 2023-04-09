@@ -1,3 +1,7 @@
+/**
+ * @file worlds.graphql.ts
+ * @description GraphQL requests relating to `Worlds` and `Locations`.
+ */
 import fetchGQL from "graphql/fetch-gql";
 import { upsertLocationMutation, upsertWorldMutation } from "graphql/mutations";
 import {
@@ -30,6 +34,17 @@ export async function createOrUpdateWorld(data: Partial<CreateWorldData>) {
   });
 
   return newWorld;
+}
+
+export async function deleteWorld(worldId: number) {
+  const respWorld = await fetchGQL<APIData<World> | null>({
+    query: upsertWorldMutation(),
+    variables: { data: { id: worldId, deleted: true } },
+    onResolve: ({ upsertWorld: list }) => list,
+    fallbackResponse: null
+  });
+
+  return respWorld;
 }
 
 // Use fetchGQL to create a `Location` on the server

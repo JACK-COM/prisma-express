@@ -83,7 +83,7 @@ type MFChapter {
 
 """A significant actor in a `World`"""
 type MFCharacter {
-  CharacterRelationship: [MFCharacterRelationship]!
+  CharacterRelationship: [MFCharacterRelationship]
 
   """Author owner"""
   authorId: Int
@@ -98,7 +98,7 @@ type MFCharacter {
   name: String!
 
   """Character's `World` id"""
-  worldId: Int!
+  worldId: Int
 }
 
 """A linear relationship betwen actors in a `World`"""
@@ -107,6 +107,27 @@ type MFCharacterRelationship {
   id: Int!
   relationship: String!
   targetId: Int!
+}
+
+input MFCharacterUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+
+  """Character writing-prompts or bio"""
+  description: String = "No description"
+
+  """Character group/profession (OPTIONAL)"""
+  groupId: Int
+
+  """Character ID"""
+  id: Int
+
+  """Character location (OPTIONAL)"""
+  locationId: Int
+  name: String!
+
+  """World ID"""
+  worldId: Int!
 }
 
 """
@@ -321,6 +342,13 @@ input MFWorldUpsertInput {
 }
 
 type Mutation {
+  deleteCharacter(id: Int!): MFCharacter
+  deleteLocation(id: Int!): MFLocation
+  deleteWorld(id: Int!): MFWorld
+  upsertCharacter(
+    """The data to create a new character"""
+    data: MFCharacterUpsertInput!
+  ): MFCharacter
   upsertLocation(
     """The data to create a new location"""
     data: MFLocationUpsertInput!
@@ -332,13 +360,23 @@ type Mutation {
 }
 
 type Query {
+  getCharacterById(id: Int!): MFCharacter
   getLocationById(id: Int!): MFLocation
+  getRelationshipById(id: Int!): MFCharacterRelationship
   getWorldById(id: Int!): MFWorld
+
+  """
+  List/filter multiple `Characters`. Author can view their own characters, a reader can view public characters
+  """
+  listCharacters(authorId: Int, description: String, id: Int, name: String, worldId: Int): [MFCharacter]
 
   """
   List/filter multiple `Locations`. Author can view their own locations, a reader can view public locations
   """
   listLocations(authorId: Int, description: String, id: Int, name: String, worldId: Int!): [MFLocation]
+
+  """List/filter multiple `Character Relationships`."""
+  listRelationships(characterId: Int, id: Int, relationship: String, targetId: Int): [MFCharacterRelationship]
 
   """
   List/filter multiple `Worlds`. Author can view their own worlds, a reader can view public worlds

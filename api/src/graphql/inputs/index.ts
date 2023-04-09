@@ -21,6 +21,23 @@ export const MFWorldUpsertInput = inputObjectType({
   }
 });
 
+/** Input fields for creating a `Character` */
+export const MFCharacterUpsertInput = inputObjectType({
+  name: "MFCharacterUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "Character ID" });
+    t.nonNull.string("name");
+    t.string("description", {
+      default: "No description",
+      description: "Character writing-prompts or bio"
+    });
+    t.nonNull.int("worldId", { description: "World ID" });
+    t.int("authorId", { description: "Item Author/owner" });
+    t.int("groupId", { description: "Character group/profession (OPTIONAL)" });
+    t.int("locationId", { description: "Character location (OPTIONAL)" });
+  }
+});
+
 /** Input fields for creating a `Location` */
 export const MFLocationUpsertInput = inputObjectType({
   name: "MFLocationUpsertInput",

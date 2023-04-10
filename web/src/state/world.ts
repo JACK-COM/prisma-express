@@ -32,6 +32,16 @@ export const setGlobalWorld = (w: APIWorld | null) =>
   GlobalWorld.selectedWorld(w);
 
 /**
+ * Retrieve a world from state
+ * @param newWorlds New worlds
+ */
+export function getWorld(id: number) {
+  const { worlds } = GlobalWorld.getState();
+  const world = worlds.find((w) => w.id === id);
+  return world || null;
+}
+
+/**
  * Update list of worlds in state
  * @param newWorlds New worlds
  */

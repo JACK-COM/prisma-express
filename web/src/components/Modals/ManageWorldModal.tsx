@@ -1,9 +1,13 @@
 import CreateWorldForm from "components/Form.CreateWorld";
-import { CreateWorldData, createOrUpdateWorld } from "graphql/requests/worlds.graphql";
+import {
+  CreateWorldData,
+  createOrUpdateWorld
+} from "graphql/requests/worlds.graphql";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import Modal from "./Modal";
 import { clearGlobalModal, updateWorlds } from "state";
+import { ErrorMessage } from "components/Common/Containers";
 
 /** Modal props */
 type ManageWorldModalProps = {
@@ -11,14 +15,6 @@ type ManageWorldModalProps = {
   data?: Partial<CreateWorldData> | null;
   onClose?: () => void;
 };
-/** Error message container */
-const ErrorMessage = styled.aside.attrs({
-  role: "alert",
-  className: "error shake"
-})`
-  border-radius: ${({ theme }) => theme.presets.round.sm};
-  padding: 0.4rem;
-`;
 
 /** Specialized Modal for creating/editing a `World` */
 export default function ManageWorldModal(props: ManageWorldModalProps) {

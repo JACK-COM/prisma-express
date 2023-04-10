@@ -16,10 +16,10 @@ import books from "assets/mystic-books.png";
 import { useGlobalUser } from "hooks/GlobalUser";
 
 const SECTIONS = [
-  { data: Paths.Worlds, src: worlds }, // "Worlds & settings",
-  { data: Paths.Timelines, src: timelines }, // "Events & Timelines",
-  { data: Paths.Characters, src: characters }, // "Cast & Characters",
-  { data: Paths.BooksAndSeries, src: books } // "Books & Series"
+  { auth: false, data: Paths.Worlds, src: worlds }, // "Worlds & settings",
+  { auth: true, data: Paths.Characters, src: characters }, // "Cast & Characters",
+  { auth: true, data: Paths.Timelines, src: timelines }, // "Events & Timelines",
+  { auth: false, data: Paths.BooksAndSeries, src: books } // "Books & Series"
 ];
 const Controls = styled(GridContainer)`
   padding: 1rem 0;
@@ -35,11 +35,9 @@ const Dashboard = () => {
     return [1, "0.25rem"];
   }, [width]);
   const pageTitle = useMemo(() => {
-    return email ? "Dashboard" : "MythosForge Home"
+    return email ? "Dashboard" : "MythosForge Home";
   }, [email]);
-  const dashSections = [SECTIONS[0]];
-  if (email) dashSections.push(...SECTIONS.slice(1, 3));
-  dashSections.push(SECTIONS[3]);
+  const dashSections = SECTIONS.filter(({ auth }) => !auth || email);
 
   return (
     <PageContainer id="app-dashboard">

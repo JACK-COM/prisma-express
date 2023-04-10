@@ -57,9 +57,9 @@ mutation DeleteCharacter($id: Int!) {
 }`;
 
 /** Create new `Character Relationship` */
-export const upsertRelationshipMutation = () => `
-mutation UpsertRelationship($data: MFRelationshipUpsertInput!) {
-  upsertRelationship(data: $data) {
+export const upsertRelationshipsMutation = () => `
+mutation UpsertRelationship($data: [MFRelationshipUpsertInput!]!) {
+  upsertRelationships(data: $data) {
     ${MFRelationshipFragment}
   }
 }`;

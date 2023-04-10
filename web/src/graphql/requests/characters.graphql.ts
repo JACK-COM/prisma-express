@@ -6,7 +6,7 @@ import fetchGQL from "graphql/fetch-gql";
 import {
   deleteCharacterMutation,
   upsertCharacterMutation,
-  upsertRelationshipMutation
+  upsertRelationshipsMutation
 } from "graphql/mutations";
 import { listCharactersQuery, listRelationshipsQuery } from "graphql/queries";
 import { APIData, Character, CharacterRelationship } from "utils/types";
@@ -19,7 +19,7 @@ export type CreateCharacterData = {
 /** Data required to create a relationship */
 export type CreateRelationshipData = {
   id?: number;
-} & Pick<CharacterRelationship, "targetId" | "relationship">;
+} & Pick<CharacterRelationship, "characterId" | "targetId" | "relationship">;
 
 /** @mutation Create a `Character` on the server */
 export async function createOrUpdateCharacter(
@@ -47,15 +47,15 @@ export async function deleteCharacter(worldId: number) {
   return respCharacter;
 }
 
-/** @mutation Create a `Relationship` on the server */
-export async function createOrUpdateRelationship(
-  data: Partial<CreateRelationshipData>
+/** @mutation Create a `Character Relationship` on the server */
+export async function createOrUpdateRelationships(
+  data: Partial<CreateRelationshipData>[]
 ) {
   const newRelationship = await fetchGQL<APIData<CharacterRelationship> | null>(
     {
-      query: upsertRelationshipMutation(),
+      query: upsertRelationshipsMutation(),
       variables: { data },
-      onResolve: ({ upsertRelationship: list }) => list,
+      onResolve: ({ upsertRelationships: list }) => list,
       fallbackResponse: null
     }
   );

@@ -9,16 +9,18 @@ type GridImageLinkProps = {
   order?: "image-first" | "title-first";
 };
 
-const Title = styled.p.attrs({ className: "h5" })`
-  font-size: ${({ theme }) => theme.sizes.default};
+const Title = styled.p.attrs({ className: "h6" })`
+  line-height: 2.2;
 `;
 const LinkContainer = styled(StyledLink)<{ order?: string }>`
-  border: 1px solid ${({ theme }) => theme.colors.semitransparent};
+  border: 1px solid ${({ theme }) => theme.colors.accent};
+  color: initial;
   display: grid;
   grid-template-columns: 1fr;
 
   ${ImageLoader} {
     order: ${({ order = "image-first" }) => (order === "image-first" ? 1 : 2)};
+    border: inherit;
   }
   ${Title} {
     order: ${({ order = "image-first" }) => (order === "image-first" ? 2 : 1)};

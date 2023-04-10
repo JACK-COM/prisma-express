@@ -13,13 +13,14 @@ import {
   PageTitle
 } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
-import { Paths, insertId } from "routes";
+import { Paths } from "routes";
 import { listCharacters } from "graphql/requests/characters.graphql";
 import { listWorlds } from "graphql/requests/worlds.graphql";
 import CreateCharacterModal from "components/Modals/ManageCharacterModal";
 import ListView from "components/Common/ListView";
 import CharacterItem from "components/CharacterItem";
 import { APIData, Character } from "utils/types";
+import CreateRelationshipsModal from "components/Modals/CreateRelationshipsModal";
 
 const { Characters: CharacterPaths } = Paths;
 const AddCharacterButton = styled(ButtonWithIcon)`
@@ -41,6 +42,7 @@ const CharactersList = () => {
   const { setGlobalWorlds } = useGlobalWorld();
   const {
     characters = [],
+    relationships = [],
     selectedCharacter,
     setGlobalCharacter,
     setGlobalCharacters
@@ -57,9 +59,13 @@ const CharactersList = () => {
     setGlobalCharacter(null);
     clearGlobalModal();
   };
-  const onEditCharacter = (world: APIData<Character>) => {
-    setGlobalCharacter(world);
-    setGlobalModal(MODAL.MANAGE_WORLD);
+  const onCharacterRelationships = (char: APIData<Character>) => {
+    setGlobalCharacter(char);
+    setGlobalModal(MODAL.MANAGE_RELATIONSHIPS);
+  };
+  const onEditCharacter = (char: APIData<Character>) => {
+    setGlobalCharacter(char);
+    setGlobalModal(MODAL.MANAGE_CHARACTER);
   };
 
   useEffect(() => {
@@ -94,7 +100,7 @@ const CharactersList = () => {
             icon="public"
             text="Create New Character"
             variant="outlined"
-            onClick={() => setGlobalModal(MODAL.MANAGE_WORLD)}
+            onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
           />
         )}
 
@@ -104,9 +110,9 @@ const CharactersList = () => {
           itemText={(character: APIData<Character>) => (
             <CharacterItem
               character={character}
-              onEdit={onEditCharacter}
-              onSelect={onEditCharacter}
               permissions={role}
+              onEdit={onEditCharacter}
+              onRelationships={onCharacterRelationships}
             />
           )}
         />
@@ -118,15 +124,21 @@ const CharactersList = () => {
             icon="public"
             text="Create New Character"
             variant={characters.length > 5 ? "transparent" : "outlined"}
-            onClick={() => setGlobalModal(MODAL.MANAGE_WORLD)}
+            onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
           />
         )}
       </Card>
 
-      {/* Modal */}
+      {/* Modals */}
       <CreateCharacterModal
         data={selectedCharacter}
-        open={active === MODAL.MANAGE_WORLD}
+        open={active === MODAL.MANAGE_CHARACTER}
+        onClose={clearComponentData}
+      />
+
+      <CreateRelationshipsModal
+        data={relationships}
+        open={active === MODAL.MANAGE_RELATIONSHIPS}
         onClose={clearComponentData}
       />
     </PageContainer>

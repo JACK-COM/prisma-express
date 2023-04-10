@@ -11,13 +11,13 @@ import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths } from "routes";
 import { listLocations, listWorlds } from "../graphql/requests/worlds.graphql";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { APIData, Location, World } from "utils/types";
+import { APIData, Location, UserRole, World } from "utils/types";
 import ListView from "components/Common/ListView";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import LocationItem from "../components/LocationItem";
-import WorldPublicIcon from "components/WorldIcons";
+import { WorldPublicIcon } from "components/ComponentIcons";
 import ManageLocationModal from "components/Modals/ManageLocationModal";
 
 const { Worlds: WorldPaths } = Paths;
@@ -33,7 +33,7 @@ const List = styled(ListView)`
 
 /** ROUTE: List of World `Locations` */
 const WorldLocationsList = () => {
-  const { role, authenticated } = useGlobalUser(["role", "authenticated"]);
+  const { id, authenticated } = useGlobalUser(["id", "authenticated"]);
   const {
     active: activeModal,
     clearGlobalModal,
@@ -53,6 +53,10 @@ const WorldLocationsList = () => {
     "worlds",
     "worldLocations"
   ]);
+  const role = useMemo<UserRole>(
+    () => (selectedWorld?.authorId === id ? "Author" : "Reader"),
+    [id]
+  );
   const [error, setError] = useState<string>();
   const { worldId } = useParams<{ worldId: string }>();
   const place = useMemo(() => selectedWorld?.name || "World", [selectedWorld]);
@@ -106,12 +110,15 @@ const WorldLocationsList = () => {
           {error || (
             <>
               {selectedWorld && (
-                <WorldPublicIcon world={selectedWorld} permissions={role} />
+                <WorldPublicIcon data={selectedWorld} permissions={role} />
               )}
               {place} Locations
             </>
           )}
         </h3>
+        <PageDescription>
+          This is a <b>{selectedWorld?.public ? "public" : "private"}</b> world.
+        </PageDescription>
         {/* List */}
         {!worldLocations.length && (
           <EmptyText>

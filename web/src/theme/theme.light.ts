@@ -9,18 +9,21 @@ import shared from "./theme.shared";
  * border-color: ${({ theme }) => theme.colors.accent}; // #36b4c7
  */
 const LIGHT_THEME: AppTheme = {
-  colors: {
-    accent: "#36b4c7",
-    bgColor: "#f7f7f7",
-    error: "#db1c1c",
-    errorDark: "#c73636",
-    primary: "#282c34",
-    secondary: "#07C",
-    semitransparent: "#cecece99",
-    warning: "#f5d84c"
-  },
+  ...shared,
 
-  ...shared
+  colors: {
+    ...shared.colors,
+
+    accent: "#30457a", // --marian-blue: #30457aff;
+    bgColor: "#acbdba", // --ash-gray: #acbdbaff;
+    bgGradient: "linear-gradient(180deg, #30457aff 0%, #11234fff 100%)",
+    semitransparent: "#FFFFFF33",
+    error: "#37060e", // --black-bean: #37060eff;
+    errorDark: "#020300",
+    primary: "#5d5a53", // --davys-gray: #5d5a53ff;
+    secondary: "#3b3c34", // --black-olive: #3b3c34ff;
+    warning: "#11234f" // --space-cadet: #11234fff;
+  }
 };
 
 export default LIGHT_THEME;

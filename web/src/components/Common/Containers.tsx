@@ -31,6 +31,15 @@ export const Description = styled.p<{ lines?: number }>`
   text-overflow: ellipsis;
 `;
 
+/** Error message container */
+export const ErrorMessage = styled.aside.attrs({
+  role: "alert",
+  className: "error shake"
+})`
+  border-radius: ${({ theme }) => theme.presets.round.sm};
+  padding: 0.4rem;
+`;
+
 /** Flex-container for displaying items in a row */
 export const FlexRow = styled(BaseContainer)<FlexContainerProps>`
   align-items: center;
@@ -148,9 +157,7 @@ export const Section = styled(FlexColumn)`
 `;
 
 const Icon = styled.span``;
-type MatIconProps = {
-  icon: string;
-} & ComponentPropsWithRef<"span">;
+export type MatIconProps = { icon: string } & ComponentPropsWithRef<"span">;
 export const MatIcon = ({ icon, ...props }: MatIconProps) => (
   <Icon
     className={`material-icons ${props.className || ""}`.trim()}

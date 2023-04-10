@@ -38,6 +38,18 @@ export const MFCharacterUpsertInput = inputObjectType({
   }
 });
 
+/** Input fields for creating a `Character Relationship` */
+export const MFRelationshipUpsertInput = inputObjectType({
+  name: "MFRelationshipUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "Relationship ID" });
+    t.nonNull.int("characterId", { description: "Character ID" });
+    t.nonNull.int("targetId", { description: "Target Character ID" });
+    t.nonNull.string("relationship", { description: "Relationship notes" });
+    t.int("authorId", { description: "Item Author/owner" });
+  }
+});
+
 /** Input fields for creating a `Location` */
 export const MFLocationUpsertInput = inputObjectType({
   name: "MFLocationUpsertInput",

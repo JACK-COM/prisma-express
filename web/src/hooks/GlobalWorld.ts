@@ -4,6 +4,7 @@ import {
   GlobalWorldInstance,
   GlobalWorldInstanceKey,
   clearGlobalWorld,
+  getWorld,
   setGlobalLocation,
   setGlobalWorld,
   setWorldStateList,
@@ -30,6 +31,7 @@ export function useGlobalWorld(
 
     // Helpers
     clearGlobalWorld,
+    getWorld,
     setGlobalLocation,
     setGlobalWorld,
     setGlobalWorlds: (w: APIData<World>[]) => setWorldStateList(w, "worlds"),

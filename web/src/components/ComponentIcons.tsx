@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { MatIcon } from "components/Common/Containers";
+import { MatIcon, MatIconProps } from "components/Common/Containers";
 import { WICProps } from "./WorldItem";
 import { APIData, UserRole, World } from "utils/types";
 import {
@@ -7,9 +7,10 @@ import {
   deleteWorld
 } from "graphql/requests/worlds.graphql";
 import { updateWorlds, removeWorld } from "state";
+import { noOp } from "utils";
 
-/** IconContainer */
-const Icon = styled(MatIcon).attrs({ icon: "public" })<WICProps>`
+/** `World` Icon Container (indicates a `World` data-type) */
+const WorldIcon = styled(MatIcon).attrs({ icon: "public" })<WICProps>`
   align-self: center;
   animation: shake 280ms linear;
   cursor: ${({ permissions }) =>
@@ -29,15 +30,19 @@ const Icon = styled(MatIcon).attrs({ icon: "public" })<WICProps>`
   }
 `;
 
-/** Component Props */
-type WorldIconProps = {
+/** Generic Icon component Props */
+type ItemIconProps = Omit<MatIconProps, "onClick" | "icon"> & {
+  onItemClick?: (data?: any) => void;
   permissions?: UserRole;
-  world: APIData<World>;
+  data: APIData<any>;
 };
 
 /** Icon that indicates (and toggles) a `World's` public visibility  */
+type WorldIconProps = Pick<ItemIconProps, "permissions"> & {
+  data: APIData<World>;
+};
 export const WorldPublicIcon = (props: WorldIconProps) => {
-  const { permissions, world } = props;
+  const { permissions, data: world } = props;
   const iconClass = world.public ? "icon success--text" : "icon error--text";
   const title = world.public ? "Public World" : "Private World";
   const togglePublic: React.MouseEventHandler = async (e) => {
@@ -49,7 +54,7 @@ export const WorldPublicIcon = (props: WorldIconProps) => {
   };
 
   return (
-    <Icon
+    <WorldIcon
       className={iconClass}
       onClick={togglePublic}
       permissions={permissions || "Reader"}
@@ -58,27 +63,44 @@ export const WorldPublicIcon = (props: WorldIconProps) => {
   );
 };
 
-export default WorldPublicIcon;
-
-/** Icon that indicates (and toggles) a `World's` public visibility  */
+/** Icon that deletes a `World` from the server and state */
 export const WorldDeleteIcon = (props: WorldIconProps) => {
-  const { permissions, world } = props;
+  const { permissions, data: world } = props;
   const iconClass = world.public ? "icon success--text" : "icon error--text";
   const title = world.public ? "Public World" : "Private World";
   const onRemoveWorld: React.MouseEventHandler = async (e) => {
     if (permissions !== "Author") return;
     e.stopPropagation();
-    const data = { ...world, public: !world.public };
     const resp = await deleteWorld(world.id);
     if (resp) removeWorld(world.id);
   };
 
   return (
-    <Icon
+    <WorldIcon
       className={iconClass}
       onClick={onRemoveWorld}
       permissions={permissions || "Reader"}
       title={title}
+    />
+  );
+};
+
+/** Generic "Delete Item" Icon */
+export const DeleteItemIcon = (props: ItemIconProps) => {
+  const { permissions, data, className, onItemClick = noOp, ...rest } = props;
+  const iconClass = `${className || ""}`.trim() || undefined;
+  const onRemove: React.MouseEventHandler = async (e) => {
+    if (permissions !== "Author") return;
+    e.stopPropagation();
+    onItemClick(data);
+  };
+
+  return (
+    <WorldIcon
+      {...rest}
+      className={iconClass}
+      onClick={onRemove}
+      permissions={permissions || "Reader"}
     />
   );
 };

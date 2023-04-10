@@ -131,7 +131,7 @@ const CreateLocationForm = (props: CreateLocationProps) => {
           onChange={updateDescription}
         />
       </Label>
-      <Hint>Gve yourself some inspiration.</Hint>
+      <Hint>Give yourself some inspiration!</Hint>
     </Form>
   );
 };

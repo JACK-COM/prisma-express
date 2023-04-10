@@ -1,7 +1,6 @@
 import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
-import "./App.scss";
 import THEME from "./theme/index";
 import { GlobalUser } from "./state";
 import { AUTH_ROUTE } from "./utils";

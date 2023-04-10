@@ -228,6 +228,23 @@ type MFPopulationGroup {
   worldId: Int!
 }
 
+input MFRelationshipUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+
+  """Character ID"""
+  characterId: Int!
+
+  """Relationship ID"""
+  id: Int
+
+  """Relationship notes"""
+  relationship: String!
+
+  """Target Character ID"""
+  targetId: Int!
+}
+
 """A collecton of Story `Paragraphs`"""
 type MFScene {
   Paragraphs: [MFParagraph]!
@@ -353,6 +370,10 @@ type Mutation {
     """The data to create a new location"""
     data: MFLocationUpsertInput!
   ): MFLocation
+  upsertRelationships(
+    """The data to create a new character relationship"""
+    data: [MFRelationshipUpsertInput!]!
+  ): [MFCharacterRelationship]
   upsertWorld(
     """The data to create a new world"""
     data: MFWorldUpsertInput!

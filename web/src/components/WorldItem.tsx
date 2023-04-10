@@ -4,7 +4,7 @@ import { noOp } from "utils";
 import { lineclamp } from "theme/theme.shared";
 import { GridContainer, MatIcon } from "./Common/Containers";
 import { Hint } from "./Forms/Form";
-import WorldPublicIcon from "./WorldIcons";
+import {WorldPublicIcon} from "./ComponentIcons";
 
 export type WICProps = { permissions: UserRole };
 const Container = styled(GridContainer)<WICProps>`
@@ -69,7 +69,7 @@ const WorldItem = ({
 
   return (
     <Container onClick={select} permissions={permissions}>
-      <WorldPublicIcon world={world} permissions={permissions} />
+      <WorldPublicIcon data={world} permissions={permissions} />
 
       <Name permissions={permissions} onClick={edit}>
         {world.name}

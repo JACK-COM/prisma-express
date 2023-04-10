@@ -6,6 +6,7 @@ A story world builder. Inspired by [**AWallace's version**](https://github.com/v
 
 - [⚒ **MythosForge**](#-mythosforge)
   - [Getting started](#getting-started)
+    - [Repository root](#repository-root)
     - [Server](#server)
     - [Frontend](#frontend)
   - [AWS Server Management via Terraform](#aws-server-management-via-terraform)
@@ -15,8 +16,13 @@ A story world builder. Inspired by [**AWallace's version**](https://github.com/v
 This is a monorepo. Clientside code can be found in the `web/` directory; server stuff is in the `api/` directory. Each should have its own README with setup instructions.
 
 ## Getting started
-In order to run the development environment from the root folder run `make dev`. This will start up both the server and UI, with log outputs in a single terminal.\
-If you would like to run them in separate instances, continue reading.
+### Repository root
+In order to run the development environment from the root folder run: 
+```bash
+$. make dev
+```
+This will start up both the server and UI, with log outputs in a single terminal.\
+If you would like to run them in separate terminals, continue reading.
 
 
 ### Server
@@ -35,6 +41,7 @@ $. cd web/
 $. npm install # (first run only)
 $. npm run start # (runs on :5173 unless you override PORT in .env)
 ```
+You can also run `npm run dev` in the `web/` directory to run the make file for both server + client (as above)
 The **MythosForge** frontend uses ReactJS with ViteJS for bundling. 
 
 ## AWS Server Management via Terraform

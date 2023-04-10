@@ -14,7 +14,6 @@ const DARK_THEME: AppTheme = {
   colors: {
     ...shared.colors,
 
-    // DARK_GPT THEME
     accent: "#87c0cb", // --sky-blue: #87c0cbff;
     bgColor: "#101918", // --eerie-black: #101918ff;
     bgGradient: "linear-gradient(45deg, #2b312fff, #154b54ff)",

@@ -19,18 +19,17 @@ type CharacterRelationshipByIdInput = Pick<CharacterRelationship, "id">;
 const { CharacterRelationships } = context;
 
 /** create character-relationship record */
-export async function upsertCharacterRelationship(
-  newCharacterRelationship: CreateCharacterRelationshipInput
-) {
-  const data: CreateCharacterRelationshipInput = {
-    ...newCharacterRelationship
-  };
-
-  return CharacterRelationships.upsert({
-    create: data,
-    update: data,
-    where: { id: newCharacterRelationship.id }
+export async function upsertCharacterRelationships(
+  newItems: CreateCharacterRelationshipInput[]
+): Promise<CharacterRelationship[]> {
+  const rels: Promise<CharacterRelationship>[] = [];
+  newItems.forEach((data) => {
+    const where = { id: data.id };
+    if (data.id) rels.push(CharacterRelationships.update({ data, where }));
+    else rels.push(CharacterRelationships.create({ data }));
   });
+
+  return Promise.all(rels);
 }
 
 /** find all character-relationship records matching params */

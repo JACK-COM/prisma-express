@@ -4,9 +4,9 @@ import {
   createOrUpdateCharacter
 } from "graphql/requests/characters.graphql";
 import { useEffect, useState } from "react";
-import styled from "styled-components";
 import Modal from "./Modal";
 import { clearGlobalModal, updateCharacters } from "state";
+import { ErrorMessage } from "components/Common/Containers";
 
 /** Modal props */
 type ManageCharacterModalProps = {
@@ -14,14 +14,6 @@ type ManageCharacterModalProps = {
   data?: Partial<CreateCharacterData> | null;
   onClose?: () => void;
 };
-/** Error message container */
-const ErrorMessage = styled.aside.attrs({
-  role: "alert",
-  className: "error shake"
-})`
-  border-radius: ${({ theme }) => theme.presets.round.sm};
-  padding: 0.4rem;
-`;
 
 /** Specialized Modal for creating/editing a `Character` */
 export default function ManageCharacterModal(props: ManageCharacterModalProps) {

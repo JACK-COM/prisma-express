@@ -144,7 +144,7 @@ model CharacterRelationship {
   id           Int       @id @default(autoincrement())
   characterId  Int // ( references Character  )
   targetId     Int // ( references Character | no relation )
-  relationship String
+  relationship String // `characterId`'s relationship to `targetId`
   Character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 }
 

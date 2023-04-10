@@ -15,9 +15,9 @@ import { APIData, Location, World } from "utils/types";
 import ListView from "components/Common/ListView";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import LocationItem from "../components/LocationItem";
-import WorldPublicIcon from "components/WorldIcons";
+import { WorldPublicIcon } from "components/ComponentIcons";
 import ManageLocationModal from "components/Modals/ManageLocationModal";
 
 const { Worlds: WorldPaths } = Paths;
@@ -106,12 +106,15 @@ const WorldLocationsList = () => {
           {error || (
             <>
               {selectedWorld && (
-                <WorldPublicIcon world={selectedWorld} permissions={role} />
+                <WorldPublicIcon data={selectedWorld} permissions={role} />
               )}
               {place} Locations
             </>
           )}
         </h3>
+        <PageDescription>
+          This is a <b>{selectedWorld?.public ? "public" : "private"}</b> world.
+        </PageDescription>
         {/* List */}
         {!worldLocations.length && (
           <EmptyText>

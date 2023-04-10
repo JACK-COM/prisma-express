@@ -17,6 +17,9 @@ const Menu = styled.nav`
   ${ListView} li {
     padding: 0;
   }
+  ${StyledLink}, .material-icons {
+    color: white;
+  }
 `;
 const API = API_BASE;
 

@@ -25,6 +25,7 @@ export type AppTheme = ThemeProps<{
     errorDark: string;
     primary: string;
     secondary: string;
+    success: string;
     warning: string;
   };
 

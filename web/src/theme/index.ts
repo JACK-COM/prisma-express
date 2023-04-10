@@ -73,7 +73,7 @@ const THEME: GlobalTheme = {
       background-color: ${({ theme }) => theme.colors.bgColor}; 
     }
     .bg-gradient { 
-      background-color: ${({ theme }) => theme.colors.bgGradient}; 
+      background: ${({ theme }) => theme.colors.bgGradient}; 
     }
     .error { 
       background-color: ${({ theme }) => theme.colors.error}; 
@@ -114,7 +114,7 @@ const THEME: GlobalTheme = {
       color: ${({ theme }) => theme.colors.secondary}; 
     }
     .success--text{ 
-      color: #2ca258; 
+      color: ${({ theme }) => theme.colors.success};
     }
     .warning--text{ 
       color: ${({ theme }) => theme.colors.warning}; 
@@ -122,6 +122,12 @@ const THEME: GlobalTheme = {
   
     a {
       color: ${({ theme }) => theme.colors.accent};
+    }
+
+    hr {
+      background-color: ${({ theme }) => theme.colors.semitransparent};
+      border: 0;
+      height: 0.025rem;
     }
   }
 

@@ -9,18 +9,22 @@ import shared from "./theme.shared";
  * border-color: ${({ theme }) => theme.colors.accent}; // #36b4c7
  */
 const DARK_THEME: AppTheme = {
-  colors: {
-    accent: "#87C0CB", // sky blue
-    bgColor: "#101918", // eerie black
-    error: "#77100A", // barn red
-    errorDark: "#380703",
-    primary: "#e6dad8", // light grey/timberwolf
-    secondary: "#154B54", // midnight green
-    semitransparent: "#7a7a7a42", // grey
-    warning: "#2b312f" // onyx
-  },
+  ...shared,
 
-  ...shared
+  colors: {
+    ...shared.colors,
+
+    // DARK_GPT THEME
+    accent: "#87c0cb", // --sky-blue: #87c0cbff;
+    bgColor: "#101918", // --eerie-black: #101918ff;
+    bgGradient: "linear-gradient(45deg, #2b312fff, #154b54ff)",
+    semitransparent: "#6d7c7d80",
+    error: "#77100a", // --barn-red: #77100aff;
+    errorDark: "#380703", // --black-bean: #380703ff;
+    primary: "#e6dad8", // --timberwolf: #e6dad8ff;
+    secondary: "#6d7c7d", // --gray: #6d7c7dff;
+    warning: "#2b312f" // --onyx: #2b312fff;
+  }
 };
 
 export default DARK_THEME;

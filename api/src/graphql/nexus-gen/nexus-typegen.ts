@@ -48,6 +48,13 @@ export interface NexusGenInputs {
     name: string; // String!
     worldId: number; // Int!
   }
+  MFRelationshipUpsertInput: { // input type
+    authorId?: number | null; // Int
+    characterId: number; // Int!
+    id?: number | null; // Int
+    relationship: string; // String!
+    targetId: number; // Int!
+  }
   MFWorldUpsertInput: { // input type
     authorId?: number | null; // Int
     description: string; // String!
@@ -398,6 +405,7 @@ export interface NexusGenFieldTypes {
     deleteWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     upsertCharacter: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
     upsertLocation: NexusGenRootTypes['MFLocation'] | null; // MFLocation
+    upsertRelationships: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
     upsertWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
   }
   Query: { // field return type
@@ -568,6 +576,7 @@ export interface NexusGenFieldTypeNames {
     deleteWorld: 'MFWorld'
     upsertCharacter: 'MFCharacter'
     upsertLocation: 'MFLocation'
+    upsertRelationships: 'MFCharacterRelationship'
     upsertWorld: 'MFWorld'
   }
   Query: { // field return type name
@@ -598,6 +607,9 @@ export interface NexusGenArgTypes {
     }
     upsertLocation: { // args
       data: NexusGenInputs['MFLocationUpsertInput']; // MFLocationUpsertInput!
+    }
+    upsertRelationships: { // args
+      data: NexusGenInputs['MFRelationshipUpsertInput'][]; // [MFRelationshipUpsertInput!]!
     }
     upsertWorld: { // args
       data: NexusGenInputs['MFWorldUpsertInput']; // MFWorldUpsertInput!

@@ -1,16 +1,15 @@
-import CreateWorldForm from "components/Form.CreateWorld";
 import {
   CreateLocationData,
   createOrUpdateLocation
 } from "graphql/requests/worlds.graphql";
 import { useEffect, useState } from "react";
-import styled from "styled-components";
 import Modal from "./Modal";
 import { clearGlobalModal } from "state";
 import { Climate } from "utils/types";
 import { Richness } from "utils/types";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import CreateLocationForm from "components/Form.CreateLocation";
+import { ErrorMessage } from "components/Common/Containers";
 
 /** Modal props */
 type ManageLocationModalProps = {
@@ -19,14 +18,6 @@ type ManageLocationModalProps = {
   worldId: number;
   onClose?: () => void;
 };
-/** Error message container */
-const ErrorMessage = styled.aside.attrs({
-  role: "alert",
-  className: "error shake"
-})`
-  border-radius: ${({ theme }) => theme.presets.round.sm};
-  padding: 0.4rem;
-`;
 
 /** Specialized Modal for creating/editing a World `Location` */
 export default function ManageLocationModal(props: ManageLocationModalProps) {

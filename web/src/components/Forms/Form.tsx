@@ -8,6 +8,7 @@ const requiredInputStyles = css`
   content: "*";
   display: inline-block;
   color: ${({ theme }) => theme.colors.error};
+  filter: saturate(5);
   font-size: 1rem;
 `;
 const sharedInputStyles = css`
@@ -116,6 +117,7 @@ type SelectProps<T = any> = Omit<
   "onChange"
 > & {
   data: T[];
+  emptyMessage?: string;
   itemText(d: T): ReactText;
   itemValue(d: T): ReactText;
   onChange?: (e: T) => void;
@@ -131,6 +133,7 @@ export const Select = styled((props: SelectProps) => {
     data,
     itemValue,
     itemText,
+    emptyMessage = "No items to display",
     placeholder = "Select an Item:",
     ...rest
   } = props;
@@ -140,13 +143,13 @@ export const Select = styled((props: SelectProps) => {
       onInput={(e) => onChange(e.currentTarget.value)}
       {...rest}
     >
-      {data.length > 0 && <option value="null">{placeholder}</option>}
+      {data.length > 0 && <option>{placeholder}</option>}
       {data.map((d, i) => (
         <option key={i} value={itemValue(d)}>
           {itemText(d)}
         </option>
       ))}
-      {data.length === 0 && <option value="null">No items to display</option>}
+      {data.length === 0 && <option>{emptyMessage}</option>}
     </StyledSelect>
   );
 })``;

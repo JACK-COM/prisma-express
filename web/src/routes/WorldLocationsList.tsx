@@ -11,7 +11,7 @@ import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths } from "routes";
 import { listLocations, listWorlds } from "../graphql/requests/worlds.graphql";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { APIData, Location, World } from "utils/types";
+import { APIData, Location, UserRole, World } from "utils/types";
 import ListView from "components/Common/ListView";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
@@ -33,7 +33,7 @@ const List = styled(ListView)`
 
 /** ROUTE: List of World `Locations` */
 const WorldLocationsList = () => {
-  const { role, authenticated } = useGlobalUser(["role", "authenticated"]);
+  const { id, authenticated } = useGlobalUser(["id", "authenticated"]);
   const {
     active: activeModal,
     clearGlobalModal,
@@ -53,6 +53,10 @@ const WorldLocationsList = () => {
     "worlds",
     "worldLocations"
   ]);
+  const role = useMemo<UserRole>(
+    () => (selectedWorld?.authorId === id ? "Author" : "Reader"),
+    [id]
+  );
   const [error, setError] = useState<string>();
   const { worldId } = useParams<{ worldId: string }>();
   const place = useMemo(() => selectedWorld?.name || "World", [selectedWorld]);

@@ -3,12 +3,12 @@
  * @description GraphQL requests relating to `Worlds` and `Locations`.
  */
 import fetchGQL from "graphql/fetch-gql";
-import { upsertLocationMutation, upsertWorldMutation } from "graphql/mutations";
 import {
-  listWorldsQuery,
-  listAuthorsQuery,
-  listLocationsQuery
-} from "graphql/queries";
+  deleteWorldMutation,
+  upsertLocationMutation,
+  upsertWorldMutation
+} from "graphql/mutations";
+import { listWorldsQuery, listLocationsQuery } from "graphql/queries";
 import { APIData, Location, World } from "utils/types";
 
 /** Data required to create a world */
@@ -29,7 +29,7 @@ export async function createOrUpdateWorld(data: Partial<CreateWorldData>) {
   const newWorld = await fetchGQL<APIData<World> | null>({
     query: upsertWorldMutation(),
     variables: { data },
-    onResolve: ({ upsertWorld: list }) => list,
+    onResolve: ({ upsertWorld: list }, errors) => errors || list,
     fallbackResponse: null
   });
 
@@ -38,9 +38,9 @@ export async function createOrUpdateWorld(data: Partial<CreateWorldData>) {
 
 export async function deleteWorld(worldId: number) {
   const respWorld = await fetchGQL<APIData<World> | null>({
-    query: upsertWorldMutation(),
-    variables: { data: { id: worldId, deleted: true } },
-    onResolve: ({ upsertWorld: list }) => list,
+    query: deleteWorldMutation(),
+    variables: { data: { id: worldId } },
+    onResolve: ({ deleteWorld: list }, errors) => errors || list,
     fallbackResponse: null
   });
 
@@ -54,7 +54,7 @@ export async function createOrUpdateLocation(
   const newLocation = await fetchGQL<APIData<Location> | null>({
     query: upsertLocationMutation(),
     variables: { data },
-    onResolve: ({ upsertLocation: list }) => list,
+    onResolve: ({ upsertLocation: list }, errors) => errors || list,
     fallbackResponse: null
   });
 

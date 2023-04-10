@@ -5,7 +5,7 @@ import {
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import { clearGlobalModal } from "state";
-import { Climate } from "utils/types";
+import { APIData, Climate, Location } from "utils/types";
 import { Richness } from "utils/types";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import CreateLocationForm from "components/Form.CreateLocation";
@@ -29,6 +29,12 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
     flora: Richness.Adequate,
     fauna: Richness.Adequate
   });
+  const resetForm = () =>
+    setFormData({
+      climate: Climate.Temperate,
+      flora: Richness.Adequate,
+      fauna: Richness.Adequate
+    });
   const submit = async () => {
     // Validate
     if (!formData.name) return setError("Name is required.");
@@ -42,23 +48,19 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
     if (!formData.description) formData.description = "No description.";
     formData.worldId = worldId;
     setError("");
-    const resp = await createOrUpdateLocation(formData);
 
     // Notify
-    if (resp) {
-      updateLocations([resp]);
-      onClose();
-    } else setError("Did not add location: please check your entries.");
+    const resp = await createOrUpdateLocation(formData);
+    if (typeof resp === "string") return setError(resp);
+
+    updateLocations([resp as APIData<Location>]);
+    resetForm();
+    onClose();
   };
 
   useEffect(() => {
     if (data) setFormData({ ...data, ...formData });
-    return () =>
-      setFormData({
-        climate: Climate.Temperate,
-        flora: Richness.Adequate,
-        fauna: Richness.Adequate
-      });
+    return () => resetForm();
   }, [data]);
 
   return (

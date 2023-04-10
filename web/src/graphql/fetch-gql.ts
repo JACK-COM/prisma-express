@@ -1,8 +1,11 @@
+type GQLError = { message: string };
 /** Generic typed object */
-type AsChild<T> = { [k: string]: T };
+type ChildProperty<T> = { [k: string]: T } & { errors?: string };
 
-/** Generic graphql response type */
-type OnGQLResolve<T> = { (x: AsChild<T>): T };
+/** Generic graphql response handler */
+type GQLResponseHandler<T> = {
+  (x: ChildProperty<T>, errors?: string): T | string;
+};
 
 /** Generic graphql Fetch options */
 type FetchGQLOpts<T> = {
@@ -13,7 +16,7 @@ type FetchGQLOpts<T> = {
   /** grapqhl request variables (if any) */
   variables?: any;
   /** Function to call with the grapqhl response */
-  onResolve: OnGQLResolve<T>;
+  onResolve: GQLResponseHandler<T>;
   /** Optional fallback value if response fails */
   fallbackResponse?: T;
 };
@@ -40,8 +43,8 @@ export async function fetchGQL<T>(opts: FetchGQLOpts<T>) {
       signal: controller.signal
     })
       .then((res) => res.json())
-      .then((res) => onResolve(res.data))
-      .catch(() => onResolve({} as AsChild<T>));
+      .then((res) => onResolve(res.data, condenseErrors(res.errors)))
+      .catch(() => onResolve({} as ChildProperty<T>, "Network Error"));
 
   return withTimeout({ request, fallbackResponse, controller });
 }
@@ -67,4 +70,8 @@ export async function withTimeout<T>(opts: CancelableProps<T>): Promise<T> {
     setTimeout(cancel, timeout);
     return call ? request().then(resolve) : request;
   });
+}
+
+function condenseErrors(errors?: GQLError[]) {
+  return errors?.reduce((acc, { message }) => `${acc}\n${message}`, "");
 }

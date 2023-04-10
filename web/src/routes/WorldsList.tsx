@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import Breadcrumbs from "components/Common/Breadcrumbs";
 import {
@@ -14,7 +14,7 @@ import CreateWorldModal from "components/Modals/ManageWorldModal";
 import ListView from "components/Common/ListView";
 import WorldItem from "components/WorldItem";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { APIData, World } from "utils/types";
+import { APIData, UserRole, World } from "utils/types";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useNavigate } from "react-router";
@@ -32,7 +32,7 @@ const List = styled(ListView)`
 
 /** ROUTE: List of worlds */
 const WorldsList = () => {
-  const { role, authenticated } = useGlobalUser(["role", "authenticated"]);
+  const { id, authenticated } = useGlobalUser(["id", "authenticated"]);
   const navigate = useNavigate();
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const {
@@ -41,6 +41,10 @@ const WorldsList = () => {
     setGlobalWorld,
     setGlobalWorlds
   } = useGlobalWorld(["selectedWorld", "worlds"]);
+  const role = useMemo<UserRole>(
+    () => (selectedWorld?.authorId === id ? "Author" : "Reader"),
+    [id]
+  );
   const loadWorlds = async () => setGlobalWorlds(await listWorlds());
   const clearComponentData = () => {
     setGlobalWorld(null);

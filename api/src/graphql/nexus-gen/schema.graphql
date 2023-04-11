@@ -139,7 +139,7 @@ type MFEvent {
 
   """`Character` target (optional)"""
   characterId: Int
-  description: String!
+  description: String
 
   """`Group` target (optional)"""
   groupId: Int
@@ -152,6 +152,30 @@ type MFEvent {
   target: EventTarget!
 
   """Event target `World`"""
+  worldId: Int!
+}
+
+input MFEventUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+
+  """Event character target (optional)"""
+  characterId: Int
+  description: String = "No description"
+
+  """Event group target (optional)"""
+  groupId: Int
+
+  """Event ID"""
+  id: Int
+
+  """Event location target (optional)"""
+  locationId: Int
+  name: String!
+  polarity: EventPolarity!
+  target: EventTarget!
+
+  """Parent world ID"""
   worldId: Int!
 }
 
@@ -288,14 +312,15 @@ type MFSeries {
 
 """A collection of Story `Scenes`"""
 type MFTimeline {
-  Scenes: [MFScene]!
+  Author: MFUser
+  Scenes: [MFScene]
+  TimelineEvents: [MFTimelineEvent]
+  World: MFWorld
 
   """Timeline Author"""
   authorId: Int
-  description: String!
   id: Int!
   name: String!
-  order: Int!
 
   """Timeline's `World` id"""
   worldId: Int!
@@ -303,6 +328,7 @@ type MFTimeline {
 
 """A linear `Event`-to-`Timeline` relationship"""
 type MFTimelineEvent {
+  Event: MFEvent
   Scenes: [MFScene]
 
   """Timeline Author"""
@@ -315,6 +341,36 @@ type MFTimelineEvent {
 
   """Target `Timeline` id"""
   timelineId: Int!
+}
+
+input MFTimelineEventUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+
+  """Event ID"""
+  eventId: Int!
+
+  """TimelineEvent ID"""
+  id: Int
+
+  """Event order in timeline"""
+  order: Int!
+
+  """Timeline ID"""
+  timelineId: Int!
+}
+
+input MFTimelineUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+  events: [MFEventUpsertInput!]
+
+  """Timeline ID"""
+  id: Int
+  name: String!
+
+  """Parent world ID"""
+  worldId: Int!
 }
 
 """An Application user"""
@@ -362,6 +418,9 @@ type Mutation {
   deleteCharacter(id: Int!): MFCharacter
   deleteLocation(id: Int!): MFLocation
   deleteRelationship(id: Int!): MFCharacterRelationship
+
+  """Delete a `Timeline` and all its events"""
+  deleteTimeline(id: Int!): MFTimeline
   deleteWorld(id: Int!): MFWorld
   upsertCharacter(
     """The data to create a new character"""
@@ -375,6 +434,9 @@ type Mutation {
     """The data to create a new character relationship"""
     data: [MFRelationshipUpsertInput!]!
   ): [MFCharacterRelationship]
+
+  """Create a new `Timeline` along with its events"""
+  upsertTimeline(data: MFTimelineUpsertInput!): MFTimeline
   upsertWorld(
     """The data to create a new world"""
     data: MFWorldUpsertInput!
@@ -382,9 +444,13 @@ type Mutation {
 }
 
 type Query {
+  getAuthorTimelines(authorId: Int!): [MFTimeline]
   getCharacterById(id: Int!): MFCharacter
+  getEventById(id: Int!): MFEvent
   getLocationById(id: Int!): MFLocation
   getRelationshipById(id: Int!): MFCharacterRelationship
+  getTimelineById(id: Int!): MFTimeline
+  getTimelineEvents(timelineId: Int!): [MFTimelineEvent]
   getWorldById(id: Int!): MFWorld
 
   """
@@ -404,6 +470,7 @@ type Query {
   List/filter multiple `Worlds`. Author can view their own worlds, a reader can view public worlds
   """
   listWorlds(authorId: Int, description: String, id: Int, name: String): [MFWorld]
+  searchTimelines(name: String, worldId: Int): [MFTimeline]
 }
 
 """Relative abundance of resources."""

@@ -2,9 +2,9 @@ import styled from "styled-components";
 import { APIData, PermissionProps, UserRole, World } from "utils/types";
 import { noOp, suppressEvent } from "utils";
 import { lineclamp } from "theme/theme.shared";
-import { GridContainer, MatIcon } from "./Common/Containers";
+import { MatIcon } from "./Common/Containers";
 import { Hint } from "./Forms/Form";
-import { WorldPublicIcon } from "./ComponentIcons";
+import { DeleteWorldIcon, WorldPublicIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
 import { Link } from "react-router-dom";
 import { guard } from "utils";
@@ -14,9 +14,9 @@ const Container = styled(Link)<PermissionProps>`
   color: inherit;
   cursor: pointer;
   display: grid;
-  grid-template-areas:
-    "icon name trash"
-    "icon description trash";
+  column-gap: ${({ theme }) => theme.sizes.sm};
+  grid-template-columns: min-content ${({ permissions }) =>
+      permissions === "Author" ? "3fr 24px 24px" : "4fr"};
   justify-content: left;
   padding: ${({ theme }) => theme.sizes.xs};
   width: 100%;
@@ -27,11 +27,13 @@ const Container = styled(Link)<PermissionProps>`
 `;
 const Description = styled(Hint)`
   ${lineclamp(1)};
-  grid-area: description;
+  grid-column: 2 / -1;
+  grid-row: 2;
   width: 100%;
 `;
 const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<PermissionProps>`
-  grid-area: name;
+  grid-column: 2;
+  grid-row: 1;
   pointer-events: ${({ permissions }) =>
     permissions === "Author" ? "fill" : "none"};
   width: fit-content;
@@ -46,6 +48,10 @@ const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<PermissionProps>`
     font-size: smaller;
     cursor: pointer;
   }
+`;
+const WorldIcon = styled(WorldPublicIcon)`
+  grid-column: 1;
+  grid-row: 1/3;
 `;
 
 type WorldItemProps = {
@@ -71,13 +77,15 @@ const WorldItem = ({
 
   return (
     <Container to={url} onClick={select} permissions={permissions}>
-      <WorldPublicIcon data={world} permissions={permissions} />
+      <WorldIcon data={world} permissions={permissions} />
 
       <Name permissions={permissions} onClick={edit}>
         {world.name}
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </Name>
       <Description>{world.description}</Description>
+        {permissions === "Author" && <MatIcon className="icon" icon="edit_calendar" />}
+      <DeleteWorldIcon permissions={permissions} data={world} />
     </Container>
   );
 };

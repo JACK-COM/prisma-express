@@ -12,6 +12,7 @@ import ThemeSelector from "./ThemeSelector";
 const Menu = styled.nav`
   align-items: center;
   display: grid;
+  color: white;
   grid-template-columns: repeat(3, max-content);
 
   ${ListView} li {
@@ -60,7 +61,6 @@ const AppNav = () => {
       <ThemeSelector />
 
       {/* Navigation Links */}
-
       <ButtonLink variant="transparent" round href={searchPath}>
         <MatIcon icon="search" />
       </ButtonLink>

@@ -3,7 +3,7 @@
  * Export all inputs for `mutations` and `queries` from here
  */
 
-import { inputObjectType } from "nexus";
+import { inputObjectType, nonNull } from "nexus";
 
 /** Input fields for creating a `World` */
 export const MFWorldUpsertInput = inputObjectType({
@@ -62,5 +62,48 @@ export const MFLocationUpsertInput = inputObjectType({
     t.field("fauna", { type: "Richness" });
     t.nonNull.int("worldId", { description: "Parent world ID" });
     t.int("authorId", { description: "Item Author/owner" });
+  }
+});
+
+/** Input fields for creating a World `Event` */
+export const MFEventUpsertInput = inputObjectType({
+  name: "MFEventUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "Event ID" });
+    t.nonNull.string("name");
+    t.string("description", { default: "No description" });
+    t.nonNull.int("worldId", { description: "Parent world ID" });
+    t.int("authorId", { description: "Item Author/owner" });
+    t.int("characterId", { description: "Event character target (optional)" });
+    t.int("groupId", { description: "Event group target (optional)" });
+    t.int("locationId", { description: "Event location target (optional)" });
+    t.nonNull.field("polarity", { type: "EventPolarity" });
+    t.nonNull.field("target", { type: "EventTarget" });
+  }
+});
+
+/** Input fields for creating a `Timeline Event` (links an `Event` to a `Timeline`) */
+export const MFTimelineEventUpsertInput = inputObjectType({
+  name: "MFTimelineEventUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "TimelineEvent ID" });
+    t.nonNull.int("order", { description: "Event order in timeline" });
+    t.nonNull.int("eventId", { description: "Event ID" });
+    t.nonNull.int("timelineId", { description: "Timeline ID" });
+    t.int("authorId", { description: "Item Author/owner" });
+  }
+});
+
+/** Input fields for creating a `Timeline` */
+export const MFTimelineUpsertInput = inputObjectType({
+  name: "MFTimelineUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "Timeline ID" });
+    t.nonNull.string("name");
+    t.int("authorId", { description: "Item Author/owner" });
+    t.nonNull.int("worldId", { description: "Parent world ID" });
+
+    // World `Events` that will be created and linked for user
+    t.list.field("events", { type: nonNull("MFEventUpsertInput") });
   }
 });

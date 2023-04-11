@@ -18,7 +18,11 @@ export const BaseContainer = styled.section``;
 export const Card = styled(BaseContainer).attrs({ className: "card" })`
   border: ${({ theme }) => `1px dashed ${theme.colors.semitransparent}`};
   border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
-  padding: 1.2em;
+  padding: 1em;
+
+  @media screen and (max-width: 768px) {
+    padding: 0.4em;
+  }
 `;
 
 /** Page or View description element */
@@ -71,7 +75,7 @@ type PCProps = FlexContainerProps & { minHeight?: string };
 export const PageContainer = styled(FlexColumn)<PCProps>`
   height: fit-content;
   justify-content: flex-start;
-  padding-top: 1rem;
+  padding: 0.5rem 0.5rem 0;
   margin: 0 auto;
   max-width: 1280px;
   min-height: ${({ minHeight = "70vh" }) => minHeight};
@@ -95,10 +99,6 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
 
   @media screen and (max-width: 768px) {
     max-width: 100%;
-
-    > header {
-      padding: 0 1rem;
-    }
   }
 `;
 

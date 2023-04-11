@@ -2,6 +2,7 @@ import styled from "styled-components";
 import {
   GridContainer,
   PageContainer,
+  PageDescription,
   PageTitle
 } from "components/Common/Containers";
 import GridImageLink from "components/Common/GridImageLink";
@@ -29,8 +30,7 @@ const Dashboard = () => {
   const { email } = useGlobalUser();
   const { width } = useGlobalWindow();
   const [gridColumns, gridGap] = useMemo(() => {
-    if (width > 1280) return [4, "1rem"];
-    if (width > 1024) return [3, "0.9rem"];
+    if (width > 1024) return [4, "1rem"];
     if (width > 400) return [2, "0.4rem"];
     return [1, "0.25rem"];
   }, [width]);
@@ -41,9 +41,12 @@ const Dashboard = () => {
 
   return (
     <PageContainer id="app-dashboard">
-      <PageTitle>{pageTitle}</PageTitle>
-      <p>Jump to a section:</p>
+      <header>
+        <PageTitle>{pageTitle}</PageTitle>
+        <PageDescription>A forge of myths and legends</PageDescription>
+      </header>
 
+      <h4>Jump to a section:</h4>
       <Controls columns={`repeat(${gridColumns},1fr)`} gap={gridGap}>
         {dashSections.map(({ data, src }, i) => (
           <GridImageLink

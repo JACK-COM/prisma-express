@@ -8,33 +8,18 @@ import {
 import { updateWorlds, removeWorld } from "state";
 import { guard, noOp, suppressEvent } from "utils";
 
-/** `World` Icon Container (indicates a `World` data-type) */
-const WorldIcon = styled(MatIcon).attrs({ icon: "public" })<PermissionProps>`
-  align-self: center;
-  animation: shake 280ms linear;
-  cursor: ${({ permissions }) =>
-    permissions === "Author" ? "pointer" : "inherit"};
-  grid-area: icon;
-  margin-right: ${({ theme }) => theme.sizes.sm};
-  pointer-events: ${({ permissions }) =>
-    permissions === "Author" ? "fill" : "none"};
-
-  &:active,
-  &:focus {
-  }
-
-  &:hover {
-    animation-name: spin;
-    color: ${({ theme }) => theme.colors.accent};
-  }
-`;
+/** Generic Icon component Props */
+type ItemIconProps = Omit<MatIconProps, "onClick" | "icon"> & {
+  onItemClick?: (data?: any) => void;
+  permissions?: UserRole;
+  disabled?: boolean;
+  data: APIData<any>;
+};
 
 /* CSS for icons */
 export const iconStyles = css`
   align-self: center;
   animation: bounce 400ms linear;
-  grid-row: 1 / span 2;
-  margin: 0 ${({ theme }) => theme.sizes.sm} 0 0;
 `;
 /* CSS for editable items */
 export const editableStyles = css`
@@ -43,8 +28,6 @@ export const editableStyles = css`
   }
 `;
 export const PermissionedIcon = styled(MatIcon)<PermissionProps>`
-  display: ${({ permissions }) =>
-    permissions === "Author" ? "block" : "none"};
   pointer-events: ${({ permissions }) =>
     permissions === "Author" ? "fill" : "none"};
   ${iconStyles}
@@ -52,13 +35,21 @@ export const PermissionedIcon = styled(MatIcon)<PermissionProps>`
   ${editableStyles};
 `;
 
-/** Generic Icon component Props */
-type ItemIconProps = Omit<MatIconProps, "onClick" | "icon"> & {
-  onItemClick?: (data?: any) => void;
-  permissions?: UserRole;
-  disabled?: boolean;
-  data: APIData<any>;
-};
+/** `World` Icon Container (indicates a `World` data-type) */
+const WorldIcon = styled(PermissionedIcon).attrs({
+  icon: "public"
+})<PermissionProps>`
+  align-self: center;
+  animation: shake 280ms linear;
+  /* margin-right: ${({ theme }) => theme.sizes.sm}; */
+  pointer-events: ${({ permissions }) =>
+    permissions === "Author" ? "fill" : "none"};
+
+  &:hover {
+    animation-name: spin;
+    color: ${({ theme }) => theme.colors.accent};
+  }
+`;
 
 /** Icon that indicates (and toggles) a `World's` public visibility  */
 type WorldIconProps = Pick<ItemIconProps, "permissions"> & {
@@ -86,31 +77,9 @@ export const WorldPublicIcon = (props: WorldIconProps) => {
   );
 };
 
-/** Icon that deletes a `World` from the server and state */
-export const WorldDeleteIcon = (props: WorldIconProps) => {
-  const { permissions, data: world } = props;
-  const iconClass = world.public ? "icon success--text" : "icon error--text";
-  const title = world.public ? "Public World" : "Private World";
-  const onRemoveWorld: React.MouseEventHandler = async (e) => {
-    if (permissions !== "Author") return;
-    e.stopPropagation();
-    const resp = await deleteWorld(world.id);
-    if (resp) removeWorld(world.id);
-  };
-
-  return (
-    <WorldIcon
-      className={iconClass}
-      onClick={onRemoveWorld}
-      permissions={permissions || "Reader"}
-      title={title}
-    />
-  );
-};
-
 /** Generic "Delete Item" Icon */
 type DIProps = { disabled: boolean };
-const DeleteIcon = styled(PermissionedIcon).attrs({ icon: "delete" })<DIProps>`
+const PDeleteIcon = styled(PermissionedIcon).attrs({ icon: "delete" })<DIProps>`
   align-self: last baseline;
   cursor: ${({ disabled = false }) => (disabled ? "not-allowed" : "pointer")};
   pointer-events: ${({ permissions, disabled }) =>
@@ -132,7 +101,7 @@ export const DeleteItemIcon = (props: ItemIconProps) => {
   const onRemove = guard(() => !disabled && onItemClick(data), permissions);
 
   return (
-    <DeleteIcon
+    <PDeleteIcon
       disabled={disabled}
       {...rest}
       icon="delete"
@@ -140,5 +109,34 @@ export const DeleteItemIcon = (props: ItemIconProps) => {
       className={iconClass}
       onClick={onRemove}
     />
+  );
+};
+
+/** Icon that deletes a `World` from the server and state */
+export const DeleteWorldIcon = (props: WorldIconProps & ItemIconProps) => {
+  const { permissions, data: world, ...rest } = props;
+  const iconClass = world.public ? "success--text" : "error--text";
+  const title = world.public ? "Public World" : "Private World";
+  const onDelete = guard(
+    async () => {
+      const resp = await deleteWorld(world.id);
+      if (typeof resp === "string") return console.error(resp);
+      if (resp) removeWorld(world.id);
+    },
+    permissions,
+    false
+  );
+
+  return permissions === "Author" ? (
+    <DeleteItemIcon
+      className={`icon ${iconClass}`}
+      {...rest}
+      data={world}
+      onItemClick={onDelete}
+      permissions="Author"
+      title={title}
+    />
+  ) : (
+    <></>
   );
 };

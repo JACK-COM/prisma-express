@@ -7,3 +7,4 @@
 export * from "./characters.queries";
 export * from "./worlds.queries";
 export * from "./locations.queries";
+export * from "./timelines.queries";

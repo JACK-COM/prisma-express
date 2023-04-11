@@ -6,21 +6,19 @@ import { Prisma, CharacterRelationship } from "@prisma/client";
 import { context } from "../graphql/context";
 
 type UpsertArgs = Prisma.CharacterRelationshipUpsertArgs;
-type CreateCharacterRelationshipInput =
-  | UpsertArgs["create"] & UpsertArgs["update"];
-type SearchCharacterRelationshipInput = Partial<
-  Pick<
-    CharacterRelationship,
-    "relationship" | "characterId" | "targetId" | "id"
-  >
->;
-
+type UpsertRelationshipInput = UpsertArgs["create"] & UpsertArgs["update"];
+type SearchCharacterRelationshipInput =
+  | Pick<UpsertRelationshipInput, "id"> &
+      Partial<
+        Pick<CharacterRelationship, "relationship" | "characterId" | "targetId">
+      >;
 type CharacterRelationshipByIdInput = Pick<CharacterRelationship, "id">;
+
 const { CharacterRelationships } = context;
 
-/** create character-relationship record */
+/** create `Character-Relationship` record */
 export async function upsertCharacterRelationships(
-  newItems: CreateCharacterRelationshipInput[]
+  newItems: UpsertRelationshipInput[]
 ): Promise<CharacterRelationship[]> {
   const rels: Promise<CharacterRelationship>[] = [];
   newItems.forEach((data) => {
@@ -32,7 +30,7 @@ export async function upsertCharacterRelationships(
   return Promise.all(rels);
 }
 
-/** find all character-relationship records matching params */
+/** find all `Character-Relationship` records matching params */
 export async function findAllCharacterRelationship(
   filter: SearchCharacterRelationshipInput
 ) {
@@ -48,22 +46,22 @@ export async function findAllCharacterRelationship(
   return CharacterRelationships.findMany({ where });
 }
 
-/** find one character-relationship record matching params */
+/** find one `Character-Relationship` record matching params */
 export async function getCharacterRelationship(
   where: CharacterRelationshipByIdInput
 ) {
   return CharacterRelationships.findUnique({ where });
 }
 
-/** update one character-relationship record matching params */
+/** update one `Character-Relationship` record matching params */
 export async function updateCharacterRelationship(
   where: CharacterRelationshipByIdInput,
-  data: CreateCharacterRelationshipInput
+  data: UpsertRelationshipInput
 ) {
   return CharacterRelationships.update({ data, where });
 }
 
-/** delete a character-relationship */
+/** delete a `Character-Relationship` */
 export async function deleteCharacterRelationship(
   where: CharacterRelationshipByIdInput
 ) {

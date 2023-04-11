@@ -5,7 +5,7 @@
 import { Prisma, Character } from "@prisma/client";
 import { context } from "../graphql/context";
 
-type CreateCharacterInput =
+type UpsertCharacterInput =
   | Prisma.CharacterUpsertArgs["create"] & Prisma.CharacterUpsertArgs["update"];
 type CharacterByIdInput = Pick<Character, "id">;
 type SearchCharacterInput = { authorId: number; id?: number } & Partial<
@@ -14,8 +14,8 @@ type SearchCharacterInput = { authorId: number; id?: number } & Partial<
 const { Characters } = context;
 
 /** create character record */
-export async function upsertCharacter(newCharacter: CreateCharacterInput) {
-  const data: CreateCharacterInput = { ...newCharacter };
+export async function upsertCharacter(newCharacter: UpsertCharacterInput) {
+  const data: UpsertCharacterInput = { ...newCharacter };
   return data.id
     ? Characters.update({ data, where: { id: newCharacter.id } })
     : Characters.create({ data });
@@ -23,15 +23,23 @@ export async function upsertCharacter(newCharacter: CreateCharacterInput) {
 
 /** find all character records matching params */
 export async function findAllCharacter(filters: SearchCharacterInput) {
-  const OR: Prisma.CharacterFindManyArgs["where"] = {};
-  if (filters.id) OR.id = filters.id;
-  if (filters.name) OR.name = { contains: filters.name };
-  if (filters.description) OR.description = { contains: filters.description };
-  if (filters.worldId) OR.worldId = filters.worldId;
-  if (filters.groupId) OR.groupId = filters.groupId;
-  const { authorId } = filters;
+  const { id, name, authorId, worldId, groupId, description } = filters;
+  const where: Prisma.CharacterFindManyArgs["where"] = {};
+  where.AND = { authorId };
+  where.AND.OR = [];
+  if (id) where.AND.OR.push({ id });
+  if (name) {
+    where.AND.OR.push({ name: { contains: name, mode: "insensitive" } });
+  }
+  if (description) {
+    where.AND.OR.push({
+      description: { contains: description, mode: "insensitive" }
+    });
+  }
+  if (worldId) where.AND.OR.push({ worldId });
+  if (groupId) where.AND.OR.push({ groupId });
 
-  return Characters.findMany({ where: { AND: { authorId, OR } } });
+  return Characters.findMany({ where });
 }
 
 /** find one character record matching params */
@@ -42,7 +50,7 @@ export async function getCharacter(where: CharacterByIdInput) {
 /** update one character record matching params */
 export async function updateCharacter(
   where: CharacterByIdInput,
-  data: CreateCharacterInput
+  data: UpsertCharacterInput
 ) {
   return Characters.update({ data, where });
 }

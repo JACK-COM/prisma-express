@@ -6,42 +6,43 @@
 import { Prisma, Scene } from "@prisma/client";
 import { context } from "../graphql/context";
 
-type CreateSceneInput =
-    | Prisma.SceneUpsertArgs["create"] & Prisma.SceneUpsertArgs["update"];
-type SearchSceneInput = Pick<CreateSceneInput, "name" | "authorId">;
+type UpsertSceneInput =
+  | Prisma.SceneUpsertArgs["create"] & Prisma.SceneUpsertArgs["update"];
+type SearchSceneInput =
+  | Pick<Scene, "name" | "authorId"> & Pick<UpsertSceneInput, "id">;
 type SceneByIdInput = Pick<Scene, "id">;
 const { Scenes } = context;
 
 /** create scene record */
-export async function upsertScene(newScene: CreateSceneInput) {
-    const data: CreateSceneInput = { ...newScene };
+export async function upsertScene(newScene: UpsertSceneInput) {
+  const data: UpsertSceneInput = { ...newScene };
 
-    return Scenes.upsert({
-        create: data,
-        update: data,
-        where: { id: newScene.id }
-    });
+  return Scenes.upsert({
+    create: data,
+    update: data,
+    where: { id: newScene.id }
+  });
 }
 
 /** find all scene records matching params */
 export async function findAllScene(where: SceneByIdInput | SearchSceneInput) {
-    return Scenes.findMany({ where });
+  return Scenes.findMany({ where });
 }
 
 /** find one scene record matching params */
 export async function getScene(where: SceneByIdInput) {
-    return Scenes.findUnique({ where });
+  return Scenes.findUnique({ where });
 }
 
 /** update one scene record matching params */
 export async function updateScene(
-    where: SceneByIdInput,
-    data: CreateSceneInput
+  where: SceneByIdInput,
+  data: UpsertSceneInput
 ) {
-    return Scenes.update({ data, where });
+  return Scenes.update({ data, where });
 }
 
 /** delete a scene */
 export async function deleteScene(where: SceneByIdInput) {
-    return Scenes.delete({ where });
+  return Scenes.delete({ where });
 }

@@ -5,17 +5,17 @@
 import { Prisma, World } from "@prisma/client";
 import { context } from "../graphql/context";
 
-type CreateWorldInput =
+type UpsertWorldInput =
   | Prisma.WorldUpsertArgs["create"] & Prisma.WorldUpsertArgs["update"];
 type SearchWorldInput = Partial<
-  Pick<CreateWorldInput, "name" | "authorId" | "description"> & WorldByIdInput
+  Pick<World, "name" | "authorId" | "description"> & WorldByIdInput
 >;
 type WorldByIdInput = Pick<World, "id">;
 const { Worlds } = context;
 
 /** create world record */
-export async function upsertWorld(newWorld: CreateWorldInput) {
-  const data: CreateWorldInput = { ...newWorld };
+export async function upsertWorld(newWorld: UpsertWorldInput) {
+  const data: UpsertWorldInput = { ...newWorld };
   return data.id
     ? Worlds.update({ data, where: { id: newWorld.id } })
     : Worlds.create({ data });
@@ -44,7 +44,7 @@ export async function getWorld(where: WorldByIdInput) {
 /** update one world record matching params */
 export async function updateWorld(
   where: WorldByIdInput,
-  data: CreateWorldInput
+  data: UpsertWorldInput
 ) {
   return Worlds.update({ data, where });
 }

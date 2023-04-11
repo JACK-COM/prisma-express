@@ -1,15 +1,19 @@
 import styled from "styled-components";
-import { APIData, UserRole, World } from "utils/types";
-import { noOp } from "utils";
+import { APIData, PermissionProps, UserRole, World } from "utils/types";
+import { noOp, suppressEvent } from "utils";
 import { lineclamp } from "theme/theme.shared";
 import { GridContainer, MatIcon } from "./Common/Containers";
 import { Hint } from "./Forms/Form";
-import {WorldPublicIcon} from "./ComponentIcons";
+import { WorldPublicIcon } from "./ComponentIcons";
+import { Paths, insertId } from "routes";
+import { Link } from "react-router-dom";
+import { guard } from "utils";
 
-export type WICProps = { permissions: UserRole };
-const Container = styled(GridContainer)<WICProps>`
+const Container = styled(Link)<PermissionProps>`
   border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
+  color: inherit;
   cursor: pointer;
+  display: grid;
   grid-template-areas:
     "icon name trash"
     "icon description trash";
@@ -26,7 +30,7 @@ const Description = styled(Hint)`
   grid-area: description;
   width: 100%;
 `;
-const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<WICProps>`
+const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<PermissionProps>`
   grid-area: name;
   pointer-events: ${({ permissions }) =>
     permissions === "Author" ? "fill" : "none"};
@@ -53,22 +57,20 @@ type WorldItemProps = {
 
 const WorldItem = ({
   world,
-  onSelect = noOp,
+  onSelect,
   onEdit = noOp,
   permissions = "Reader"
 }: WorldItemProps) => {
-  const edit: React.MouseEventHandler = (e) => {
-    if (permissions !== "Author") return;
-    e.stopPropagation();
-    onEdit(world);
-  };
+  const url = insertId(Paths.Worlds.Locations.path, world.id);
+  const edit = guard(() => onEdit(world), permissions);
   const select: React.MouseEventHandler = (e) => {
-    e.stopPropagation();
+    if (!onSelect) return;
+    suppressEvent(e);
     onSelect(world);
   };
 
   return (
-    <Container onClick={select} permissions={permissions}>
+    <Container to={url} onClick={select} permissions={permissions}>
       <WorldPublicIcon data={world} permissions={permissions} />
 
       <Name permissions={permissions} onClick={edit}>

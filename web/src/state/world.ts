@@ -12,7 +12,7 @@ export const GlobalWorld = createState({
   selectedLocation: null as APILocation | null,
   /** Currently-focused `world` in application */
   selectedWorld: null as APIWorld | null,
-  /** List of focused world's `locations` */
+  /** List of `selectedWorld`'s `locations` */
   worldLocations: [] as APILocation[],
   /** List of user (or public) worlds */
   worlds: [] as APIWorld[]
@@ -27,9 +27,10 @@ export type GlobalWorldListKey = "worlds" | "worldLocations";
 export const setGlobalLocation = (l: APILocation | null) =>
   GlobalWorld.selectedLocation(l);
 
-/** @helper Select a `World` */
-export const setGlobalWorld = (w: APIWorld | null) =>
+/** @helper Select a `World`  */
+export const setGlobalWorld = (w: APIWorld | null) => {
   GlobalWorld.selectedWorld(w);
+};
 
 /**
  * Retrieve a world from state
@@ -118,9 +119,10 @@ export function updateWorldStateList<T extends APIData<any>[]>(
  */
 export function setWorldStateList<T extends APIData<any>[]>(
   newItems: T,
-  key: GlobalWorldListKey
+  key: GlobalWorldListKey,
+  additionalState?: Partial<GlobalWorldInstance>
 ) {
-  GlobalWorld[key](newItems);
+  GlobalWorld.multiple({ [key]: newItems, ...additionalState });
 }
 
 /**
@@ -128,7 +130,11 @@ export function setWorldStateList<T extends APIData<any>[]>(
  * @param newWorlds New worlds
  */
 export function clearGlobalWorld() {
-  GlobalWorld.selectedWorld(null);
+  return GlobalWorld.multiple({
+    selectedLocation: null,
+    selectedWorld: null,
+    worldLocations: []
+  });
 }
 
 /**

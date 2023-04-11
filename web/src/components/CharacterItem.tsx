@@ -7,6 +7,7 @@ import { Hint } from "components/Forms/Form";
 import { useMemo } from "react";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
+import { PermissionedIcon, editableStyles } from "./ComponentIcons";
 
 type WICProps = { permissions: UserRole };
 const Container = styled(GridContainer)<WICProps>`
@@ -21,19 +22,7 @@ const Container = styled(GridContainer)<WICProps>`
     grid-template-columns: 40px 1fr 40px 40px;
   }
 `;
-/* CSS for editable items */
-const editableStyles = css`
-  &:hover {
-    color: ${({ theme }) => theme.colors.accent};
-  }
-`;
-/* CSS for icons */
-const iconStyles = css`
-  align-self: center;
-  animation: bounce 400ms linear;
-  grid-row: 1 / span 2;
-  margin: 0 ${({ theme }) => theme.sizes.sm} 0 0;
-`;
+
 const Description = styled(Hint)`
   ${lineclamp(1)};
   grid-row: 2;
@@ -62,15 +51,6 @@ const Location = styled.span`
   @media screen and (max-width: 424px) {
     display: none;
   }
-`;
-const PermissionedIcon = styled(MatIcon)<WICProps>`
-  display: ${({ permissions }) =>
-    permissions === "Author" ? "block" : "none"};
-  pointer-events: ${({ permissions }) =>
-    permissions === "Author" ? "fill" : "none"};
-  ${iconStyles}
-  cursor: pointer;
-  ${editableStyles};
 `;
 const Face = styled(PermissionedIcon).attrs({ icon: "face" })``;
 const Relationships = styled(PermissionedIcon).attrs({ icon: "groups" })`

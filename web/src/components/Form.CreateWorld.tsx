@@ -37,7 +37,9 @@ const CreateWorldForm = (props: CreateWorldProps) => {
 
   return (
     <Form>
-      <Legend>New World or Universe</Legend>
+      <Legend>
+        {data?.id ? `Manage ${data.type}` : "New World or Universe"}
+      </Legend>
       <Hint>
         A <b>World</b> is <b>a collection of unique settings</b> in a story. It
         can be anything from a planet or galaxy to a dimension with neither

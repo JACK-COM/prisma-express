@@ -2,6 +2,7 @@
 import {
   MFCharacterFragment,
   MFLocationFragment,
+  MFRelationshipFragment,
   MFUserFragment,
   MFWorldFragment
 } from "./fragments";
@@ -55,7 +56,7 @@ export const listRelationshipsQuery = () =>
       targetId: $targetId, 
       relationship: $relationship, 
     ) {
-      ${MFCharacterFragment}
+      ${MFRelationshipFragment}
     } 
   }`;
 

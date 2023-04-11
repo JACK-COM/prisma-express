@@ -64,7 +64,7 @@ export async function createOrUpdateLocation(
 // Use fetchGQL to list all `Worlds` on the server (with optional filters)
 type WorldFilters = Pick<
   APIData<World>,
-  "id" | "public" | "name" | "description" | "type"
+  "id" | "public" | "name" | "description" | "type"| "authorId"
 >;
 export async function listWorlds(filters: Partial<WorldFilters> = {}) {
   const newWorld = await fetchGQL<APIData<World>[]>({

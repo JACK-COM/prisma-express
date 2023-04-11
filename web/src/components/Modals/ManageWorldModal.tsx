@@ -4,10 +4,10 @@ import {
   createOrUpdateWorld
 } from "graphql/requests/worlds.graphql";
 import { useEffect, useState } from "react";
-import styled from "styled-components";
 import Modal from "./Modal";
 import { clearGlobalModal, updateWorlds } from "state";
 import { ErrorMessage } from "components/Common/Containers";
+import { WorldType } from "utils/types";
 
 /** Modal props */
 type ManageWorldModalProps = {
@@ -16,10 +16,16 @@ type ManageWorldModalProps = {
   onClose?: () => void;
 };
 
+// Empty/default form data
+const emptyForm = (): Partial<CreateWorldData> => ({
+  type: WorldType.Universe,
+  public: false
+});
+
 /** Specialized Modal for creating/editing a `World` */
 export default function ManageWorldModal(props: ManageWorldModalProps) {
   const { data, open, onClose = clearGlobalModal } = props;
-  const [formData, setFormData] = useState<Partial<CreateWorldData>>({});
+  const [formData, setFormData] = useState(emptyForm());
   const [error, setError] = useState("");
   const submit = async () => {
     // Validate
@@ -33,6 +39,7 @@ export default function ManageWorldModal(props: ManageWorldModalProps) {
     formData.public = formData.public || false;
     setError("");
     const resp = await createOrUpdateWorld(formData);
+    if (typeof resp === "string") return setError(resp);
 
     // Notify
     if (resp) {
@@ -43,14 +50,19 @@ export default function ManageWorldModal(props: ManageWorldModalProps) {
 
   useEffect(() => {
     if (data) setFormData({ ...data, ...formData });
-    return () => setFormData({});
+    else if (data === null) setFormData(emptyForm());
+
+    return () => {
+      setFormData(emptyForm());
+      setError("");
+    };
   }, [data]);
 
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title="Create New World"
+      title={data?.id ? "Edit World" : "Create World"}
       cancelText="Cancel"
       confirmText={data?.id ? "Update" : "Create"}
       onConfirm={submit}

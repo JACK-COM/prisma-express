@@ -34,9 +34,10 @@ export function useGlobalWorld(
     getWorld,
     setGlobalLocation,
     setGlobalWorld,
-    setGlobalWorlds: (w: APIData<World>[]) => setWorldStateList(w, "worlds"),
-    setGlobalLocations: (w: APIData<Location>[]) =>
-      setWorldStateList(w, "worldLocations"),
+    setGlobalWorlds: (w: APIData<World>[]) =>
+      setWorldStateList(w, "worlds", { selectedWorld: null }),
+    setGlobalLocations: (l: APIData<Location>[]) =>
+      setWorldStateList(l, "worldLocations"),
     updateLocations,
     updateWorlds
   };

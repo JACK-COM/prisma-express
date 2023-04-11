@@ -5,6 +5,7 @@
 import fetchGQL from "graphql/fetch-gql";
 import {
   deleteCharacterMutation,
+  deleteRelationshipMutation,
   upsertCharacterMutation,
   upsertRelationshipsMutation
 } from "graphql/mutations";
@@ -36,10 +37,10 @@ export async function createOrUpdateCharacter(
 }
 
 /** @mutation Delete a `Character` on the server */
-export async function deleteCharacter(worldId: number) {
+export async function deleteCharacter(id: number) {
   const respCharacter = await fetchGQL<APIData<Character> | null>({
     query: deleteCharacterMutation(),
-    variables: { data: { id: worldId, deleted: true } },
+    variables: { data: { id } },
     onResolve: ({ upsertCharacter: list }) => list,
     fallbackResponse: null
   });
@@ -87,12 +88,25 @@ type RelationshipFilters = { characterId: number } & Partial<
 export async function listRelationships(
   filters: RelationshipFilters = { characterId: -1 }
 ) {
+  const { characterId } = filters;
   const newRelationship = await fetchGQL<APIData<CharacterRelationship>[]>({
     query: listRelationshipsQuery(),
-    variables: { ...filters, characterId: filters.characterId },
+    variables: { ...filters, characterId },
     onResolve: ({ listRelationships: list }) => list,
     fallbackResponse: []
   });
 
   return newRelationship;
+}
+
+/** @mutation Delete a `Relationship` on the server */
+export async function deleteRelationship(id: number) {
+  const respCharacter = await fetchGQL<APIData<Character> | null>({
+    query: deleteRelationshipMutation(),
+    variables: { id },
+    onResolve: ({ upsertCharacter: list }, error) => error || list,
+    fallbackResponse: null
+  });
+
+  return respCharacter;
 }

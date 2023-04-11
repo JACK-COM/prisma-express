@@ -12,9 +12,9 @@ export const GlobalCharacter = createState({
   characters: [] as APICharacter[],
   /** List of selected character's relationships to other characters */
   relationships: [] as APIRelationship[],
-  /** Currently-focused `character` in application */
+  /** Selected `character` in application */
   selectedCharacter: null as APICharacter | null,
-  /** Currently-focused character `relationship` in application */
+  /** Selected `character relationship` in application */
   selectedRelationship: null as APIRelationship | null
 });
 
@@ -117,7 +117,11 @@ export function setCharacterStateList<T extends APIData<any>[]>(
  * Clear selected character
  */
 export function clearGlobalCharacter() {
-  GlobalCharacter.selectedCharacter(null);
+  GlobalCharacter.multiple({
+    selectedCharacter: null,
+    selectedRelationship: null,
+    relationships: []
+  });
 }
 
 /**

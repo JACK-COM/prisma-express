@@ -18,6 +18,7 @@ import { APIData, UserRole, World } from "utils/types";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useNavigate } from "react-router";
+import { clearGlobalWorld } from "state";
 
 const { Worlds: WorldPaths } = Paths;
 const AddWorldButton = styled(ButtonWithIcon)`
@@ -32,7 +33,7 @@ const List = styled(ListView)`
 
 /** ROUTE: List of worlds */
 const WorldsList = () => {
-  const { id, authenticated } = useGlobalUser(["id", "authenticated"]);
+  const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
   const navigate = useNavigate();
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const {
@@ -40,22 +41,21 @@ const WorldsList = () => {
     worlds = [],
     setGlobalWorld,
     setGlobalWorlds
-  } = useGlobalWorld(["selectedWorld", "worlds"]);
-  const role = useMemo<UserRole>(
-    () => (selectedWorld?.authorId === id ? "Author" : "Reader"),
-    [id]
-  );
-  const loadWorlds = async () => setGlobalWorlds(await listWorlds());
+  } = useGlobalWorld(["selectedWorld", "worlds", "worldLocations"]);
+  const loadWorlds = async () => {
+    const params = userId > -0 ? { authorId: userId } : { public: true };
+    setGlobalWorlds(await listWorlds(params));
+  };
   const clearComponentData = () => {
-    setGlobalWorld(null);
     clearGlobalModal();
+    clearGlobalWorld();
   };
   const onEditWorld = (world: APIData<World>) => {
     setGlobalWorld(world);
     setGlobalModal(MODAL.MANAGE_WORLD);
   };
   const onSelectWorld = (world: APIData<World>) => {
-    setGlobalWorld(world);
+    // setGlobalWorld(world);
     navigate(insertId(WorldPaths.Locations.path, world.id));
   };
 
@@ -101,8 +101,8 @@ const WorldsList = () => {
             <WorldItem
               world={world}
               onEdit={onEditWorld}
-              onSelect={onSelectWorld}
-              permissions={role}
+              // onSelect={onSelectWorld}
+              permissions={world.authorId === userId ? "Author" : "Reader"}
             />
           )}
         />

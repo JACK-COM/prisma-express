@@ -139,7 +139,7 @@ export const listCharacterRelationships = queryField("listRelationships", {
     const { characterId, targetId, relationship } = args;
 
     // return only public relationships or author
-    if (!user) return null;
+    if (!user) return [];
     const relationships =
       await RelationshipsService.findAllCharacterRelationship({
         id: args.id || undefined,

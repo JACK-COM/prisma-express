@@ -42,7 +42,7 @@ const HeaderContainer = styled(GridContainer)`
 
   @media screen and (max-width: 767px) {
     height: fit-content;
-    grid-template-columns: auto;
+    /* grid-template-columns: auto; */
   }
 `;
 

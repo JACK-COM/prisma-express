@@ -36,19 +36,16 @@ export async function upsertCharacterRelationships(
 export async function findAllCharacterRelationship(
   filter: SearchCharacterRelationshipInput
 ) {
-  const OR: Prisma.CharacterRelationshipFindManyArgs["where"] = {};
-  if (filter.id) OR.id = filter.id;
-  if (filter.relationship) OR.relationship = { contains: filter.relationship };
-  if (filter.characterId) {
-    OR.characterId = filter.characterId;
-    if (!filter.targetId) OR.targetId = filter.characterId;
-  }
-  if (filter.targetId) {
-    OR.targetId = filter.targetId;
-    if (!filter.characterId) OR.characterId = filter.targetId;
-  }
+  const where: Prisma.CharacterRelationshipFindManyArgs["where"] = {};
+  const { characterId, id, targetId, relationship } = filter;
+  if (id) where.id = id;
+  if (relationship) where.relationship = { contains: relationship };
 
-  return CharacterRelationships.findMany({ where: { OR } });
+  where.OR = [];
+  if (characterId) where.OR.push({ characterId }, { targetId: characterId });
+  if (targetId) where.OR.push({ targetId }, { characterId: targetId });
+
+  return CharacterRelationships.findMany({ where });
 }
 
 /** find one character-relationship record matching params */

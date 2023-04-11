@@ -157,3 +157,45 @@ export const upsertCharacterRelationshipMutation = mutationField(
     }
   }
 );
+
+/** Delete a `Relationship` for a given `User` (Author role) */
+export const deleteRelationshipMutation = mutationField("deleteRelationship", {
+  // The GraphQL type returned by this mutation
+  type: "MFCharacterRelationship",
+
+  // Input arguments for this mutation. Every key will be required on the `args` object
+  // sent to the mutation by the client
+  args: { id: nonNull(intArg()) },
+
+  /**
+   * Mutation resolver
+   * @param _ Source object (ignored in mutations/queries)
+   * @param args Args (everything defined in `args` property above)
+   * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
+   * database directly, or to access the authenticated `user` if the request has one.
+   * @returns `MFRelationship` object from service
+   */
+  resolve: async (_, { id }, { user }) => {
+    // require authentication
+    if (!user?.id) {
+      throw new Error("You must be logged in to create a character");
+    }
+
+    // require Author role
+    if (user.role !== "Author") {
+      throw new Error("Author role required to create a character");
+    }
+
+    // require ownership
+    const rel = await RelationshipsService.getCharacterRelationship({ id });
+    if (!rel) throw new Error("Relationship not found");
+    const character = await CharactersService.getCharacter({ id });
+    if (!character) throw new Error("Character not found");
+    else if (character.authorId !== user.id) {
+      throw new Error("You do not own this character");
+    }
+
+    // delete relationship
+    return RelationshipsService.deleteCharacterRelationship({ id });
+  }
+});

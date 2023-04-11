@@ -402,6 +402,7 @@ export interface NexusGenFieldTypes {
   Mutation: { // field return type
     deleteCharacter: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
     deleteLocation: NexusGenRootTypes['MFLocation'] | null; // MFLocation
+    deleteRelationship: NexusGenRootTypes['MFCharacterRelationship'] | null; // MFCharacterRelationship
     deleteWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     upsertCharacter: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
     upsertLocation: NexusGenRootTypes['MFLocation'] | null; // MFLocation
@@ -573,6 +574,7 @@ export interface NexusGenFieldTypeNames {
   Mutation: { // field return type name
     deleteCharacter: 'MFCharacter'
     deleteLocation: 'MFLocation'
+    deleteRelationship: 'MFCharacterRelationship'
     deleteWorld: 'MFWorld'
     upsertCharacter: 'MFCharacter'
     upsertLocation: 'MFLocation'
@@ -597,6 +599,9 @@ export interface NexusGenArgTypes {
       id: number; // Int!
     }
     deleteLocation: { // args
+      id: number; // Int!
+    }
+    deleteRelationship: { // args
       id: number; // Int!
     }
     deleteWorld: { // args

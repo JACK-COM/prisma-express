@@ -63,7 +63,7 @@ export const ButtonLink = styled.a<UI.SharedButtonProps>`
 /** `<Link>` component with app button styles (and some props) */
 export const StyledLink = styled(Link)<UI.SharedButtonProps>`
   ${defaultButtonCSS}
-  height: auto;
+  height: ${UI.width};
   text-shadow: ${UI.textShadow} !important;
 `;
 type WithIconProps = {

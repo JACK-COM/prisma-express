@@ -14,7 +14,10 @@ import {
 } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths } from "routes";
-import { listCharacters } from "graphql/requests/characters.graphql";
+import {
+  listCharacters,
+  listRelationships
+} from "graphql/requests/characters.graphql";
 import { listWorlds } from "graphql/requests/worlds.graphql";
 import CreateCharacterModal from "components/Modals/ManageCharacterModal";
 import ListView from "components/Common/ListView";
@@ -45,8 +48,10 @@ const CharactersList = () => {
     relationships = [],
     selectedCharacter,
     setGlobalCharacter,
-    setGlobalCharacters
-  } = useGlobalCharacter(["selectedCharacter", "characters"]);
+    setGlobalCharacters,
+    setGlobalRelationships,
+    clearGlobalCharacter
+  } = useGlobalCharacter(["selectedCharacter", "characters", "relationships"]);
   const loadCharacters = async () => {
     const [chars, worlds] = await Promise.all([
       listCharacters({ authorId: id }),
@@ -56,11 +61,12 @@ const CharactersList = () => {
     setGlobalCharacters(chars);
   };
   const clearComponentData = () => {
-    setGlobalCharacter(null);
     clearGlobalModal();
+    clearGlobalCharacter();
   };
-  const onCharacterRelationships = (char: APIData<Character>) => {
+  const onCharacterRelationships = async (char: APIData<Character>) => {
     setGlobalCharacter(char);
+    setGlobalRelationships(await listRelationships({ characterId: char.id }));
     setGlobalModal(MODAL.MANAGE_RELATIONSHIPS);
   };
   const onEditCharacter = (char: APIData<Character>) => {

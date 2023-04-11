@@ -40,6 +40,14 @@ mutation UpsertLocation($data: MFLocationUpsertInput!) {
   }
 }`;
 
+/** Delete a `Location` */
+export const deleteLocationMutation = () => `
+mutation DeleteLocation($data: Int!) {
+  deleteLocation(id: $data) {
+    ${MFLocationFragment}
+  }
+}`;
+
 /** Create new `Character` */
 export const upsertCharacterMutation = () => `
 mutation UpsertCharacter($data: MFCharacterUpsertInput!) {
@@ -51,7 +59,7 @@ mutation UpsertCharacter($data: MFCharacterUpsertInput!) {
 /** Delete a `Character` */
 export const deleteCharacterMutation = () => `
 mutation DeleteCharacter($id: Int!) {
-  deleteCharacter(data: $data) {
+  deleteCharacter(id: $id) {
     ${MFCharacterFragment}
   }
 }`;
@@ -66,8 +74,8 @@ mutation UpsertRelationship($data: [MFRelationshipUpsertInput!]!) {
 
 /** Delete a `Character Relationship` */
 export const deleteRelationshipMutation = () => `
-mutation DeleteCharacter($id: Int!) {
-  deleteRelationship(data: $data) {
-    ${MFCharacterFragment}
+mutation DeleteRelationship($id: Int!) {
+  deleteRelationship(id: $id) {
+    ${MFRelationshipFragment}
   }
 }`;

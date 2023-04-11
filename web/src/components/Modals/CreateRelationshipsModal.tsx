@@ -23,9 +23,8 @@ export default function CreateRelationshipsModal(
 ) {
   const { data = [], open, onClose = clearGlobalModal } = props;
   const { selectedCharacter } = useGlobalCharacter(["selectedCharacter"]);
-  const [formData, setFormData] = useState<Partial<CreateRelationshipData>[]>(
-    []
-  );
+  const [formData, setFormData] =
+    useState<Partial<CreateRelationshipData>[]>(data);
   const [error, setError] = useState("");
   const submit = async () => {
     // Validate
@@ -49,7 +48,8 @@ export default function CreateRelationshipsModal(
   };
 
   useEffect(() => {
-    if (data) setFormData([...data, ...formData]);
+    if (data.length) setFormData([...data, ...formData]);
+    else setFormData([]);
     return () => setFormData([]);
   }, [data]);
 

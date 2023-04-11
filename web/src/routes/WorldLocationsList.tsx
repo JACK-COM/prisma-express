@@ -44,6 +44,7 @@ const WorldLocationsList = () => {
     selectedWorld,
     selectedLocation,
     worldLocations = [],
+    clearGlobalWorld,
     setGlobalWorld,
     setGlobalLocation,
     setGlobalLocations
@@ -61,25 +62,21 @@ const WorldLocationsList = () => {
   const { worldId } = useParams<{ worldId: string }>();
   const place = useMemo(() => selectedWorld?.name || "World", [selectedWorld]);
   const loadComponentData = async () => {
-    if (!worldId || isNaN(Number(worldId))) return;
+    const wId = Number(worldId);
+    if (isNaN(Number(worldId)) || selectedWorld?.id === wId) return;
     const [[world], locations] = await Promise.all([
       selectedWorld ? [selectedWorld] : listWorlds({ id: Number(worldId) }),
       listLocations({ worldId: Number(worldId) })
     ]);
     if (!world) setError("World not found");
     else {
-      setGlobalWorld(world);
+      if (world !== selectedWorld) setGlobalWorld(world);
       setGlobalLocations(locations);
     }
   };
   const clearModalData = () => {
-    setGlobalLocation(null);
     clearGlobalModal();
-  };
-  const clearComponentData = () => {
-    clearModalData();
-    setGlobalWorld(null);
-    setGlobalLocations([]);
+    setGlobalLocation(null);
   };
   const onEditLocation = (location: APIData<Location>) => {
     setGlobalLocation(location);
@@ -88,10 +85,14 @@ const WorldLocationsList = () => {
   const onSelectLocation = (location: APIData<Location>) => {
     setGlobalLocation(location);
   };
+  const clearComponentData = () => {
+    clearModalData();
+    clearGlobalWorld();
+  };
 
   useEffect(() => {
     loadComponentData();
-    return () => clearComponentData();
+    return clearComponentData;
   }, []);
 
   return (
@@ -110,7 +111,12 @@ const WorldLocationsList = () => {
           {error || (
             <>
               {selectedWorld && (
-                <WorldPublicIcon data={selectedWorld} permissions={role} />
+                <WorldPublicIcon
+                  data={selectedWorld}
+                  permissions={
+                    selectedWorld.authorId === id ? "Author" : "Reader"
+                  }
+                />
               )}
               {place} Locations
             </>

@@ -254,3 +254,5 @@ export type World = {
   Groups: PopulationGroup[];
   Characters: Character[];
 } & AuthorRelation;
+
+export type PermissionProps = { permissions: UserRole };

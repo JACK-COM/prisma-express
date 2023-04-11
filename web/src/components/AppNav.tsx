@@ -33,14 +33,12 @@ const AppNav = () => {
       ? [url, "Logout", `Log out ${email}`, "error"]
       : [url, "Login", "Log in", undefined];
   }, [email]);
+  const searchPath = Paths.Search.Index.path;
   // Set authenticating state for reload
   const onAuth = () => {
     const authenticating = Number(!email);
     localStorage.setItem("authenticating", String(authenticating));
   };
-  const routes = [Paths.Search.Index];
-  if (email) routes.push(Paths.Dashboard.Index);
-  // else routes.push(Paths.Categories.Index);
 
   // Write path to localStorage for login/logout
   // This allows a user to maintain context when they login via Google
@@ -62,16 +60,10 @@ const AppNav = () => {
       <ThemeSelector />
 
       {/* Navigation Links */}
-      <ListView
-        row
-        className="menu-items slide-in-right"
-        data={routes}
-        itemText={({ path, text }: any) => (
-          <StyledLink variant="transparent" to={path}>
-            {text}
-          </StyledLink>
-        )}
-      />
+
+      <ButtonLink variant="transparent" round href={searchPath}>
+        <MatIcon icon="search" />
+      </ButtonLink>
 
       {/* Login/Logout Link */}
       <ButtonLink

@@ -19,11 +19,20 @@ export async function checkVersionChanged() {
  */
 export function guard(
   fn: React.MouseEventHandler,
-  permissions: UserRole = "Reader",
+  permissions: UserRole = "Reader"
 ): typeof fn | undefined {
   if (permissions !== "Author") return undefined;
   return (e) => {
-    e.stopPropagation();
+    suppressEvent(e);
     fn(e);
   };
+}
+
+/**
+ * Stop propagation and prevent default on a mouse event
+ * @param e React mouse event
+ */
+export function suppressEvent(e: React.MouseEvent) {
+  e.preventDefault();
+  e.stopPropagation();
 }

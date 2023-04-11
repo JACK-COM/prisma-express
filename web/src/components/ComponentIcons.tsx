@@ -1,16 +1,15 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { MatIcon, MatIconProps } from "components/Common/Containers";
-import { WICProps } from "./WorldItem";
-import { APIData, UserRole, World } from "utils/types";
+import { APIData, PermissionProps, UserRole, World } from "utils/types";
 import {
   createOrUpdateWorld,
   deleteWorld
 } from "graphql/requests/worlds.graphql";
 import { updateWorlds, removeWorld } from "state";
-import { noOp } from "utils";
+import { guard, noOp, suppressEvent } from "utils";
 
 /** `World` Icon Container (indicates a `World` data-type) */
-const WorldIcon = styled(MatIcon).attrs({ icon: "public" })<WICProps>`
+const WorldIcon = styled(MatIcon).attrs({ icon: "public" })<PermissionProps>`
   align-self: center;
   animation: shake 280ms linear;
   cursor: ${({ permissions }) =>
@@ -30,10 +29,34 @@ const WorldIcon = styled(MatIcon).attrs({ icon: "public" })<WICProps>`
   }
 `;
 
+/* CSS for icons */
+export const iconStyles = css`
+  align-self: center;
+  animation: bounce 400ms linear;
+  grid-row: 1 / span 2;
+  margin: 0 ${({ theme }) => theme.sizes.sm} 0 0;
+`;
+/* CSS for editable items */
+export const editableStyles = css`
+  &:hover {
+    color: ${({ theme }) => theme.colors.accent};
+  }
+`;
+export const PermissionedIcon = styled(MatIcon)<PermissionProps>`
+  display: ${({ permissions }) =>
+    permissions === "Author" ? "block" : "none"};
+  pointer-events: ${({ permissions }) =>
+    permissions === "Author" ? "fill" : "none"};
+  ${iconStyles}
+  cursor: pointer;
+  ${editableStyles};
+`;
+
 /** Generic Icon component Props */
 type ItemIconProps = Omit<MatIconProps, "onClick" | "icon"> & {
   onItemClick?: (data?: any) => void;
   permissions?: UserRole;
+  disabled?: boolean;
   data: APIData<any>;
 };
 
@@ -47,10 +70,10 @@ export const WorldPublicIcon = (props: WorldIconProps) => {
   const title = world.public ? "Public World" : "Private World";
   const togglePublic: React.MouseEventHandler = async (e) => {
     if (permissions !== "Author") return;
-    e.stopPropagation();
+    suppressEvent(e);
     const data = { ...world, public: !world.public };
     const resp = await createOrUpdateWorld(data);
-    if (resp) updateWorlds([resp]);
+    if (resp && typeof resp !== "string") updateWorlds([resp]);
   };
 
   return (
@@ -86,21 +109,36 @@ export const WorldDeleteIcon = (props: WorldIconProps) => {
 };
 
 /** Generic "Delete Item" Icon */
+type DIProps = { disabled: boolean };
+const DeleteIcon = styled(PermissionedIcon).attrs({ icon: "delete" })<DIProps>`
+  align-self: last baseline;
+  cursor: ${({ disabled = false }) => (disabled ? "not-allowed" : "pointer")};
+  pointer-events: ${({ permissions, disabled }) =>
+    !disabled && permissions === "Author" ? "fill" : "none"};
+  grid-column: initial;
+  grid-row: initial;
+`;
 export const DeleteItemIcon = (props: ItemIconProps) => {
-  const { permissions, data, className, onItemClick = noOp, ...rest } = props;
-  const iconClass = `${className || ""}`.trim() || undefined;
-  const onRemove: React.MouseEventHandler = async (e) => {
-    if (permissions !== "Author") return;
-    e.stopPropagation();
-    onItemClick(data);
-  };
+  const {
+    permissions,
+    data,
+    disabled = false,
+    className,
+    onItemClick = noOp,
+    ...rest
+  } = props;
+  const color = disabled ? "grey--text" : "error--text";
+  const iconClass = `${color} ${className || ""}`.trim() || undefined;
+  const onRemove = guard(() => !disabled && onItemClick(data), permissions);
 
   return (
-    <WorldIcon
+    <DeleteIcon
+      disabled={disabled}
       {...rest}
+      icon="delete"
+      permissions={permissions || "Reader"}
       className={iconClass}
       onClick={onRemove}
-      permissions={permissions || "Reader"}
     />
   );
 };

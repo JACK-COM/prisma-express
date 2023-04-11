@@ -25,11 +25,12 @@ export default function ManageCharacterModal(props: ManageCharacterModalProps) {
     if (!formData.name) return setError("Name is required.");
     if (formData.name.length < 2)
       return setError("Name must be at least 2 characters.");
-    else setError("");
 
     // Create
+    setError("");
     if (!formData.description) formData.description = "No description.";
     const resp = await createOrUpdateCharacter(formData);
+    if (typeof resp === "string") return setError(resp);
 
     // Notify
     if (resp) {

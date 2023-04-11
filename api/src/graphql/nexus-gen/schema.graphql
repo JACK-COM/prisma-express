@@ -361,6 +361,7 @@ input MFWorldUpsertInput {
 type Mutation {
   deleteCharacter(id: Int!): MFCharacter
   deleteLocation(id: Int!): MFLocation
+  deleteRelationship(id: Int!): MFCharacterRelationship
   deleteWorld(id: Int!): MFWorld
   upsertCharacter(
     """The data to create a new character"""

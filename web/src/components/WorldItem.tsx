@@ -84,7 +84,7 @@ const WorldItem = ({
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </Name>
       <Description>{world.description}</Description>
-      <MatIcon className="icon" icon="edit_calendar" />
+        {permissions === "Author" && <MatIcon className="icon" icon="edit_calendar" />}
       <DeleteWorldIcon permissions={permissions} data={world} />
     </Container>
   );

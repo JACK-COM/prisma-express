@@ -8,14 +8,14 @@ import { context } from "../graphql/context";
 
 type UpsertUserInput =
   | Prisma.UserUpsertArgs["create"] & Prisma.UserUpsertArgs["update"];
-type SearchUserInput = Pick<CreateUserInput, "email">;
+type SearchUserInput = Pick<User, "email">;
 type UserByIdInput = Pick<User, "id">;
 const { Users } = context;
 
 /** create user record */
-export async function upsertUser(newUser: CreateUserInput) {
+export async function upsertUser(newUser: UpsertUserInput) {
   const today = DateTime.now().toISO();
-  const data: CreateUserInput = {
+  const data: UpsertUserInput = {
     ...newUser,
     role: newUser.role || "Author",
     created: today,

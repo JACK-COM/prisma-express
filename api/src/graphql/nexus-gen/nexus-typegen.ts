@@ -38,6 +38,18 @@ export interface NexusGenInputs {
     name: string; // String!
     worldId: number; // Int!
   }
+  MFEventUpsertInput: { // input type
+    authorId?: number | null; // Int
+    characterId?: number | null; // Int
+    description: string | null; // String
+    groupId?: number | null; // Int
+    id?: number | null; // Int
+    locationId?: number | null; // Int
+    name: string; // String!
+    polarity: NexusGenEnums['EventPolarity']; // EventPolarity!
+    target: NexusGenEnums['EventTarget']; // EventTarget!
+    worldId: number; // Int!
+  }
   MFLocationUpsertInput: { // input type
     authorId?: number | null; // Int
     climate?: NexusGenEnums['Climate'] | null; // Climate
@@ -54,6 +66,20 @@ export interface NexusGenInputs {
     id?: number | null; // Int
     relationship: string; // String!
     targetId: number; // Int!
+  }
+  MFTimelineEventUpsertInput: { // input type
+    authorId?: number | null; // Int
+    eventId: number; // Int!
+    id?: number | null; // Int
+    order: number; // Int!
+    timelineId: number; // Int!
+  }
+  MFTimelineUpsertInput: { // input type
+    authorId?: number | null; // Int
+    events?: NexusGenInputs['MFEventUpsertInput'][] | null; // [MFEventUpsertInput!]
+    id?: number | null; // Int
+    name: string; // String!
+    worldId: number; // Int!
   }
   MFWorldUpsertInput: { // input type
     authorId?: number | null; // Int
@@ -131,7 +157,7 @@ export interface NexusGenObjects {
   MFEvent: { // root type
     authorId?: number | null; // Int
     characterId?: number | null; // Int
-    description: string; // String!
+    description?: string | null; // String
     groupId?: number | null; // Int
     id: number; // Int!
     locationId?: number | null; // Int
@@ -198,15 +224,17 @@ export interface NexusGenObjects {
     title: string; // String!
   }
   MFTimeline: { // root type
-    Scenes: Array<NexusGenRootTypes['MFScene'] | null>; // [MFScene]!
+    Author?: NexusGenRootTypes['MFUser'] | null; // MFUser
+    Scenes?: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
+    TimelineEvents?: Array<NexusGenRootTypes['MFTimelineEvent'] | null> | null; // [MFTimelineEvent]
+    World?: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId?: number | null; // Int
-    description: string; // String!
     id: number; // Int!
     name: string; // String!
-    order: number; // Int!
     worldId: number; // Int!
   }
   MFTimelineEvent: { // root type
+    Event?: NexusGenRootTypes['MFEvent'] | null; // MFEvent
     Scenes?: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
     authorId?: number | null; // Int
     eventId: number; // Int!
@@ -295,7 +323,7 @@ export interface NexusGenFieldTypes {
   MFEvent: { // field return type
     authorId: number | null; // Int
     characterId: number | null; // Int
-    description: string; // String!
+    description: string | null; // String
     groupId: number | null; // Int
     id: number; // Int!
     locationId: number | null; // Int
@@ -362,15 +390,17 @@ export interface NexusGenFieldTypes {
     title: string; // String!
   }
   MFTimeline: { // field return type
-    Scenes: Array<NexusGenRootTypes['MFScene'] | null>; // [MFScene]!
+    Author: NexusGenRootTypes['MFUser'] | null; // MFUser
+    Scenes: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
+    TimelineEvents: Array<NexusGenRootTypes['MFTimelineEvent'] | null> | null; // [MFTimelineEvent]
+    World: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId: number | null; // Int
-    description: string; // String!
     id: number; // Int!
     name: string; // String!
-    order: number; // Int!
     worldId: number; // Int!
   }
   MFTimelineEvent: { // field return type
+    Event: NexusGenRootTypes['MFEvent'] | null; // MFEvent
     Scenes: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
     authorId: number | null; // Int
     eventId: number; // Int!
@@ -403,21 +433,28 @@ export interface NexusGenFieldTypes {
     deleteCharacter: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
     deleteLocation: NexusGenRootTypes['MFLocation'] | null; // MFLocation
     deleteRelationship: NexusGenRootTypes['MFCharacterRelationship'] | null; // MFCharacterRelationship
+    deleteTimeline: NexusGenRootTypes['MFTimeline'] | null; // MFTimeline
     deleteWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     upsertCharacter: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
     upsertLocation: NexusGenRootTypes['MFLocation'] | null; // MFLocation
     upsertRelationships: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
+    upsertTimeline: NexusGenRootTypes['MFTimeline'] | null; // MFTimeline
     upsertWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
   }
   Query: { // field return type
+    getAuthorTimelines: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
     getCharacterById: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
+    getEventById: NexusGenRootTypes['MFEvent'] | null; // MFEvent
     getLocationById: NexusGenRootTypes['MFLocation'] | null; // MFLocation
     getRelationshipById: NexusGenRootTypes['MFCharacterRelationship'] | null; // MFCharacterRelationship
+    getTimelineById: NexusGenRootTypes['MFTimeline'] | null; // MFTimeline
+    getTimelineEvents: Array<NexusGenRootTypes['MFTimelineEvent'] | null> | null; // [MFTimelineEvent]
     getWorldById: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     listCharacters: Array<NexusGenRootTypes['MFCharacter'] | null> | null; // [MFCharacter]
     listLocations: Array<NexusGenRootTypes['MFLocation'] | null> | null; // [MFLocation]
     listRelationships: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
     listWorlds: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
+    searchTimelines: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
   }
 }
 
@@ -534,15 +571,17 @@ export interface NexusGenFieldTypeNames {
     title: 'String'
   }
   MFTimeline: { // field return type name
+    Author: 'MFUser'
     Scenes: 'MFScene'
+    TimelineEvents: 'MFTimelineEvent'
+    World: 'MFWorld'
     authorId: 'Int'
-    description: 'String'
     id: 'Int'
     name: 'String'
-    order: 'Int'
     worldId: 'Int'
   }
   MFTimelineEvent: { // field return type name
+    Event: 'MFEvent'
     Scenes: 'MFScene'
     authorId: 'Int'
     eventId: 'Int'
@@ -575,21 +614,28 @@ export interface NexusGenFieldTypeNames {
     deleteCharacter: 'MFCharacter'
     deleteLocation: 'MFLocation'
     deleteRelationship: 'MFCharacterRelationship'
+    deleteTimeline: 'MFTimeline'
     deleteWorld: 'MFWorld'
     upsertCharacter: 'MFCharacter'
     upsertLocation: 'MFLocation'
     upsertRelationships: 'MFCharacterRelationship'
+    upsertTimeline: 'MFTimeline'
     upsertWorld: 'MFWorld'
   }
   Query: { // field return type name
+    getAuthorTimelines: 'MFTimeline'
     getCharacterById: 'MFCharacter'
+    getEventById: 'MFEvent'
     getLocationById: 'MFLocation'
     getRelationshipById: 'MFCharacterRelationship'
+    getTimelineById: 'MFTimeline'
+    getTimelineEvents: 'MFTimelineEvent'
     getWorldById: 'MFWorld'
     listCharacters: 'MFCharacter'
     listLocations: 'MFLocation'
     listRelationships: 'MFCharacterRelationship'
     listWorlds: 'MFWorld'
+    searchTimelines: 'MFTimeline'
   }
 }
 
@@ -604,6 +650,9 @@ export interface NexusGenArgTypes {
     deleteRelationship: { // args
       id: number; // Int!
     }
+    deleteTimeline: { // args
+      id: number; // Int!
+    }
     deleteWorld: { // args
       id: number; // Int!
     }
@@ -616,12 +665,21 @@ export interface NexusGenArgTypes {
     upsertRelationships: { // args
       data: NexusGenInputs['MFRelationshipUpsertInput'][]; // [MFRelationshipUpsertInput!]!
     }
+    upsertTimeline: { // args
+      data: NexusGenInputs['MFTimelineUpsertInput']; // MFTimelineUpsertInput!
+    }
     upsertWorld: { // args
       data: NexusGenInputs['MFWorldUpsertInput']; // MFWorldUpsertInput!
     }
   }
   Query: {
+    getAuthorTimelines: { // args
+      authorId: number; // Int!
+    }
     getCharacterById: { // args
+      id: number; // Int!
+    }
+    getEventById: { // args
       id: number; // Int!
     }
     getLocationById: { // args
@@ -629,6 +687,12 @@ export interface NexusGenArgTypes {
     }
     getRelationshipById: { // args
       id: number; // Int!
+    }
+    getTimelineById: { // args
+      id: number; // Int!
+    }
+    getTimelineEvents: { // args
+      timelineId: number; // Int!
     }
     getWorldById: { // args
       id: number; // Int!
@@ -658,6 +722,10 @@ export interface NexusGenArgTypes {
       description?: string | null; // String
       id?: number | null; // Int
       name?: string | null; // String
+    }
+    searchTimelines: { // args
+      name?: string | null; // String
+      worldId?: number | null; // Int
     }
   }
 }

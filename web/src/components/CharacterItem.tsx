@@ -12,23 +12,27 @@ import { PermissionedIcon, editableStyles } from "./ComponentIcons";
 type WICProps = { permissions: UserRole };
 const Container = styled(GridContainer)<WICProps>`
   border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
-  grid-template-columns: 40px 1fr max-content 40px 40px;
+  grid-template-columns: 24px 1fr max-content 24px 24px;
+  grid-column-gap: ${({ theme }) => theme.sizes.sm};
   justify-content: start;
   padding: ${({ theme }) => theme.sizes.xs} 0;
   width: 100%;
 
   @media screen and (max-width: 424px) {
     /* Drop to 4 columns */
-    grid-template-columns: 40px 1fr 40px 40px;
+    grid-template-columns: 24px 1fr 24px 24px;
   }
 `;
 
 const Description = styled(Hint)`
   ${lineclamp(1)};
+  grid-column: 2/-1;
   grid-row: 2;
 `;
 const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<WICProps>`
   cursor: pointer;
+  grid-column: 2/-1;
+  grid-row: 1;
   pointer-events: ${({ permissions }) =>
     permissions === "Author" ? "fill" : "none"};
 
@@ -52,13 +56,16 @@ const Location = styled.span`
     display: none;
   }
 `;
-const Face = styled(PermissionedIcon).attrs({ icon: "face" })``;
-const Relationships = styled(PermissionedIcon).attrs({ icon: "groups" })`
+const TallIcon = styled(PermissionedIcon)`
+  align-self: center;
   animation-fill-mode: backwards;
+  grid-row: 1 / span 2;
+`;
+const Face = styled(TallIcon).attrs({ icon: "face" })``;
+const Relationships = styled(TallIcon).attrs({ icon: "groups" })`
   animation-delay: 200ms;
 `;
-const DeleteIcon = styled(PermissionedIcon).attrs({ icon: "delete" })`
-  animation-fill-mode: backwards;
+const DeleteIcon = styled(TallIcon).attrs({ icon: "delete" })`
   animation-delay: 400ms;
 `;
 

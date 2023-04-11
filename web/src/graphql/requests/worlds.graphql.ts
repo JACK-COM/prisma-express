@@ -39,7 +39,7 @@ export async function createOrUpdateWorld(data: Partial<CreateWorldData>) {
 export async function deleteWorld(worldId: number) {
   const respWorld = await fetchGQL<APIData<World> | null>({
     query: deleteWorldMutation(),
-    variables: { data: { id: worldId } },
+    variables: { id: worldId },
     onResolve: ({ deleteWorld: list }, errors) => errors || list,
     fallbackResponse: null
   });
@@ -64,7 +64,7 @@ export async function createOrUpdateLocation(
 // Use fetchGQL to list all `Worlds` on the server (with optional filters)
 type WorldFilters = Pick<
   APIData<World>,
-  "id" | "public" | "name" | "description" | "type"| "authorId"
+  "id" | "public" | "name" | "description" | "type" | "authorId"
 >;
 export async function listWorlds(filters: Partial<WorldFilters> = {}) {
   const newWorld = await fetchGQL<APIData<World>[]>({

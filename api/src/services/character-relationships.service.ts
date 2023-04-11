@@ -6,7 +6,7 @@ import { Prisma, CharacterRelationship } from "@prisma/client";
 import { context } from "../graphql/context";
 
 type UpsertArgs = Prisma.CharacterRelationshipUpsertArgs;
-type CreateCharacterRelationshipInput =
+type UpsertCharacterRelationshipInput =
   | UpsertArgs["create"] & UpsertArgs["update"];
 type SearchCharacterRelationshipInput = Partial<
   Pick<

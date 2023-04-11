@@ -12,20 +12,23 @@ export async function checkVersionChanged() {
 }
 
 /**
- * Protect a mouse-event handler from being called by non-authors
+ * Require a mouse-event handler to be called by `Authors` only
  * @param fn Mouse event handler or other function
- * @param permissions Current user permissions
+ * @param permissions Current user's `role`
  * @returns Function if user is author; undefined if not
  */
 export function guard(
   fn: React.MouseEventHandler,
-  permissions: UserRole = "Reader"
+  permissions: UserRole = "Reader",
+  preventDefault?: boolean
 ): typeof fn | undefined {
   if (permissions !== "Author") return undefined;
-  return (e) => {
-    suppressEvent(e);
-    fn(e);
-  };
+  return preventDefault === false
+    ? fn
+    : (e) => {
+        suppressEvent(e);
+        fn(e);
+      };
 }
 
 /**

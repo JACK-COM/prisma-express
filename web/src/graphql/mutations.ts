@@ -27,7 +27,7 @@ mutation UpsertWorld($data: MFWorldUpsertInput!) {
 /** Delete a `World` */
 export const deleteWorldMutation = () => `
 mutation DeleteWorld($id: Int!) {
-  deleteWorld(data: $data) {
+  deleteWorld(id: $id) {
     ${MFWorldFragment}
   }
 }`;

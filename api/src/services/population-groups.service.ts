@@ -6,7 +6,7 @@
 import { Prisma, PopulationGroup } from "@prisma/client";
 import { context } from "../graphql/context";
 
-type CreatePopulationGroupInput =
+type UpsertPopulationGroupInput =
     | Prisma.PopulationGroupUpsertArgs["create"] & Prisma.PopulationGroupUpsertArgs["update"];
 type SearchPopulationGroupInput = Pick<CreatePopulationGroupInput, "name" | "authorId">;
 type PopulationGroupByIdInput = Pick<PopulationGroup, "id">;

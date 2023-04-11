@@ -1,6 +1,6 @@
 /**
  * @file Characters.Queries
- * @description Queries for the `Characters` model
+ * @description Queries for the `Characters` and `CharacterRelationships` models
  */
 
 import { queryField, nonNull, intArg, stringArg, list } from "nexus";
@@ -91,11 +91,17 @@ export const listCharacters = queryField("listCharacters", {
    * @returns `MFCharacter` object from service
    * @throws Error if character not found or character is private and user is not the author
    */
-  resolve: async (_, args, { user }) => {
+  resolve: async (_, args, { user, Worlds, Characters }) => {
     const { authorId, worldId, description, name } = args;
 
     // return only public characters or author
-    if (!user) return [];
+    if (!user) {
+      const pubWorlds = await Worlds.findMany({ where: { public: true } });
+      const pubWorldIds = pubWorlds.map((w) => w.id);
+      return Characters.findMany({
+        where: { worldId: { in: pubWorldIds } }
+      });
+    }
 
     const characters = await CharactersService.findAllCharacter({
       id: args.id || undefined,

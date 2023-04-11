@@ -25,6 +25,8 @@ const AddLocationButton = styled(ButtonWithIcon)`
   align-self: end;
 `;
 const EmptyText = styled.p`
+  display: flex;
+  flex-direction: column;
   font-style: oblique;
 `;
 const List = styled(ListView)`
@@ -60,7 +62,14 @@ const WorldLocationsList = () => {
   );
   const [error, setError] = useState<string>();
   const { worldId } = useParams<{ worldId: string }>();
-  const place = useMemo(() => selectedWorld?.name || "World", [selectedWorld]);
+  const place = useMemo(
+    () => selectedWorld?.name || WorldPaths.Locations.text,
+    [selectedWorld]
+  );
+  const publicClass = useMemo(
+    () => (selectedWorld?.public ? "success--text" : "error--text"),
+    [selectedWorld]
+  );
   const loadComponentData = async () => {
     const wId = Number(worldId);
     if (isNaN(Number(worldId)) || selectedWorld?.id === wId) return;
@@ -99,32 +108,29 @@ const WorldLocationsList = () => {
     <PageContainer id="world-locations">
       <header>
         <Breadcrumbs data={[WorldPaths.Index, WorldPaths.Locations]} />
-        <PageTitle>{WorldPaths.Locations.text}</PageTitle>
+        <PageTitle>
+          {selectedWorld && (
+            <WorldPublicIcon
+              data={selectedWorld}
+              permissions={selectedWorld.authorId === id ? "Author" : "Reader"}
+            />
+          )}
+
+          {place}
+        </PageTitle>
+
         <PageDescription>
-          All <b>Locations</b> (unique story settings) in{" "}
+          (
+          <b className={publicClass}>
+            {selectedWorld?.public ? "PUBLIC" : "PRIVATE"}
+          </b>
+          ) All <b>unique story settings</b> in{" "}
           <b>{selectedWorld?.name || "a world ... if it exists"}</b>
         </PageDescription>
       </header>
 
       <Card>
-        <h3 className="h4 flex">
-          {error || (
-            <>
-              {selectedWorld && (
-                <WorldPublicIcon
-                  data={selectedWorld}
-                  permissions={
-                    selectedWorld.authorId === id ? "Author" : "Reader"
-                  }
-                />
-              )}
-              {place} Locations
-            </>
-          )}
-        </h3>
-        <PageDescription>
-          This is a <b>{selectedWorld?.public ? "public" : "private"}</b> world.
-        </PageDescription>
+        <h3 className="h4 flex">{error || <>All Locations</>}</h3>
         {/* List */}
         {!worldLocations.length && (
           <EmptyText>
@@ -132,8 +138,11 @@ const WorldLocationsList = () => {
               "This world may be private or deleted."
             ) : (
               <>
-                A chaotic space with no <b>Locations</b> to be found. The
-                Creator considered the space; its mind stirred restlessly.
+                <span>
+                  A chaotic space, before <b>Locations</b>, or the beings that
+                  inhabit them, were created.
+                </span>
+                <span>The Creator's mind stirred restlessly...</span>
               </>
             )}
           </EmptyText>

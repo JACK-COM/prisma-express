@@ -5,7 +5,7 @@
 import { Prisma, World } from "@prisma/client";
 import { context } from "../graphql/context";
 
-type CreateWorldInput =
+type UpsertWorldInput =
   | Prisma.WorldUpsertArgs["create"] & Prisma.WorldUpsertArgs["update"];
 type SearchWorldInput = Partial<
   Pick<CreateWorldInput, "name" | "authorId" | "description"> & WorldByIdInput

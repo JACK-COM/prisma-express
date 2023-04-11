@@ -6,7 +6,7 @@
 import { Prisma, Series } from "@prisma/client";
 import { context } from "../graphql/context";
 
-type CreateSeriesInput =
+type UpsertSeriesInput =
     | Prisma.SeriesUpsertArgs["create"] & Prisma.SeriesUpsertArgs["update"];
 type SearchSeriesInput = Pick<CreateSeriesInput, "order" | "authorId">;
 type SeriesByIdInput = Pick<Series, "id">;

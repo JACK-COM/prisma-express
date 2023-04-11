@@ -6,7 +6,7 @@
 import { Prisma, Scene } from "@prisma/client";
 import { context } from "../graphql/context";
 
-type CreateSceneInput =
+type UpsertSceneInput =
     | Prisma.SceneUpsertArgs["create"] & Prisma.SceneUpsertArgs["update"];
 type SearchSceneInput = Pick<CreateSceneInput, "name" | "authorId">;
 type SceneByIdInput = Pick<Scene, "id">;

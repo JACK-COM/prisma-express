@@ -6,7 +6,7 @@ import { Prisma, User } from "@prisma/client";
 import { DateTime } from "luxon";
 import { context } from "../graphql/context";
 
-type CreateUserInput =
+type UpsertUserInput =
   | Prisma.UserUpsertArgs["create"] & Prisma.UserUpsertArgs["update"];
 type SearchUserInput = Pick<CreateUserInput, "email">;
 type UserByIdInput = Pick<User, "id">;

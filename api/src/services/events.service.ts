@@ -5,25 +5,71 @@
 import { Prisma, Event } from "@prisma/client";
 import { context } from "../graphql/context";
 
-type CreateEventInput =
+type UpsertEventInput =
   | Prisma.EventUpsertArgs["create"] & Prisma.EventUpsertArgs["update"];
-type SearchEventInput = Pick<CreateEventInput, "name" | "description">;
 type EventByIdInput = Pick<Event, "id">;
+type SearchEventInput = Partial<
+  Pick<
+    Event,
+    | "id"
+    | "name"
+    | "description"
+    | "authorId"
+    | "worldId"
+    | "groupId"
+    | "locationId"
+    | "characterId"
+    | "polarity"
+    | "target"
+  >
+>;
 const { Events } = context;
 
 /** create event record */
-export async function upsertEvent(newEvent: CreateEventInput) {
-  const data: CreateEventInput = { ...newEvent };
+export async function upsertEvent(newEvent: UpsertEventInput) {
+  const data: UpsertEventInput = { ...newEvent };
+  return data.id
+    ? Events.update({ data, where: { id: data.id } })
+    : Events.create({ data });
+}
 
-  return Events.upsert({
-    create: data,
-    update: data,
-    where: { id: newEvent.id }
-  });
+/** Create multiple event records */
+export async function upsertEvents(newEvents: UpsertEventInput[]) {
+  return Promise.all(
+    newEvents.map((data) =>
+      data.id ? upsertEvent(data) : Events.create({ data })
+    )
+  );
 }
 
 /** find all event records matching params */
-export async function findAllEvent(where: EventByIdInput | SearchEventInput) {
+export async function findAllEvents(filter: SearchEventInput) {
+  const {
+    id,
+    name,
+    description,
+    authorId,
+    worldId,
+    groupId,
+    locationId,
+    characterId,
+    polarity,
+    target
+  } = filter;
+  const where: Prisma.EventFindManyArgs["where"] = {};
+  if (id) where.id = id;
+  if (name) where.name = { contains: name };
+  if (description) where.description = { contains: description };
+  if (characterId) where.characterId = characterId;
+
+  where.OR = [];
+  if (authorId) where.OR.push({ authorId });
+  if (worldId) where.OR.push({ worldId });
+  if (groupId) where.OR.push({ groupId });
+  if (locationId) where.OR.push({ locationId });
+  if (polarity) where.OR.push({ polarity });
+  if (target) where.OR.push({ target });
+
   return Events.findMany({ where });
 }
 
@@ -35,7 +81,7 @@ export async function getEvent(where: EventByIdInput) {
 /** update one event record matching params */
 export async function updateEvent(
   where: EventByIdInput,
-  data: CreateEventInput
+  data: UpsertEventInput
 ) {
   return Events.update({ data, where });
 }

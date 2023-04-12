@@ -31,12 +31,24 @@ export async function findAllTimelines(filter: SearchTimelineInput) {
   if (authorId) where.authorId = authorId;
   if (worldId) where.worldId = worldId;
 
-  return Timelines.findMany({ where, include: { TimelineEvents: true } });
+  return await Timelines.findMany({
+    where,
+    include: {
+      World: true,
+      TimelineEvents: { orderBy: { order: "asc" } }
+    }
+  });
 }
 
 /** find one timeline record matching params */
 export async function getTimeline(where: TimelineByIdInput) {
-  return Timelines.findUnique({ where, include: { TimelineEvents: true } });
+  return Timelines.findUnique({
+    where,
+    include: {
+      World: true,
+      TimelineEvents: { orderBy: { order: "asc" } }
+    }
+  });
 }
 
 /** update one timeline record matching params */
@@ -44,7 +56,14 @@ export async function updateTimeline(
   where: TimelineByIdInput,
   data: UpsertTimelineInput
 ) {
-  return Timelines.update({ data, where });
+  return Timelines.update({
+    data,
+    where,
+    include: {
+      World: true,
+      TimelineEvents: { orderBy: { order: "asc" } }
+    }
+  });
 }
 
 /** delete a timeline */

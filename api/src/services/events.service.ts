@@ -5,7 +5,7 @@
 import { Prisma, Event } from "@prisma/client";
 import { context } from "../graphql/context";
 
-type UpsertEventInput =
+export type UpsertEventInput =
   | Prisma.EventUpsertArgs["create"] & Prisma.EventUpsertArgs["update"];
 type EventByIdInput = Pick<Event, "id">;
 type SearchEventInput = Partial<
@@ -35,11 +35,7 @@ export async function upsertEvent(newEvent: UpsertEventInput) {
 
 /** Create multiple event records */
 export async function upsertEvents(newEvents: UpsertEventInput[]) {
-  return Promise.all(
-    newEvents.map((data) =>
-      data.id ? upsertEvent(data) : Events.create({ data })
-    )
-  );
+  return Promise.all(newEvents.map(upsertEvent));
 }
 
 /** find all event records matching params */
@@ -75,7 +71,7 @@ export async function findAllEvents(filter: SearchEventInput) {
 
 /** find one event record matching params */
 export async function getEvent(where: EventByIdInput) {
-  return Events.findUnique({ where });
+  return Events.findUnique({ where, include: { World: true } });
 }
 
 /** update one event record matching params */

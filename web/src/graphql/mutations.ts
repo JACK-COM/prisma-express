@@ -5,7 +5,10 @@ import {
   MFWorldFragment,
   MFCharacterFragment,
   MFLocationFragment,
-  MFRelationshipFragment
+  MFRelationshipFragment,
+  MFTimelineFragment,
+  MFTimelineEventFragment,
+  MFEventFragment
 } from "./fragments";
 
 /** Create new `User` */
@@ -77,5 +80,53 @@ export const deleteRelationshipMutation = () => `
 mutation DeleteRelationship($id: Int!) {
   deleteRelationship(id: $id) {
     ${MFRelationshipFragment}
+  }
+}`;
+
+/** Create new `Timeline` */
+export const upsertTimelineMutation = () => `
+mutation UpsertTimeline($data: MFTimelineUpsertInput!) {
+  upsertTimeline(data: $data) {
+    ${MFTimelineFragment}
+  }
+}`;
+
+/** Delete a `Timeline` */
+export const deleteTimelineMutation = () => `
+mutation DeleteTimeline($id: Int!) {
+  deleteTimeline(id: $id) {
+    ${MFTimelineFragment}
+  } 
+}`;
+
+/** Create new `Timeline Event` */
+export const upsertTimelineEventMutation = () => `
+mutation UpsertTimelineEvents($id: Int!, $events: [MFTimelineEventUpsertInput!]) {
+  upsertTimelineEvents(id: $id, events: $events) {
+    ${MFTimelineEventFragment}
+  }
+}`;
+
+/** Delete a `Timeline Event` */
+export const deleteTimelineEventMutation = () => `
+mutation DeleteTimelineEvent($id: Int!) {
+  deleteTimelineEvent(id: $id) {
+    ${MFTimelineEventFragment}
+  }
+}`;
+
+/** Create new `Event` */
+export const upsertEventMutation = () => `
+mutation UpsertEvent($data: MFEventUpsertInput!) {
+  upsertEvent(data: $data) {
+    ${MFEventFragment}
+  }
+}`;
+
+/** Delete a `Event` */
+export const deleteEventMutation = () => `
+mutation DeleteEvent($id: Int!) {
+  deleteEvent(id: $id) {
+    ${MFEventFragment}
   }
 }`;

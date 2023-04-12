@@ -8,7 +8,7 @@ import { context } from "../graphql/context";
 type UpsertWorldInput =
   | Prisma.WorldUpsertArgs["create"] & Prisma.WorldUpsertArgs["update"];
 type SearchWorldInput = Partial<
-  Pick<World, "name" | "authorId" | "description"> & WorldByIdInput
+  Pick<World, "name" | "authorId" | "public" | "description"> & WorldByIdInput
 >;
 type WorldByIdInput = Pick<World, "id">;
 const { Worlds } = context;
@@ -28,6 +28,7 @@ export async function findAllWorld(filters: SearchWorldInput) {
   if (filters.id) OR.id = filters.id;
   if (filters.name) OR.name = { contains: filters.name };
   if (filters.description) OR.description = { contains: filters.description };
+  if (filters.public) OR.public = filters.public;
   const worlds =
     Object.keys(OR).length > 0
       ? await Worlds.findMany({ where: { OR } })

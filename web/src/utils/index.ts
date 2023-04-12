@@ -17,7 +17,7 @@ export async function checkVersionChanged() {
  * @param permissions Current user's `role`
  * @returns Function if user is author; undefined if not
  */
-export function guard(
+export function requireAuthor(
   fn: React.MouseEventHandler,
   permissions: UserRole = "Reader",
   preventDefault?: boolean

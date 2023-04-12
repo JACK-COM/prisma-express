@@ -28,7 +28,7 @@ export async function fetchGQL<T>(opts: FetchGQLOpts<T>) {
     query,
     variables,
     onResolve,
-    fallbackResponse = {} as T
+    fallbackResponse: fallback = {} as T
   } = opts;
   const body = variables
     ? JSON.stringify({ query, variables })
@@ -43,10 +43,14 @@ export async function fetchGQL<T>(opts: FetchGQLOpts<T>) {
       signal: controller.signal
     })
       .then((res) => res.json())
-      .then((res) => onResolve(res.data, condenseErrors(res.errors)))
-      .catch(() => onResolve({} as ChildProperty<T>, "Network Error"));
+      .then((res) =>
+        onResolve(res.data || fallback, condenseErrors(res.errors))
+      )
+      .catch((e) =>
+        onResolve({} as ChildProperty<T>, "FetchGQL Network Error")
+      );
 
-  return withTimeout({ request, fallbackResponse, controller });
+  return withTimeout({ request, fallbackResponse: fallback, controller });
 }
 export default fetchGQL;
 
@@ -73,5 +77,6 @@ export async function withTimeout<T>(opts: CancelableProps<T>): Promise<T> {
 }
 
 function condenseErrors(errors?: GQLError[]) {
-  return errors?.reduce((acc, { message }) => `${acc}\n${message}`, "");
+  const e = errors?.map(({ message }) => message).join("\n");
+  return e;
 }

@@ -6,7 +6,7 @@ import {
   deleteWorld
 } from "graphql/requests/worlds.graphql";
 import { updateWorlds, removeWorld } from "state";
-import { guard, noOp, suppressEvent } from "utils";
+import { requireAuthor, noOp, suppressEvent } from "utils";
 
 /** Generic Icon component Props */
 type ItemIconProps = Omit<MatIconProps, "onClick" | "icon"> & {
@@ -98,7 +98,7 @@ export const DeleteItemIcon = (props: ItemIconProps) => {
   } = props;
   const color = disabled ? "grey--text" : "error--text";
   const iconClass = `${color} ${className || ""}`.trim() || undefined;
-  const onRemove = guard(() => !disabled && onItemClick(data), permissions);
+  const onRemove = requireAuthor(() => !disabled && onItemClick(data), permissions);
 
   return (
     <PDeleteIcon
@@ -117,7 +117,7 @@ export const DeleteWorldIcon = (props: WorldIconProps & ItemIconProps) => {
   const { permissions, data: world, ...rest } = props;
   const iconClass = world.public ? "success--text" : "error--text";
   const title = world.public ? "Public World" : "Private World";
-  const onDelete = guard(
+  const onDelete = requireAuthor(
     async () => {
       const resp = await deleteWorld(world.id);
       if (typeof resp === "string") return console.error(resp);

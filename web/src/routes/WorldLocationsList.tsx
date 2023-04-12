@@ -43,43 +43,43 @@ const WorldLocationsList = () => {
     MODAL
   } = useGlobalModal();
   const {
-    selectedWorld,
-    selectedLocation,
+    focusedWorld: focusedWorld,
+    focusedLocation: focusedLocation,
     worldLocations = [],
     clearGlobalWorld,
     setGlobalWorld,
     setGlobalLocation,
     setGlobalLocations
   } = useGlobalWorld([
-    "selectedWorld",
-    "selectedLocation",
+    "focusedWorld",
+    "focusedLocation",
     "worlds",
     "worldLocations"
   ]);
   const role = useMemo<UserRole>(
-    () => (selectedWorld?.authorId === id ? "Author" : "Reader"),
+    () => (focusedWorld?.authorId === id ? "Author" : "Reader"),
     [id]
   );
   const [error, setError] = useState<string>();
   const { worldId } = useParams<{ worldId: string }>();
   const place = useMemo(
-    () => selectedWorld?.name || WorldPaths.Locations.text,
-    [selectedWorld]
+    () => focusedWorld?.name || WorldPaths.Locations.text,
+    [focusedWorld]
   );
   const publicClass = useMemo(
-    () => (selectedWorld?.public ? "success--text" : "error--text"),
-    [selectedWorld]
+    () => (focusedWorld?.public ? "success--text" : "error--text"),
+    [focusedWorld]
   );
   const loadComponentData = async () => {
     const wId = Number(worldId);
-    if (isNaN(Number(worldId)) || selectedWorld?.id === wId) return;
+    if (isNaN(Number(worldId)) || focusedWorld?.id === wId) return;
     const [[world], locations] = await Promise.all([
-      selectedWorld ? [selectedWorld] : listWorlds({ id: Number(worldId) }),
+      focusedWorld ? [focusedWorld] : listWorlds({ id: Number(worldId) }),
       listLocations({ worldId: Number(worldId) })
     ]);
     if (!world) setError("World not found");
     else {
-      if (world !== selectedWorld) setGlobalWorld(world);
+      if (world !== focusedWorld) setGlobalWorld(world);
       setGlobalLocations(locations);
     }
   };
@@ -109,10 +109,10 @@ const WorldLocationsList = () => {
       <header>
         <Breadcrumbs data={[WorldPaths.Index, WorldPaths.Locations]} />
         <PageTitle>
-          {selectedWorld && (
+          {focusedWorld && (
             <WorldPublicIcon
-              data={selectedWorld}
-              permissions={selectedWorld.authorId === id ? "Author" : "Reader"}
+              data={focusedWorld}
+              permissions={focusedWorld.authorId === id ? "Author" : "Reader"}
             />
           )}
 
@@ -122,10 +122,10 @@ const WorldLocationsList = () => {
         <PageDescription>
           (
           <b className={publicClass}>
-            {selectedWorld?.public ? "PUBLIC" : "PRIVATE"}
+            {focusedWorld?.public ? "PUBLIC" : "PRIVATE"}
           </b>
           ) All <b>unique story settings</b> in{" "}
-          <b>{selectedWorld?.name || "a world ... if it exists"}</b>
+          <b>{focusedWorld?.name || "a world ... if it exists"}</b>
         </PageDescription>
       </header>
 
@@ -159,12 +159,12 @@ const WorldLocationsList = () => {
           />
         )}
 
-        {selectedWorld && (
+        {focusedWorld && (
           <List
             data={worldLocations}
             itemText={(location: APIData<Location>) => (
               <LocationItem
-                world={selectedWorld}
+                world={focusedWorld}
                 location={location}
                 onEdit={onEditLocation}
                 onSelect={onSelectLocation}
@@ -186,12 +186,12 @@ const WorldLocationsList = () => {
         )}
       </Card>
 
-      {selectedWorld && (
+      {focusedWorld && (
         <ManageLocationModal
-          data={selectedLocation}
+          data={focusedLocation}
           open={activeModal === MODAL.MANAGE_LOCATION}
           onClose={clearModalData}
-          worldId={selectedWorld.id}
+          worldId={focusedWorld.id}
         />
       )}
     </PageContainer>

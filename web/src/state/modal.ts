@@ -5,6 +5,7 @@ export enum MODAL {
   MANAGE_CHARACTER = "Create/Edit Character",
   MANAGE_LOCATION = "Create/Edit Location",
   MANAGE_RELATIONSHIPS = "Create/Edit Relationships",
+  MANAGE_TIMELINE = "Create/Edit Timeline",
   MANAGE_WORLD = "Create/Edit World",
 }
 

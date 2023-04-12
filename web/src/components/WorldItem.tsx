@@ -7,7 +7,7 @@ import { Hint } from "./Forms/Form";
 import { DeleteWorldIcon, WorldPublicIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
 import { Link } from "react-router-dom";
-import { guard } from "utils";
+import { requireAuthor } from "utils";
 
 const Container = styled(Link)<PermissionProps>`
   border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
@@ -68,7 +68,7 @@ const WorldItem = ({
   permissions = "Reader"
 }: WorldItemProps) => {
   const url = insertId(Paths.Worlds.Locations.path, world.id);
-  const edit = guard(() => onEdit(world), permissions);
+  const edit = requireAuthor(() => onEdit(world), permissions);
   const select: React.MouseEventHandler = (e) => {
     if (!onSelect) return;
     suppressEvent(e);

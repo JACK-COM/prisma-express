@@ -4,20 +4,21 @@ import {
   GlobalWorldInstance,
   GlobalWorldInstanceKey,
   clearGlobalWorld,
-  getWorld,
+  getByIdFromWorldState,
+  setGlobalTimeline,
   setGlobalLocation,
   setGlobalWorld,
   setWorldStateList,
   updateLocations,
   updateWorlds
 } from "state";
-import { APIData, World, Location } from "utils/types";
+import { APIData, World, Location, Timeline } from "utils/types";
 
 type HookState = Partial<GlobalWorldInstance>;
 
 /** Reusable subscription to `World` state  */
 export function useGlobalWorld(
-  keys: GlobalWorldInstanceKey[] = ["selectedWorld", "worlds"]
+  keys: GlobalWorldInstanceKey[] = ["focusedWorld", "worlds"]
 ) {
   const gState = GlobalWorld.getState();
   const init = keys.reduce((agg, k) => ({ ...agg, [k]: gState[k] }), {});
@@ -31,13 +32,16 @@ export function useGlobalWorld(
 
     // Helpers
     clearGlobalWorld,
-    getWorld,
+    getWorld: (id: number) => getByIdFromWorldState(id, "worlds"),
     setGlobalLocation,
     setGlobalWorld,
+    setGlobalTimeline,
+    setGlobalTimelines: (t: APIData<Timeline>[]) =>
+      setWorldStateList(t, "timelines", { focusedTimeline: null }),
     setGlobalWorlds: (w: APIData<World>[]) =>
-      setWorldStateList(w, "worlds", { selectedWorld: null }),
+      setWorldStateList(w, "worlds", { focusedWorld: null }),
     setGlobalLocations: (l: APIData<Location>[]) =>
-      setWorldStateList(l, "worldLocations"),
+      setWorldStateList(l, "worldLocations", { focusedLocation: null }),
     updateLocations,
     updateWorlds
   };

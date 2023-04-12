@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import styled from "styled-components";
 import Breadcrumbs from "components/Common/Breadcrumbs";
 import {
@@ -14,7 +14,7 @@ import CreateWorldModal from "components/Modals/ManageWorldModal";
 import ListView from "components/Common/ListView";
 import WorldItem from "components/WorldItem";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { APIData, UserRole, World } from "utils/types";
+import { APIData, World } from "utils/types";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useNavigate } from "react-router";
@@ -37,11 +37,11 @@ const WorldsList = () => {
   const navigate = useNavigate();
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const {
-    selectedWorld,
+    focusedWorld: focusedWorld,
     worlds = [],
     setGlobalWorld,
     setGlobalWorlds
-  } = useGlobalWorld(["selectedWorld", "worlds", "worldLocations"]);
+  } = useGlobalWorld(["focusedWorld", "worlds", "worldLocations"]);
   const loadWorlds = async () => {
     const params = userId > -0 ? { authorId: userId } : { public: true };
     setGlobalWorlds(await listWorlds(params));
@@ -121,7 +121,7 @@ const WorldsList = () => {
 
       {/* Modal */}
       <CreateWorldModal
-        data={selectedWorld}
+        data={focusedWorld}
         open={active === MODAL.MANAGE_WORLD}
         onClose={clearComponentData}
       />

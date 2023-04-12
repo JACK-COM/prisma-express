@@ -4,10 +4,11 @@
  * @NOTE All three models are combined here because they are related
  */
 
-import { queryField, nonNull, intArg, list, stringArg } from "nexus";
+import { queryField, nonNull, intArg, list, stringArg, arg } from "nexus";
 import * as TimelinesService from "../../services/timelines.service";
 import * as TimelinesEventsService from "../../services/timeline-events.service";
 import * as EventsService from "../../services/events.service";
+import { findAllWorld } from "../../services/worlds.service";
 
 /**
  * Get a single `Timeline` by ID
@@ -68,7 +69,7 @@ export const getEventById = queryField("getEventById", {
  * @param userId User ID
  * @returns `MFTimeline` objects from service
  */
-export const getAuthorTimelines = queryField("getAuthorTimelines", {
+export const listAuthorTimelines = queryField("listAuthorTimelines", {
   type: list("MFTimeline"),
   args: { authorId: nonNull(intArg()) },
 
@@ -93,7 +94,7 @@ export const getAuthorTimelines = queryField("getAuthorTimelines", {
  * @param timelineId Timeline ID
  * @returns `MFEvent` objects from service: empty list if not found or not authorized
  */
-export const getTimelineEvents = queryField("getTimelineEvents", {
+export const listTimelineEvents = queryField("listTimelineEvents", {
   type: list("MFTimelineEvent"),
   args: { timelineId: nonNull(intArg()) },
 
@@ -116,14 +117,15 @@ export const getTimelineEvents = queryField("getTimelineEvents", {
 });
 
 /**
- * Search for `Timelines` by `name` or `worldId`
+ * Search for `Timelines` by `name`, `authorId`, or `worldId`
  * @param name Timeline name
+ * @param authorId Timeline `authorId`
  * @param worldId Timeline `worldId`
  * @returns `MFTimeline` objects from service: empty list if not found or not authorized
  */
-export const searchTimelines = queryField("searchTimelines", {
+export const listTimelines = queryField("listTimelines", {
   type: list("MFTimeline"),
-  args: { name: stringArg(), worldId: intArg() },
+  args: { name: stringArg(), authorId: intArg(), worldId: intArg() },
 
   /**
    * Query resolver
@@ -133,11 +135,73 @@ export const searchTimelines = queryField("searchTimelines", {
    * database directly, or to access the authenticated `user` if the request has one.
    * @returns `MFTimeline` objects from service: empty list if not found or not authorized
    */
-  resolve: async (_, { name, worldId }, { user }) => {
-    if (!user) return [];
+  resolve: async (_, args, { user, Timelines }) => {
+    const { name, worldId } = args;
+    // Get timelines for public worlds if no user
+    if (!user) {
+      const publicWorlds = await findAllWorld({ public: true });
+      if (!publicWorlds.length) return [];
+      const pubWorldIds = publicWorlds.map((w) => w.id);
+      const pubTimelines = await Timelines.findMany({
+        where: { worldId: { in: pubWorldIds } },
+        include: { TimelineEvents: { orderBy: { order: "asc" } } }
+      });
+      return pubTimelines;
+    }
+
+    // All timelines
     return TimelinesService.findAllTimelines({
       name: name || undefined,
-      worldId: worldId || undefined
+      worldId: worldId || undefined,
+      authorId: args.authorId || user.id
+    });
+  }
+});
+
+/**
+ * Search for `Events` by `name`, `worldId`, `timelineId`, or `authorId`
+ * @param name Event name
+ * @param worldId Event `worldId`
+ * @param timelineId Event `timelineId`
+ * @param authorId Event `authorId`
+ * @returns `MFEvent` objects from service: empty list if not found or not authorized
+ * @throws Error if events not found or user is not the author
+ */
+export const listWorldEvents = queryField("listWorldEvents", {
+  type: list("MFEvent"),
+  args: {
+    name: stringArg(),
+    authorId: intArg(),
+    description: stringArg(),
+    characterId: intArg(),
+    groupId: intArg(),
+    locationId: intArg(),
+    worldId: intArg(),
+    target: arg({ type: "EventTarget" }),
+    polarity: arg({ type: "EventPolarity" })
+  },
+
+  /**
+   * Query resolver
+   * @param _ Source object (ignored in mutations/queries)
+   * @param args Args (everything defined in `args` property above)
+   * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
+   * database directly, or to access the authenticated `user` if the request has one.
+   * @returns `MFEvent` objects from service: empty list if not found or not authorized
+   * @throws Error if events not found or user is not the author
+   */
+  resolve: async (_, args, { user }) => {
+    if (!user) return [];
+    return EventsService.findAllEvents({
+      name: args.name || undefined,
+      authorId: args.authorId || undefined,
+      description: args.description || undefined,
+      characterId: args.characterId || undefined,
+      groupId: args.groupId || undefined,
+      locationId: args.locationId || undefined,
+      worldId: args.worldId || undefined,
+      polarity: args.polarity || undefined,
+      target: args.target || undefined
     });
   }
 });

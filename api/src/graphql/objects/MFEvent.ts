@@ -16,5 +16,8 @@ export const MFEvent = objectType({
     t.int("groupId", { description: "`Group` target (optional)" });
     t.int("locationId", { description: "`Location` target (optional)" });
     t.nonNull.int("worldId", { description: "Event target `World`" });
+
+    // relationships
+    t.field("World", { type: "MFWorld" });
   }
 });

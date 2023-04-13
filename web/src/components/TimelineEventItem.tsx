@@ -106,7 +106,9 @@ const TimelineEventItem = ({
         {tEvent?.Event?.name}
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </Name>
-      {showDescription && <Description>{itemDescription(tEvent)}</Description>}
+      {showDescription && (
+        <Description dangerouslySetInnerHTML={itemDescription(tEvent)} />
+      )}
       {showDescription && permissions === "Author" && (
         <DeleteItemIcon
           className="delete"
@@ -122,9 +124,11 @@ const TimelineEventItem = ({
 export default TimelineEventItem;
 
 function itemDescription(item: APIData<TimelineEvent>) {
+  const toHTML = (s: string) => ({ __html: s });
   const { Event } = item;
-  if (!Event) return "";
+  if (!Event) return toHTML("");
   const polarityDesc = EventPolarityText(Event.polarity);
-  if (Event.description === "No description") return `${polarityDesc} event`;
-  return `[ ${polarityDesc} ] ${Event.description}`;
+  if (Event.description === "No description")
+    return toHTML(`${polarityDesc} event`);
+  return toHTML(`[ ${polarityDesc} ] ${Event.description}`);
 }

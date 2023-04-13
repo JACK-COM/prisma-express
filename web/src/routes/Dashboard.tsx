@@ -18,7 +18,7 @@ import { useGlobalUser } from "hooks/GlobalUser";
 
 const SECTIONS = [
   { auth: false, data: Paths.Worlds, src: worlds }, // "Worlds & settings",
-  { auth: true, data: Paths.Characters, src: characters }, // "Cast & Characters",
+  { auth: false, data: Paths.Characters, src: characters }, // "Cast & Characters",
   { auth: true, data: Paths.Timelines, src: timelines }, // "Events & Timelines",
   { auth: false, data: Paths.BooksAndSeries, src: books } // "Books & Series"
 ];
@@ -34,15 +34,12 @@ const Dashboard = () => {
     if (width > 400) return [2, "0.4rem"];
     return [1, "0.25rem"];
   }, [width]);
-  const pageTitle = useMemo(() => {
-    return email ? "Dashboard" : "MythosForge Home";
-  }, [email]);
   const dashSections = SECTIONS.filter(({ auth }) => !auth || email);
 
   return (
     <PageContainer id="app-dashboard">
       <header>
-        <PageTitle>{pageTitle}</PageTitle>
+        <PageTitle>Home</PageTitle>
         <PageDescription>A forge of myths and legends</PageDescription>
       </header>
 

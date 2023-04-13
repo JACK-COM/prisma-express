@@ -9,7 +9,7 @@ import { ErrorMessage } from "components/Common/Containers";
 import CreateTimelineEventsForm from "components/Form.CreateTimelineEvents";
 import { useEffect, useState } from "react";
 import { useGlobalWorld } from "hooks/GlobalWorld";
-import { APIData } from "utils/types";
+import { APIData, TimelineEvent } from "utils/types";
 import { GlobalWorld, clearGlobalModal } from "state";
 import { mergeLists } from "utils";
 
@@ -25,7 +25,9 @@ type ManageTimelineEventsModalProps = {
 const emptyForm = (): Partial<CreateTimelineEventData>[] => [];
 
 // API form data (remove some original data props to limit gql errors)
-const condenseFormData = (data: Partial<CreateTimelineEventData>[]) =>
+const condenseFormData = (
+  data: Partial<CreateTimelineEventData>[]
+): Partial<CreateTimelineEventData>[] =>
   data.map((item, i) => ({
     id: item.id,
     order: item.order || i + 1,
@@ -40,10 +42,13 @@ export default function ManageTimelineEventsModal(
   const { data = [], timelineId, open, onClose = clearGlobalModal } = props;
   const { updateTimelines } = useGlobalWorld(["events"]);
   const [error, setError] = useState("");
-  const [formData, setFormData] = useState<Partial<CreateTimelineEventData>[]>(
+  const [formData, setFormData] = useState<Partial<APIData<TimelineEvent>>[]>(
     data?.length ? condenseFormData(data) : emptyForm()
   );
-  const resetForm = () => setFormData(emptyForm());
+  const resetForm = () => {
+    setError("");
+    setFormData(data?.length ? condenseFormData(data) : emptyForm());
+  };
   const deleteItem = async (itemId: number) => {
     const resp = await deleteTimelineEvent(itemId);
     if (!resp) return setError("Timeline event was not deleted.");
@@ -71,7 +76,7 @@ export default function ManageTimelineEventsModal(
     if (resp) {
       updateTimelines([resp]);
       GlobalWorld.focusedTimeline(resp);
-      // resetForm();
+      resetForm();
       return onClose();
     }
 
@@ -80,13 +85,10 @@ export default function ManageTimelineEventsModal(
 
   // Reset form data when modal is closed
   useEffect(() => {
-    if (data?.length) setFormData(mergeLists(data, formData));
+    if (data?.length) setFormData(mergeLists(condenseFormData(data), formData));
     else resetForm();
 
-    return () => {
-      setError("");
-      resetForm();
-    };
+    return () => resetForm();
   }, [data]);
 
   return (

@@ -54,7 +54,8 @@ export function useGlobalWorld(
     // Helpers
     clearGlobalWorld,
     loadWorlds,
-    getWorld: (id: number) => getByIdFromWorldState(id, "worlds"),
+    getWorld: (id: number) =>
+      getByIdFromWorldState(id, "worlds") as APIData<World>,
     setGlobalLocation,
     setGlobalWorld,
     setGlobalTimeline,

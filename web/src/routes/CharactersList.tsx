@@ -93,7 +93,7 @@ const CharactersList = () => {
         )}
 
         {/* Add new (button - top) */}
-        {characters.length > 5 && (
+        {userId > 0 && characters.length > 5 && (
           <AddCharacterButton
             size="lg"
             icon="public"

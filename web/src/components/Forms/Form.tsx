@@ -3,6 +3,8 @@ import { ComponentPropsWithRef } from "react";
 import styled, { css } from "styled-components";
 import { noOp } from "utils";
 
+export { TinyMCE } from "./TinyMCE";
+
 type ReactText = string | number;
 const requiredInputStyles = css`
   content: "*";

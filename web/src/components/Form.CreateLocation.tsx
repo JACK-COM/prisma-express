@@ -11,7 +11,8 @@ import {
   RadioInput,
   RadioLabel,
   Select,
-  Textarea
+  Textarea,
+  TinyMCE
 } from "components/Forms/Form";
 import { CreateLocationData } from "graphql/requests/worlds.graphql";
 
@@ -30,8 +31,8 @@ const CreateLocationForm = (props: CreateLocationProps) => {
   const updateClimate = (e: Climate) => onChange({ ...data, climate: e });
   const updateFlora = (e: Richness) => onChange({ ...data, flora: e });
   const updateFauna = (e: Richness) => onChange({ ...data, fauna: e });
-  const updateDescription = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    onChange({ ...data, description: e.target.value });
+  const updateDescription = (description: string) => {
+    onChange({ ...data, description });
   };
   const updateTitle = (e: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...data, name: e.target.value });
@@ -125,8 +126,8 @@ const CreateLocationForm = (props: CreateLocationProps) => {
       {/* Description */}
       <Label direction="column">
         <span className="label">Short Description</span>
-        <Textarea
-          placeholder="Enter location description"
+        <TinyMCE
+          height={300}
           value={data?.description || ""}
           onChange={updateDescription}
         />

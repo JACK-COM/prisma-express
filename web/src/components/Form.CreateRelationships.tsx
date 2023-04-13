@@ -122,14 +122,14 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
                 {isPrimary ? "Target" : "Other Relation"}
               </span>
               <Select
-                disabled={!isPrimary}
+                disabled={!isPrimary || !targets.length}
                 data={isPrimary ? targets : []}
                 value={relt.targetId || ""}
                 itemText={(d: APIData<Character>) => d.name}
                 itemValue={(d) => d.id}
                 emptyMessage={
                   isPrimary
-                    ? "No other characters in current world."
+                    ? "No other characters in world."
                     : char.name
                 }
                 placeholder="Select a target:"

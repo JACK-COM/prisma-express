@@ -86,7 +86,7 @@ const LocationItem = ({
         {location.name}
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </Name>
-      <Description>{locationDescription(location)}</Description>
+      <Description dangerouslySetInnerHTML={locationDescription(location)} />
     </Container>
   );
 };
@@ -97,7 +97,9 @@ export default LocationItem;
 
 /** Describe a location by its qualities */
 function locationDescription(location: Location) {
-  if (location.description !== "No description.") return location.description;
+  const toHTML = (str: string) => ({ __html: str });
+  if (location.description !== "No description.")
+    return toHTML(location.description);
 
   const abundance = (lbl: string, rch: Richness) => {
     switch (rch) {
@@ -119,5 +121,5 @@ function locationDescription(location: Location) {
     ? `${floraDescription} and animals`
     : `${floraDescription} and ${fauna.toLowerCase()} wildlife`;
 
-  return `${climateDescription} with ${floraFauna}`;
+  return toHTML(`${climateDescription} with ${floraFauna}.`);
 }

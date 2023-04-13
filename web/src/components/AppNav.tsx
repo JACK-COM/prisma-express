@@ -31,7 +31,7 @@ const AppNav = () => {
   const [authUrl, authText, authTitle, authClass] = useMemo(() => {
     const url = email ? `${API}/logout/google?` : `${API}/login/google?`;
     return email
-      ? [url, "Logout", `Log out ${email}`, "error"]
+      ? [url, email.split('@')[0], `Log out ${email}`, "error"]
       : [url, "Login", "Log in", undefined];
   }, [email]);
   const searchPath = Paths.Search.Index.path;

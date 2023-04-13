@@ -83,7 +83,7 @@ const WorldItem = ({
         {world.name}
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </Name>
-      <Description>{world.description}</Description>
+      <Description dangerouslySetInnerHTML={{ __html: world.description }} />
       <DeleteWorldIcon permissions={permissions} data={world} />
     </Container>
   );

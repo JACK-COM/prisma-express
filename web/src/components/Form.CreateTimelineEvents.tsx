@@ -1,26 +1,10 @@
-import { ChangeEvent, Fragment, useMemo } from "react";
+import { useMemo } from "react";
 import { noOp } from "../utils";
-import { APIData, Timeline, TimelineEvent } from "../utils/types";
-import {
-  Form,
-  FormRow,
-  Hint,
-  Legend,
-  RadioInput,
-  RadioLabel,
-  Select,
-  Textarea
-} from "components/Forms/Form";
+import { Form, Hint, Legend, Select } from "components/Forms/Form";
 import { CreateTimelineEventData } from "graphql/requests/timelines.graphql";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { ButtonWithIcon } from "./Forms/Button";
-import { WorldEventFormFields } from "./WorldEventFields";
-import {
-  ErrorMessage,
-  GridContainer,
-  MatIcon,
-  WarningMessage
-} from "./Common/Containers";
+import { GridContainer, MatIcon, WarningMessage } from "./Common/Containers";
 import styled from "styled-components";
 import { DeleteItemIcon } from "./ComponentIcons";
 

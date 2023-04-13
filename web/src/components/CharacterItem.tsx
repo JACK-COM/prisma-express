@@ -28,6 +28,10 @@ const Description = styled(Hint)`
   ${lineclamp(1)};
   grid-column: 2/-1;
   grid-row: 2;
+
+  > p {
+    margin: 0;
+  }
 `;
 const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<WICProps>`
   cursor: pointer;
@@ -38,7 +42,7 @@ const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<WICProps>`
 
   ${editableStyles};
 
-  .icon {
+  > .icon {
     display: inline-block;
     padding: ${({ theme }) => theme.sizes.xs};
     font-size: smaller;
@@ -47,7 +51,7 @@ const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<WICProps>`
 const Location = styled.span`
   ${ellipsis()};
   align-self: center;
-  font-size: smaller;
+  font-size: small;
   grid-row: 1 / span 2;
   padding-right: 0.5rem;
   text-transform: uppercase;
@@ -61,7 +65,7 @@ const TallIcon = styled(PermissionedIcon)`
   animation-fill-mode: backwards;
   grid-row: 1 / span 2;
 `;
-const Face = styled(TallIcon).attrs({ icon: "face" })``;
+const Face = styled(TallIcon)``;
 const Relationships = styled(TallIcon).attrs({ icon: "groups" })`
   animation-delay: 200ms;
 `;
@@ -84,11 +88,12 @@ const CharacterItem = ({
   onRelationships = noOp,
   permissions = "Reader"
 }: CharacterItemProps) => {
-  const iconClass = "icon grey--text";
   const { id, role } = useGlobalUser(["id", "role"]);
   const { getWorld } = useGlobalWorld();
   const world = character.worldId ? getWorld(character.worldId) : null;
   const isOwner = character.authorId === id;
+  const isPub = world?.public;
+  const pubClass = !world ? "gray" : isPub ? "success--text" : "error--text";
   const editCharacter = requireAuthor(() => {
     onEdit(character);
   }, role);
@@ -104,9 +109,10 @@ const CharacterItem = ({
   return (
     <Container onClick={select} permissions={permissions}>
       <Face
+        icon={isOwner ? "face" : "lock"}
+        className={pubClass}
         permissions={permissions}
         onClick={editCharacter}
-        className={iconClass}
       />
 
       <Name permissions={permissions} onClick={editCharacter}>
@@ -114,9 +120,11 @@ const CharacterItem = ({
         {isOwner && <MatIcon className="icon" icon="edit" />}
       </Name>
 
-      <Description>{characterDescription(character)}</Description>
+      <Description dangerouslySetInnerHTML={characterDescription(character)} />
 
-      {character.worldId && <Location children={world?.name || ""} />}
+      {character.worldId && (
+        <Location className={pubClass} children={world?.name || ""} />
+      )}
 
       {isOwner && (
         <>
@@ -137,28 +145,9 @@ export default CharacterItem;
 
 /** Describe a character by its qualities */
 function characterDescription(character: Character) {
-  if (character.description !== "No description.") return character.description;
-  return "A mysterious character";
-
-  /* const abundance = (lbl: string, rch: Richness) => {
-    switch (rch) {
-      case "Abundant":
-        return `abundant ${lbl}`;
-      case "Sparse":
-        return `no ${lbl}`;
-      case "Adequate":
-      default:
-        return `normal ${lbl}`;
-    }
-  };
-
-  const { climate, flora, fauna } = character;
-  const sameFloraFauna = flora === fauna;
-  const floraDescription = abundance("vegetation", flora);
-  const climateDescription = `${climate} climate`;
-  const floraFauna = sameFloraFauna
-    ? `${floraDescription} and animals`
-    : `${floraDescription} and ${fauna.toLowerCase()} wildlife`;
-
-  return `${climateDescription} with ${floraFauna}`; */
+  const d =
+    character.description !== "No description."
+      ? character.description
+      : "A mysterious character";
+  return { __html: d };
 }

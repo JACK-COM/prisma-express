@@ -6,40 +6,38 @@ import { Prisma, User } from "@prisma/client";
 import { DateTime } from "luxon";
 import { context } from "../graphql/context";
 
-type CreateUserInput =
+type UpsertUserInput =
   | Prisma.UserUpsertArgs["create"] & Prisma.UserUpsertArgs["update"];
-type SearchUserInput = Pick<CreateUserInput, "email">;
+type SearchUserInput = Pick<User, "email">;
 type UserByIdInput = Pick<User, "id">;
 const { Users } = context;
 
-/** create user record */
-export async function upsertUser(newUser: CreateUserInput) {
+/** create `User` record */
+export async function upsertUser(user: UpsertUserInput) {
   const today = DateTime.now().toISO();
-  const data: CreateUserInput = {
-    ...newUser,
-    role: newUser.role || "Author",
+  const data: UpsertUserInput = {
+    ...user,
+    role: user.role || "Author",
     created: today,
     lastSeen: today
   };
 
-  return Users.upsert({
-    create: data,
-    update: data,
-    where: { email: newUser.email }
-  });
+  return data.id
+    ? Users.update({ data, where: { id: data.id } })
+    : Users.create({ data });
 }
 
-/** find all user records matching params */
+/** find all `User` records matching params */
 export async function findAllUser(where: SearchUserInput) {
   return Users.findMany({ where });
 }
 
-/** find one user record matching params */
+/** find one `User` record matching params */
 export async function getUser(where: UserByIdInput | SearchUserInput) {
   return Users.findUnique({ where });
 }
 
-/** update one user record matching params */
+/** update one `User` record matching params */
 export async function updateUser(where: UserByIdInput | SearchUserInput) {
   const user = await Users.findUnique({ where });
   if (!user) return null;
@@ -60,14 +58,11 @@ export async function requireRole(
 const roleRanks: User["role"][] = ["Reader", "Author"];
 
 /** Check whether `userRole` matches or exceeds `ref` */
-export function isAuthorized(
-  userRole: User["role"],
-  ref: User["role"] = "Author"
-) {
-  return roleRanks.indexOf(userRole || "Reader") >= roleRanks.indexOf(ref);
+export function isAuthorized(role: User["role"], ref: User["role"] = "Author") {
+  return roleRanks.indexOf(role || "Reader") >= roleRanks.indexOf(ref);
 }
 
-/** delete user record matching params */
+/** delete `User` record matching params */
 export async function deleteUser(where: UserByIdInput) {
   const exists = await getUser(where);
   if (!exists) return null;

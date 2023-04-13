@@ -3,7 +3,14 @@
  * @description Queries for the `Worlds` model
  */
 
-import { queryField, nonNull, intArg, stringArg, list } from "nexus";
+import {
+  queryField,
+  nonNull,
+  intArg,
+  stringArg,
+  list,
+  booleanArg
+} from "nexus";
 import * as WorldsService from "../../services/worlds.service";
 
 /**
@@ -19,7 +26,7 @@ export const getWorldById = queryField("getWorldById", {
   },
 
   /**
-   * Query resolver: this is where the magic happens
+   * Query resolver
    * @param _ Source object (ignored in mutations/queries)
    * @param args Args (everything defined in `args` property above)
    * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
@@ -58,11 +65,12 @@ export const listWorlds = queryField("listWorlds", {
     id: intArg(),
     authorId: intArg(),
     description: stringArg({ default: undefined }),
-    name: stringArg({ default: undefined })
+    name: stringArg({ default: undefined }),
+    public: booleanArg({ default: true })
   },
 
   /**
-   * Query resolver: this is where the magic happens
+   * Query resolver
    * @param _ Source object (ignored in mutations/queries)
    * @param args Args (everything defined in `args` property above)
    * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
@@ -73,13 +81,17 @@ export const listWorlds = queryField("listWorlds", {
   resolve: async (_, args, { user }) => {
     const { authorId, description, name } = args;
 
+    if (!user?.id) return WorldsService.findAllWorld({ public: true });
+
     // return only public worlds or author
     const worlds = await WorldsService.findAllWorld({
       id: args.id || undefined,
       authorId: authorId || undefined,
       description: description || undefined,
-      name: name || undefined
+      name: name || undefined,
+      // enforce public worlds if no authed user
+      public: args.public || undefined
     });
-    return worlds.filter((w) => w.public || user?.id === w.authorId);
+    return worlds; 
   }
 });

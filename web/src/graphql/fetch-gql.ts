@@ -1,8 +1,11 @@
+type GQLError = { message: string };
 /** Generic typed object */
-type AsChild<T> = { [k: string]: T };
+type ChildProperty<T> = { [k: string]: T } & { errors?: string };
 
-/** Generic graphql response type */
-type OnGQLResolve<T> = { (x: AsChild<T>): T };
+/** Generic graphql response handler */
+type GQLResponseHandler<T> = {
+  (x: ChildProperty<T>, errors?: string): T | string;
+};
 
 /** Generic graphql Fetch options */
 type FetchGQLOpts<T> = {
@@ -13,7 +16,7 @@ type FetchGQLOpts<T> = {
   /** grapqhl request variables (if any) */
   variables?: any;
   /** Function to call with the grapqhl response */
-  onResolve: OnGQLResolve<T>;
+  onResolve: GQLResponseHandler<T>;
   /** Optional fallback value if response fails */
   fallbackResponse?: T;
 };
@@ -25,7 +28,7 @@ export async function fetchGQL<T>(opts: FetchGQLOpts<T>) {
     query,
     variables,
     onResolve,
-    fallbackResponse = {} as T
+    fallbackResponse: fallback = {} as T
   } = opts;
   const body = variables
     ? JSON.stringify({ query, variables })
@@ -40,10 +43,17 @@ export async function fetchGQL<T>(opts: FetchGQLOpts<T>) {
       signal: controller.signal
     })
       .then((res) => res.json())
-      .then((res) => onResolve(res.data))
-      .catch(() => onResolve({} as AsChild<T>));
+      .then((res) =>
+        onResolve(res.data || fallback, condenseErrors(res.errors))
+      )
+      .catch((e) =>
+        onResolve(
+          {} as ChildProperty<T>,
+          e ? condenseErrors(e.errors || e) : "FetchGQL Network Error"
+        )
+      );
 
-  return withTimeout({ request, fallbackResponse, controller });
+  return withTimeout({ request, fallbackResponse: fallback, controller });
 }
 export default fetchGQL;
 
@@ -67,4 +77,9 @@ export async function withTimeout<T>(opts: CancelableProps<T>): Promise<T> {
     setTimeout(cancel, timeout);
     return call ? request().then(resolve) : request;
   });
+}
+
+function condenseErrors(errors?: GQLError[]) {
+  const e = errors?.map(({ message }) => message).join("\n");
+  return e;
 }

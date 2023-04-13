@@ -1,11 +1,12 @@
-import { comparePassword } from "../middleware/verify";
-import jwt from "jsonwebtoken";
-import { context } from "../graphql/context";
+// import { comparePassword } from "../middleware/verify";
+// import jwt from "jsonwebtoken";
+// import { context } from "../graphql/context";
 
-const { Users: User } = context;
+// const { Users: User } = context;
 
-export async function OldLogin(req: any, res: any) {
-  const { email, password } = req.body;
+export async function OldLogin(/* req: any, res: any */) {
+  throw new Error("Unintended use of old login function");
+  /* const { email, password } = req.body;
   let message = "Missing fields are required";
   if (!email || !password) return res.status(404).json({ message });
 
@@ -21,7 +22,7 @@ export async function OldLogin(req: any, res: any) {
 
   const jwtSec = process.env.JWT_SEC as string;
   const token = jwt.sign({ id: user.id }, jwtSec, { expiresIn: 86400 });
-  return res.json({ id: user.id, token });
+  return res.json({ id: user.id, token }); */
 }
 
 export async function refresh(_req: any, _res: any) {}

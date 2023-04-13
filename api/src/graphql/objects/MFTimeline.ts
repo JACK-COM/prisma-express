@@ -6,14 +6,16 @@ export const MFTimeline = objectType({
   description: "A collection of Story `Scenes`",
   definition(t) {
     t.nonNull.int("id");
-    t.nonNull.int("order");
     t.nonNull.string("name");
-    t.nonNull.string("description");
     t.int("authorId", { description: "Timeline Author" });
     t.nonNull.int("worldId", { description: "Timeline's `World` id" });
 
+    // relationships
+    t.field("World", { type: "MFWorld" });
+    t.field("Author", { type: "MFUser" });
+
     // List properties
-    t.nonNull.list.field("Scenes", { type: "MFScene" });
-    // t.nonNull.list.field("TimelineEvents", { type: "MFTimelineEvents" });
+    t.list.field("Scenes", { type: "MFScene" });
+    t.list.field("TimelineEvents", { type: "MFTimelineEvent" });
   }
 });

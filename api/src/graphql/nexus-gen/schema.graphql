@@ -11,9 +11,9 @@ enum Authenticator {
 
 """The general climate of a setting."""
 enum Climate {
-  cool
-  hot
-  warm
+  Polar
+  Temperate
+  Warm
 }
 
 """UTC Date-time"""
@@ -83,10 +83,12 @@ type MFChapter {
 
 """A significant actor in a `World`"""
 type MFCharacter {
-  CharacterRelationship: [MFCharacterRelationship]!
+  CharacterRelationship: [MFCharacterRelationship]
 
   """Author owner"""
   authorId: Int
+
+  """Character description"""
   description: String!
 
   """`Group` identifier id (optional)"""
@@ -95,6 +97,8 @@ type MFCharacter {
 
   """Character's `Location` id"""
   locationId: Int
+
+  """Character name"""
   name: String!
 
   """Character's `World` id"""
@@ -109,16 +113,39 @@ type MFCharacterRelationship {
   targetId: Int!
 }
 
+input MFCharacterUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+
+  """Character writing-prompts or bio"""
+  description: String = "No description"
+
+  """Character group/profession (OPTIONAL)"""
+  groupId: Int
+
+  """Character ID"""
+  id: Int
+
+  """Character location (OPTIONAL)"""
+  locationId: Int
+  name: String!
+
+  """World ID"""
+  worldId: Int!
+}
+
 """
 A significant occurrence in a World or other location that acts as a story catalyst. 
 """
 type MFEvent {
+  World: MFWorld
+
   """Event Author"""
   authorId: Int
 
   """`Character` target (optional)"""
   characterId: Int
-  description: String!
+  description: String
 
   """`Group` target (optional)"""
   groupId: Int
@@ -134,12 +161,37 @@ type MFEvent {
   worldId: Int!
 }
 
+input MFEventUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+
+  """Event character target (optional)"""
+  characterId: Int
+  description: String = "No description"
+
+  """Event group target (optional)"""
+  groupId: Int
+
+  """Event ID"""
+  id: Int
+
+  """Event location target (optional)"""
+  locationId: Int
+  name: String!
+  polarity: EventPolarity!
+  target: EventTarget!
+
+  """Parent world ID"""
+  worldId: Int!
+}
+
 """A fixed, recurring setting in a World. """
 type MFLocation {
   Characters: [MFCharacter]
   Events: [MFEvent]
   Groups: [MFPopulationGroup]
   Scenes: [MFScene]
+  World: [MFWorld]
 
   """Event Author"""
   authorId: Int
@@ -151,6 +203,22 @@ type MFLocation {
   name: String!
 
   """Event target `World`"""
+  worldId: Int!
+}
+
+input MFLocationUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+  climate: Climate
+  description: String!
+  fauna: Richness
+  flora: Richness
+
+  """Location ID"""
+  id: Int
+  name: String!
+
+  """Parent world ID"""
   worldId: Int!
 }
 
@@ -188,6 +256,23 @@ type MFPopulationGroup {
 
   """`PopulationGroup`'s World id"""
   worldId: Int!
+}
+
+input MFRelationshipUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+
+  """Character ID"""
+  characterId: Int!
+
+  """Relationship ID"""
+  id: Int
+
+  """Relationship notes"""
+  relationship: String!
+
+  """Target Character ID"""
+  targetId: Int!
 }
 
 """A collecton of Story `Paragraphs`"""
@@ -233,14 +318,15 @@ type MFSeries {
 
 """A collection of Story `Scenes`"""
 type MFTimeline {
-  Scenes: [MFScene]!
+  Author: MFUser
+  Scenes: [MFScene]
+  TimelineEvents: [MFTimelineEvent]
+  World: MFWorld
 
   """Timeline Author"""
   authorId: Int
-  description: String!
   id: Int!
   name: String!
-  order: Int!
 
   """Timeline's `World` id"""
   worldId: Int!
@@ -248,6 +334,7 @@ type MFTimeline {
 
 """A linear `Event`-to-`Timeline` relationship"""
 type MFTimelineEvent {
+  Event: MFEvent
   Scenes: [MFScene]
 
   """Timeline Author"""
@@ -260,6 +347,36 @@ type MFTimelineEvent {
 
   """Target `Timeline` id"""
   timelineId: Int!
+}
+
+input MFTimelineEventUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+
+  """Event ID"""
+  eventId: Int!
+
+  """TimelineEvent ID"""
+  id: Int
+
+  """Event order in timeline"""
+  order: Int!
+
+  """Timeline ID"""
+  timelineId: Int!
+}
+
+input MFTimelineUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+  events: [MFTimelineEventUpsertInput!]
+
+  """Timeline ID"""
+  id: Int
+  name: String!
+
+  """Parent world ID"""
+  worldId: Int!
 }
 
 """An Application user"""
@@ -275,7 +392,7 @@ type MFUser {
 
 """A collection of `Locations`"""
 type MFWorld {
-  Event: [MFEvent]
+  Events: [MFEvent]
   Groups: [MFPopulationGroup]
   Locations: [MFLocation]
   Timelines: [MFTimeline]
@@ -290,7 +407,7 @@ type MFWorld {
 }
 
 input MFWorldUpsertInput {
-  """Book Author/owner"""
+  """Item Author/owner"""
   authorId: Int
   description: String!
 
@@ -304,6 +421,40 @@ input MFWorldUpsertInput {
 }
 
 type Mutation {
+  deleteCharacter(id: Int!): MFCharacter
+
+  """Delete an `Event`"""
+  deleteEvent(id: Int!): MFEvent
+  deleteLocation(id: Int!): MFLocation
+  deleteRelationship(id: Int!): MFCharacterRelationship
+
+  """Delete a `Timeline` and all its events"""
+  deleteTimeline(id: Int!): MFTimeline
+
+  """Delete a `TimelineEvent`"""
+  deleteTimelineEvent(id: Int!): MFTimelineEvent
+  deleteWorld(id: Int!): MFWorld
+  upsertCharacter(
+    """The data to create a new character"""
+    data: MFCharacterUpsertInput!
+  ): MFCharacter
+
+  """Create or update one or more `Events`"""
+  upsertEvents(data: [MFEventUpsertInput]!): [MFEvent]
+  upsertLocation(
+    """The data to create a new location"""
+    data: MFLocationUpsertInput!
+  ): MFLocation
+  upsertRelationships(
+    """The data to create a new character relationship"""
+    data: [MFRelationshipUpsertInput!]!
+  ): [MFCharacterRelationship]
+
+  """Create a new `Timeline` along with its events"""
+  upsertTimeline(data: MFTimelineUpsertInput!): MFTimeline
+
+  """Update a `Timeline`'s events"""
+  upsertTimelineEvents(events: [MFTimelineEventUpsertInput!], id: Int!): [MFTimelineEvent]
   upsertWorld(
     """The data to create a new world"""
     data: MFWorldUpsertInput!
@@ -311,12 +462,34 @@ type Mutation {
 }
 
 type Query {
+  getCharacterById(id: Int!): MFCharacter
+  getEventById(id: Int!): MFEvent
+  getLocationById(id: Int!): MFLocation
+  getRelationshipById(id: Int!): MFCharacterRelationship
+  getTimelineById(id: Int!): MFTimeline
   getWorldById(id: Int!): MFWorld
+  listAuthorTimelines(authorId: Int!): [MFTimeline]
+
+  """
+  List/filter multiple `Characters`. Author can view their own characters, a reader can view public characters
+  """
+  listCharacters(authorId: Int, description: String, id: Int, name: String, worldId: Int): [MFCharacter]
+
+  """
+  List/filter multiple `Locations`. Author can view their own locations, a reader can view public locations
+  """
+  listLocations(authorId: Int, description: String, id: Int, name: String, worldId: Int!): [MFLocation]
+
+  """List/filter multiple `Character Relationships`."""
+  listRelationships(characterId: Int, id: Int, relationship: String, targetId: Int): [MFCharacterRelationship]
+  listTimelineEvents(timelineId: Int!): [MFTimelineEvent]
+  listTimelines(authorId: Int, name: String, worldId: Int): [MFTimeline]
+  listWorldEvents(authorId: Int, characterId: Int, description: String, groupId: Int, locationId: Int, name: String, polarity: EventPolarity, target: EventTarget, worldId: Int): [MFEvent]
 
   """
   List/filter multiple `Worlds`. Author can view their own worlds, a reader can view public worlds
   """
-  listWorlds(authorId: Int, description: String, id: Int, name: String): [MFWorld]
+  listWorlds(authorId: Int, description: String, id: Int, name: String, public: Boolean = true): [MFWorld]
 }
 
 """Relative abundance of resources."""

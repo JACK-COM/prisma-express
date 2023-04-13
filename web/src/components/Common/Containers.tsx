@@ -1,3 +1,4 @@
+import { ComponentPropsWithRef } from "react";
 import styled from "styled-components";
 
 type FlexContainerProps = {
@@ -13,6 +14,17 @@ export const ExLink = styled.a.attrs({
 /** General-purpose default container */
 export const BaseContainer = styled.section``;
 
+/** UI bordered section */
+export const Card = styled(BaseContainer).attrs({ className: "card" })`
+  border: ${({ theme }) => `1px dashed ${theme.colors.semitransparent}`};
+  border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
+  padding: 1em;
+
+  @media screen and (max-width: 768px) {
+    padding: 0.4em;
+  }
+`;
+
 /** Page or View description element */
 export const Description = styled.p<{ lines?: number }>`
   -webkit-box-orient: vertical;
@@ -21,6 +33,24 @@ export const Description = styled.p<{ lines?: number }>`
   font-size: 0.8rem;
   overflow: hidden;
   text-overflow: ellipsis;
+`;
+
+/** Error message container */
+export const ErrorMessage = styled.aside.attrs({
+  role: "alert",
+  className: "error shake"
+})`
+  border-radius: ${({ theme }) => theme.presets.round.sm};
+  padding: 0.4rem;
+`;
+
+/** Error message container */
+export const WarningMessage = styled.aside.attrs({
+  role: "alert",
+  className: "warning bounce"
+})`
+  border-radius: ${({ theme }) => theme.presets.round.sm};
+  padding: 0.4rem;
 `;
 
 /** Flex-container for displaying items in a row */
@@ -54,7 +84,7 @@ type PCProps = FlexContainerProps & { minHeight?: string };
 export const PageContainer = styled(FlexColumn)<PCProps>`
   height: fit-content;
   justify-content: flex-start;
-  padding-top: 1rem;
+  padding: 0.5rem 0.5rem 0;
   margin: 0 auto;
   max-width: 1280px;
   min-height: ${({ minHeight = "70vh" }) => minHeight};
@@ -78,10 +108,6 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
 
   @media screen and (max-width: 768px) {
     max-width: 100%;
-
-    > header {
-      padding: 0 1rem;
-    }
   }
 `;
 
@@ -139,8 +165,16 @@ export const Section = styled(FlexColumn)`
   }
 `;
 
-const Icon = styled.span.attrs({ className: "material-icons" })``;
-export const MatIcon = ({ icon }: { icon: string }) => <Icon>{icon}</Icon>;
+const Icon = styled.span``;
+export type MatIconProps = { icon: string } & ComponentPropsWithRef<"span">;
+export const MatIcon = ({ icon, ...props }: MatIconProps) => (
+  <Icon
+    className={`material-icons ${props.className || ""}`.trim()}
+    title={props.title || ""}
+    onClick={props.onClick}
+    children={icon}
+  />
+);
 
 export const GridItem = styled(GridContainer)`
   background-color: inherit;

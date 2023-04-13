@@ -17,26 +17,31 @@ const LogoLink = styled(Link)`
     will-change: filter;
   }
 
-  &:hover {
-    filter: drop-shadow(0 0 8px #646cffaa) drop-shadow(0 -2em 2em #ffb964aa);
+  img {
+    filter: contrast(0.1) brightness(5);
+  }
 
+  &:hover {
+    &,
     .logo {
-      filter: blur(2px);
+      filter: drop-shadow(0 0 8px #646cffaa) drop-shadow(0 -2em 2em #fbd679cb)
+        drop-shadow(0 2px 1em #62e0ffca);
+      /* filter: blur(2px); */
     }
   }
 `;
 const HeaderContainer = styled(GridContainer)`
-  background-color: black;
+  background-color: ${({ theme }) => theme.colors.secondary};
   border-bottom: 1px solid ${({ theme }) => theme.colors.semitransparent};
   color: ${({ theme }) => theme.colors.primary};
   height: 60px;
   justify-content: space-between;
+  overflow-y: hidden;
   padding: 0 0.5rem;
   top: 0;
 
   @media screen and (max-width: 767px) {
     height: fit-content;
-    grid-template-columns: auto;
   }
 `;
 

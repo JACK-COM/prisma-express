@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { GlobalUser, GlobalUserInstance, GlobalUserInstanceKey } from "state";
 
-type HookState = Partial<GlobalUserInstance>;
+type HookState = Omit<Partial<GlobalUserInstance>, "id"> & { id: number };
 const defKeys: GlobalUserInstanceKey[] = ["email", "role", "loading", "error"];
 
 /**
@@ -11,7 +11,7 @@ const defKeys: GlobalUserInstanceKey[] = ["email", "role", "loading", "error"];
 export function useGlobalUser(keys: GlobalUserInstanceKey[] = defKeys) {
   // Read global state and initialize the props you care about
   const global = GlobalUser.getState();
-  const init = keys.reduce((agg, k) => ({ ...agg, [k]: global[k] }), {});
+  const init = keys.reduce((agg, k) => ({ ...agg, [k]: global[k] }), {} as HookState);
 
   // Initialize internal state, and create a function that responds to
   // changes in global state

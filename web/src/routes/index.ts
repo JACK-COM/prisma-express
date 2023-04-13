@@ -15,96 +15,104 @@ type AppRoute =
   | "Worlds";
 
 /** All app routes for maximum convenience */
-export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> =
-  {
-    Search: {
-      Index: {
-        path: "/",
-        text: "Search"
-      },
-      Results: {
-        path: "/results",
-        text: "Search results"
-      }
+export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> = {
+  Search: {
+    Index: {
+      path: "/",
+      text: "Search"
     },
-
-    Dashboard: {
-      Index: {
-        path: "/dashboard",
-        text: "Dashboard"
-      }
-    },
-
-    BooksAndSeries: {
-      Index: {
-        path: "/bibliography",
-        text: "Books & Series"
-      },
-      Books: {
-        path: "/bibliography/books",
-        text: "My Books"
-      },
-      BookById: {
-        path: "/bibliography/books/:bookId",
-        text: "Manage Book"
-      },
-      NewBook: {
-        path: "/bibliography/books/new",
-        text: "New Book"
-      },
-      NewSeries: {
-        path: "/bibliography/series/new",
-        text: "New Series"
-      },
-      Series: {
-        path: "/bibliography/series",
-        text: "My Series"
-      },
-      SeriesById: {
-        path: "/bibliography/series/:seriesId",
-        text: "Manage Series"
-      }
-    },
-
-    Timelines: {
-      Index: {
-        path: "/timelines",
-        text: "Timelines & Events"
-      },
-      Events: {
-        path: "/timelines/events",
-        text: "Major Events"
-      }
-    },
-
-    Characters: {
-      Index: {
-        path: "/characters",
-        text: "Cast & Characters"
-      },
-      Relationships: {
-        path: "/characters/relationships",
-        text: "Relationships"
-      }
-    },
-
-    Worlds: {
-      Index: {
-        path: "/worlds",
-        text: "Worlds & Settings"
-      },
-      Locations: {
-        path: "/worlds/locations",
-        text: "World Locations"
-      }
+    Results: {
+      path: "/results",
+      text: "Search results"
     }
-  };
+  },
+
+  Dashboard: {
+    Index: {
+      path: "/dashboard",
+      text: "Dashboard"
+    }
+  },
+
+  BooksAndSeries: {
+    Index: {
+      path: "/bibliography",
+      text: "Books & Series"
+    },
+    Books: {
+      path: "/bibliography/books",
+      text: "My Books"
+    },
+    ManageBook: {
+      path: "/bibliography/books/:bookId",
+      text: "Manage Book"
+    },
+    NewBook: {
+      path: "/bibliography/books/new",
+      text: "New Book"
+    },
+    NewSeries: {
+      path: "/bibliography/series/new",
+      text: "New Series"
+    },
+    Series: {
+      path: "/bibliography/series",
+      text: "My Series"
+    },
+    SeriesById: {
+      path: "/bibliography/series/:seriesId",
+      text: "Manage Series"
+    }
+  },
+
+  Timelines: {
+    Index: {
+      path: "/timelines",
+      text: "Timelines"
+    },
+    Events: {
+      path: "/timelines/:timelineId/events",
+      text: "Timeline Events"
+    }
+  },
+
+  Characters: {
+    Index: {
+      path: "/characters",
+      text: "Cast & Characters"
+    },
+    Relationships: {
+      path: "/characters/relationships",
+      text: "Relationships"
+    }
+  },
+
+  Worlds: {
+    Index: {
+      path: "/worlds",
+      text: "Worlds & Settings"
+    },
+    Events: {
+      path: "/worlds/:worldId/events",
+      text: "Major World Events"
+    },
+    Locations: {
+      path: "/worlds/:worldId/locations",
+      text: "World Locations"
+    }
+  }
+};
 
 export interface RouteDef {
   path: string;
   text: string;
   component?: any;
   render?: (p?: any) => JSX.Element;
+}
+
+// Replace id wildcard with actual id
+export function insertId(path: string, id: string | number) {
+  return path.replace(/:\b(\w*Id)/, id.toString());
 }
 
 /**

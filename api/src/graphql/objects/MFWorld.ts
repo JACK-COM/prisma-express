@@ -15,7 +15,7 @@ export const MFWorld = objectType({
     // List properties 
     t.list.field("Locations", { type: "MFLocation" });
     t.list.field("Timelines", { type: "MFTimeline" });
-    t.list.field("Event", { type: "MFEvent" });
+    t.list.field("Events", { type: "MFEvent" });
     t.list.field("Groups", { type: "MFPopulationGroup" });
   }
 });

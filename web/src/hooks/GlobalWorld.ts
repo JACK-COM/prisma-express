@@ -78,12 +78,14 @@ const defaultLoadOpts: HOOK__LoadWorldOpts = { userId: -1 };
 async function loadWorlds(opts = defaultLoadOpts) {
   const gState = GlobalWorld.getState();
   const { worldId, userId, timelineId } = opts;
-  const params: any = userId >= 0 ? { authorId: userId } : { public: true };
-  if (worldId) params.worldId = worldId;
+  const params: any = {};
+  if (userId === -1) params.public = true;
+  else if (worldId) params.worldId = worldId;
+  else params.authorId = userId;
   const [apiTimelines, apiWorlds, apiEvents] = await Promise.all([
-    worldId ? listTimelines(params) : [],
-    listOrLoad(gState.worlds, () => listWorlds(params)),
-    listOrLoad(gState.events, () => listWorldEvents({ authorId: userId })),
+    params.worldId || params.authorId ? listTimelines(params) : [],
+    listOrLoad(gState.worlds, () => listWorlds({ authorId: userId })),
+    listOrLoad(gState.events, () => listWorldEvents(params))
   ]);
 
   const timeline = apiTimelines.find((t: any) => t.id === Number(timelineId));
@@ -96,6 +98,6 @@ async function loadWorlds(opts = defaultLoadOpts) {
     // focused data
     focusedTimeline: timeline || null,
     focusedWorld: world || null,
-    worldLocations: world?.Locations || [],
+    worldLocations: world?.Locations || []
   });
 }

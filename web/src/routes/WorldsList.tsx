@@ -61,7 +61,7 @@ const WorldsList = () => {
   );
 
   useEffect(() => {
-    loadWorlds();
+    loadWorlds({ userId });
     return () => clearComponentData();
   }, []);
 

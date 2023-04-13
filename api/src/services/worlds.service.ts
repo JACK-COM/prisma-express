@@ -28,14 +28,14 @@ export async function upsertWorld(newWorld: UpsertWorldInput) {
 /** find all world records matching params */
 export async function findAllWorld(filters: SearchWorldInput) {
   const where: Prisma.WorldFindManyArgs["where"] = {};
-  if (filters.public) where.public = filters.public;
-  if (filters.authorId) where.authorId = filters.authorId;
   if (filters.id) where.id = filters.id;
 
   where.OR = [];
-  if (filters.name) where.OR.push({ name: { contains: filters.name } });
-  if (filters.description)
-    where.OR.push({ description: { contains: filters.description } });
+  const { authorId, public: isPub, name, description } = filters;
+  if (authorId) where.OR.push({ authorId, public: false });
+  if (isPub !== undefined) where.OR.push({ public: isPub });
+  if (name) where.OR.push({ name: { contains: name } });
+  if (description) where.OR.push({ description: { contains: description } });
 
   if (!where.OR.length) delete where.OR;
 

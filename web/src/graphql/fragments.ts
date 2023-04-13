@@ -5,11 +5,6 @@ export const MFUserFragment = `
     id, displayName, email, 
 `;
 
-/** graphql `World` fragment */
-export const MFWorldFragment = `
-    id, name, description, type, public, authorId, 
-`;
-
 /** graphql `Character` fragment */
 export const MFCharacterFragment = `
     id, name, description, authorId, groupId, locationId, worldId, 
@@ -28,15 +23,24 @@ export const MFEventFragment = `
 /** graphql `TimelineEvent` fragment (event linked to timeline) */
 export const MFTimelineEventFragment = `
     id, order, timelineId, eventId, authorId,
+    Event { ${MFEventFragment} }
+`;
+
+/** graphql `Location` fragment */
+export const MFLocationFragment = `
+    id, name, description, climate, fauna, flora, authorId, worldId, 
+`;
+
+/** graphql `World` fragment */
+export const MFWorldFragment = `
+    id, name, description, type, public, authorId, 
+    Locations { ${MFLocationFragment} },
+    Events { ${MFEventFragment} },
 `;
 
 /** graphql `Timeline` fragment */
 export const MFTimelineFragment = `
     id, name, authorId, worldId, 
+    World { ${MFWorldFragment} },
     TimelineEvents { ${MFTimelineEventFragment} }
-`;
-
-/** graphql `World` fragment */
-export const MFLocationFragment = `
-    id, name, description, climate, fauna, flora, authorId, worldId, 
 `;

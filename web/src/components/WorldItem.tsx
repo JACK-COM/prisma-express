@@ -16,7 +16,7 @@ const Container = styled(Link)<PermissionProps>`
   display: grid;
   column-gap: ${({ theme }) => theme.sizes.sm};
   grid-template-columns: min-content ${({ permissions }) =>
-      permissions === "Author" ? "3fr 24px 24px" : "4fr"};
+      permissions === "Author" ? "3fr 24px" : "4fr"};
   justify-content: left;
   padding: ${({ theme }) => theme.sizes.xs};
   width: 100%;
@@ -84,7 +84,6 @@ const WorldItem = ({
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </Name>
       <Description>{world.description}</Description>
-        {permissions === "Author" && <MatIcon className="icon" icon="edit_calendar" />}
       <DeleteWorldIcon permissions={permissions} data={world} />
     </Container>
   );

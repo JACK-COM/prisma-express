@@ -4,8 +4,6 @@ import { noOp } from "utils";
 import { lineclamp } from "theme/theme.shared";
 import { GridContainer, MatIcon } from "components/Common/Containers";
 import { Hint } from "components/Forms/Form";
-import { useMemo } from "react";
-import { PermissionedIcon } from "./ComponentIcons";
 
 type WICProps = { permissions: UserRole };
 const Container = styled(GridContainer)<WICProps>`
@@ -77,7 +75,7 @@ const LocationItem = ({
 
   return (
     <Container onClick={select} permissions={permissions}>
-      <PermissionedIcon
+      <Icon
         icon="pin_drop"
         permissions={permissions}
         className={iconClass}

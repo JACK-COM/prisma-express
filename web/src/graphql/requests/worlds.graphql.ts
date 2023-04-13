@@ -14,6 +14,7 @@ import { APIData, Location, World } from "utils/types";
 /** Data required to create a world */
 export type CreateWorldData = {
   id?: number;
+  authorId?: number;
 } & Pick<World, "public" | "name" | "description" | "type">;
 
 /** Data required to create a location */
@@ -25,7 +26,15 @@ export type CreateLocationData = {
 >;
 
 // Use fetchGQL to create a `World` on the server
-export async function createOrUpdateWorld(data: Partial<CreateWorldData>) {
+export async function upsertWorld(raw: Partial<CreateWorldData>) {
+  const data = {
+    id: raw.id,
+    name: raw.name,
+    description: raw.description,
+    public: raw.public,
+    type: raw.type,
+    authorId: raw.authorId
+  };
   const newWorld = await fetchGQL<APIData<World> | null>({
     query: upsertWorldMutation(),
     variables: { data },

@@ -62,7 +62,7 @@ function App() {
                 path={wildcard(Paths.Timelines.Index.path)}
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
-                    <Dashboard />
+                    <TimelinesRoute />
                   </Suspense>
                 }
               />
@@ -92,17 +92,7 @@ function App() {
                 path={wildcard(Paths.Worlds.Index.path)}
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
-                    <TimelinesRoute />
-                  </Suspense>
-                }
-              />
-
-              <Route
-                // Timelines and Events
-                path={wildcard(Paths.Timelines.Index.path)}
-                element={
-                  <Suspense fallback={<FullScreenLoader />}>
-                    <TimelinesRoute />
+                    <WorldsRoute />
                   </Suspense>
                 }
               />

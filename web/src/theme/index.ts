@@ -33,6 +33,11 @@ const THEME: GlobalTheme = {
     width: $parent;
   } 
 
+  .flex {
+    align-items: center;
+    display: flex !important;
+  } 
+
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -77,6 +82,10 @@ const THEME: GlobalTheme = {
     }
     .error { 
       background-color: ${({ theme }) => theme.colors.error}; 
+      color: white;
+    }
+    .warning { 
+      background-color: ${({ theme }) => theme.colors.warning}; 
       color: white;
     }
     .flex {

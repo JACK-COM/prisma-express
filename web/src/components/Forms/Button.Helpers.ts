@@ -57,14 +57,14 @@ export function borderRadius({ theme, round }: SharedButtonProps) {
 export function textColor({ variant, disabled, theme }: AllButtonProps) {
   const { primary, accent } = theme.colors;
   if (disabled) return accent;
-  return variant === "transparent" ? accent : primary;
+  return variant === "outlined" ? primary : "#fff";
 }
 
 export function textShadow({ variant, theme }: SharedButtonProps) {
   if (variant === "transparent") {
     return `${theme.presets.elevate.xs} #222`;
   }
-  return "none";
+  return `${theme.presets.elevate.xxs} #2226`;
 }
 
 export function width({ theme, size, round }: SharedButtonProps) {

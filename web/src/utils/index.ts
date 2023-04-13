@@ -1,5 +1,5 @@
 import { APP_VERSION, APP_VERSION_KEY } from "./constants";
-import { UserRole } from "./types";
+import { UserRole, APIData } from "./types";
 
 export * from "./constants";
 export const noOp = () => undefined;
@@ -9,6 +9,18 @@ export async function checkVersionChanged() {
   const currentVersion = APP_VERSION;
   const lastVersion = localStorage.getItem(APP_VERSION_KEY);
   return currentVersion !== lastVersion;
+}
+
+/** Merge two arrays of `APIData` data, preferring the second */
+export function mergeLists<T extends APIData<any>>(a: T[], b: T[]): T[] {
+  const next = [...a];
+  b.forEach((item: any) => {
+    const x = next.findIndex((l: any) => l.id === item.id);
+    if (x > -1) next[x] = item;
+    else next.push(item);
+  });
+
+  return next as T[];
 }
 
 /**

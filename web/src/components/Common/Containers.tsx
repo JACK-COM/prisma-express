@@ -44,6 +44,15 @@ export const ErrorMessage = styled.aside.attrs({
   padding: 0.4rem;
 `;
 
+/** Error message container */
+export const WarningMessage = styled.aside.attrs({
+  role: "alert",
+  className: "warning bounce"
+})`
+  border-radius: ${({ theme }) => theme.presets.round.sm};
+  padding: 0.4rem;
+`;
+
 /** Flex-container for displaying items in a row */
 export const FlexRow = styled(BaseContainer)<FlexContainerProps>`
   align-items: center;

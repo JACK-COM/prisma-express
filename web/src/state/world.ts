@@ -137,7 +137,7 @@ export function updateWorldStateList<
     else next.push(w);
   });
 
-  if (!skipUpdate) GlobalWorld[key](next as any);
+  if (!skipUpdate) setWorldStateList(next, key);
   return next as T[];
 }
 

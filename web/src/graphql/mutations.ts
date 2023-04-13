@@ -117,8 +117,8 @@ mutation DeleteTimelineEvent($id: Int!) {
 
 /** Create new `Event` */
 export const upsertEventMutation = () => `
-mutation UpsertEvent($data: MFEventUpsertInput!) {
-  upsertEvent(data: $data) {
+mutation UpsertEvent($data: [MFEventUpsertInput]!) {
+  upsertEvents(data: $data) {
     ${MFEventFragment}
   }
 }`;

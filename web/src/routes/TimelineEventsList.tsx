@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import Breadcrumbs from "components/Common/Breadcrumbs";
 import {
@@ -9,84 +9,116 @@ import {
 } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths, insertId } from "routes";
-import { listTimelines } from "graphql/requests/timelines.graphql";
-import ManageTimelineModal from "components/Modals/ManageTimelineModal";
-import ListView from "components/Common/ListView";
-// import TimelineItem from "components/TimelineItem";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useGlobalWorld } from "hooks/GlobalWorld";
-import { APIData, Timeline } from "utils/types";
-import { useNavigate } from "react-router";
+import { useParams } from "react-router";
 import { GlobalWorld } from "state";
+import { SharedButtonProps } from "components/Forms/Button.Helpers";
+import { FormRow } from "components/Forms/Form";
+import ManageWorldEventsModal from "components/Modals/ManageWorldEventsModal";
+import ManageTimelineEventsModal from "components/Modals/ManageTimelineEventsModal";
+import ListView from "components/Common/ListView";
+import TimelineEventItem from "components/TimelineEventItem";
+import { deleteTimelineEvent } from "graphql/requests/timelines.graphql";
 
 const { Timelines: TimelinePaths } = Paths;
-const AddTimelineButton = styled(ButtonWithIcon)`
+const AddEventButton = styled(ButtonWithIcon)`
   align-self: end;
 `;
-const EmptyText = styled.p`
-  font-style: oblique;
-`;
-const List = styled(ListView)`
-  margin: ${({ theme }) => theme.sizes.md} 0;
-`;
 
-/** ROUTE: List of worlds */
+/** ROUTE: List of timeline events */
 const TimelinesEventsList = () => {
-  const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const navigate = useNavigate();
+  const { id: userId, role } = useGlobalUser(["id", "authenticated", "role"]);
+  const { timelineId } = useParams<{ timelineId: string }>();
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
-  const {
-    focusedTimeline: focusedTimeline,
-    worlds = [],
-    setGlobalTimeline,
-    setGlobalTimelines
-  } = useGlobalWorld(["focusedTimeline", "worlds", "worldLocations"]);
-  const loadTimelines = async () => {
-    const params = userId > -0 ? { authorId: userId } : { public: true };
-    setGlobalTimelines(await listTimelines(params));
-  };
+  const { focusedTimeline, focusedWorld, loadWorlds, updateTimelines } =
+    useGlobalWorld(["focusedTimeline", "focusedWorld"]);
+  const [crumbTitle, timelineEvents] = useMemo(
+    () => [
+      focusedTimeline
+        ? `"${focusedTimeline.name}" Events`
+        : TimelinePaths.Events.text,
+      focusedTimeline?.TimelineEvents || []
+    ],
+    [focusedTimeline]
+  );
+  const crumbs = [
+    TimelinePaths.Index,
+    {
+      text: `${crumbTitle}`,
+      path: insertId(TimelinePaths.Events.path, Number(timelineId))
+    }
+  ];
   const clearComponentData = () => {
     clearGlobalModal();
     GlobalWorld.focusedTimeline(null);
   };
-  const onEditTimeline = (world: APIData<Timeline>) => {
-    setGlobalTimeline(world);
-    setGlobalModal(MODAL.MANAGE_WORLD);
+  const deleteItem = async (itemId: number) => {
+    const resp = await deleteTimelineEvent(itemId);
+    if (!resp) return console.log("Timeline event was not deleted.");
+    if (typeof resp === "string") return console.log(resp);
+    updateTimelines([resp]);
+    GlobalWorld.focusedTimeline(resp);
   };
-  const onSelectTimeline = (world: APIData<Timeline>) => {
-    // setGlobalTimeline(world);
-    navigate(insertId(TimelinePaths.Locations.path, world.id));
-  };
+  const controls = (variant: SharedButtonProps["variant"] = "outlined") => (
+    <AddEventButton
+      icon="add"
+      size="lg"
+      variant={variant}
+      onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE_EVENTS)}
+      text="Add Timeline Event"
+    />
+  );
 
   useEffect(() => {
-    loadTimelines();
+    loadWorlds({ userId, timelineId: Number(timelineId) });
     return () => clearComponentData();
   }, []);
 
   return (
     <PageContainer id="timelines-list">
       <header>
-        <Breadcrumbs data={[TimelinePaths.Index]} />
-        <PageTitle>{TimelinePaths.Index.text}</PageTitle>
+        <Breadcrumbs data={crumbs} />
+        <PageTitle>
+          {focusedTimeline?.name || TimelinePaths.Events.text}
+        </PageTitle>
         <PageDescription>
-          Create or manage your <b>Timelines</b> here.
+          A <b>Timeline</b> in{" "}
+          <b className="accent--text">{focusedWorld?.name || "A World"}</b>.
         </PageDescription>
       </header>
 
+      <h3 className="h4">Timeline Events</h3>
       <Card>
-        <AddTimelineButton
-          icon="plus"
-          onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
-          text="Create Timeline"
-        />
+        {/* Controls */}
+        {controls(timelineEvents.length > 5 ? "transparent" : "outlined")}
+
+        {/* <List> */}
+        {timelineEvents.length > 0 && (
+          <ListView
+            data={timelineEvents}
+            itemText={(item) => (
+              <TimelineEventItem
+                key={item.id}
+                showDescription
+                timelineEvent={item}
+                onSelect={() => setGlobalModal(MODAL.MANAGE_TIMELINE_EVENTS)}
+                onRemove={() => deleteItem(item.id)}
+                permissions={role}
+              />
+            )}
+          />
+        )}
+
+        {/* Controls */}
+        {(focusedTimeline?.TimelineEvents || [])?.length > 5 && controls()}
       </Card>
 
-      {/* Modal */}
-      <ManageTimelineModal
-        data={focusedTimeline}
-        open={active === MODAL.MANAGE_TIMELINE}
-        onClose={clearComponentData}
+      <ManageTimelineEventsModal
+        timelineId={Number(timelineId)}
+        data={timelineEvents}
+        open={active === MODAL.MANAGE_TIMELINE_EVENTS}
       />
     </PageContainer>
   );

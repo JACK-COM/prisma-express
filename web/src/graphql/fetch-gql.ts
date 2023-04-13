@@ -47,7 +47,10 @@ export async function fetchGQL<T>(opts: FetchGQLOpts<T>) {
         onResolve(res.data || fallback, condenseErrors(res.errors))
       )
       .catch((e) =>
-        onResolve({} as ChildProperty<T>, "FetchGQL Network Error")
+        onResolve(
+          {} as ChildProperty<T>,
+          e ? condenseErrors(e.errors || e) : "FetchGQL Network Error"
+        )
       );
 
   return withTimeout({ request, fallbackResponse: fallback, controller });

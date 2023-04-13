@@ -31,6 +31,28 @@ export enum EventPolarity {
   NegativeUnexpected = "NegativeUnexpected"
 }
 
+export const EventPolarityText = (p: EventPolarity) => {
+  const text = {
+    [EventPolarity.PositiveExpected]: "Positive (expected)",
+    [EventPolarity.PositiveUnexpected]: "Positive (unexpected)",
+    [EventPolarity.Neutral]: "Neutral",
+    [EventPolarity.NegativeExpected]: "Negative (expected)",
+    [EventPolarity.NegativeUnexpected]: "Negative (unexpected)"
+  };
+  return text[p];
+};
+
+export const EventPolarityColors = (p?: EventPolarity) => {
+  const colors = {
+    [EventPolarity.PositiveUnexpected]: "#00982d",
+    [EventPolarity.PositiveExpected]: "#47855a",
+    [EventPolarity.Neutral]: "gray",
+    [EventPolarity.NegativeExpected]: "#a66359",
+    [EventPolarity.NegativeUnexpected]: "#a72d25"
+  };
+  return p ? colors[p] : 'inherit';
+};
+
 /** The target of a significant Event that occurs in a World */
 export enum EventTarget {
   /** affects all characters in a World  */
@@ -72,25 +94,37 @@ export enum WorldType {
 }
 
 /** Content created by an author */
-export type AuthorRelation = { authorId?: number; Author?: User };
+export type AuthorRelation = { authorId?: number; Author?: APIData<User> };
 
 /** Content created by an author */
-export type BookRelation = { bookId?: number; Book?: Book };
+export type BookRelation = { bookId?: number; Book?: APIData<Book> };
 
 /** Content relating to a `Character` */
-export type CharacterRelation = { characterId?: number; Character?: Character };
+export type CharacterRelation = {
+  characterId?: number;
+  Character?: APIData<Character>;
+};
 
 /** Content tagged to a `PopulationGroup` */
-export type GroupRelation = { groupId?: number; Group?: PopulationGroup };
+export type GroupRelation = {
+  groupId?: number;
+  Group?: APIData<PopulationGroup>;
+};
 
 /** Content tagged to a `Location` */
-export type LocationRelation = { locationId?: number; Location?: Location };
+export type LocationRelation = {
+  locationId?: number;
+  Location?: APIData<Location>;
+};
 
 /** Content added to a `Timeline` */
-export type TimelineRelation = { timelineId?: number; Timeline?: Timeline };
+export type TimelineRelation = {
+  timelineId?: number;
+  Timeline?: APIData<Timeline>;
+};
 
 /** Content belonging to a `World` */
-export type WorldRelation = { worldId?: number; World?: World };
+export type WorldRelation = { worldId?: number; World?: APIData<World> };
 
 /** Confidential data required to create a User */
 export type CreateUserInput = {
@@ -163,7 +197,6 @@ export type WorldEvent = {
   description: string;
   target: EventTarget;
   polarity: EventPolarity;
-  TimelineEvent: APIData<TimelineEvent>[];
 } & AuthorRelation &
   CharacterRelation &
   GroupRelation &
@@ -231,16 +264,18 @@ export type Series = {
 /** A `Timeline` is named Event-sequence in a `World` */
 export type Timeline = {
   name: string;
-  TimelineEvents: TimelineEvent[];
+  TimelineEvents?: TimelineEvent[];
 } & AuthorRelation &
   WorldRelation;
 
 /** A record that associates `Events` to `Timelines` */
 export type TimelineEvent = {
   eventId: number;
+  timelineId: number;
   order: number;
+  Event?: WorldEvent;
 } & AuthorRelation &
-  TimelineRelation;
+  Pick<TimelineRelation, "Timeline">;
 
 /** A `World` is the superset of locations where a story occurs */
 export type World = {
@@ -248,11 +283,11 @@ export type World = {
   name: string;
   description: string;
   type: WorldType;
-  Location: Location[];
-  Timeline: Timeline[];
-  Event: Event[];
-  Groups: PopulationGroup[];
-  Characters: Character[];
+  Location: APIData<Location>[];
+  Timeline: APIData<Timeline>[];
+  Events: APIData<WorldEvent>[];
+  Groups: APIData<PopulationGroup>[];
+  Characters: APIData<Character>[];
 } & AuthorRelation;
 
 export type PermissionProps = { permissions: UserRole };

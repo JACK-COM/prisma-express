@@ -1,7 +1,7 @@
 import CreateWorldForm from "components/Form.CreateWorld";
 import {
   CreateWorldData,
-  createOrUpdateWorld
+  upsertWorld
 } from "graphql/requests/worlds.graphql";
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
@@ -38,7 +38,7 @@ export default function ManageWorldModal(props: ManageWorldModalProps) {
     if (!formData.description) formData.description = "No description.";
     formData.public = formData.public || false;
     setError("");
-    const resp = await createOrUpdateWorld(formData);
+    const resp = await upsertWorld(formData);
     if (typeof resp === "string") return setError(resp);
 
     // Notify

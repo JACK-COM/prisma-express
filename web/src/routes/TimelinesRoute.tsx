@@ -4,17 +4,15 @@ import TimelinesList from "./TimelinesList";
 import TimelineEventsList from "./TimelineEventsList";
 
 const { Timelines } = Paths;
-const trim = (str: string) => trimParent(str, "worlds");
 
 /** All `Timelines` created for a `World` */
 const TimelinesRoute = () => {
   return (
     <Routes>
-      <Route /* index route */ index element={<TimelinesList />} />
+      <Route index element={<TimelinesList />} />
 
       <Route
-        // Events in timeline
-        path={trim(Timelines.Events.path)}
+        path={trimParent(Timelines.Events.path, "timelines")}
         element={<TimelineEventsList />}
       />
     </Routes>

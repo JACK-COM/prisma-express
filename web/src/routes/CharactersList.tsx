@@ -89,8 +89,8 @@ const CharactersList = () => {
         </PageDescription>
       </header>
 
+      <h3 className="h4">{authenticated ? "Your" : "Public"} Characters</h3>
       <Card>
-        <h3 className="h4">{authenticated ? "Your" : "Public"} Characters</h3>
         {/* Empty List message */}
         {!characters.length && (
           <EmptyText>

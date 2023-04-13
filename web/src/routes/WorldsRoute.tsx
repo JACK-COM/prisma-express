@@ -4,15 +4,15 @@ import WorldsList from "./WorldsList";
 import WorldLocations from "./WorldLocationsList";
 
 const { Worlds: WorldPaths } = Paths;
-const trim = (str: string) => trimParent(str, "worlds");
 
+/** All worlds (public or user-created) */
 const Worlds = () => {
   return (
     <Routes>
       <Route index element={<WorldsList />} />
 
       <Route
-        path={trim(WorldPaths.Locations.path)}
+        path={trimParent(WorldPaths.Locations.path, "worlds")}
         element={<WorldLocations />}
       />
     </Routes>

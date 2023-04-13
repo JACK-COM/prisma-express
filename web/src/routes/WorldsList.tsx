@@ -8,8 +8,7 @@ import {
   PageTitle
 } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
-import { Paths, insertId } from "routes";
-import { listWorlds } from "graphql/requests/worlds.graphql";
+import { Paths } from "routes";
 import CreateWorldModal from "components/Modals/ManageWorldModal";
 import ListView from "components/Common/ListView";
 import WorldItem from "components/WorldItem";
@@ -17,8 +16,8 @@ import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, World } from "utils/types";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
-import { useNavigate } from "react-router";
 import { clearGlobalWorld } from "state";
+import { SharedButtonProps } from "components/Forms/Button.Helpers";
 
 const { Worlds: WorldPaths } = Paths;
 const AddWorldButton = styled(ButtonWithIcon)`
@@ -34,18 +33,13 @@ const List = styled(ListView)`
 /** ROUTE: List of worlds */
 const WorldsList = () => {
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const navigate = useNavigate();
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const {
-    focusedWorld: focusedWorld,
+    focusedWorld,
     worlds = [],
-    setGlobalWorld,
-    setGlobalWorlds
+    loadWorlds,
+    setGlobalWorld
   } = useGlobalWorld(["focusedWorld", "worlds", "worldLocations"]);
-  const loadWorlds = async () => {
-    const params = userId > -0 ? { authorId: userId } : { public: true };
-    setGlobalWorlds(await listWorlds(params));
-  };
   const clearComponentData = () => {
     clearGlobalModal();
     clearGlobalWorld();
@@ -54,10 +48,17 @@ const WorldsList = () => {
     setGlobalWorld(world);
     setGlobalModal(MODAL.MANAGE_WORLD);
   };
-  const onSelectWorld = (world: APIData<World>) => {
-    // setGlobalWorld(world);
-    navigate(insertId(WorldPaths.Locations.path, world.id));
-  };
+  const controls = (variant: SharedButtonProps["variant"] = "outlined") => (
+    <>
+      <AddWorldButton
+        icon="public"
+        size="lg"
+        text="Create New World"
+        variant={variant}
+        onClick={() => setGlobalModal(MODAL.MANAGE_WORLD)}
+      />
+    </>
+  );
 
   useEffect(() => {
     loadWorlds();
@@ -74,8 +75,8 @@ const WorldsList = () => {
         </PageDescription>
       </header>
 
+      <h3 className="h4">{authenticated ? "Your" : "Public"} Worlds</h3>
       <Card>
-        <h3 className="h4">{authenticated ? "Your" : "Public"} Worlds</h3>
         {/* Empty List message */}
         {!worlds.length && (
           <EmptyText>
@@ -84,15 +85,7 @@ const WorldsList = () => {
         )}
 
         {/* Add new (button - top) */}
-        {worlds.length > 5 && (
-          <AddWorldButton
-            size="lg"
-            icon="public"
-            text="Create New World"
-            variant="outlined"
-            onClick={() => setGlobalModal(MODAL.MANAGE_WORLD)}
-          />
-        )}
+        {controls("transparent")}
 
         {/* List */}
         <List
@@ -101,22 +94,13 @@ const WorldsList = () => {
             <WorldItem
               world={world}
               onEdit={onEditWorld}
-              // onSelect={onSelectWorld}
               permissions={world.authorId === userId ? "Author" : "Reader"}
             />
           )}
         />
 
         {/* Add new (button - bottom) */}
-        {authenticated && (
-          <AddWorldButton
-            size="lg"
-            icon="public"
-            text="Create New World"
-            variant={worlds.length > 5 ? "transparent" : "outlined"}
-            onClick={() => setGlobalModal(MODAL.MANAGE_WORLD)}
-          />
-        )}
+        {authenticated && worlds.length > 5 && controls()}
       </Card>
 
       {/* Modal */}

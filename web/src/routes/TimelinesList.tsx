@@ -9,7 +9,6 @@ import {
 } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths, insertId } from "routes";
-import { listTimelines } from "graphql/requests/timelines.graphql";
 import CreateTimelineModal from "components/Modals/ManageTimelineModal";
 import ListView from "components/Common/ListView";
 import TimelineItem from "components/TimelineItem";
@@ -37,31 +36,21 @@ const TimelinesList = () => {
   const navigate = useNavigate();
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const {
-    focusedTimeline: focusedTimeline,
-    focusedWorld: focusedWorld,
+    focusedTimeline,
     timelines = [],
-    setGlobalTimeline,
-    setGlobalTimelines
+    loadWorlds: loadTimelines
   } = useGlobalWorld(["focusedTimeline", "timelines"]);
-  const loadTimelines = async () => {
-    const params = userId > -0 ? { authorId: userId } : {};
-    setGlobalTimelines(await listTimelines(params));
-  };
-  const clearComponentData = () => {
-    clearGlobalModal();
-    GlobalWorld.focusedTimeline(null);
-  };
+  const clearComponentData = () => clearGlobalModal();
   const onEditTimeline = (timeline: APIData<Timeline>) => {
-    setGlobalTimeline(timeline);
+    GlobalWorld.focusedTimeline(timeline);
     setGlobalModal(MODAL.MANAGE_TIMELINE);
   };
   const onSelectTimeline = (timeline: APIData<Timeline>) => {
-    setGlobalTimeline(timeline);
-    navigate(insertId(TimelinePaths.Locations.path, timeline.id));
+    navigate(insertId(TimelinePaths.Events.path, timeline.id));
   };
 
   useEffect(() => {
-    loadTimelines();
+    loadTimelines({ userId });
     return () => clearComponentData();
   }, []);
 
@@ -71,16 +60,17 @@ const TimelinesList = () => {
         <Breadcrumbs data={[TimelinePaths.Index]} />
         <PageTitle>{TimelinePaths.Index.text}</PageTitle>
         <PageDescription>
-          Create or manage your <b>Timelines</b> and realms here.
+          Create or manage your <b>Timelines</b> and <b>Events</b> here.
         </PageDescription>
       </header>
 
+      <h3 className="h4">{authenticated ? "Your" : "Public"} Timelines</h3>
       <Card>
-        <h3 className="h4">{authenticated ? "Your" : "Public"} Timelines</h3>
         {/* Empty List message */}
         {!timelines.length && (
           <EmptyText>
-            A formless void, without <b>Timelines</b> to display
+            Before <b>Events</b> or even <b>Time</b> existed, there was only the{" "}
+            <b>Creator</b>.
           </EmptyText>
         )}
 
@@ -91,25 +81,23 @@ const TimelinesList = () => {
             icon="public"
             text="Create New Timeline"
             variant="outlined"
-            onClick={() => setGlobalModal(MODAL.MANAGE_WORLD)}
+            onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
           />
         )}
 
         {/* List */}
-        {focusedWorld && (
-          <List
-            data={timelines}
-            itemText={(timeline: APIData<Timeline>) => (
-              <TimelineItem
-                world={focusedWorld}
-                timeline={timeline}
-                onEdit={onEditTimeline}
-                onSelect={onSelectTimeline}
-                permissions={timeline.authorId === userId ? "Author" : "Reader"}
-              />
-            )}
-          />
-        )}
+
+        <List
+          data={timelines}
+          itemText={(timeline: APIData<Timeline>) => (
+            <TimelineItem
+              timeline={timeline}
+              onEdit={onEditTimeline}
+              onSelect={onSelectTimeline}
+              permissions={timeline.authorId === userId ? "Author" : "Reader"}
+            />
+          )}
+        />
 
         {/* Add new (button - bottom) */}
         {authenticated && (
@@ -118,7 +106,7 @@ const TimelinesList = () => {
             icon="public"
             text="Create New Timeline"
             variant={timelines.length > 5 ? "transparent" : "outlined"}
-            onClick={() => setGlobalModal(MODAL.MANAGE_WORLD)}
+            onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
           />
         )}
       </Card>
@@ -126,7 +114,7 @@ const TimelinesList = () => {
       {/* Modal */}
       <CreateTimelineModal
         data={focusedTimeline}
-        open={active === MODAL.MANAGE_WORLD}
+        open={active === MODAL.MANAGE_TIMELINE}
         onClose={clearComponentData}
       />
     </PageContainer>

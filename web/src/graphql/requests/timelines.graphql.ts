@@ -4,6 +4,7 @@
  */
 
 import fetchGQL from "graphql/fetch-gql";
+import { MFTimelineFragment } from "graphql/fragments";
 import {
   deleteTimelineEventMutation,
   deleteTimelineMutation,
@@ -11,7 +12,11 @@ import {
   upsertTimelineEventMutation,
   upsertTimelineMutation
 } from "graphql/mutations";
-import { listWorldEventsQuery, listTimelinesQuery } from "graphql/queries";
+import {
+  getTimelineQuery,
+  listWorldEventsQuery,
+  listTimelinesQuery
+} from "graphql/queries";
 import { APIData, WorldEvent, Timeline, TimelineEvent } from "utils/types";
 
 // Shared ID type
@@ -19,7 +24,7 @@ type ItemID = { id?: number };
 
 /** Data required to create/update an `Event` */
 export type CreateEventData = ItemID &
-  Partial<Pick<WorldEvent, "name" | "characterId" | "groupId">> &
+  Partial<Pick<WorldEvent, "name" | "characterId" | "locationId" | "groupId">> &
   Pick<WorldEvent, "name" | "polarity" | "target" | "worldId" | "description">;
 
 /** Data required to create/update a `Timeline` */
@@ -52,19 +57,33 @@ export async function upsertTimeline(data: Partial<CreateTimelineData>) {
   });
 }
 
+// Fetch a single timeline
+export async function getTimelineById(id: number) {
+  return fetchGQL<APIData<Timeline>>({
+    query: getTimelineQuery(),
+    variables: { id },
+    onResolve: ({ getTimelineById: list }, errors) => errors || list,
+    fallbackResponse: undefined
+  });
+}
+
 // Use fetchGQL to create or update a list of `TimelineEvents` on the server
 export async function upsertTimelineEvents(
   timelineId: number,
   events: Partial<CreateTimelineEventData>[]
 ) {
-  const newTimelineEvent = await fetchGQL<APIData<TimelineEvent> | null>({
+  // This returns the timeline associated with the new/updated events
+  const newEvents = await fetchGQL<APIData<TimelineEvent>[] | null>({
     query: upsertTimelineEventMutation(),
     variables: { id: timelineId, events },
     onResolve: ({ upsertTimelineEvents: list }, errors) => errors || list,
     fallbackResponse: null
   });
 
-  return newTimelineEvent;
+  if (!newEvents || typeof newEvents === "string") return newEvents;
+
+  // return timeline;
+  return getTimelineById(timelineId);
 }
 
 // Use fetchGQL to delete a `Timeline` and all related `TimelineEvents` on the server
@@ -81,20 +100,22 @@ export async function deleteTimeline(id: number) {
 
 // Use fetchGQL to delete a `TimelineEvent` on the server
 export async function deleteTimelineEvent(id: number) {
-  const deletedTimelineEvent = await fetchGQL<APIData<TimelineEvent> | null>({
+  const deleted = await fetchGQL<APIData<TimelineEvent> | null>({
     query: deleteTimelineEventMutation(),
     variables: { id },
     onResolve: ({ deleteTimelineEvent: tle }, errors) => errors || tle,
     fallbackResponse: null
   });
 
-  return deletedTimelineEvent;
+  if (!deleted || typeof deleted === "string") return deleted;
+
+  // return timeline;
+  return getTimelineById(deleted.timelineId);
 }
 
 // Use fetchGQL to get a list of `Events` from the server
 export async function listWorldEvents(filters: Partial<WorldEvent> = {}) {
-  if (!Object.keys(filters).length)
-    return "At least one Event filter parameter is required";
+  if (!Object.keys(filters).length) return [];
 
   return fetchGQL<APIData<WorldEvent>[]>({
     query: listWorldEventsQuery(),
@@ -114,8 +135,6 @@ export async function listTimelines(
     onResolve: ({ listTimelines: list }, errors) => errors || list,
     fallbackResponse: []
   });
-
-  console.log(timelines);
 
   return timelines;
 }

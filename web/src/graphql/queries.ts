@@ -99,10 +99,9 @@ export const listTimelinesQuery = () =>
 /** List World `Events` graphql query */
 export const listWorldEventsQuery = () =>
   `query ListEvents(
-    $name: String, $description: String, $worldId: Int, $timelineId: Int, $authorId: Int
+    $name: String, $description: String, $worldId: Int, $authorId: Int
    ) { 
     listWorldEvents(
-      id: $id, 
       authorId: $authorId, 
       description: $description,
       worldId: $worldId, 
@@ -117,5 +116,13 @@ export const listTimelineEventsQuery = () =>
   `query ListTimelineEvents( $timelineId: Int! ) { 
     listTimelineEvents( timelineId: $timelineId ) {
       ${MFTimelineEventFragment}
+    } 
+  }`;
+
+/** Get `Timeline` by id graphql query */
+export const getTimelineQuery = () =>
+  `query GetTimeline( $id: Int! ) { 
+    getTimelineById( id: $id ) {
+      ${MFTimelineFragment}
     } 
   }`;

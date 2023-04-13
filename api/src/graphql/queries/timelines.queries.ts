@@ -32,7 +32,7 @@ export const getTimelineById = queryField("getTimelineById", {
    */
   resolve: async (_, { id }, { user }) => {
     const timeline = await TimelinesService.getTimeline({ id });
-    const isAuthor = user?.id === timeline?.authorId;
+    const isAuthor = timeline?.World.public || user?.id === timeline?.authorId;
     // require public timeline or author
     return !timeline || !isAuthor ? null : timeline;
   }
@@ -144,7 +144,13 @@ export const listTimelines = queryField("listTimelines", {
       const pubWorldIds = publicWorlds.map((w) => w.id);
       const pubTimelines = await Timelines.findMany({
         where: { worldId: { in: pubWorldIds } },
-        include: { TimelineEvents: { orderBy: { order: "asc" } } }
+        include: {
+          World: true,
+          TimelineEvents: {
+            include: { Event: true },
+            orderBy: { order: "asc" }
+          }
+        }
       });
       return pubTimelines;
     }
@@ -190,18 +196,27 @@ export const listWorldEvents = queryField("listWorldEvents", {
    * @returns `MFEvent` objects from service: empty list if not found or not authorized
    * @throws Error if events not found or user is not the author
    */
-  resolve: async (_, args, { user }) => {
-    if (!user) return [];
-    return EventsService.findAllEvents({
-      name: args.name || undefined,
-      authorId: args.authorId || undefined,
-      description: args.description || undefined,
-      characterId: args.characterId || undefined,
-      groupId: args.groupId || undefined,
-      locationId: args.locationId || undefined,
-      worldId: args.worldId || undefined,
-      polarity: args.polarity || undefined,
-      target: args.target || undefined
+  resolve: async (_, args, { user, Events, Worlds }) => {
+    if (user)
+      return EventsService.findAllEvents({
+        name: args.name || undefined,
+        authorId: args.authorId || undefined,
+        description: args.description || undefined,
+        characterId: args.characterId || undefined,
+        groupId: args.groupId || undefined,
+        locationId: args.locationId || undefined,
+        worldId: args.worldId || undefined,
+        polarity: args.polarity || undefined,
+        target: args.target || undefined
+      });
+
+    const publicWorlds = await Worlds.findMany({ where: { public: true } });
+    if (!publicWorlds.length) return [];
+    const pubWorldIds = publicWorlds.map((w) => w.id);
+
+    return Events.findMany({
+      where: { worldId: { in: pubWorldIds } },
+      include: { World: true }
     });
   }
 });

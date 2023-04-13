@@ -104,6 +104,6 @@ export const MFTimelineUpsertInput = inputObjectType({
     t.nonNull.int("worldId", { description: "Parent world ID" });
 
     // World `Events` that will be created and linked for user
-    t.list.field("events", { type: nonNull("MFEventUpsertInput") });
+    t.list.field("events", { type: nonNull("MFTimelineEventUpsertInput") });
   }
 });

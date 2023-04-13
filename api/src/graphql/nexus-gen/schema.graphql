@@ -369,7 +369,7 @@ input MFTimelineEventUpsertInput {
 input MFTimelineUpsertInput {
   """Item Author/owner"""
   authorId: Int
-  events: [MFEventUpsertInput!]
+  events: [MFTimelineEventUpsertInput!]
 
   """Timeline ID"""
   id: Int
@@ -392,7 +392,7 @@ type MFUser {
 
 """A collection of `Locations`"""
 type MFWorld {
-  Event: [MFEvent]
+  Events: [MFEvent]
   Groups: [MFPopulationGroup]
   Locations: [MFLocation]
   Timelines: [MFTimeline]
@@ -422,6 +422,9 @@ input MFWorldUpsertInput {
 
 type Mutation {
   deleteCharacter(id: Int!): MFCharacter
+
+  """Delete an `Event`"""
+  deleteEvent(id: Int!): MFEvent
   deleteLocation(id: Int!): MFLocation
   deleteRelationship(id: Int!): MFCharacterRelationship
 

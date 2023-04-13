@@ -18,7 +18,17 @@ export async function upsertTimeline(tl: UpsertTimelineInput) {
   const data: UpsertTimelineInput = { ...tl };
 
   return data.id
-    ? Timelines.update({ data, where: { id: data.id } })
+    ? Timelines.update({
+        data,
+        where: { id: data.id },
+        include: {
+          World: true,
+          TimelineEvents: {
+            include: { Event: true },
+            orderBy: { order: "asc" }
+          }
+        }
+      })
     : Timelines.create({ data });
 }
 
@@ -35,18 +45,24 @@ export async function findAllTimelines(filter: SearchTimelineInput) {
     where,
     include: {
       World: true,
-      TimelineEvents: { orderBy: { order: "asc" } }
+      TimelineEvents: {
+        include: { Event: true },
+        orderBy: { order: "asc" }
+      }
     }
   });
 }
 
 /** find one timeline record matching params */
 export async function getTimeline(where: TimelineByIdInput) {
-  return Timelines.findUnique({
+  return await Timelines.findUnique({
     where,
     include: {
       World: true,
-      TimelineEvents: { orderBy: { order: "asc" } }
+      TimelineEvents: {
+        include: { Event: true },
+        orderBy: { order: "asc" }
+      }
     }
   });
 }
@@ -61,7 +77,10 @@ export async function updateTimeline(
     where,
     include: {
       World: true,
-      TimelineEvents: { orderBy: { order: "asc" } }
+      TimelineEvents: {
+        include: { Event: true },
+        orderBy: { order: "asc" }
+      }
     }
   });
 }

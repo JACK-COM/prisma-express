@@ -54,17 +54,22 @@ export async function findAllEvents(filter: SearchEventInput) {
   } = filter;
   const where: Prisma.EventFindManyArgs["where"] = {};
   if (id) where.id = id;
-  if (name) where.name = { contains: name };
-  if (description) where.description = { contains: description };
   if (characterId) where.characterId = characterId;
+  where.AND = [];
+  if (worldId) where.AND.push({ worldId });
+  if (authorId) where.AND.push({ authorId });
 
   where.OR = [];
-  if (authorId) where.OR.push({ authorId });
-  if (worldId) where.OR.push({ worldId });
+  if (name) where.OR.push({ name: { contains: name } });
+  if (description) where.OR.push({ description: { contains: description } });
+
   if (groupId) where.OR.push({ groupId });
   if (locationId) where.OR.push({ locationId });
   if (polarity) where.OR.push({ polarity });
   if (target) where.OR.push({ target });
+
+  if (where.AND.length === 0) delete where.AND;
+  if (where.OR.length === 0) delete where.OR;
 
   return Events.findMany({ where });
 }

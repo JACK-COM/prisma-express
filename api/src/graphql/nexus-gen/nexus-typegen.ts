@@ -76,7 +76,7 @@ export interface NexusGenInputs {
   }
   MFTimelineUpsertInput: { // input type
     authorId?: number | null; // Int
-    events?: NexusGenInputs['MFEventUpsertInput'][] | null; // [MFEventUpsertInput!]
+    events?: NexusGenInputs['MFTimelineEventUpsertInput'][] | null; // [MFTimelineEventUpsertInput!]
     id?: number | null; // Int
     name: string; // String!
     worldId: number; // Int!
@@ -253,7 +253,7 @@ export interface NexusGenObjects {
     role: NexusGenEnums['UserRole']; // UserRole!
   }
   MFWorld: { // root type
-    Event?: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
+    Events?: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     Groups?: Array<NexusGenRootTypes['MFPopulationGroup'] | null> | null; // [MFPopulationGroup]
     Locations?: Array<NexusGenRootTypes['MFLocation'] | null> | null; // [MFLocation]
     Timelines?: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
@@ -420,7 +420,7 @@ export interface NexusGenFieldTypes {
     role: NexusGenEnums['UserRole']; // UserRole!
   }
   MFWorld: { // field return type
-    Event: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
+    Events: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     Groups: Array<NexusGenRootTypes['MFPopulationGroup'] | null> | null; // [MFPopulationGroup]
     Locations: Array<NexusGenRootTypes['MFLocation'] | null> | null; // [MFLocation]
     Timelines: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
@@ -433,6 +433,7 @@ export interface NexusGenFieldTypes {
   }
   Mutation: { // field return type
     deleteCharacter: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
+    deleteEvent: NexusGenRootTypes['MFEvent'] | null; // MFEvent
     deleteLocation: NexusGenRootTypes['MFLocation'] | null; // MFLocation
     deleteRelationship: NexusGenRootTypes['MFCharacterRelationship'] | null; // MFCharacterRelationship
     deleteTimeline: NexusGenRootTypes['MFTimeline'] | null; // MFTimeline
@@ -606,7 +607,7 @@ export interface NexusGenFieldTypeNames {
     role: 'UserRole'
   }
   MFWorld: { // field return type name
-    Event: 'MFEvent'
+    Events: 'MFEvent'
     Groups: 'MFPopulationGroup'
     Locations: 'MFLocation'
     Timelines: 'MFTimeline'
@@ -619,6 +620,7 @@ export interface NexusGenFieldTypeNames {
   }
   Mutation: { // field return type name
     deleteCharacter: 'MFCharacter'
+    deleteEvent: 'MFEvent'
     deleteLocation: 'MFLocation'
     deleteRelationship: 'MFCharacterRelationship'
     deleteTimeline: 'MFTimeline'
@@ -653,6 +655,9 @@ export interface NexusGenFieldTypeNames {
 export interface NexusGenArgTypes {
   Mutation: {
     deleteCharacter: { // args
+      id: number; // Int!
+    }
+    deleteEvent: { // args
       id: number; // Int!
     }
     deleteLocation: { // args

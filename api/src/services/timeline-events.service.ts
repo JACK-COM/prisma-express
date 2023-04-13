@@ -26,9 +26,11 @@ export async function upsertTimelineEvent(newEvent: UpsertTimelineEventInput) {
 export async function upsertTimelineEvents(
   newEvents: UpsertTimelineEventInput[]
 ) {
-  return Promise.all(
+  return Promise.all<TimelineEvent>(
     newEvents.map((data) =>
-      data.id ? upsertTimelineEvent(data) : TimelineEvents.create({ data })
+      data.id
+        ? TimelineEvents.update({ data, where: { id: data.id } })
+        : TimelineEvents.create({ data })
     )
   );
 }

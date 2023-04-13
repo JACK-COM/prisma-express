@@ -1,3 +1,7 @@
+import {
+  CharacterFilters,
+  listCharacters
+} from "graphql/requests/characters.graphql";
 import { useEffect, useState } from "react";
 import {
   GlobalCharacter,
@@ -12,8 +16,8 @@ import { APIData, Character, CharacterRelationship } from "utils/types";
 
 type HookState = Partial<GlobalCharacterInstance>;
 const allKeys: GlobalCharacterInstanceKey[] = [
-  "selectedCharacter",
-  "selectedRelationship",
+  "focusedCharacter",
+  "focusedRelationship",
   "characters",
   "relationships"
 ];
@@ -35,12 +39,13 @@ export function useGlobalCharacter(
     // Helpers
     /** @helper De-select the globally-selected `Character` */
     clearGlobalCharacter,
+    loadCharacters,
     /** @helper Select a `Relationship` */
     setGlobalRelationship: (l: APIData<CharacterRelationship> | null) =>
-      GlobalCharacter.selectedRelationship(l),
+      GlobalCharacter.focusedRelationship(l),
     /** @helper Select a `Character` */
     setGlobalCharacter: (w: APIData<Character> | null) =>
-      GlobalCharacter.selectedCharacter(w),
+      GlobalCharacter.focusedCharacter(w),
     /** @helper Set a list of `Characters` */
     setGlobalCharacters: (w: APIData<Character>[]) =>
       setCharacterStateList(w, "characters"),
@@ -52,4 +57,19 @@ export function useGlobalCharacter(
     /** @helper Replace one or more `Characters` in state */
     updateCharacters
   };
+}
+
+/** Load initial character data */
+async function loadCharacters(authorId: number) {
+  const { characters, focusedCharacter: focused } = GlobalCharacter.getState();
+  if (characters.length > 1) return GlobalCharacter.characters([...characters]);
+
+  const apiChars = await listCharacters({ authorId });
+  const next = focused && apiChars.find((c) => c.id === focused.id);
+  if (next) {
+    GlobalCharacter.multiple({
+      characters: apiChars,
+      focusedCharacter: focused
+    });
+  } else GlobalCharacter.characters(apiChars);
 }

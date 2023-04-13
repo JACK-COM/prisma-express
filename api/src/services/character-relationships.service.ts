@@ -43,14 +43,20 @@ export async function findAllCharacterRelationship(
   if (characterId) where.OR.push({ characterId }, { targetId: characterId });
   if (targetId) where.OR.push({ targetId }, { characterId: targetId });
 
-  return CharacterRelationships.findMany({ where });
+  return CharacterRelationships.findMany({
+    where,
+    include: { Character: true }
+  });
 }
 
 /** find one `Character-Relationship` record matching params */
 export async function getCharacterRelationship(
   where: CharacterRelationshipByIdInput
 ) {
-  return CharacterRelationships.findUnique({ where });
+  return CharacterRelationships.findUnique({
+    where,
+    include: { Character: true }
+  });
 }
 
 /** update one `Character-Relationship` record matching params */
@@ -58,12 +64,16 @@ export async function updateCharacterRelationship(
   where: CharacterRelationshipByIdInput,
   data: UpsertRelationshipInput
 ) {
-  return CharacterRelationships.update({ data, where });
+  return CharacterRelationships.update({
+    data,
+    where,
+    include: { Character: true }
+  });
 }
 
 /** delete a `Character-Relationship` */
 export async function deleteCharacterRelationship(
   where: CharacterRelationshipByIdInput
 ) {
-  return CharacterRelationships.delete({ where });
+  return CharacterRelationships.delete({ where, include: { Character: true } });
 }

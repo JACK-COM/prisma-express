@@ -38,7 +38,6 @@ export async function findAllWorld(filters: SearchWorldInput) {
   if (description) where.OR.push({ description: { contains: description } });
 
   if (!where.OR.length) delete where.OR;
-
   const worlds = await Worlds.findMany({
     where,
     include: { Locations: true, Events: true }

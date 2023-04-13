@@ -74,11 +74,13 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
   const addRelationshipStub = () => {
     onChange([...data, { characterId: character.id }]);
   };
-  const matchRel = (rel: Partial<CreateRelationshipData>) => {
+  // Assert that the relationship is for the current character
+  const primary = (rel: Partial<CreateRelationshipData>) => {
     return rel.characterId === character.id;
   };
+  // Assert that a field is required
   const required = (rel: Partial<CreateRelationshipData>) => {
-    return matchRel(rel) ? "label required" : "label";
+    return primary(rel) ? "label required" : "label";
   };
 
   return (
@@ -104,50 +106,63 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
       </Label>
 
       {/* Relationships List */}
-      {data.map((relt, i) => (
-        <RelationshipItem
-          key={i}
-          columns={matchRel(relt) ? "1fr 1fr 32px" : "repeat(2, 1fr)"}
-          className={matchRel(relt) ? undefined : "other"}
-        >
-          {/* Target Character (id) */}
-          <Label direction="column">
-            <span className={required(relt)}>
-              {matchRel(relt) ? "Target" : "Other Character"}
-            </span>
-            <Select
-              disabled={relt.characterId !== character.id}
-              data={targets}
-              value={relt.targetId || ""}
-              itemText={(d: APIData<Character>) => d.name}
-              itemValue={(d) => d.id}
-              emptyMessage="No other characters in current world."
-              placeholder="Select a target:"
-              onChange={(ch) => updateTarget(ch, i)}
-            />
-          </Label>
+      {data.map((relt, i) => {
+        const isPrimary = primary(relt);
+        const isRequired = required(relt);
+        const { Character: char } = relt as CharacterRelationship;
+        return (
+          <RelationshipItem
+            key={i}
+            columns={isPrimary ? "1fr 1fr 32px" : "repeat(2, 1fr)"}
+            className={isPrimary ? undefined : "other"}
+          >
+            {/* Target Character (id) */}
+            <Label direction="column">
+              <span className={isRequired}>
+                {isPrimary ? "Target" : "Other Relation"}
+              </span>
+              <Select
+                disabled={!isPrimary}
+                data={isPrimary ? targets : []}
+                value={relt.targetId || ""}
+                itemText={(d: APIData<Character>) => d.name}
+                itemValue={(d) => d.id}
+                emptyMessage={
+                  isPrimary
+                    ? "No other characters in current world."
+                    : char.name
+                }
+                placeholder="Select a target:"
+                onChange={(ch) => updateTarget(ch, i)}
+              />
+            </Label>
 
-          {/* Relationship description */}
-          <Label direction="column">
-            <span className={required(relt)}>Relationship(s)</span>
-            <Input
-              disabled={relt.characterId !== character.id}
-              placeholder={`How do they relate to ${character.name}?`}
-              value={relt?.relationship || ""}
-              onChange={(e) => updateRelationship(e, i)}
-            />
-          </Label>
+            {/* Relationship description */}
+            <Label direction="column">
+              <span className={isRequired}>
+                {isPrimary
+                  ? `Relationship(s) to ${character.name}`
+                  : `"${character.name}" is their:`}
+              </span>
+              <Input
+                disabled={relt.characterId !== character.id}
+                placeholder={`How do they relate to ${character.name}?`}
+                value={relt?.relationship || ""}
+                onChange={(e) => updateRelationship(e, i)}
+              />
+            </Label>
 
-          {matchRel(relt) && (
-            <DeleteItemIcon
-              style={{ gridColumn: 3 }}
-              permissions="Author"
-              data={i}
-              onItemClick={removeRelationship}
-            />
-          )}
-        </RelationshipItem>
-      ))}
+            {isPrimary && (
+              <DeleteItemIcon
+                style={{ gridColumn: 3 }}
+                permissions="Author"
+                data={i}
+                onItemClick={removeRelationship}
+              />
+            )}
+          </RelationshipItem>
+        );
+      })}
 
       <Hint>
         You can list multiple relationships in a field, or add one relationship

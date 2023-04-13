@@ -13,9 +13,9 @@ export const GlobalCharacter = createState({
   /** List of selected character's relationships to other characters */
   relationships: [] as APIRelationship[],
   /** Selected `character` in application */
-  selectedCharacter: null as APICharacter | null,
+  focusedCharacter: null as APICharacter | null,
   /** Selected `character relationship` in application */
-  selectedRelationship: null as APIRelationship | null
+  focusedRelationship: null as APIRelationship | null
 });
 
 export type GlobalCharacterInstance = ReturnType<
@@ -30,8 +30,8 @@ export type GlobalCharacterListKey = "characters" | "relationships";
  * @param newCharacters New characters
  */
 export function updateCharacters(newCharacters: APICharacter[]) {
-  const { selectedCharacter } = GlobalCharacter.getState();
-  if (newCharacters.length !== 1 || !selectedCharacter) {
+  const { focusedCharacter } = GlobalCharacter.getState();
+  if (newCharacters.length !== 1 || !focusedCharacter) {
     return updateCharacterStateList(newCharacters, "characters");
   }
 
@@ -40,7 +40,7 @@ export function updateCharacters(newCharacters: APICharacter[]) {
     "characters",
     true
   );
-  GlobalCharacter.multiple({ characters, selectedCharacter: newCharacters[0] });
+  GlobalCharacter.multiple({ characters, focusedCharacter: newCharacters[0] });
 }
 
 /**
@@ -48,8 +48,8 @@ export function updateCharacters(newCharacters: APICharacter[]) {
  * @param newRelationships New relationships
  */
 export function updateRelationships(newRelationships: APIRelationship[]) {
-  const { selectedRelationship } = GlobalCharacter.getState();
-  if (newRelationships.length !== 1 || !selectedRelationship) {
+  const { focusedRelationship } = GlobalCharacter.getState();
+  if (newRelationships.length !== 1 || !focusedRelationship) {
     return updateCharacterStateList(newRelationships, "relationships");
   }
 
@@ -60,7 +60,7 @@ export function updateRelationships(newRelationships: APIRelationship[]) {
   );
   GlobalCharacter.multiple({
     relationships: relationships,
-    selectedRelationship: newRelationships[0]
+    focusedRelationship: newRelationships[0]
   });
 }
 
@@ -118,8 +118,8 @@ export function setCharacterStateList<T extends APIData<any>[]>(
  */
 export function clearGlobalCharacter() {
   GlobalCharacter.multiple({
-    selectedCharacter: null,
-    selectedRelationship: null,
+    focusedCharacter: null,
+    focusedRelationship: null,
     relationships: []
   });
 }

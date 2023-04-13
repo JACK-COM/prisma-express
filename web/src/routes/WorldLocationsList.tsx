@@ -21,9 +21,10 @@ import ManageLocationModal from "components/Modals/ManageLocationModal";
 import { SharedButtonProps } from "components/Forms/Button.Helpers";
 import { FormRow } from "components/Forms/Form";
 import ManageWorldEventsModal from "components/Modals/ManageWorldEventsModal";
+import ManageCharacterModal from "components/Modals/ManageCharacterModal";
 
 const { Worlds: WorldPaths } = Paths;
-const AddLocationButton = styled(ButtonWithIcon)`
+const AddItemButton = styled(ButtonWithIcon)`
   align-self: end;
 `;
 const EmptyText = styled.p`
@@ -37,7 +38,7 @@ const List = styled(ListView)`
 
 /** ROUTE: List of World `Locations` */
 const WorldLocationsList = () => {
-  const { id, authenticated } = useGlobalUser(["id", "authenticated"]);
+  const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
   const {
     active: activeModal,
     clearGlobalModal,
@@ -58,21 +59,20 @@ const WorldLocationsList = () => {
     "events",
     "worldLocations"
   ]);
-  const role = useMemo<UserRole>(
-    () => (focusedWorld?.authorId === id ? "Author" : "Reader"),
-    [id]
-  );
   const { worldId } = useParams<{ worldId: string }>();
-  const place = useMemo(
-    () => focusedWorld?.name || WorldPaths.Locations.text,
-    [focusedWorld]
-  );
-  const publicClass = useMemo(
-    () => (focusedWorld?.public ? "success--text" : "error--text"),
-    [focusedWorld]
-  );
+  const [place, isPublic, publicClass, isAuthor, role] = useMemo(() => {
+    const author = focusedWorld?.authorId === userId;
+    const isPub = focusedWorld?.public;
+    return [
+      focusedWorld?.name || WorldPaths.Locations.text,
+      isPub,
+      isPub ? "success--text" : "error--text",
+      author,
+      author ? "Author" : ("Reader" as UserRole)
+    ];
+  }, [focusedWorld]);
   const loadComponentData = async () => {
-    loadWorlds({ userId: id, worldId: Number(worldId) });
+    loadWorlds({ userId, worldId: Number(worldId) });
   };
   const clearModalData = () => {
     clearGlobalModal();
@@ -90,22 +90,13 @@ const WorldLocationsList = () => {
     clearGlobalWorld();
   };
   const controls = (variant: SharedButtonProps["variant"] = "outlined") => (
-    <FormRow columns="repeat(2,1fr)">
-      <AddLocationButton
-        size="lg"
-        icon="pin_drop"
-        text="Add a Location"
-        variant="outlined"
-        onClick={() => setGlobalModal(MODAL.MANAGE_LOCATION)}
-      />
-
-      <AddLocationButton
-        icon="timeline"
-        variant={variant}
-        onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
-        text="Add World Event"
-      />
-    </FormRow>
+    <AddItemButton
+      icon="pin_drop"
+      text="Add Location"
+      size="lg"
+      variant={variant}
+      onClick={() => setGlobalModal(MODAL.MANAGE_LOCATION)}
+    />
   );
 
   useEffect(() => {
@@ -119,10 +110,7 @@ const WorldLocationsList = () => {
         <Breadcrumbs data={[WorldPaths.Index, WorldPaths.Locations]} />
         <PageTitle>
           {focusedWorld && (
-            <WorldPublicIcon
-              data={focusedWorld}
-              permissions={focusedWorld.authorId === id ? "Author" : "Reader"}
-            />
+            <WorldPublicIcon data={focusedWorld} permissions={role} />
           )}
 
           {place}
@@ -137,6 +125,26 @@ const WorldLocationsList = () => {
           <b>{focusedWorld?.name || "a world ... if it exists"}</b>
         </PageDescription>
       </header>
+
+      {isAuthor && (
+        <>
+          <h3 className="h4 flex">World Actions</h3>
+          <FormRow columns="repeat(2,1fr)" style={{ marginBottom: "1.5rem" }}>
+            <AddItemButton
+              icon="face"
+              text="Add a Character"
+              variant="outlined"
+              onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
+            />
+            <AddItemButton
+              icon="timeline"
+              text="Add World Event"
+              variant="outlined"
+              onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
+            />
+          </FormRow>
+        </>
+      )}
 
       <h3 className="h4 flex">All Locations</h3>
       <Card>
@@ -180,19 +188,24 @@ const WorldLocationsList = () => {
         {authenticated && worldLocations.length > 5 && controls()}
       </Card>
 
+      {/* Modals */}
       {focusedWorld && (
         <>
           <ManageLocationModal
+            // Locations
             data={focusedLocation}
             open={activeModal === MODAL.MANAGE_LOCATION}
             onClose={clearModalData}
             worldId={focusedWorld.id}
           />
-
-          {/* Modals */}
           <ManageWorldEventsModal
+            // World Events
             data={focusedWorld.Events}
             open={activeModal === MODAL.MANAGE_TIMELINE}
+          />
+          <ManageCharacterModal
+            // Characters
+            open={activeModal === MODAL.MANAGE_CHARACTER}
           />
         </>
       )}

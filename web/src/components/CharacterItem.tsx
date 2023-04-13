@@ -92,7 +92,10 @@ const CharacterItem = ({
   const editCharacter = requireAuthor(() => {
     onEdit(character);
   }, role);
-  const editRelationships = requireAuthor(() => onRelationships(character), role);
+  const editRelationships = requireAuthor(
+    () => onRelationships(character),
+    role
+  );
   const deleteCharacter = requireAuthor(() => {
     /* onDelete(character) */
   }, role);
@@ -100,7 +103,11 @@ const CharacterItem = ({
 
   return (
     <Container onClick={select} permissions={permissions}>
-      <Face permissions={permissions} className={iconClass} />
+      <Face
+        permissions={permissions}
+        onClick={editCharacter}
+        className={iconClass}
+      />
 
       <Name permissions={permissions} onClick={editCharacter}>
         {character.name}

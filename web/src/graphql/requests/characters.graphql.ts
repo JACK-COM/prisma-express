@@ -65,7 +65,7 @@ export async function createOrUpdateRelationships(
 }
 
 /** @type `Character` search filters */
-type CharacterFilters = Pick<
+export type CharacterFilters = Pick<
   APIData<Character>,
   "id" | "name" | "authorId" | "description"
 >;

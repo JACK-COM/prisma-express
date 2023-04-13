@@ -24,7 +24,7 @@ export type CreateCharacterProps = {
 /** Create or edit a `Character` */
 const CreateCharacterForm = (props: CreateCharacterProps) => {
   const { data, onChange = noOp } = props;
-  const { worlds = [] } = useGlobalWorld();
+  const { worlds = [], focusedWorld } = useGlobalWorld();
   const updateDescription = (e: ChangeEvent<HTMLTextAreaElement>) => {
     onChange({ ...data, description: e.target.value });
   };
@@ -63,7 +63,7 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
         </span>
         <Select
           data={worlds}
-          value={data?.worldId || ""}
+          value={data?.worldId || focusedWorld?.id || ""}
           itemText={(w) => w.name}
           itemValue={(w) => w.id}
           placeholder="Select a universe/realm:"

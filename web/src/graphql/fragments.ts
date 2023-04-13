@@ -13,6 +13,7 @@ export const MFCharacterFragment = `
 /** graphql `Character Relationship` fragment */
 export const MFRelationshipFragment = `
     id, characterId, targetId, relationship, 
+    Character { ${MFCharacterFragment} }
 `;
 
 /** graphql World `Event` fragment */

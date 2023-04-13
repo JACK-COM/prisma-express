@@ -91,26 +91,18 @@ export const listCharacters = queryField("listCharacters", {
    * @returns `MFCharacter` object from service
    * @throws Error if character not found or character is private and user is not the author
    */
-  resolve: async (_, args, { user, Worlds, Characters }) => {
+  resolve: async (_, args, { user }) => {
     const { authorId, worldId, description, name } = args;
 
     // return only public characters or author
-    if (!user) {
-      const pubWorlds = await Worlds.findMany({ where: { public: true } });
-      const pubWorldIds = pubWorlds.map((w) => w.id);
-      return Characters.findMany({
-        where: { worldId: { in: pubWorldIds } }
-      });
-    }
-
-    const characters = await CharactersService.findAllCharacter({
+    if (!user) return CharactersService.findAllPublicCharacter();
+    return CharactersService.findAllCharacter({
       id: args.id || undefined,
       authorId: authorId || user.id,
       description: description || undefined,
       worldId: worldId || undefined,
       name: name || undefined
     });
-    return characters;
   }
 });
 

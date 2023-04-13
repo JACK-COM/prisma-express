@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import AppNav from "./AppNav";
-import { FlexRow, GridContainer } from "./Common/Containers";
+import { GridContainer } from "./Common/Containers";
 import { useGlobalTheme } from "hooks/GlobalTheme";
 
 const LogoLink = styled(Link)`
   align-items: center;
   display: flex;
+  top: 0;
 
   .logo {
     display: block;
@@ -38,7 +39,9 @@ const HeaderContainer = styled(GridContainer)`
   justify-content: space-between;
   overflow-y: hidden;
   padding: 0 0.5rem;
+  position: sticky;
   top: 0;
+  z-index: 999;
 
   @media screen and (max-width: 767px) {
     height: fit-content;

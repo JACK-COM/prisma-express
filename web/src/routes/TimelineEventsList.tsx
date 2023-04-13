@@ -115,11 +115,13 @@ const TimelinesEventsList = () => {
         {(focusedTimeline?.TimelineEvents || [])?.length > 5 && controls()}
       </Card>
 
-      <ManageTimelineEventsModal
-        timelineId={Number(timelineId)}
-        data={timelineEvents}
-        open={active === MODAL.MANAGE_TIMELINE_EVENTS}
-      />
+      {active === MODAL.MANAGE_TIMELINE_EVENTS && (
+        <ManageTimelineEventsModal
+          open
+          timelineId={Number(timelineId)}
+          data={timelineEvents}
+        />
+      )}
     </PageContainer>
   );
 };

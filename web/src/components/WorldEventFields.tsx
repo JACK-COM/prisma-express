@@ -7,7 +7,8 @@ import {
   RadioInput,
   RadioLabel,
   Select,
-  Textarea
+  Textarea,
+  TinyMCE
 } from "components/Forms/Form";
 import { Fieldset } from "components/Forms/Form";
 import { CreateEventData } from "graphql/requests/timelines.graphql";
@@ -66,11 +67,8 @@ export function WorldEventFormFields(props: WorldEventFieldProps) {
   const updatePolarity = (polarity: EventPolarity, i: number) => {
     onChanged({ ...data, polarity }, i);
   };
-  const updateDescription = (
-    e: ChangeEvent<HTMLTextAreaElement>,
-    i: number
-  ) => {
-    onChanged({ ...data, description: e.target.value }, i);
+  const updateDescription = (e: string, i: number) => {
+    onChanged({ ...data, description: e }, i);
   };
 
   return (
@@ -133,12 +131,13 @@ export function WorldEventFormFields(props: WorldEventFieldProps) {
           Description (optional)
           <MatIcon icon={`visibility${showDesc ? "" : "_off"}`} />
         </span>
-        <Textarea
-          className={showDesc ? "expand--vertical" : "collapse--vertical"}
-          placeholder="e.g. The universe was created by the Great Old Ones."
-          value={data.description || ""}
-          onChange={(x) => updateDescription(x, i)}
-        />
+        <div className={showDesc ? "expand--vertical" : "collapse--vertical"}>
+          <TinyMCE
+            height={300}
+            value={data?.description || ""}
+            onChange={(x) => updateDescription(x, i)}
+          />
+        </div>
         <Hint>Describe the event in detail, or with prompts.</Hint>
       </Label>
     </Fields>

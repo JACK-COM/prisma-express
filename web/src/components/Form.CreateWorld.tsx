@@ -11,7 +11,8 @@ import {
   RadioInput,
   RadioLabel,
   Select,
-  Textarea
+  Textarea,
+  TinyMCE
 } from "components/Forms/Form";
 import { CreateWorldData } from "graphql/requests/worlds.graphql";
 
@@ -28,8 +29,8 @@ const CreateWorldForm = (props: CreateWorldProps) => {
   const { data, onChange = noOp } = props;
   const updatePublic = (e: boolean) => onChange({ ...data, public: e });
   const updateType = (type: WorldType) => onChange({ ...data, type });
-  const updateDescription = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    onChange({ ...data, description: e.target.value });
+  const updateDescription = (description: string) => {
+    onChange({ ...data, description });
   };
   const updateTitle = (e: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...data, name: e.target.value });
@@ -106,8 +107,8 @@ const CreateWorldForm = (props: CreateWorldProps) => {
       {/* Description */}
       <Label direction="column">
         <span className="label required">Short Description</span>
-        <Textarea
-          placeholder="Enter world description"
+        <TinyMCE
+          height={300}
           value={data?.description || ""}
           onChange={updateDescription}
         />

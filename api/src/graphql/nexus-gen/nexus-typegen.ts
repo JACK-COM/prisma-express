@@ -149,6 +149,7 @@ export interface NexusGenObjects {
     worldId: number; // Int!
   }
   MFCharacterRelationship: { // root type
+    Character?: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
     characterId: number; // Int!
     id: number; // Int!
     relationship: string; // String!
@@ -316,6 +317,7 @@ export interface NexusGenFieldTypes {
     worldId: number; // Int!
   }
   MFCharacterRelationship: { // field return type
+    Character: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
     characterId: number; // Int!
     id: number; // Int!
     relationship: string; // String!
@@ -503,6 +505,7 @@ export interface NexusGenFieldTypeNames {
     worldId: 'Int'
   }
   MFCharacterRelationship: { // field return type name
+    Character: 'MFCharacter'
     characterId: 'Int'
     id: 'Int'
     relationship: 'String'

@@ -1,21 +1,6 @@
-import { ChangeEvent, Fragment } from "react";
 import { noOp } from "../utils";
-import {
-  APIData,
-  EventPolarity,
-  EventTarget,
-  World,
-  WorldEvent
-} from "../utils/types";
-import {
-  Form,
-  FormRow,
-  Hint,
-  Legend,
-  RadioInput,
-  RadioLabel,
-  Textarea
-} from "components/Forms/Form";
+import { EventPolarity, EventTarget } from "../utils/types";
+import { Form, Hint, Legend } from "components/Forms/Form";
 import { CreateEventData } from "graphql/requests/timelines.graphql";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { ButtonWithIcon } from "./Forms/Button";

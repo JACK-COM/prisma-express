@@ -38,28 +38,21 @@ const List = styled(ListView)`
 
 /** ROUTE: List of characters */
 const CharactersList = () => {
-  const { id, role } = useGlobalUser(["id", "role"]);
-  const authenticated = (id || 0) > -1;
-  const navigate = useNavigate();
+  const { id: userId, role } = useGlobalUser(["id", "role"]);
+  const authenticated = (userId || 0) > -1;
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
-  const { setGlobalWorlds } = useGlobalWorld();
+  const { loadWorlds } = useGlobalWorld();
   const {
     characters = [],
     relationships = [],
-    selectedCharacter,
+    loadCharacters,
+    focusedCharacter,
     setGlobalCharacter,
-    setGlobalCharacters,
     setGlobalRelationships,
     clearGlobalCharacter
-  } = useGlobalCharacter(["selectedCharacter", "characters", "relationships"]);
-  const loadCharacters = async () => {
-    const [chars, worlds] = await Promise.all([
-      listCharacters({ authorId: id }),
-      listWorlds()
-    ]);
-    setGlobalWorlds(worlds);
-    setGlobalCharacters(chars);
-  };
+  } = useGlobalCharacter(["focusedCharacter", "characters", "relationships"]);
+  const loadComponentData = async () =>
+    Promise.all([loadCharacters(userId), loadWorlds({ userId })]);
   const clearComponentData = () => {
     clearGlobalModal();
     clearGlobalCharacter();
@@ -75,7 +68,7 @@ const CharactersList = () => {
   };
 
   useEffect(() => {
-    loadCharacters();
+    loadComponentData();
     return () => clearComponentData();
   }, []);
 
@@ -100,7 +93,7 @@ const CharactersList = () => {
         )}
 
         {/* Add new (button - top) */}
-        {characters.length > 5 && (
+        {userId > 0 && characters.length > 5 && (
           <AddCharacterButton
             size="lg"
             icon="public"
@@ -137,7 +130,7 @@ const CharactersList = () => {
 
       {/* Modals */}
       <CreateCharacterModal
-        data={selectedCharacter}
+        data={focusedCharacter}
         open={active === MODAL.MANAGE_CHARACTER}
         onClose={clearComponentData}
       />

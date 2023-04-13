@@ -3,7 +3,6 @@ import { MouseEventHandler, useEffect, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { noOp } from "utils";
 import { FlexColumn, GridContainer, MatIcon } from "../Common/Containers";
-import { textShadow } from "components/Forms/Button.Helpers";
 
 const ModalContainer = styled(FlexColumn)`
   height: 100vh;
@@ -12,7 +11,7 @@ const ModalContainer = styled(FlexColumn)`
   position: fixed;
   top: 0;
   width: 100vw;
-  z-index: 10;
+  z-index: 9999;
 
   &::before {
     background: #00000099;

@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { noOp } from "../utils";
 import { Character } from "../utils/types";
 import {
@@ -11,7 +11,8 @@ import {
   RadioInput,
   RadioLabel,
   Select,
-  Textarea
+  Textarea,
+  TinyMCE
 } from "components/Forms/Form";
 import { CreateCharacterData } from "graphql/requests/characters.graphql";
 import { useGlobalWorld } from "hooks/GlobalWorld";
@@ -24,9 +25,9 @@ export type CreateCharacterProps = {
 /** Create or edit a `Character` */
 const CreateCharacterForm = (props: CreateCharacterProps) => {
   const { data, onChange = noOp } = props;
-  const { worlds = [] } = useGlobalWorld();
-  const updateDescription = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    onChange({ ...data, description: e.target.value });
+  const { worlds = [], focusedWorld } = useGlobalWorld();
+  const updateDescription = (description: string) => {
+    onChange({ ...data, description });
   };
   const updateOrigin = (id: string) => {
     const worldId = Number(id);
@@ -35,6 +36,12 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
   const updateName = (e: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...data, name: e.target.value });
   };
+
+  useEffect(() => {
+    if (focusedWorld && !data?.worldId) {
+      updateOrigin(focusedWorld.id.toString());
+    }
+  }, []);
 
   return (
     <Form>
@@ -66,7 +73,7 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
           value={data?.worldId || ""}
           itemText={(w) => w.name}
           itemValue={(w) => w.id}
-          placeholder="Select a universe/realm:"
+          placeholder={"Select a universe/realm:"}
           onChange={updateOrigin}
         />
       </Label>
@@ -77,8 +84,8 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
       {/* Description */}
       <Label direction="column">
         <span className="label">Short Description</span>
-        <Textarea
-          placeholder="Enter characterdescription"
+        <TinyMCE
+          height={300}
           value={data?.description || ""}
           onChange={updateDescription}
         />

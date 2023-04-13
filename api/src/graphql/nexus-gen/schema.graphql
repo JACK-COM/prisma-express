@@ -107,6 +107,7 @@ type MFCharacter {
 
 """A linear relationship betwen actors in a `World`"""
 type MFCharacterRelationship {
+  Character: MFCharacter
   characterId: Int!
   id: Int!
   relationship: String!

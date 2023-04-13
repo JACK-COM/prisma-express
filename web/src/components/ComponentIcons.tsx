@@ -60,8 +60,6 @@ export const WorldPublicIcon = (props: WorldIconProps) => {
     if (resp && typeof resp !== "string") updateWorlds([resp]);
   }, permissions);
 
-  console.log({ permissions, world })
-
   return (
     <WorldIcon
       icon={icon}
@@ -119,7 +117,7 @@ export const DeleteWorldIcon = (props: WorldIconProps & ItemIconProps) => {
   const onDelete = requireAuthor(
     async () => {
       const resp = await deleteWorld(world.id);
-      if (typeof resp === "string") return console.error(resp);
+      if (typeof resp === "string") return console.log(resp);
       if (resp) removeWorld(world.id);
     },
     permissions,

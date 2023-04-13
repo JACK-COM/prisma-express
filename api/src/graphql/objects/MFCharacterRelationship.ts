@@ -9,5 +9,8 @@ export const MFCharacterRelationship = objectType({
     t.nonNull.int("characterId");
     t.nonNull.int("targetId");
     t.nonNull.string("relationship");
+
+    // relationships
+    t.field("Character", { type: "MFCharacter" });
   }
 });

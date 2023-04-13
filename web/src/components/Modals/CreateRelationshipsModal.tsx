@@ -22,14 +22,14 @@ export default function CreateRelationshipsModal(
   props: CreateRelationshipsModalProps
 ) {
   const { data = [], open, onClose = clearGlobalModal } = props;
-  const { selectedCharacter } = useGlobalCharacter(["selectedCharacter"]);
+  const { focusedCharacter } = useGlobalCharacter(["focusedCharacter"]);
   const [formData, setFormData] =
     useState<Partial<CreateRelationshipData>[]>(data);
   const [error, setError] = useState("");
   const submit = async () => {
     // Validate
     const nextError = formData.reduce((acc, curr) => {
-      if (!curr.characterId) curr.characterId = selectedCharacter?.id;
+      if (!curr.characterId) curr.characterId = focusedCharacter?.id;
       if (acc.length > 0) return acc;
       if (!curr.targetId) return "Relationship target is required";
       return acc;
@@ -53,7 +53,7 @@ export default function CreateRelationshipsModal(
     return () => setFormData([]);
   }, [data]);
 
-  if (!selectedCharacter) return <></>;
+  if (!focusedCharacter) return <></>;
 
   return (
     <Modal
@@ -65,7 +65,7 @@ export default function CreateRelationshipsModal(
       onConfirm={submit}
     >
       <CreateRelationshipForm
-        character={selectedCharacter}
+        character={focusedCharacter}
         data={formData}
         onChange={setFormData}
       />

@@ -188,7 +188,7 @@ export type CharacterRelationship = {
   characterId: number; // ( references Character  )
   targetId: number; // ( references Character | no relation )
   relationship: string;
-  Character?: Character; // @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  Character: Character; // @relation(fields: [characterId], references: [id], onDelete: Cascade)
 };
 
 /** `Event` (`WorldEvent` in UI) is a significant `World` occurrence */

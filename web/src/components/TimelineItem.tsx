@@ -79,7 +79,6 @@ const TimelineItem = ({
         permissions={permissions}
         className={iconClass}
         title={title}
-        onClick={edit}
       />
 
       <Name permissions={permissions} onClick={edit}>

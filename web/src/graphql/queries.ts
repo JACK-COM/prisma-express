@@ -72,13 +72,14 @@ export const listRelationshipsQuery = () =>
 /** List `Worlds` graphql query */
 export const listWorldsQuery = () =>
   `query ListWorlds(
-    $id: Int, $authorId: Int, $description: String, $name: String
+    $id: Int, $authorId: Int, $description: String, $name: String, $public: Boolean
    ) { 
     listWorlds(
       id: $id, 
       authorId: $authorId, 
       description: $description, 
-      name: $name) {
+      name: $name,
+      public: $public) {
       ${MFWorldFragment}
     } 
   }`;

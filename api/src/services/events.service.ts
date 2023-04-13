@@ -5,7 +5,7 @@
 import { Prisma, Event } from "@prisma/client";
 import { context } from "../graphql/context";
 
-type UpsertEventInput =
+export type UpsertEventInput =
   | Prisma.EventUpsertArgs["create"] & Prisma.EventUpsertArgs["update"];
 type EventByIdInput = Pick<Event, "id">;
 type SearchEventInput = Partial<
@@ -35,11 +35,7 @@ export async function upsertEvent(newEvent: UpsertEventInput) {
 
 /** Create multiple event records */
 export async function upsertEvents(newEvents: UpsertEventInput[]) {
-  return Promise.all(
-    newEvents.map((data) =>
-      data.id ? upsertEvent(data) : Events.create({ data })
-    )
-  );
+  return Promise.all(newEvents.map(upsertEvent));
 }
 
 /** find all event records matching params */
@@ -58,24 +54,29 @@ export async function findAllEvents(filter: SearchEventInput) {
   } = filter;
   const where: Prisma.EventFindManyArgs["where"] = {};
   if (id) where.id = id;
-  if (name) where.name = { contains: name };
-  if (description) where.description = { contains: description };
   if (characterId) where.characterId = characterId;
+  where.AND = [];
+  if (worldId) where.AND.push({ worldId });
+  if (authorId) where.AND.push({ authorId });
 
   where.OR = [];
-  if (authorId) where.OR.push({ authorId });
-  if (worldId) where.OR.push({ worldId });
+  if (name) where.OR.push({ name: { contains: name } });
+  if (description) where.OR.push({ description: { contains: description } });
+
   if (groupId) where.OR.push({ groupId });
   if (locationId) where.OR.push({ locationId });
   if (polarity) where.OR.push({ polarity });
   if (target) where.OR.push({ target });
+
+  if (where.AND.length === 0) delete where.AND;
+  if (where.OR.length === 0) delete where.OR;
 
   return Events.findMany({ where });
 }
 
 /** find one event record matching params */
 export async function getEvent(where: EventByIdInput) {
-  return Events.findUnique({ where });
+  return Events.findUnique({ where, include: { World: true } });
 }
 
 /** update one event record matching params */

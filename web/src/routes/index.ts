@@ -68,7 +68,7 @@ export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> = {
   Timelines: {
     Index: {
       path: "/timelines",
-      text: "Timelines & Events"
+      text: "Timelines"
     },
     Events: {
       path: "/timelines/:timelineId/events",

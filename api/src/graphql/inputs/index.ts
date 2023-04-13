@@ -71,14 +71,14 @@ export const MFEventUpsertInput = inputObjectType({
   definition(t) {
     t.int("id", { default: undefined, description: "Event ID" });
     t.nonNull.string("name");
-    t.string("description", { default: "No description" });
     t.nonNull.int("worldId", { description: "Parent world ID" });
+    t.nonNull.field("polarity", { type: "EventPolarity" });
+    t.nonNull.field("target", { type: "EventTarget" });
+    t.string("description", { default: "No description" });
     t.int("authorId", { description: "Item Author/owner" });
     t.int("characterId", { description: "Event character target (optional)" });
     t.int("groupId", { description: "Event group target (optional)" });
     t.int("locationId", { description: "Event location target (optional)" });
-    t.nonNull.field("polarity", { type: "EventPolarity" });
-    t.nonNull.field("target", { type: "EventTarget" });
   }
 });
 
@@ -104,6 +104,6 @@ export const MFTimelineUpsertInput = inputObjectType({
     t.nonNull.int("worldId", { description: "Parent world ID" });
 
     // World `Events` that will be created and linked for user
-    t.list.field("events", { type: nonNull("MFEventUpsertInput") });
+    t.list.field("events", { type: nonNull("MFTimelineEventUpsertInput") });
   }
 });

@@ -21,5 +21,6 @@
     "target": "es5",
     "useDefineForClassFields": true
   },
-  "include": ["./src/", "./prisma"]
+  "include": ["./src/", "./prisma"],
+  "exclude": ["node_modules", "dist", "lib"]
 }

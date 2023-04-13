@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import Breadcrumbs from "components/Common/Breadcrumbs";
 import {
@@ -9,9 +9,8 @@ import {
 } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths } from "routes";
-import { listLocations, listWorlds } from "../graphql/requests/worlds.graphql";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { APIData, Location, UserRole, World } from "utils/types";
+import { APIData, Location, UserRole } from "utils/types";
 import ListView from "components/Common/ListView";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
@@ -19,6 +18,9 @@ import { useParams } from "react-router";
 import LocationItem from "../components/LocationItem";
 import { WorldPublicIcon } from "components/ComponentIcons";
 import ManageLocationModal from "components/Modals/ManageLocationModal";
+import { SharedButtonProps } from "components/Forms/Button.Helpers";
+import { FormRow } from "components/Forms/Form";
+import ManageWorldEventsModal from "components/Modals/ManageWorldEventsModal";
 
 const { Worlds: WorldPaths } = Paths;
 const AddLocationButton = styled(ButtonWithIcon)`
@@ -43,45 +45,34 @@ const WorldLocationsList = () => {
     MODAL
   } = useGlobalModal();
   const {
-    selectedWorld,
-    selectedLocation,
+    focusedWorld,
+    focusedLocation,
+    events = [],
     worldLocations = [],
     clearGlobalWorld,
-    setGlobalWorld,
     setGlobalLocation,
-    setGlobalLocations
+    loadWorlds
   } = useGlobalWorld([
-    "selectedWorld",
-    "selectedLocation",
-    "worlds",
+    "focusedWorld",
+    "focusedLocation",
+    "events",
     "worldLocations"
   ]);
   const role = useMemo<UserRole>(
-    () => (selectedWorld?.authorId === id ? "Author" : "Reader"),
+    () => (focusedWorld?.authorId === id ? "Author" : "Reader"),
     [id]
   );
-  const [error, setError] = useState<string>();
   const { worldId } = useParams<{ worldId: string }>();
   const place = useMemo(
-    () => selectedWorld?.name || WorldPaths.Locations.text,
-    [selectedWorld]
+    () => focusedWorld?.name || WorldPaths.Locations.text,
+    [focusedWorld]
   );
   const publicClass = useMemo(
-    () => (selectedWorld?.public ? "success--text" : "error--text"),
-    [selectedWorld]
+    () => (focusedWorld?.public ? "success--text" : "error--text"),
+    [focusedWorld]
   );
   const loadComponentData = async () => {
-    const wId = Number(worldId);
-    if (isNaN(Number(worldId)) || selectedWorld?.id === wId) return;
-    const [[world], locations] = await Promise.all([
-      selectedWorld ? [selectedWorld] : listWorlds({ id: Number(worldId) }),
-      listLocations({ worldId: Number(worldId) })
-    ]);
-    if (!world) setError("World not found");
-    else {
-      if (world !== selectedWorld) setGlobalWorld(world);
-      setGlobalLocations(locations);
-    }
+    loadWorlds({ userId: id, worldId: Number(worldId) });
   };
   const clearModalData = () => {
     clearGlobalModal();
@@ -98,6 +89,24 @@ const WorldLocationsList = () => {
     clearModalData();
     clearGlobalWorld();
   };
+  const controls = (variant: SharedButtonProps["variant"] = "outlined") => (
+    <FormRow columns="repeat(2,1fr)">
+      <AddLocationButton
+        size="lg"
+        icon="pin_drop"
+        text="Add a Location"
+        variant="outlined"
+        onClick={() => setGlobalModal(MODAL.MANAGE_LOCATION)}
+      />
+
+      <AddLocationButton
+        icon="timeline"
+        variant={variant}
+        onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
+        text="Add World Event"
+      />
+    </FormRow>
+  );
 
   useEffect(() => {
     loadComponentData();
@@ -109,10 +118,10 @@ const WorldLocationsList = () => {
       <header>
         <Breadcrumbs data={[WorldPaths.Index, WorldPaths.Locations]} />
         <PageTitle>
-          {selectedWorld && (
+          {focusedWorld && (
             <WorldPublicIcon
-              data={selectedWorld}
-              permissions={selectedWorld.authorId === id ? "Author" : "Reader"}
+              data={focusedWorld}
+              permissions={focusedWorld.authorId === id ? "Author" : "Reader"}
             />
           )}
 
@@ -122,19 +131,19 @@ const WorldLocationsList = () => {
         <PageDescription>
           (
           <b className={publicClass}>
-            {selectedWorld?.public ? "PUBLIC" : "PRIVATE"}
+            {focusedWorld?.public ? "PUBLIC" : "PRIVATE"}
           </b>
           ) All <b>unique story settings</b> in{" "}
-          <b>{selectedWorld?.name || "a world ... if it exists"}</b>
+          <b>{focusedWorld?.name || "a world ... if it exists"}</b>
         </PageDescription>
       </header>
 
+      <h3 className="h4 flex">All Locations</h3>
       <Card>
-        <h3 className="h4 flex">{error || <>All Locations</>}</h3>
         {/* List */}
         {!worldLocations.length && (
           <EmptyText>
-            {error ? (
+            {!focusedWorld && worldId ? (
               "This world may be private or deleted."
             ) : (
               <>
@@ -149,22 +158,15 @@ const WorldLocationsList = () => {
         )}
 
         {/* Add new (button - top) */}
-        {worldLocations.length > 5 && (
-          <AddLocationButton
-            size="lg"
-            icon="pin_drop"
-            text="Add a Location"
-            variant="outlined"
-            onClick={() => setGlobalModal(MODAL.MANAGE_LOCATION)}
-          />
-        )}
+        {authenticated &&
+          controls(worldLocations.length > 5 ? "transparent" : "outlined")}
 
-        {selectedWorld && (
+        {focusedWorld && (
           <List
             data={worldLocations}
             itemText={(location: APIData<Location>) => (
               <LocationItem
-                world={selectedWorld}
+                world={focusedWorld}
                 location={location}
                 onEdit={onEditLocation}
                 onSelect={onSelectLocation}
@@ -175,24 +177,24 @@ const WorldLocationsList = () => {
         )}
 
         {/* Add new (button - bottom) */}
-        {authenticated && (
-          <AddLocationButton
-            size="lg"
-            icon="pin_drop"
-            text="Add a Location"
-            variant={worldLocations.length > 5 ? "transparent" : "outlined"}
-            onClick={() => setGlobalModal(MODAL.MANAGE_LOCATION)}
-          />
-        )}
+        {authenticated && worldLocations.length > 5 && controls()}
       </Card>
 
-      {selectedWorld && (
-        <ManageLocationModal
-          data={selectedLocation}
-          open={activeModal === MODAL.MANAGE_LOCATION}
-          onClose={clearModalData}
-          worldId={selectedWorld.id}
-        />
+      {focusedWorld && (
+        <>
+          <ManageLocationModal
+            data={focusedLocation}
+            open={activeModal === MODAL.MANAGE_LOCATION}
+            onClose={clearModalData}
+            worldId={focusedWorld.id}
+          />
+
+          {/* Modals */}
+          <ManageWorldEventsModal
+            data={focusedWorld.Events}
+            open={activeModal === MODAL.MANAGE_TIMELINE}
+          />
+        </>
       )}
     </PageContainer>
   );

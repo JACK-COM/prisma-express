@@ -1,12 +1,9 @@
 import styled, { css } from "styled-components";
 import { MatIcon, MatIconProps } from "components/Common/Containers";
 import { APIData, PermissionProps, UserRole, World } from "utils/types";
-import {
-  createOrUpdateWorld,
-  deleteWorld
-} from "graphql/requests/worlds.graphql";
+import { upsertWorld, deleteWorld } from "graphql/requests/worlds.graphql";
 import { updateWorlds, removeWorld } from "state";
-import { guard, noOp, suppressEvent } from "utils";
+import { requireAuthor, noOp, suppressEvent } from "utils";
 
 /** Generic Icon component Props */
 type ItemIconProps = Omit<MatIconProps, "onClick" | "icon"> & {
@@ -36,12 +33,10 @@ export const PermissionedIcon = styled(MatIcon)<PermissionProps>`
 `;
 
 /** `World` Icon Container (indicates a `World` data-type) */
-const WorldIcon = styled(PermissionedIcon).attrs({
-  icon: "public"
-})<PermissionProps>`
+const WorldIcon = styled(PermissionedIcon)<PermissionProps>`
   align-self: center;
   animation: shake 280ms linear;
-  /* margin-right: ${({ theme }) => theme.sizes.sm}; */
+  grid-row: 1/3;
   pointer-events: ${({ permissions }) =>
     permissions === "Author" ? "fill" : "none"};
 
@@ -57,18 +52,19 @@ type WorldIconProps = Pick<ItemIconProps, "permissions"> & {
 };
 export const WorldPublicIcon = (props: WorldIconProps) => {
   const { permissions, data: world } = props;
+  const icon = permissions === "Author" ? "public" : "lock";
   const iconClass = world.public ? "icon success--text" : "icon error--text";
   const title = world.public ? "Public World" : "Private World";
-  const togglePublic: React.MouseEventHandler = async (e) => {
-    if (permissions !== "Author") return;
-    suppressEvent(e);
-    const data = { ...world, public: !world.public };
-    const resp = await createOrUpdateWorld(data);
+  const togglePublic = requireAuthor(async () => {
+    const resp = await upsertWorld({ ...world, public: !world.public });
     if (resp && typeof resp !== "string") updateWorlds([resp]);
-  };
+  }, permissions);
+
+  console.log({ permissions, world })
 
   return (
     <WorldIcon
+      icon={icon}
       className={iconClass}
       onClick={togglePublic}
       permissions={permissions || "Reader"}
@@ -98,7 +94,10 @@ export const DeleteItemIcon = (props: ItemIconProps) => {
   } = props;
   const color = disabled ? "grey--text" : "error--text";
   const iconClass = `${color} ${className || ""}`.trim() || undefined;
-  const onRemove = guard(() => !disabled && onItemClick(data), permissions);
+  const onRemove = requireAuthor(
+    () => !disabled && onItemClick(data),
+    permissions
+  );
 
   return (
     <PDeleteIcon
@@ -117,7 +116,7 @@ export const DeleteWorldIcon = (props: WorldIconProps & ItemIconProps) => {
   const { permissions, data: world, ...rest } = props;
   const iconClass = world.public ? "success--text" : "error--text";
   const title = world.public ? "Public World" : "Private World";
-  const onDelete = guard(
+  const onDelete = requireAuthor(
     async () => {
       const resp = await deleteWorld(world.id);
       if (typeof resp === "string") return console.error(resp);

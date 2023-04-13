@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 import { APIData, UserRole, Character, World, Richness } from "utils/types";
-import { guard, noOp } from "utils";
+import { requireAuthor, noOp } from "utils";
 import { ellipsis, lineclamp } from "theme/theme.shared";
 import { GridContainer, MatIcon } from "components/Common/Containers";
 import { Hint } from "components/Forms/Form";
@@ -89,14 +89,14 @@ const CharacterItem = ({
   const { getWorld } = useGlobalWorld();
   const world = character.worldId ? getWorld(character.worldId) : null;
   const isOwner = character.authorId === id;
-  const editCharacter = guard(() => {
+  const editCharacter = requireAuthor(() => {
     onEdit(character);
   }, role);
-  const editRelationships = guard(() => onRelationships(character), role);
-  const deleteCharacter = guard(() => {
+  const editRelationships = requireAuthor(() => onRelationships(character), role);
+  const deleteCharacter = requireAuthor(() => {
     /* onDelete(character) */
   }, role);
-  const select = guard(() => onSelect(character), role);
+  const select = requireAuthor(() => onSelect(character), role);
 
   return (
     <Container onClick={select} permissions={permissions}>

@@ -83,7 +83,7 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
           onChange={updateDescription}
         />
       </Label>
-      <Hint>Describe your characteras a series of short writing-prompts.</Hint>
+      <Hint>Describe your character as a series of short writing-prompts.</Hint>
     </Form>
   );
 };

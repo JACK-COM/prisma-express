@@ -1,45 +1,75 @@
 import createState from "@jackcom/raphsducks";
-import { APIData, Location, World } from "utils/types";
+import { APIData, Location, Timeline, World, WorldEvent } from "utils/types";
 
 /* Convenience */
 type APIWorld = APIData<World>;
+type APIEvent = APIData<WorldEvent>;
 type APILocation = APIData<Location>;
+type APITimeline = APIData<Timeline>;
 /* Convenience */
 
-/** Any global state relating to worlds fetched/viewed by the user */
+/**
+ * All global state relating to worlds fetched/viewed by the user.
+ * This includes `Worlds`, `World Events`, `Locations`, `Timelines`, and `Timeline Events`.
+ */
 export const GlobalWorld = createState({
   /** Currently-focused `location` in application */
-  selectedLocation: null as APILocation | null,
-  /** Currently-focused `world` in application */
-  selectedWorld: null as APIWorld | null,
-  /** List of `selectedWorld`'s `locations` */
+  focusedLocation: null as APILocation | null,
+  /** List of `Locations` in currently `focusedWorld`  */
   worldLocations: [] as APILocation[],
+
+  /** Currently-selected `WorldEvent` */
+  focusedEvent: null as APIEvent | null,
+  /** List of all user (or public) `WorldEvents` */
+  events: [] as APIEvent[],
+
+  /** Currently-selected `Timeline` */
+  focusedTimeline: null as APITimeline | null,
+  /** List of all user (or public) `Timelines` */
+  timelines: [] as APITimeline[],
+
+  /** Currently-focused `world` in application */
+  focusedWorld: null as APIWorld | null,
   /** List of user (or public) worlds */
   worlds: [] as APIWorld[]
 });
 
 export type GlobalWorldInstance = ReturnType<typeof GlobalWorld.getState>;
 export type GlobalWorldInstanceKey = keyof GlobalWorldInstance;
-/** All lists in state */
-export type GlobalWorldListKey = "worlds" | "worldLocations";
 
 /** @helper Select a `Location` */
 export const setGlobalLocation = (l: APILocation | null) =>
-  GlobalWorld.selectedLocation(l);
+  GlobalWorld.focusedLocation(l);
 
-/** @helper Select a `World`  */
+/** @helper Select a `World` (and clear out any previous related selections)  */
 export const setGlobalWorld = (w: APIWorld | null) => {
-  GlobalWorld.selectedWorld(w);
+  GlobalWorld.multiple({
+    focusedWorld: w,
+    worldLocations: [],
+    focusedLocation: null
+  });
+};
+
+/** @helper Select a `Timeline` */
+export const setGlobalTimeline = (t: APITimeline | null) =>
+  GlobalWorld.multiple({ focusedTimeline: t });
+
+/** @helper Set  list of `Timelines` */
+export const setGlobalTimelines = (w: APITimeline[] = []) => {
+  GlobalWorld.timelines(w);
 };
 
 /**
  * Retrieve a world from state
  * @param newWorlds New worlds
  */
-export function getWorld(id: number) {
-  const { worlds } = GlobalWorld.getState();
-  const world = worlds.find((w) => w.id === id);
-  return world || null;
+export function getByIdFromWorldState<
+  T extends APIWorld | APIEvent | APILocation | APITimeline
+>(id: number, key: GlobalWorldInstanceKey): T | null {
+  const state = GlobalWorld.getState();
+  const list = state[key] as T[];
+  const value = list.find((w) => w.id === id);
+  return value || null;
 }
 
 /**
@@ -47,31 +77,10 @@ export function getWorld(id: number) {
  * @param newWorlds New worlds
  */
 export function updateWorlds(newWorlds: APIWorld[]) {
-  const { selectedWorld } = GlobalWorld.getState();
-  if (newWorlds.length !== 1 || !selectedWorld) {
-    return updateWorldStateList(newWorlds, "worlds");
-  }
-
-  const worlds = updateWorldStateList(newWorlds, "worlds", true);
-  GlobalWorld.multiple({ worlds, selectedWorld: newWorlds[0] });
-}
-
-/**
- * Update list of locations in state
- * @param newLocations New locations
- */
-export function updateLocations(newLocations: APILocation[]) {
-  const { selectedLocation } = GlobalWorld.getState();
-  if (newLocations.length !== 1 || !selectedLocation) {
-    return updateWorldStateList(newLocations, "worldLocations");
-  }
-
-  const worldLocations = updateWorldStateList(
-    newLocations,
-    "worldLocations",
-    true
-  );
-  GlobalWorld.multiple({ worldLocations, selectedLocation: newLocations[0] });
+  const { focusedWorld } = GlobalWorld.getState();
+  const defer = newWorlds.length === 1 && focusedWorld?.id === newWorlds[0].id;
+  const worlds = updateWorldStateList(newWorlds, "worlds", defer);
+  if (defer) GlobalWorld.multiple({ worlds, focusedWorld: newWorlds[0] });
 }
 
 /**
@@ -83,6 +92,23 @@ export function removeWorld(targetId: number) {
 }
 
 /**
+ * Update list of locations in state
+ * @param newLocations New locations
+ */
+export function updateLocations(newLocations: APILocation[]) {
+  const { focusedLocation: focusedLocation } = GlobalWorld.getState();
+  if (newLocations.length !== 1 || !focusedLocation) {
+    return updateWorldStateList(newLocations, "worldLocations");
+  }
+
+  const next = updateWorldStateList(newLocations, "worldLocations", true);
+  GlobalWorld.multiple({
+    focusedLocation: newLocations[0],
+    worldLocations: next as APILocation[]
+  });
+}
+
+/**
  * Remove location from list in from state
  * @param targetId Id of target object
  */
@@ -90,31 +116,33 @@ export function removeLocation(targetId: number) {
   return removeFromWorldsList(targetId, "worldLocations");
 }
 
+export type GlobalWorldListKey =
+  | "worldLocations"
+  | "events"
+  | "timelines"
+  | "worlds";
 /**
- * Update list-key in state
+ * Abstraction to UPDATE a list-key in state
  * @param newItems New worlds
  */
-export function updateWorldStateList<T extends APIData<any>[]>(
-  newItems: T,
-  key: GlobalWorldListKey,
-  returnList = false
-) {
+export function updateWorldStateList<
+  T extends APIWorld | APIEvent | APILocation | APITimeline
+>(newItems: T[], key: GlobalWorldListKey, skipUpdate = false): T[] {
   const state = GlobalWorld.getState();
-  const old = state[key] as T;
+  const old = state[key];
   const next = [...old];
   newItems.forEach((w) => {
     const existing = old.findIndex((x) => x.id === w.id);
-    if (existing > -1) next[existing] = { ...next[existing], ...w };
+    if (existing > -1) next[existing] = { ...next[existing], ...w } as T;
     else next.push(w);
   });
 
-  if (returnList) return next;
-
-  GlobalWorld[key](next);
+  if (!skipUpdate) setWorldStateList(next, key);
+  return next as T[];
 }
 
 /**
- * Overwrite a list-key in state
+ * Abstraction to OVERWRITE a list-key in state
  * @param newItems New worlds
  */
 export function setWorldStateList<T extends APIData<any>[]>(
@@ -131,9 +159,11 @@ export function setWorldStateList<T extends APIData<any>[]>(
  */
 export function clearGlobalWorld() {
   return GlobalWorld.multiple({
-    selectedLocation: null,
-    selectedWorld: null,
-    worldLocations: []
+    focusedLocation: null,
+    focusedTimeline: null,
+    focusedWorld: null,
+    worldLocations: [],
+    timelines: []
   });
 }
 

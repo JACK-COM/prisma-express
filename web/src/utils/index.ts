@@ -1,5 +1,5 @@
 import { APP_VERSION, APP_VERSION_KEY } from "./constants";
-import { UserRole } from "./types";
+import { UserRole, APIData } from "./types";
 
 export * from "./constants";
 export const noOp = () => undefined;
@@ -11,13 +11,25 @@ export async function checkVersionChanged() {
   return currentVersion !== lastVersion;
 }
 
+/** Merge two arrays of `APIData` data, preferring the second */
+export function mergeLists<T extends APIData<any>>(a: T[], b: T[]): T[] {
+  const next = [...a];
+  b.forEach((item: any) => {
+    const x = next.findIndex((l: any) => l.id === item.id);
+    if (x > -1) next[x] = item;
+    else next.push(item);
+  });
+
+  return next as T[];
+}
+
 /**
  * Require a mouse-event handler to be called by `Authors` only
  * @param fn Mouse event handler or other function
  * @param permissions Current user's `role`
  * @returns Function if user is author; undefined if not
  */
-export function guard(
+export function requireAuthor(
   fn: React.MouseEventHandler,
   permissions: UserRole = "Reader",
   preventDefault?: boolean

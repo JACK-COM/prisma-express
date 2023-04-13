@@ -19,6 +19,10 @@ const sharedInputStyles = css`
   line-height: ${({ theme }) => theme.sizes.lg};
   padding: ${({ theme }) => theme.sizes.xs};
 
+  &[aria-invalid="true"] {
+    outline: 2px solid ${({ theme }) => theme.colors.error};
+  }
+
   @media screen and (max-width: 900px) {
     font-size: 16px;
   }
@@ -33,7 +37,7 @@ export const Fieldset = styled.fieldset`
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
   border-radius: ${({ theme }) => theme.presets.round.sm};
   padding: ${({ theme }) => theme.sizes.sm};
-  margin-bottom: ${({ theme }) => theme.sizes.lg};
+  margin-bottom: ${({ theme }) => theme.sizes.md};
   width: calc(100% - 2px) !important;
 
   &:last-of-type {
@@ -143,7 +147,7 @@ export const Select = styled((props: SelectProps) => {
       onInput={(e) => onChange(e.currentTarget.value)}
       {...rest}
     >
-      {data.length > 0 && <option>{placeholder}</option>}
+      {data.length > 0 && <option value={""}>{placeholder}</option>}
       {data.map((d, i) => (
         <option key={i} value={itemValue(d)}>
           {itemText(d)}

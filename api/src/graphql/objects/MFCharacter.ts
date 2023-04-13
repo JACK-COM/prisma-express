@@ -6,12 +6,12 @@ export const MFCharacter = objectType({
   description: "A significant actor in a `World`",
   definition(t) {
     t.nonNull.int("id");
-    t.nonNull.string("name");
-    t.nonNull.string("description");
+    t.nonNull.string("name", { description: "Character name" });
+    t.nonNull.string("description", { description: "Character description" });
     t.int("authorId", { description: "Author owner" });
     t.int("groupId", { description: "`Group` identifier id (optional)" });
     t.int("locationId", { description: "Character's `Location` id" });
-    t.int("worldId", { description: "Character's `World` id" });
+    t.nonNull.int("worldId", { description: "Character's `World` id" });
 
     // List properties: uncomment if we want to auto-expose these fields
     t.list.field("CharacterRelationship", { type: "MFCharacterRelationship" });

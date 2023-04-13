@@ -1,8 +1,17 @@
-/** @file GraphQL Queries */
+/**
+ * @file GraphQL Queries
+ * @description This file contains all the GraphQL queries used by the app.
+ * If necessary, this file can be refactored to an export root, with queries
+ * moved to their own data-specific files (`Character`, `World`, etc).
+ */
+
 import {
   MFCharacterFragment,
+  MFEventFragment,
   MFLocationFragment,
   MFRelationshipFragment,
+  MFTimelineEventFragment,
+  MFTimelineFragment,
   MFUserFragment,
   MFWorldFragment
 } from "./fragments";
@@ -71,5 +80,49 @@ export const listWorldsQuery = () =>
       description: $description, 
       name: $name) {
       ${MFWorldFragment}
+    } 
+  }`;
+
+/** List `Timelines` graphql query */
+export const listTimelinesQuery = () =>
+  `query ListTimelines(
+    $authorId: Int, $worldId: Int, $name: String
+   ) { 
+    listTimelines(
+      authorId: $authorId, 
+      worldId: $worldId, 
+      name: $name) {
+        ${MFTimelineFragment}
+    } 
+  }`;
+
+/** List World `Events` graphql query */
+export const listWorldEventsQuery = () =>
+  `query ListEvents(
+    $name: String, $description: String, $worldId: Int, $authorId: Int
+   ) { 
+    listWorldEvents(
+      authorId: $authorId, 
+      description: $description,
+      worldId: $worldId, 
+      name: $name
+      ) {
+      ${MFEventFragment}
+    } 
+  }`;
+
+/** List `TimelineEvents` graphql query */
+export const listTimelineEventsQuery = () =>
+  `query ListTimelineEvents( $timelineId: Int! ) { 
+    listTimelineEvents( timelineId: $timelineId ) {
+      ${MFTimelineEventFragment}
+    } 
+  }`;
+
+/** Get `Timeline` by id graphql query */
+export const getTimelineQuery = () =>
+  `query GetTimeline( $id: Int! ) { 
+    getTimelineById( id: $id ) {
+      ${MFTimelineFragment}
     } 
   }`;

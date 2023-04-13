@@ -4,16 +4,52 @@
  * @NOTE All three models are combined here because they are related.
  */
 
-import { mutationField, nonNull, intArg } from "nexus";
+import { mutationField, nonNull, intArg, list } from "nexus";
 import * as TimelinesService from "../../services/timelines.service";
-import * as TimelinesEventsService from "../../services/timeline-events.service";
+import * as TimelineEventsService from "../../services/timeline-events.service";
 import * as EventsService from "../../services/events.service";
 
 /**
+ * Create or update one or more `Events`
+ * @param data.name Event name
+ * @param data.worldId Event world ID
+ * @param data.polarity Event polarity (positive, negative, neutral)
+ * @param data.target Event target type (character, location, etc.; optional)
+ */
+export const upsertEvents = mutationField("upsertEvents", {
+  type: list("MFEvent"),
+  description: "Create or update one or more `Events`",
+  args: { data: nonNull(list("MFEventUpsertInput")) },
+
+  /**
+   * Mutation resolver
+   * @param _ Source object (ignored in mutations/queries)
+   * @param args Args (everything defined in `args` property above)
+   * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
+   * database directly, or to access the authenticated `user` if the request has one.
+   * @returns `MFEvent` object from service
+   * @throws Error if event not found, or is private and user is not the author
+   */
+  resolve: async (_, { data }, { user }) => {
+    if (!user?.id) throw new Error("User not authenticated");
+    if (!data.length) return [];
+
+    return EventsService.upsertEvents(
+      data.map((e) => ({
+        ...e,
+        authorId: e?.authorId || user.id,
+        description: e?.description || ""
+      })) as EventsService.UpsertEventInput[]
+    );
+  }
+});
+
+/**
  * Create or update a new `Timeline` along with its events
- * @param name Timeline name
- * @param worldId Timeline's `World` ID
- * @param authorId Timeline's author ID
+ * @param data.name Timeline name
+ * @param data.worldId Timeline's `World` ID
+ * @param data.authorId Timeline's author ID
+ * @param data.events Timeline events (optional)
  * @returns `MFTimeline` object from service
  * @throws Error if timeline name is not unique and timeline has no `worldId`
  */
@@ -31,40 +67,38 @@ export const upsertTimeline = mutationField("upsertTimeline", {
    * @returns `MFTimeline` object from service
    * @throws Error if timeline name is not unique and timeline has no `worldId`
    */
-  resolve: async (_, { data }, { user }) => {
+  resolve: async (_, { data }, { user, Timelines }) => {
     if (!user?.id) throw new Error("User not authenticated");
     const authorId = user.id;
     const { id, name, worldId, events = [] } = data;
 
     // confirm unique name or worldId if this is a new timeline
     if (!id) {
-      const exists = await TimelinesService.findAllTimelines({ name, worldId });
+      const exists = await Timelines.findMany({
+        where: { AND: [{ name }, { worldId }] }
+      })[0];
       if (exists) throw new Error("This world has a timeline with this name");
     }
 
     // create/update timeline
-    const timelineData = { name, worldId, authorId };
+    const timelineData = { id: id || undefined, name, worldId, authorId };
     const timeline = await TimelinesService.upsertTimeline(timelineData);
 
     // Exit if no new events
     if (!events?.length) return timeline;
 
     // create/update events if present
-    const newEvents = await EventsService.upsertEvents(
-      events.map((event) => ({
-        ...event,
-        id: event.id || undefined,
-        description: event.description || "No description"
-      }))
+    const newEvents = await TimelineEventsService.upsertTimelineEvents(
+      events.map((event) => ({ ...event, id: event.id || undefined }))
     );
 
     // find existing timeline events to update
-    const existingEvents = await TimelinesEventsService.findAllTimelineEvents({
+    const existingEvents = await TimelineEventsService.findAllTimelineEvents({
       timelineId: timeline.id
     });
 
     // create/update timeline events
-    await TimelinesEventsService.upsertTimelineEvents(
+    await TimelineEventsService.upsertTimelineEvents(
       // convert to `UpsertTimelineEventInput` format
       newEvents.map((ev, i) => {
         return (
@@ -75,7 +109,7 @@ export const upsertTimeline = mutationField("upsertTimeline", {
             authorId
           }
         );
-      }) as TimelinesEventsService.UpsertTimelineEventInput[]
+      }) as TimelineEventsService.UpsertTimelineEventInput[]
     );
 
     // return new timeline with events
@@ -84,11 +118,88 @@ export const upsertTimeline = mutationField("upsertTimeline", {
 });
 
 /**
+ * Update a `Timeline`'s events
+ * @param id Timeline ID
+ * @param events Timeline events
+ * @returns `MFTimeline` object from service
+ * @throws Error if timeline does not exist, or does not belong to user
+ */
+export const upsertTimelineEvents = mutationField("upsertTimelineEvents", {
+  type: list("MFTimelineEvent"),
+  description: "Update a `Timeline`'s events",
+  args: {
+    id: nonNull(intArg()), // timeline ID
+    events: list(nonNull("MFTimelineEventUpsertInput"))
+  },
+
+  /**
+   * Mutation resolver
+   * @param _ Source object (ignored in mutations/queries)
+   * @param args Args (everything defined in `args` property above)
+   * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
+   * database directly, or to access the authenticated `user` if the request has one.
+   * @returns `MFTimeline` object from service
+   * @throws Error if timeline does not exist, or does not belong to user
+   */
+  resolve: async (_, { id, events }, { user }) => {
+    // confirm user is authenticated
+    if (!user?.id) throw new Error("User not authenticated");
+
+    // confirm timeline exists and belongs to user
+    const timeline = await TimelinesService.getTimeline({ id });
+    if (!timeline || timeline.authorId !== user.id) {
+      throw new Error("Timeline not found");
+    }
+
+    // Exit if no new events
+    if (!events?.length) return [];
+
+    // create or update new `TimelineEvents`
+    return TimelineEventsService.upsertTimelineEvents(
+      events.map((event, i) => ({
+        ...event,
+        id: event.id || undefined,
+        order: event.order || i,
+        timelineId: id,
+        authorId: user.id
+      }))
+    );
+  }
+});
+
+/**
+ * Delete an `Event`
+ * @param id Event ID
+ * @returns `MFEvent` object from service
+ * @throws Error if event does not exist, or does not belong to user
+ */
+export const deleteEvent = mutationField("deleteEvent", {
+  type: "MFEvent",
+  description: "Delete an `Event`",
+  args: { id: nonNull(intArg()) },
+
+  /**
+   * Mutation resolver
+   * @param _ Source object (ignored in mutations/queries)
+   * @param args Args (everything defined in `args` property above)
+   * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
+   * database directly, or to access the authenticated `user` if the request has one.
+   * @returns `MFEvent` object from service
+   * @throws Error if event does not exist, or does not belong to user
+   */
+  resolve: async (_, { id }, { user }) => {
+    if (!user?.id) throw new Error("User not authenticated");
+    const event = await EventsService.getEvent({ id });
+    if (!event || event.authorId !== user.id) throw new Error("Not authorized");
+    return EventsService.deleteEvent(event);
+  }
+});
+
+/**
  * Delete a `Timeline` and all its events
  * @param id Timeline ID
  * @returns `MFTimeline` object from service
- * @throws Error if timeline does not exist
- * @throws Error if timeline does not belong to user
+ * @throws Error if timeline does not exist, or does not belong to user
  */
 export const deleteTimeline = mutationField("deleteTimeline", {
   type: "MFTimeline",
@@ -110,6 +221,35 @@ export const deleteTimeline = mutationField("deleteTimeline", {
     const timeline = await TimelinesService.getTimeline({ id });
     if (!timeline) throw new Error("Timeline not found");
     if (timeline.authorId !== user.id) throw new Error("Not authorized");
-    return TimelinesService.deleteTimeline(timeline);
+    return TimelinesService.deleteTimeline({ id: timeline.id });
+  }
+});
+
+/**
+ * Delete a `TimelineEvent`
+ * @param id TimelineEvent ID
+ * @returns `MFTimelineEvent` object from service
+ * @throws Error if timeline event does not exist, or does not belong to user
+ */
+export const deleteTimelineEvent = mutationField("deleteTimelineEvent", {
+  type: "MFTimelineEvent",
+  description: "Delete a `TimelineEvent`",
+  args: { id: nonNull(intArg()) },
+
+  /**
+   * Mutation resolver
+   * @param _ Source object (ignored in mutations/queries)
+   * @param args Args (everything defined in `args` property above)
+   * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
+   * database directly, or to access the authenticated `user` if the request has one.
+   * @returns `MFTimelineEvent` object from service
+   * @throws Error if timeline event does not exist, or does not belong to user
+   */
+  resolve: async (_, { id }, { user }) => {
+    if (!user?.id) throw new Error("User not authenticated");
+    const event = await TimelineEventsService.getTimelineEvent({ id });
+    if (!event) throw new Error("Event not found");
+    if (event.authorId !== user.id) throw new Error("Not authorized");
+    return TimelineEventsService.deleteTimelineEvent({ id: event.id });
   }
 });

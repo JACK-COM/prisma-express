@@ -9,17 +9,18 @@ import { useGlobalTheme } from "hooks/GlobalTheme";
 import FullScreenLoader from "components/Common/FullscreenLoader";
 import { Paths, wildcard } from "routes";
 
-const Dashboard = lazy(() => import("./routes/Dashboard"));
-const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
 const CharactersRoute = lazy(() => import("./routes/CharactersRoute"));
+const Dashboard = lazy(() => import("./routes/Dashboard"));
 const NotFound = lazy(() => import("./routes/NotFound"));
+const TimelinesRoute = lazy(() => import("./routes/TimelinesRoute"));
+const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
 
 function App() {
   const { theme } = useGlobalTheme();
   const checkLoggedIn = async () => {
     const fOpts: RequestInit = { method: "post", credentials: "include" };
     const { user } = await fetch(AUTH_ROUTE, fOpts).then((r) => r.json());
-    if (user) GlobalUser.multiple({...user, authenticated: true });
+    if (user) GlobalUser.multiple({ ...user, authenticated: true });
   };
 
   useEffect(() => {
@@ -45,6 +46,7 @@ function App() {
                   </Suspense>
                 }
               />
+
               <Route
                 // Application Home + Author dashboard
                 path={Paths.Dashboard.Index.path}
@@ -60,7 +62,7 @@ function App() {
                 path={wildcard(Paths.Timelines.Index.path)}
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
-                    <Dashboard />
+                    <TimelinesRoute />
                   </Suspense>
                 }
               />

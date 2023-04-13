@@ -7,7 +7,7 @@ import { Hint } from "./Forms/Form";
 import { DeleteWorldIcon, WorldPublicIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
 import { Link } from "react-router-dom";
-import { guard } from "utils";
+import { requireAuthor } from "utils";
 
 const Container = styled(Link)<PermissionProps>`
   border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
@@ -16,7 +16,7 @@ const Container = styled(Link)<PermissionProps>`
   display: grid;
   column-gap: ${({ theme }) => theme.sizes.sm};
   grid-template-columns: min-content ${({ permissions }) =>
-      permissions === "Author" ? "3fr 24px 24px" : "4fr"};
+      permissions === "Author" ? "3fr 24px" : "4fr"};
   justify-content: left;
   padding: ${({ theme }) => theme.sizes.xs};
   width: 100%;
@@ -68,7 +68,7 @@ const WorldItem = ({
   permissions = "Reader"
 }: WorldItemProps) => {
   const url = insertId(Paths.Worlds.Locations.path, world.id);
-  const edit = guard(() => onEdit(world), permissions);
+  const edit = requireAuthor(() => onEdit(world), permissions);
   const select: React.MouseEventHandler = (e) => {
     if (!onSelect) return;
     suppressEvent(e);
@@ -84,7 +84,6 @@ const WorldItem = ({
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </Name>
       <Description>{world.description}</Description>
-        {permissions === "Author" && <MatIcon className="icon" icon="edit_calendar" />}
       <DeleteWorldIcon permissions={permissions} data={world} />
     </Container>
   );

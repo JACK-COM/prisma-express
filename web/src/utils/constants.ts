@@ -1,6 +1,7 @@
 import manifest from "../../package.json";
 import { UserRole } from "./types";
 
+export * from "./constants.books";
 export const APP_VERSION = manifest.version;
 export const APP_VERSION_KEY = "app-version";
 export const API_BASE = "http://localhost:4001";

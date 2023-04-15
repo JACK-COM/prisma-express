@@ -31,10 +31,10 @@ export interface DBContext {
   CharacterRelationships: PrismaClient["characterRelationship"];
   /** `Events` table */
   Events: PrismaClient["event"];
+  /** `Library` table */
+  Libraries: PrismaClient["library"];
   /** `Locations` table */
   Locations: PrismaClient["location"];
-  /** `Paragraphs` table */
-  Paragraphs: PrismaClient["paragraph"];
   /** `Population Groups` table */
   PopulationGroups: PrismaClient["populationGroup"];
   /** `Scenes` table */
@@ -64,8 +64,8 @@ export const context: DBContext = {
   Characters: db.character,
   CharacterRelationships: db.characterRelationship,
   Events: db.event,
+  Libraries: db.library,
   Locations: db.location,
-  Paragraphs: db.paragraph,
   PopulationGroups: db.populationGroup,
   Scenes: db.scene,
   Series: db.series,
@@ -73,3 +73,4 @@ export const context: DBContext = {
   TimelineEvents: db.timelineEvent,
   Worlds: db.world
 };
+

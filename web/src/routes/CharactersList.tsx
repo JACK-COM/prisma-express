@@ -24,6 +24,7 @@ import ListView from "components/Common/ListView";
 import CharacterItem from "components/CharacterItem";
 import { APIData, Character } from "utils/types";
 import CreateRelationshipsModal from "components/Modals/CreateRelationshipsModal";
+import { GlobalCharacter } from "state";
 
 const { Characters: CharacterPaths } = Paths;
 const AddCharacterButton = styled(ButtonWithIcon)`
@@ -41,29 +42,25 @@ const CharactersList = () => {
   const { id: userId, role } = useGlobalUser(["id", "role"]);
   const authenticated = (userId || 0) > -1;
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
-  const { loadWorlds } = useGlobalWorld();
   const {
     characters = [],
     relationships = [],
-    loadCharacters,
     focusedCharacter,
-    setGlobalCharacter,
-    setGlobalRelationships,
+    loadCharacters,
     clearGlobalCharacter
   } = useGlobalCharacter(["focusedCharacter", "characters", "relationships"]);
-  const loadComponentData = async () =>
-    Promise.all([loadCharacters(userId), loadWorlds({ userId })]);
+  const loadComponentData = async () => loadCharacters(userId);
   const clearComponentData = () => {
     clearGlobalModal();
     clearGlobalCharacter();
   };
   const onCharacterRelationships = async (char: APIData<Character>) => {
-    setGlobalCharacter(char);
-    setGlobalRelationships(await listRelationships({ characterId: char.id }));
+    const relationships = await listRelationships({ characterId: char.id });
+    GlobalCharacter.multiple({ relationships, focusedCharacter: char });
     setGlobalModal(MODAL.MANAGE_RELATIONSHIPS);
   };
   const onEditCharacter = (char: APIData<Character>) => {
-    setGlobalCharacter(char);
+    GlobalCharacter.focusedCharacter(char);
     setGlobalModal(MODAL.MANAGE_CHARACTER);
   };
 
@@ -112,6 +109,7 @@ const CharactersList = () => {
               permissions={role}
               onEdit={onEditCharacter}
               onRelationships={onCharacterRelationships}
+              onSelect={onCharacterRelationships}
             />
           )}
         />

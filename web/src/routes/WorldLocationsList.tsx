@@ -48,17 +48,11 @@ const WorldLocationsList = () => {
   const {
     focusedWorld,
     focusedLocation,
-    events = [],
     worldLocations = [],
     clearGlobalWorld,
     setGlobalLocation,
-    loadWorlds
-  } = useGlobalWorld([
-    "focusedWorld",
-    "focusedLocation",
-    "events",
-    "worldLocations"
-  ]);
+    loadUserData
+  } = useGlobalWorld(["focusedWorld", "focusedLocation", "worldLocations"]);
   const { worldId } = useParams<{ worldId: string }>();
   const [place, isPublic, publicClass, isAuthor, role] = useMemo(() => {
     const author = focusedWorld?.authorId === userId;
@@ -72,7 +66,7 @@ const WorldLocationsList = () => {
     ];
   }, [focusedWorld]);
   const loadComponentData = async () => {
-    loadWorlds({ userId, worldId: Number(worldId) });
+    loadUserData({ worldId: Number(worldId) });
   };
   const clearModalData = () => {
     clearGlobalModal();
@@ -81,9 +75,6 @@ const WorldLocationsList = () => {
   const onEditLocation = (location: APIData<Location>) => {
     setGlobalLocation(location);
     setGlobalModal(MODAL.MANAGE_LOCATION);
-  };
-  const onSelectLocation = (location: APIData<Location>) => {
-    setGlobalLocation(location);
   };
   const clearComponentData = () => {
     clearModalData();
@@ -177,8 +168,8 @@ const WorldLocationsList = () => {
                 world={focusedWorld}
                 location={location}
                 onEdit={onEditLocation}
-                onSelect={onSelectLocation}
-                permissions={role}
+                onSelect={onEditLocation}
+                permissions={location.authorId === userId ? "Author" : "Reader"}
               />
             )}
           />

@@ -1,5 +1,11 @@
 import { ComponentPropsWithRef } from "react";
 import styled from "styled-components";
+import { lineclamp } from "theme/theme.shared";
+import {
+  EventPolarity,
+  EventPolarityColors,
+  PermissionProps
+} from "utils/types";
 
 type FlexContainerProps = {
   inline?: boolean;
@@ -78,6 +84,45 @@ export const GridContainer = styled.div<{ columns?: string; gap?: string }>`
   display: grid;
   grid-template-columns: ${({ columns = "auto auto" }) => columns};
   grid-gap: ${({ gap = 0 }) => gap};
+`;
+
+export const ItemDescription = styled.div`
+  ${lineclamp(1)};
+  font-size: smaller;
+  grid-column: 2 / -1;
+  grid-row: 2;
+  line-height: ${({ theme }) => theme.sizes.md};
+  margin: 0;
+  opacity: 0.7;
+  padding: 0;
+  width: 100%;
+
+  > p {
+    margin: 0;
+  }
+`;
+type NameProps = PermissionProps & { polarity?: EventPolarity };
+export const ItemName = styled.b.attrs({
+  role: "button",
+  tabIndex: -1
+})<NameProps>`
+  color: ${({ polarity }) => EventPolarityColors(polarity)};
+  grid-column: 2;
+  grid-row: 1;
+  pointer-events: ${({ permissions }) =>
+    permissions === "Author" ? "fill" : "none"};
+  width: fit-content;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.accent};
+  }
+
+  .icon {
+    display: inline-block;
+    padding: ${({ theme }) => theme.sizes.xs};
+    font-size: smaller;
+    cursor: pointer;
+  }
 `;
 
 type PCProps = FlexContainerProps & { minHeight?: string };

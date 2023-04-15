@@ -5,15 +5,14 @@ import { AutoDismissNotification } from "./Common/Notifications";
 import { Alert } from "state";
 
 const NotificationGroup = styled(FlexColumn)`
-  bottom: 1rem;
-  height: 40vmin;
-  height: auto;
-  left: 50%;
-  margin: 0 auto 0 -300px;
-  max-width: 600px;
+  margin: 0 auto;
+  max-width: 400px;
   overflow: hidden auto;
   padding: ${({ theme }) => theme.sizes.sm};
+  pointer-events: none;
   position: fixed;
+  right: 1rem;
+  top: 1rem;
   width: 100%;
   z-index: 9999;
 
@@ -35,7 +34,7 @@ const ActiveNotifications = styled(() => {
   const timeout = (m: Alert) => (m.error ? 30000 : 5000);
 
   return (
-    <NotificationGroup>
+    <NotificationGroup className="slide-in-right">
       {msgs.map((m) => (
         <AutoDismissNotification
           key={m.time}

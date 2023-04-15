@@ -1,10 +1,9 @@
 import CreateRelationshipForm from "components/Form.CreateRelationships";
 import {
   CreateRelationshipData,
-  createOrUpdateRelationships
+  upsertRelationships
 } from "graphql/requests/characters.graphql";
 import { useEffect, useState } from "react";
-import styled from "styled-components";
 import Modal from "./Modal";
 import { clearGlobalModal, updateRelationships } from "state";
 import { ErrorMessage } from "components/Common/Containers";
@@ -16,6 +15,14 @@ type CreateRelationshipsModalProps = {
   data?: Partial<CreateRelationshipData>[];
   onClose?: () => void;
 };
+
+/* const condenseData = (data: Partial<CreateRelationshipData>[]) =>
+  data.map((c) => ({
+    characterId: c.characterId,
+    targetId: c.targetId,
+    relationship: c.relationship,
+    id: c.id || undefined
+  })); */
 
 /** Specialized Modal for creating/editing a `Relationship` */
 export default function CreateRelationshipsModal(
@@ -38,7 +45,7 @@ export default function CreateRelationshipsModal(
     if (nextError.length > 0) return;
 
     // Create
-    const resp = await createOrUpdateRelationships(formData);
+    const resp = await upsertRelationships(formData);
 
     // Notify
     if (resp) {

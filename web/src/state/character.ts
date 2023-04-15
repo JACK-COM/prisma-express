@@ -1,4 +1,5 @@
 import createState from "@jackcom/raphsducks";
+import { mergeLists } from "utils";
 import { APIData, CharacterRelationship, Character } from "utils/types";
 
 /* Convenience */
@@ -27,41 +28,40 @@ export type GlobalCharacterListKey = "characters" | "relationships";
 
 /**
  * Update list of characters in state
- * @param newCharacters New characters
+ * @param chars New characters
  */
-export function updateCharacters(newCharacters: APICharacter[]) {
+export function updateCharacters(chars: APICharacter[], skipUpdate = false) {
   const { focusedCharacter } = GlobalCharacter.getState();
-  if (newCharacters.length !== 1 || !focusedCharacter) {
-    return updateCharacterStateList(newCharacters, "characters");
+  const updates: Partial<GlobalCharacterInstance> = {
+    characters: updateCharacterStateList(chars, "characters")
+  };
+
+  if (chars.length === 1 && Boolean(focusedCharacter)) {
+    updates.focusedCharacter = chars[0];
   }
 
-  const characters = updateCharacterStateList(
-    newCharacters,
-    "characters",
-    true
-  );
-  GlobalCharacter.multiple({ characters, focusedCharacter: newCharacters[0] });
+  if (!skipUpdate) GlobalCharacter.multiple(updates);
+  return updates;
 }
 
 /**
  * Update list of relationships in state
- * @param newRelationships New relationships
+ * @param rels New relationships
  */
-export function updateRelationships(newRelationships: APIRelationship[]) {
+export function updateRelationships(
+  rels: APIRelationship[],
+  skipUpdate = false
+) {
   const { focusedRelationship } = GlobalCharacter.getState();
-  if (newRelationships.length !== 1 || !focusedRelationship) {
-    return updateCharacterStateList(newRelationships, "relationships");
+  const updates: Partial<GlobalCharacterInstance> = {
+    relationships: updateCharacterStateList(rels, "relationships")
+  };
+  if (rels.length === 1 && focusedRelationship) {
+    updates.focusedRelationship = rels[0];
   }
 
-  const relationships = updateCharacterStateList(
-    newRelationships,
-    "relationships",
-    true
-  );
-  GlobalCharacter.multiple({
-    relationships: relationships,
-    focusedRelationship: newRelationships[0]
-  });
+  if (!skipUpdate) GlobalCharacter.multiple(updates);
+  return updates;
 }
 
 /**
@@ -81,39 +81,6 @@ export function removeRelationship(targetId: number) {
 }
 
 /**
- * Update list-key in state
- * @param newItems New items
- */
-export function updateCharacterStateList<T extends APIData<any>[]>(
-  newItems: T,
-  key: GlobalCharacterListKey,
-  returnList = false
-) {
-  const state = GlobalCharacter.getState();
-  const old = state[key] as T;
-  const next = [...old];
-  newItems.forEach((w) => {
-    const existing = old.findIndex((x) => x.id === w.id);
-    if (existing > -1) next[existing] = { ...next[existing], ...w };
-    else next.push(w);
-  });
-
-  if (returnList) return next;
-  GlobalCharacter[key](next);
-}
-
-/**
- * Overwrite a list-key in state
- * @param newItems New items for state
- */
-export function setCharacterStateList<T extends APIData<any>[]>(
-  newItems: T,
-  key: GlobalCharacterListKey
-) {
-  GlobalCharacter[key](newItems);
-}
-
-/**
  * Clear selected character
  */
 export function clearGlobalCharacter() {
@@ -122,6 +89,21 @@ export function clearGlobalCharacter() {
     focusedRelationship: null,
     relationships: []
   });
+}
+
+/**
+ * Update list-key in state
+ * @param newItems New items
+ */
+function updateCharacterStateList<T extends APIData<any>[]>(
+  newItems: T,
+  key: GlobalCharacterListKey
+) {
+  const state = GlobalCharacter.getState();
+  const old = state[key] as T;
+  const next = mergeLists(old, newItems);
+
+  return next;
 }
 
 /**

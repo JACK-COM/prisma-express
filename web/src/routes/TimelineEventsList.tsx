@@ -32,7 +32,7 @@ const TimelinesEventsList = () => {
   const { id: userId, role } = useGlobalUser(["id", "authenticated", "role"]);
   const { timelineId } = useParams<{ timelineId: string }>();
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
-  const { focusedTimeline, focusedWorld, loadWorlds, updateTimelines } =
+  const { focusedTimeline, focusedWorld, loadUserData, updateTimelines } =
     useGlobalWorld(["focusedTimeline", "focusedWorld"]);
   const [crumbTitle, timelineEvents] = useMemo(
     () => [
@@ -72,7 +72,7 @@ const TimelinesEventsList = () => {
   );
 
   useEffect(() => {
-    loadWorlds({ userId, timelineId: Number(timelineId) });
+    loadUserData({ userId, timelineId: Number(timelineId) });
     return () => clearComponentData();
   }, []);
 

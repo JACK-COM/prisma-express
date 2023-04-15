@@ -6,10 +6,14 @@
  */
 
 import {
+  MFBookFragment,
+  MFChapterFragment,
   MFCharacterFragment,
   MFEventFragment,
   MFLocationFragment,
   MFRelationshipFragment,
+  MFSceneFragment,
+  MFSeriesFragment,
   MFTimelineEventFragment,
   MFTimelineFragment,
   MFUserFragment,
@@ -37,6 +41,112 @@ export const listLocationsQuery = () =>
       name: $name) {
       ${MFLocationFragment}
     } 
+  }`;
+
+/** List `Series` */
+export const listSeriesQuery = () =>
+  `query ListSeries(
+    $authorId: Int, $description: String, $title: String, $genre: String
+    ) { 
+      listSeries(
+        authorId: $authorId,
+        description: $description,
+        genre: $genre,
+        title: $title
+      ) {
+        ${MFSeriesFragment}
+      }
+    }`;
+
+/** Get `Series` */
+export const getSeriesQuery = () =>
+  `query GetSeries($id: Int!) {
+    getSeries(id: $id) {
+      ${MFSeriesFragment},
+      Books {
+        ${MFBookFragment}
+      }
+    }
+  }`;
+
+/** List `Books` */
+export const listBooksQuery = () =>
+  `query ListBooks(
+    $title: String, $genre: String, $description: String, $authorId: Int, $seriesId: Int, $publicOnly: Boolean, $freeOnly: Boolean
+    ) {
+      listBooks(
+        title: $title,
+        genre: $genre,
+        description: $description,
+        authorId: $authorId,
+        seriesId: $seriesId,
+        publicOnly: $publicOnly,
+        freeOnly: $freeOnly
+      ) {
+        ${MFBookFragment}
+      }
+    }`;
+
+/** Get `Book` */
+export const getBookQuery = () =>
+  `query GetBook($id: Int!) {
+    getBook(id: $id) {
+      ${MFBookFragment}
+      Chapters {
+        ${MFChapterFragment}
+      }
+    }
+  }`;
+
+/** List `Chapters` */
+export const listChaptersQuery = () =>
+  `query ListChapters(
+    $id: Int, $authorId: Int, $bookId: Int, $description: String, $title: String
+    ) {
+      listChapters(
+        id: $id,
+        authorId: $authorId,
+        bookId: $bookId,
+        description: $description,
+        title: $title
+      ) {
+        ${MFChapterFragment}
+      }
+    }`;
+
+/** Get `Chapter` */
+export const getChapterQuery = () =>
+  `query GetChapter($id: Int!) {
+    getChapter(id: $id) {
+      ${MFChapterFragment}
+      Scenes {
+        ${MFSceneFragment}
+      }
+    }
+  }`;
+
+/** List `Scenes` */
+export const listScenesQuery = () =>
+  `query ListScenes(
+    $id: Int, $authorId: Int, $chapterId: Int, $description: String, $title: String  
+    ) {
+      listScenes(
+        id: $id,
+        authorId: $authorId,
+        chapterId: $chapterId,
+        description: $description,
+        title: $title
+      ) {
+        ${MFSceneFragment}
+      }
+    }`;
+
+/** Get `Scene` */
+export const getSceneQuery = () =>
+  `query GetScene($id: Int!) {  
+    getScene(id: $id) {
+      ${MFSceneFragment}
+    }
   }`;
 
 /** List `Characters` graphql query */

@@ -31,7 +31,7 @@ export const upsertCharacterMutation = mutationField("upsertCharacter", {
    * database directly, or to access the authenticated `user` if the request has one.
    * @returns `MFCharacter` object from service
    */
-  resolve: async (_, { data }, { user }) => {
+  resolve: async (_, { data }, { user, Worlds }) => {
     // require authentication
     if (!user?.id) {
       throw new Error("You must be logged in to create a character");
@@ -43,14 +43,16 @@ export const upsertCharacterMutation = mutationField("upsertCharacter", {
     }
 
     // require ownership
-    if (data.id && data.authorId !== user.id) {
-      throw new Error("You do not own this character");
+    const world = await Worlds.findUnique({ where: { id: data.worldId } });
+    if (!world) throw new Error("World not found");
+    else if (data.id && data.authorId !== world.authorId) {
+      throw new Error("You don't have permission to change this character");
     }
 
     // append authorId and data
     return CharactersService.upsertCharacter({
       ...data,
-      authorId: user.id,
+      authorId: data.authorId || user.id,
       id: data.id || undefined,
       description: data.description || "No description"
     });

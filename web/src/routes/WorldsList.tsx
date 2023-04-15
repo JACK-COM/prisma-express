@@ -37,7 +37,6 @@ const WorldsList = () => {
   const {
     focusedWorld,
     worlds = [],
-    loadWorlds,
     setGlobalWorld
   } = useGlobalWorld(["focusedWorld", "worlds", "worldLocations"]);
   const clearComponentData = () => {
@@ -61,7 +60,6 @@ const WorldsList = () => {
   );
 
   useEffect(() => {
-    loadWorlds({ userId });
     return () => clearComponentData();
   }, []);
 

@@ -8,7 +8,6 @@ import { queryField, nonNull, intArg, list, stringArg, arg } from "nexus";
 import * as TimelinesService from "../../services/timelines.service";
 import * as TimelinesEventsService from "../../services/timeline-events.service";
 import * as EventsService from "../../services/events.service";
-import { findAllWorld } from "../../services/worlds.service";
 
 /**
  * Get a single `Timeline` by ID
@@ -65,31 +64,6 @@ export const getEventById = queryField("getEventById", {
 });
 
 /**
- * Get all `Timelines` for a given `User`
- * @param userId User ID
- * @returns `MFTimeline` objects from service
- */
-export const listAuthorTimelines = queryField("listAuthorTimelines", {
-  type: list("MFTimeline"),
-  args: { authorId: nonNull(intArg()) },
-
-  /**
-   * Query resolver
-   * @param _ Source object (ignored in mutations/queries)
-   * @param args Args (everything defined in `args` property above)
-   * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
-   * database directly, or to access the authenticated `user` if the request has one.
-   * @returns `MFTimeline` objects from service
-   */
-  resolve: async (_, { authorId }, { user }) => {
-    const isAuthor = user?.id === authorId;
-    // require author
-    if (!user || !isAuthor) return [];
-    return TimelinesService.findAllTimelines({ authorId });
-  }
-});
-
-/**
  * Get all `Events` for a given `Timeline`
  * @param timelineId Timeline ID
  * @returns `MFEvent` objects from service: empty list if not found or not authorized
@@ -135,11 +109,11 @@ export const listTimelines = queryField("listTimelines", {
    * database directly, or to access the authenticated `user` if the request has one.
    * @returns `MFTimeline` objects from service: empty list if not found or not authorized
    */
-  resolve: async (_, args, { user, Timelines }) => {
+  resolve: async (_, args, { user, Timelines, Worlds }) => {
     const { name, worldId } = args;
     // Get timelines for public worlds if no user
     if (!user) {
-      const publicWorlds = await findAllWorld({ public: true });
+      const publicWorlds = await Worlds.findMany({ where: { public: true } });
       if (!publicWorlds.length) return [];
       const pubWorldIds = publicWorlds.map((w) => w.id);
       const pubTimelines = await Timelines.findMany({

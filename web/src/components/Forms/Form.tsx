@@ -16,17 +16,13 @@ const requiredInputStyles = css`
 const sharedInputStyles = css`
   border-radius: ${({ theme }) => theme.presets.round.sm};
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
-  font-size: 0.9em;
+  font-size: 16px;
   height: ${({ theme }) => theme.sizes.lg};
   line-height: ${({ theme }) => theme.sizes.lg};
   padding: ${({ theme }) => theme.sizes.xs};
 
   &[aria-invalid="true"] {
     outline: 2px solid ${({ theme }) => theme.colors.error};
-  }
-
-  @media screen and (max-width: 900px) {
-    font-size: 16px;
   }
 `;
 const sharedRadioStyles = css`
@@ -132,6 +128,10 @@ type SelectProps<T = any> = Omit<
 const StyledSelect = styled.select<{ wide?: boolean }>`
   ${sharedInputStyles};
   width: ${({ wide = false }) => (wide ? "100%" : "auto")};
+
+  option {
+    font-size: 16px;
+  }
 `;
 export const Select = styled((props: SelectProps) => {
   const {

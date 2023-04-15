@@ -20,7 +20,7 @@ const SECTIONS = [
   { auth: false, data: Paths.Worlds, src: worlds }, // "Worlds & settings",
   { auth: false, data: Paths.Characters, src: characters }, // "Cast & Characters",
   { auth: true, data: Paths.Timelines, src: timelines }, // "Events & Timelines",
-  { auth: false, data: Paths.BooksAndSeries, src: books } // "Books & Series"
+  { auth: false, data: Paths.Library, src: books } // "Books & Series"
 ];
 const Controls = styled(GridContainer)`
   padding: 1rem 0;
@@ -34,7 +34,7 @@ const Dashboard = () => {
     if (width > 400) return [2, "0.4rem"];
     return [1, "0.25rem"];
   }, [width]);
-  const dashSections = SECTIONS.filter(({ auth }) => !auth || email);
+  const dashSections = SECTIONS //.filter(({ auth }) => !auth || email);
 
   return (
     <PageContainer id="app-dashboard">

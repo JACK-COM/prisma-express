@@ -107,3 +107,81 @@ export const MFTimelineUpsertInput = inputObjectType({
     t.list.field("events", { type: nonNull("MFTimelineEventUpsertInput") });
   }
 });
+
+/** Input fields for creating a `PopulationGroup` */
+export const MFGroupUpsertInput = inputObjectType({
+  name: "MFGroupUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "Group ID" });
+    t.nonNull.string("name");
+    t.nonNull.string("description");
+    t.nonNull.int("worldId", { description: "Parent world ID" });
+    t.nonNull.field("type", { type: "GroupType" });
+    t.int("authorId", { description: "Item Author/owner" });
+  }
+});
+
+/** Input fields for creating a `Series` */
+export const MFSeriesUpsertInput = inputObjectType({
+  name: "MFSeriesUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "Series ID" });
+    t.nonNull.string("title");
+    t.nonNull.string("description");
+    t.nonNull.string("genre");
+    t.int("authorId", { description: "Item Author/owner" });
+    t.boolean("public", { default: false });
+    t.boolean("free", { default: false });
+    t.list.field("books", { type: nonNull("MFBookUpsertInput") });
+  }
+});
+
+/** Input fields for creating a `Book` */
+export const MFBookUpsertInput = inputObjectType({
+  name: "MFBookUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "Book ID" });
+    t.nonNull.string("title");
+    t.nonNull.string("description");
+    t.nonNull.string("genre");
+    t.int("order", { description: "Sequence in series (if part of one" });
+    t.int("authorId", { description: "Item Author/owner" });
+    t.int("seriesId", { description: "Parent Series" });
+    t.boolean("public", { default: false });
+    t.boolean("free", { default: false });
+    t.list.field("chapters", { type: nonNull("MFChapterUpsertInput") });
+  }
+});
+
+/** Input fields for creating a `Chapter` */
+export const MFChapterUpsertInput = inputObjectType({
+  name: "MFChapterUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "Chapter ID" });
+    t.nonNull.string("title");
+    t.string("description");
+    t.int("order", { description: "Sequence in book (if part of one" });
+    t.int("authorId", { description: "Item Author/owner" });
+    t.int("bookId", { description: "Parent Book" });
+    t.list.field("scenes", { type: nonNull("MFSceneUpsertInput") });
+  }
+});
+
+/** Input fields for creating a `Scene` */
+export const MFSceneUpsertInput = inputObjectType({
+  name: "MFSceneUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "Scene ID" });
+    t.nonNull.string("title");
+    t.string("description");
+    t.nonNull.string("text");
+    t.nonNull.int("order", {
+      description: "Sequence in chapter (if part of one"
+    });
+    t.nonNull.int("chapterId", { description: "Parent Chapter" });
+    t.int("authorId", { description: "Item Author/owner" });
+    t.int("characterId", { description: "Scene primary character" });
+    t.int("eventContextId", { description: "Scene event context" });
+    t.int("timelineId", { description: "Scene event timeline" });
+  }
+});

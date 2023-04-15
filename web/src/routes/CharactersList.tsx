@@ -25,6 +25,8 @@ import CharacterItem from "components/CharacterItem";
 import { APIData, Character } from "utils/types";
 import CreateRelationshipsModal from "components/Modals/CreateRelationshipsModal";
 import { GlobalCharacter } from "state";
+import { SharedButtonProps } from "components/Forms/Button.Helpers";
+import PageLayout from "components/Common/PageLayout";
 
 const { Characters: CharacterPaths } = Paths;
 const AddCharacterButton = styled(ButtonWithIcon)`
@@ -63,6 +65,15 @@ const CharactersList = () => {
     GlobalCharacter.focusedCharacter(char);
     setGlobalModal(MODAL.MANAGE_CHARACTER);
   };
+  const controls = (variant: SharedButtonProps["variant"] = "outlined") => (
+    <AddCharacterButton
+      size="lg"
+      icon="face_2"
+      text="Create New Character"
+      variant={variant}
+      onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
+    />
+  );
 
   useEffect(() => {
     loadComponentData();
@@ -70,15 +81,12 @@ const CharactersList = () => {
   }, []);
 
   return (
-    <PageContainer id="world-list">
-      <header>
-        <Breadcrumbs data={[CharacterPaths.Index]} />
-        <PageTitle>{CharacterPaths.Index.text}</PageTitle>
-        <PageDescription>
-          Create or manage your <b>Characters</b> and realms here.
-        </PageDescription>
-      </header>
-
+    <PageLayout
+      id="world-list"
+      title={CharacterPaths.Index.text}
+      breadcrumbs={[CharacterPaths.Index]}
+      description="Create or manage your <b>Characters</b> and realms here."
+    >
       <h3 className="h4">{authenticated ? "Your" : "Public"} Characters</h3>
       <Card>
         {/* Empty List message */}
@@ -90,15 +98,7 @@ const CharactersList = () => {
         )}
 
         {/* Add new (button - top) */}
-        {userId > 0 && characters.length > 5 && (
-          <AddCharacterButton
-            size="lg"
-            icon="public"
-            text="Create New Character"
-            variant="outlined"
-            onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
-          />
-        )}
+        {authenticated && characters.length > 5 && controls("transparent")}
 
         {/* List */}
         <List
@@ -115,15 +115,7 @@ const CharactersList = () => {
         />
 
         {/* Add new (button - bottom) */}
-        {authenticated && (
-          <AddCharacterButton
-            size="lg"
-            icon="public"
-            text="Create New Character"
-            variant={characters.length > 5 ? "transparent" : "outlined"}
-            onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
-          />
-        )}
+        {authenticated && controls()}
       </Card>
 
       {/* Modals */}
@@ -138,7 +130,7 @@ const CharactersList = () => {
         open={active === MODAL.MANAGE_RELATIONSHIPS}
         onClose={clearComponentData}
       />
-    </PageContainer>
+    </PageLayout>
   );
 };
 

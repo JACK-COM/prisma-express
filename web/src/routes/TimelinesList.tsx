@@ -18,6 +18,8 @@ import { useGlobalUser } from "hooks/GlobalUser";
 import { useNavigate } from "react-router";
 import { GlobalWorld } from "state";
 import { useGlobalWorld } from "hooks/GlobalWorld";
+import { SharedButtonProps } from "components/Forms/Button.Helpers";
+import PageLayout from "components/Common/PageLayout";
 
 const { Timelines: TimelinePaths } = Paths;
 const AddTimelineButton = styled(ButtonWithIcon)`
@@ -48,6 +50,15 @@ const TimelinesList = () => {
   const onSelectTimeline = (timeline: APIData<Timeline>) => {
     navigate(insertId(TimelinePaths.Events.path, timeline.id));
   };
+  const controls = (variant: SharedButtonProps["variant"] = "outlined") => (
+    <AddTimelineButton
+      size="lg"
+      icon="timeline"
+      text="Create New Timeline"
+      variant="outlined"
+      onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
+    />
+  );
 
   useEffect(() => {
     loadTimelines({ userId });
@@ -55,15 +66,12 @@ const TimelinesList = () => {
   }, []);
 
   return (
-    <PageContainer id="timeline-list">
-      <header>
-        <Breadcrumbs data={[TimelinePaths.Index]} />
-        <PageTitle>{TimelinePaths.Index.text}</PageTitle>
-        <PageDescription>
-          Create or manage your <b>Timelines</b> and <b>Events</b> here.
-        </PageDescription>
-      </header>
-
+    <PageLayout
+      id="timeline-list"
+      breadcrumbs={[TimelinePaths.Index]}
+      title={TimelinePaths.Index.text}
+      description="Create or manage your <b>Timelines</b> and <b>Events</b> here."
+    >
       <h3 className="h4">{authenticated ? "Your" : "Public"} Timelines</h3>
       <Card>
         {/* Empty List message */}
@@ -75,15 +83,7 @@ const TimelinesList = () => {
         )}
 
         {/* Add new (button - top) */}
-        {timelines.length > 5 && (
-          <AddTimelineButton
-            size="lg"
-            icon="public"
-            text="Create New Timeline"
-            variant="outlined"
-            onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
-          />
-        )}
+        {authenticated && timelines.length > 5 && controls("transparent")}
 
         {/* List */}
 
@@ -100,15 +100,7 @@ const TimelinesList = () => {
         />
 
         {/* Add new (button - bottom) */}
-        {authenticated && (
-          <AddTimelineButton
-            size="lg"
-            icon="public"
-            text="Create New Timeline"
-            variant={timelines.length > 5 ? "transparent" : "outlined"}
-            onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
-          />
-        )}
+        {authenticated && controls()}
       </Card>
 
       {/* Modal */}
@@ -117,7 +109,7 @@ const TimelinesList = () => {
         open={active === MODAL.MANAGE_TIMELINE}
         onClose={clearComponentData}
       />
-    </PageContainer>
+    </PageLayout>
   );
 };
 

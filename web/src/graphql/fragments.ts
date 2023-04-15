@@ -58,7 +58,7 @@ export const MFChapterFragment = `
 
 /** graphql `Book` fragment */
 export const MFBookFragment = `
-    id, title, description, genre, authorId, seriesId,
+    id, title, description, order, genre, authorId, seriesId, public, free,
 `;
 
 /** graphql `Series` fragment */

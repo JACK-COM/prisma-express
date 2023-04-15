@@ -11,6 +11,7 @@ import {
 import { Hint } from "components/Forms/Form";
 import { PermissionedIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
+import { TimelineItemEventIcon } from "./TimelineItem.EventIcon";
 
 const Container = styled(Link)<PermissionProps>`
   border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
@@ -32,6 +33,9 @@ const TimelineIcon = styled(PermissionedIcon)`
   grid-row: 1/3;
   margin-right: ${({ theme }) => theme.sizes.xs};
 `;
+const TimelineEventIcon = styled(MatIcon)`
+  font-size: small;
+`;
 const TimelineWorld = styled(Hint)`
   ${lineclamp(1)};
   align-self: center;
@@ -49,7 +53,6 @@ type TimelineItemProps = {
   onSelect?: (w: APIData<Timeline>) => void;
   permissions?: UserRole;
 };
-
 const TimelineItem = ({
   timeline,
   onSelect = undefined,
@@ -57,7 +60,7 @@ const TimelineItem = ({
   permissions = "Reader"
 }: TimelineItemProps) => {
   const { public: isPublic = false } = timeline.World || {};
-  const colorClass = isPublic ? "success--text" : "grey";
+  const colorClass = isPublic ? "success--text" : "grey--text";
   const title = `${isPublic ? "Public" : "Private"} Timeline`;
   const url = insertId(Paths.Timelines.Events.path, timeline.id);
   const edit = requireAuthor(() => onEdit(timeline), permissions);
@@ -67,6 +70,7 @@ const TimelineItem = ({
       e.stopPropagation();
       onSelect(timeline);
     }) as React.MouseEventHandler);
+  const events = timeline.TimelineEvents || [];
 
   return (
     <Container to={url} onClick={select} permissions={permissions}>
@@ -81,7 +85,11 @@ const TimelineItem = ({
         {timeline.name}
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </ItemName>
-      <ItemDescription>Hello World</ItemDescription>
+      <ItemDescription>
+        {events.map((e, i) => (
+          <TimelineItemEventIcon key={e.id} data={e} last={i === events.length - 1} />
+        ))}
+      </ItemDescription>
       <TimelineWorld
         className={colorClass}
         children={timelineDescription(timeline)}

@@ -22,6 +22,13 @@ enum Climate {
   Polar
 }
 
+// The status of a Chapter
+enum ChapterStatus {
+  Draft
+  Published
+  Archived
+}
+
 // The type of significant Event that occurs in a World
 enum EventPolarity {
   PositiveExpected
@@ -91,6 +98,7 @@ model User {
   Series          Series[]
   TimelineEvent   TimelineEvent[]
   PersonalLibrary Library[]
+  Notes           Notes[]
 }
 
 // A Chapter is a collection of one or more Scenes. 
@@ -111,21 +119,24 @@ model Book {
   Author      User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
   Series      Series?   @relation(fields: [seriesId], references: [id])
   Library     Library[]
+  Notes       Notes[]
 }
 
 // A Chapter is a collection of one or more Scenes. 
 model Chapter {
-  id          Int      @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   order       Int
   title       String
   description String
   authorId    Int? // ( references User )
   bookId      Int
-  created     DateTime @default(now()) // Item created
-  lastUpdated DateTime @default(now()) // Item updated
+  created     DateTime      @default(now()) // Item created
+  lastUpdated DateTime      @default(now()) // Item updated
+  status      ChapterStatus @default(Draft)
   Scenes      Scene[]
-  Author      User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  Book        Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  Author      User?         @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Book        Book          @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  Notes       Notes[]
 }
 
 // A Character is a significant actor in a World or other location.
@@ -227,6 +238,7 @@ model Scene {
   Character      Character?     @relation(fields: [characterId], references: [id])
   EventContext   TimelineEvent? @relation(fields: [eventContextId], references: [id], onDelete: SetNull)
   Timeline       Timeline?      @relation(fields: [timelineId], references: [id], onDelete: SetNull)
+  Notes          Notes[]
 }
 
 // A Series is a collection of two or more Books. 
@@ -299,4 +311,20 @@ model Library {
   User           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   Book           Book?     @relation(fields: [bookId], references: [id], onDelete: Cascade)
   Series         Series?   @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+}
+
+// Notes can be created on books, chapters, and scenes
+model Notes {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  text        String   @db.Text()
+  authorId    Int // ( references User | nullable )
+  bookId      Int? // ( references Book | nullable )
+  chapterId   Int? // ( references Chapter | nullable )
+  sceneId     Int? // ( references Scene | nullable )
+  Author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  Book        Book?    @relation(fields: [bookId], references: [id], onDelete: SetNull)
+  Chapter     Chapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+  Scene       Scene?   @relation(fields: [sceneId], references: [id], onDelete: SetNull)
 }

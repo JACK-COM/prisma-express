@@ -14,11 +14,11 @@ import ListView from "components/Common/ListView";
 import BookItem from "components/BookItem";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, Book } from "utils/types";
-import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { SharedButtonProps } from "components/Forms/Button.Helpers";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
 import { GlobalLibrary } from "state";
+import PageLayout from "components/Common/PageLayout";
 
 const { Library } = Paths;
 const AddWorldButton = styled(ButtonWithIcon)`
@@ -50,44 +50,43 @@ const BooksList = () => {
     GlobalLibrary.focusedBook(book);
     setGlobalModal(MODAL.MANAGE_BOOK);
   };
-  const controls = (variant: SharedButtonProps["variant"] = "outlined") => (
-    <>
+  const controls = (variant: SharedButtonProps["variant"] = "outlined") =>
+    authenticated ? (
       <AddWorldButton
-        icon="public"
+        icon="book"
         size="lg"
         text="Create New Book"
         variant={variant}
         onClick={() => setGlobalModal(MODAL.MANAGE_BOOK)}
       />
-    </>
-  );
+    ) : (
+      <></>
+    );
 
   useEffect(() => {
     return () => clearComponentData();
   }, []);
 
   return (
-    <PageContainer id="books-list">
-      <header>
-        <Breadcrumbs data={[Library.Index]} />
-        <PageTitle>{Library.Index.text}</PageTitle>
-        <PageDescription>
-          Create or manage your <b>Books</b> and <b>Series</b> here.
-        </PageDescription>
-      </header>
-
+    <PageLayout
+      title={Library.Index.text}
+      breadcrumbs={[Library.Index]}
+      id="books-list"
+      description="Create or manage your <b>Books</b> and <b>Series</b> here."
+    >
       <h3 className="h4">{authenticated ? "Your" : "Public"} Books</h3>
       <Card>
         {/* Empty List message */}
         {!books.length && (
           <EmptyText>
-            The first <b>words</b> were not written, in those times. In fact,
-            writing had not yet been invented.
+            The first <b>words</b> were not yet written, in those times.
+            <br />
+            As a matter of fact, writing had not even been invented.
           </EmptyText>
         )}
 
         {/* Add new (button - top) */}
-        {controls("transparent")}
+        {authenticated && books.length > 5 && controls("transparent")}
 
         {/* List */}
         <List
@@ -102,7 +101,7 @@ const BooksList = () => {
         />
 
         {/* Add new (button - bottom) */}
-        {authenticated && books.length > 5 && controls()}
+        {authenticated && controls()}
       </Card>
 
       {/* Modal */}
@@ -113,7 +112,7 @@ const BooksList = () => {
           onClose={clearComponentData}
         />
       )}
-    </PageContainer>
+    </PageLayout>
   );
 };
 

@@ -73,7 +73,7 @@ export const Paths = {
 
 /** All app route keys for maximum convenience */
 export type AppRoutes = typeof Paths;
-export interface RouteDef {
+export interface AppRouteDef {
   path: string;
   text: string;
   component?: any;

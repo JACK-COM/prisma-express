@@ -55,6 +55,20 @@ export async function findAllSeries(filters: SearchSeriesInput) {
   return Series.findMany({ where, include: { Books: true } });
 }
 
+/** find all published `Series` records matching params */
+export async function findAllPublishedSeries(filters: SearchSeriesInput) {
+  const where: Prisma.SeriesWhereInput = {};
+  if (filters.id) where.id = filters.id;
+  if (filters.title) where.title = { contains: filters.title };
+  if (filters.description)
+    where.description = { contains: filters.description };
+  if (filters.genre) where.genre = { contains: filters.genre };
+  if (filters.authorId) where.authorId = filters.authorId;
+  where.publishDate = { lte: DateTime.now().toISO() };
+
+  return Series.findMany({ where, include: { Books: true } });
+}
+
 /** find one series record matching params */
 export async function getSeriesById(id: Series["id"]) {
   return Series.findUnique({ where: { id }, include: { Books: true } });

@@ -76,6 +76,7 @@ export function pruneChapterData(chapter: any, i = 0) {
     title: chapter.title || `Chapter ${i + 1}`,
     description: chapter.description || "",
     order: chapter.order || i,
-    bookId: chapter.bookId || undefined
+    bookId: chapter.bookId || undefined,
+    status: chapter.status || "Draft"
   } as any;
 }

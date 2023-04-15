@@ -23,9 +23,8 @@ export type CreateBookProps = {
 /** Create or edit a `Book` */
 const CreateBookForm = (props: CreateBookProps) => {
   const { data, onChange = noOp } = props;
-  const updatePublic = (e: boolean) => onChange({ ...data, public: e });
+  const updatePublic = (e: boolean) => onChange({ ...data, public: e || false });
   const updateFree = (free: boolean) => onChange({ ...data, free });
-  const updateGenre = (genre: string) => onChange({ ...data, genre });
   const updateDescription = (description: string) => {
     onChange({ ...data, description });
   };

@@ -144,6 +144,7 @@ export interface NexusGenInputs {
 
 export interface NexusGenEnums {
   Authenticator: "google" | "magic" | "other"
+  ChapterStatus: "Archived" | "Draft" | "Published"
   Climate: "Polar" | "Temperate" | "Warm"
   EventPolarity: "NegativeExpected" | "NegativeUnexpected" | "Neutral" | "PositiveExpected" | "PositiveUnexpected"
   EventTarget: "Local" | "Person" | "World"
@@ -192,6 +193,7 @@ export interface NexusGenObjects {
     description?: string | null; // String
     id: number; // Int!
     order: number; // Int!
+    status?: NexusGenEnums['ChapterStatus'] | null; // ChapterStatus
     title: string; // String!
     updated?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
   }
@@ -368,6 +370,7 @@ export interface NexusGenFieldTypes {
     description: string | null; // String
     id: number; // Int!
     order: number; // Int!
+    status: NexusGenEnums['ChapterStatus'] | null; // ChapterStatus
     title: string; // String!
     updated: NexusGenScalars['CsDateTime'] | null; // CsDateTime
   }
@@ -537,6 +540,7 @@ export interface NexusGenFieldTypes {
     getSeriesById: NexusGenRootTypes['MFSeries'] | null; // MFSeries
     getTimelineById: NexusGenRootTypes['MFTimeline'] | null; // MFTimeline
     getWorldById: NexusGenRootTypes['MFWorld'] | null; // MFWorld
+    listBookPublications: Array<NexusGenRootTypes['MFBook'] | null> | null; // [MFBook]
     listBooks: Array<NexusGenRootTypes['MFBook'] | null> | null; // [MFBook]
     listChapters: Array<NexusGenRootTypes['MFChapter'] | null> | null; // [MFChapter]
     listCharacters: Array<NexusGenRootTypes['MFCharacter'] | null> | null; // [MFCharacter]
@@ -544,6 +548,7 @@ export interface NexusGenFieldTypes {
     listRelationships: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
     listScenes: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
     listSeries: Array<NexusGenRootTypes['MFSeries'] | null> | null; // [MFSeries]
+    listSeriesPublications: Array<NexusGenRootTypes['MFSeries'] | null> | null; // [MFSeries]
     listTimelineEvents: Array<NexusGenRootTypes['MFTimelineEvent'] | null> | null; // [MFTimelineEvent]
     listTimelines: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
     listWorldEvents: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
@@ -581,6 +586,7 @@ export interface NexusGenFieldTypeNames {
     description: 'String'
     id: 'Int'
     order: 'Int'
+    status: 'ChapterStatus'
     title: 'String'
     updated: 'CsDateTime'
   }
@@ -750,6 +756,7 @@ export interface NexusGenFieldTypeNames {
     getSeriesById: 'MFSeries'
     getTimelineById: 'MFTimeline'
     getWorldById: 'MFWorld'
+    listBookPublications: 'MFBook'
     listBooks: 'MFBook'
     listChapters: 'MFChapter'
     listCharacters: 'MFCharacter'
@@ -757,6 +764,7 @@ export interface NexusGenFieldTypeNames {
     listRelationships: 'MFCharacterRelationship'
     listScenes: 'MFScene'
     listSeries: 'MFSeries'
+    listSeriesPublications: 'MFSeries'
     listTimelineEvents: 'MFTimelineEvent'
     listTimelines: 'MFTimeline'
     listWorldEvents: 'MFEvent'
@@ -871,12 +879,20 @@ export interface NexusGenArgTypes {
     getWorldById: { // args
       id: number; // Int!
     }
-    listBooks: { // args
+    listBookPublications: { // args
       authorId?: number | null; // Int
       description?: string | null; // String
       freeOnly?: boolean | null; // Boolean
       genre?: string | null; // String
-      publicOnly?: boolean | null; // Boolean
+      seriesId?: number | null; // Int
+      title?: string | null; // String
+    }
+    listBooks: { // args
+      authorId?: number | null; // Int
+      description?: string | null; // String
+      free?: boolean | null; // Boolean
+      genre?: string | null; // String
+      public?: boolean | null; // Boolean
       seriesId?: number | null; // Int
       title?: string | null; // String
     }
@@ -921,6 +937,12 @@ export interface NexusGenArgTypes {
       freeOnly?: boolean | null; // Boolean
       genre?: string | null; // String
       publicOnly?: boolean | null; // Boolean
+      title?: string | null; // String
+    }
+    listSeriesPublications: { // args
+      authorId?: number | null; // Int
+      description?: string | null; // String
+      genre?: string | null; // String
       title?: string | null; // String
     }
     listTimelineEvents: { // args

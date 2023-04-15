@@ -134,6 +134,7 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
   max-width: 1280px;
   min-height: ${({ minHeight = "70vh" }) => minHeight};
   text-align: left;
+  width: 100%;
 
   > hr {
     background-color: ${({ theme }) => theme.colors.primary};
@@ -143,12 +144,13 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
     opacity: 0.6;
   }
 
+  /* Content max-width 1280px above display resolution of 1200px */
   @media screen and (min-width: 1200px) {
     max-width: 1280px;
   }
 
   @media screen and (max-width: 1200px) {
-    max-width: 90vmin;
+    /* max-width: 90vmin; */
   }
 
   @media screen and (max-width: 768px) {

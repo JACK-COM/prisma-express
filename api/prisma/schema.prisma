@@ -71,26 +71,26 @@ enum WorldType {
 
 // A user
 model User {
-  id            Int               @id @default(autoincrement())
-  email         String            @unique @db.VarChar(255)
-  displayName   String
-  authSource    Authenticator // Authenticator (facebook, google, twitter, other)
-  password      String?           @db.VarChar(255) // Account password
-  role          UserRole
-  created       DateTime          @default(now()) // Account creation date
-  lastSeen      DateTime          @default(now()) // Last login date
-  Books         Book[]
-  Chapters      Chapter[]
-  Characters    Character[]
-  Events        Event[]
-  Groups        PopulationGroup[]
-  Locations     Location[]
-  Paragraphs    Paragraph[]
-  Scenes        Scene[]
-  Timelines     Timeline[]
-  Worlds        World[]
-  Series        Series[]
-  TimelineEvent TimelineEvent[]
+  id              Int               @id @default(autoincrement())
+  email           String            @unique @db.VarChar(255)
+  displayName     String
+  authSource      Authenticator // Authenticator (facebook, google, twitter, other)
+  password        String?           @db.VarChar(255) // Account password
+  role            UserRole
+  created         DateTime          @default(now()) // Account creation date
+  lastSeen        DateTime          @default(now()) // Last login date
+  Books           Book[]
+  Chapters        Chapter[]
+  Characters      Character[]
+  Events          Event[]
+  Groups          PopulationGroup[]
+  Locations       Location[]
+  Scenes          Scene[]
+  Timelines       Timeline[]
+  Worlds          World[]
+  Series          Series[]
+  TimelineEvent   TimelineEvent[]
+  PersonalLibrary Library[]
 }
 
 // A Chapter is a collection of one or more Scenes. 
@@ -100,24 +100,32 @@ model Book {
   title       String
   description String
   genre       String
+  created     DateTime  @default(now()) // Item created
+  lastUpdated DateTime  @default(now()) // Item updated
+  publishDate DateTime? // Item published for public access
+  public      Boolean   @default(false) // ( publicly accessible )
+  free        Boolean   @default(false) // ( free to read )
   authorId    Int? // ( references User )
   seriesId    Int?
   Chapters    Chapter[]
   Author      User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
   Series      Series?   @relation(fields: [seriesId], references: [id])
+  Library     Library[]
 }
 
 // A Chapter is a collection of one or more Scenes. 
 model Chapter {
-  id          Int     @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   order       Int
-  name        String
+  title       String
   description String
   authorId    Int? // ( references User )
-  bookId      Int?
+  bookId      Int
+  created     DateTime @default(now()) // Item created
+  lastUpdated DateTime @default(now()) // Item updated
   Scenes      Scene[]
-  Author      User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  Book        Book?   @relation(fields: [bookId], references: [id])
+  Author      User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Book        Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
 }
 
 // A Character is a significant actor in a World or other location.
@@ -131,7 +139,6 @@ model Character {
   worldId               Int // ( references World )
   Event                 Event[] // Events affecting this character
   Scene                 Scene[] // Scenes where this character appears
-  Paragraph             Paragraph[] // Paragraphs where this character appears
   CharacterRelationship CharacterRelationship[]
   Author                User?                   @relation(fields: [authorId], references: [id], onDelete: SetNull)
   Group                 PopulationGroup?        @relation(fields: [groupId], references: [id], onDelete: SetNull)
@@ -181,22 +188,8 @@ model Location {
   Characters  Character[]
   Events      Event[]
   Groups      PopulationGroup[]
-  Scenes      Scene[]
   Author      User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
   World       World             @relation(fields: [worldId], references: [id], onDelete: Cascade)
-}
-
-// A Paragraph is a literal paragraph in a story. They can be combined to create scenes. 
-model Paragraph {
-  id          Int        @id @default(autoincrement())
-  order       Int
-  text        String     @db.Text()
-  authorId    Int? // ( references User )
-  characterId Int?
-  sceneId     Int?
-  Author      User?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  Scene       Scene?     @relation(fields: [sceneId], references: [id], onDelete: SetNull)
-  Character   Character? @relation(fields: [characterId], references: [id])
 }
 
 // A Group is a collection of Characters in a World or other location.
@@ -215,37 +208,42 @@ model PopulationGroup {
   World       World       @relation(fields: [worldId], references: [id], onDelete: Cascade)
 }
 
-// A Scene is a collection of Paragraphs where one or more Characters interact with (each other or a) distinct setting within a Location. A Scene happens in the context of a Story Chapter.
+// A Scene is a collection of paragraphs where one or more Characters interact with (each other or a) distinct setting within a Location. A Scene happens in the context of a Story Chapter.
 model Scene {
   id             Int            @id @default(autoincrement())
   order          Int
-  name           String
-  description    String
+  title          String
+  description    String?
+  text           String         @db.Text()
   authorId       Int? // ( references User )
   chapterId      Int // ( references Chapter | nullable )
   characterId    Int?
   eventContextId Int? // ( references TimelineEvent | nullable )
-  locationId     Int // ( references Location | nullable )
   timelineId     Int? // ( references Timeline | nullable )
-  Paragraphs     Paragraph[] // ( references Paragraph | List )
+  created        DateTime       @default(now()) // Item created
+  lastUpdated    DateTime       @default(now()) // Item updated
   Author         User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
   Chapter        Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   Character      Character?     @relation(fields: [characterId], references: [id])
   EventContext   TimelineEvent? @relation(fields: [eventContextId], references: [id], onDelete: SetNull)
-  Location       Location       @relation(fields: [locationId], references: [id], onDelete: Restrict)
   Timeline       Timeline?      @relation(fields: [timelineId], references: [id], onDelete: SetNull)
 }
 
 // A Series is a collection of two or more Books. 
 model Series {
-  id          Int    @id @default(autoincrement())
-  order       Int?
+  id          Int       @id @default(autoincrement())
   title       String
   description String
   genre       String
+  public      Boolean   @default(false) // ( publicly accessible )
+  free        Boolean   @default(false) // ( free to read )
+  created     DateTime  @default(now()) // Item created
+  lastUpdated DateTime  @default(now()) // Item updated
+  publishDate DateTime? // Item published for public access
   authorId    Int? // ( references User )
   Books       Book[]
-  Author      User?  @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Author      User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Library     Library[]
 }
 
 // A named Event-sequence in a World or other location
@@ -287,4 +285,18 @@ model World {
   Groups      PopulationGroup[]
   Characters  Character[]
   Author      User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+}
+
+// A Library associates a User with one or more Books
+model Library {
+  id             Int       @id @default(autoincrement())
+  order          Int
+  userId         Int
+  bookId         Int?
+  seriesId       Int?
+  publicPurchase Boolean   @default(true)
+  purchaseDate   DateTime? @default(now())
+  User           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Book           Book?     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  Series         Series?   @relation(fields: [seriesId], references: [id], onDelete: Cascade)
 }

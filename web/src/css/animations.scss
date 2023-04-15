@@ -295,6 +295,7 @@
 
 .slide-in-right {
   will-change: opacity, transform;
+  animation-fill-mode: forwards;
   @include merge-animations(slide-right, fade-in, 250ms, 250ms);
 }
 

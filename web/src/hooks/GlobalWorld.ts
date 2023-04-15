@@ -27,15 +27,6 @@ type HookState = Partial<GlobalWorldInstance>;
 const listOrLoad = (list: any[], req: () => any) =>
   list.length > 1 ? list : req();
 
-// Additonal instructions for focusing data in the global state
-type HOOK__LoadWorldOpts = {
-  userId: number;
-  timelineId?: number;
-  locationId?: number;
-  worldId?: number;
-  groupId?: number;
-};
-
 /** Reusable subscription to `World` state  */
 export function useGlobalWorld(
   keys: GlobalWorldInstanceKey[] = ["focusedWorld", "worlds"]
@@ -53,7 +44,7 @@ export function useGlobalWorld(
 
     // Helpers
     clearGlobalWorld,
-    loadWorlds,
+    loadUserData,
     getWorld: (id: number) =>
       getByIdFromWorldState(id, "worlds") as APIData<World>,
     setGlobalLocation,
@@ -73,26 +64,34 @@ export function useGlobalWorld(
   };
 }
 
+// Additonal instructions for focusing data in the global state
+type HOOK__LoadWorldOpts = {
+  userId?: number;
+  timelineId?: number;
+  locationId?: number;
+  worldId?: number;
+  groupId?: number;
+  returnUpdates?: boolean;
+};
 const defaultLoadOpts: HOOK__LoadWorldOpts = { userId: -1 };
 
 // Shared function to load timelines and worlds
-async function loadWorlds(opts = defaultLoadOpts) {
+export async function loadUserData(opts = defaultLoadOpts) {
   const gState = GlobalWorld.getState();
   const { worldId, userId, timelineId } = opts;
   const params: any = {};
-  if (userId === -1) params.public = true;
+  if (!userId || userId === -1) params.public = true;
   else if (worldId) params.worldId = worldId;
   else params.authorId = userId;
   const [apiTimelines, apiWorlds, apiEvents] = await Promise.all([
-    params.worldId || params.authorId ? listTimelines(params) : [],
+    listTimelines(params),
     listOrLoad(gState.worlds, () => listWorlds({ authorId: userId })),
     listOrLoad(gState.events, () => listWorldEvents(params))
   ]);
 
   const timeline = apiTimelines.find((t: any) => t.id === Number(timelineId));
   const world = timeline?.World || apiWorlds.find((t: any) => t.id === worldId);
-
-  GlobalWorld.multiple({
+  const updates = {
     timelines: apiTimelines,
     worlds: apiWorlds,
     events: apiEvents,
@@ -100,5 +99,8 @@ async function loadWorlds(opts = defaultLoadOpts) {
     focusedTimeline: timeline || null,
     focusedWorld: world || null,
     worldLocations: world?.Locations || []
-  });
+  };
+
+  if (opts.returnUpdates) return updates;
+  GlobalWorld.multiple(updates);
 }

@@ -34,7 +34,16 @@ export async function findAllUser(where: SearchUserInput) {
 
 /** find one `User` record matching params */
 export async function getUser(where: UserByIdInput | SearchUserInput) {
-  return Users.findUnique({ where });
+  return Users.findUnique({
+    where,
+    include: {
+      Series: true,
+      Books: true,
+      Characters: true,
+      Timelines: true,
+      Worlds: true
+    }
+  });
 }
 
 /** update one `User` record matching params */

@@ -38,7 +38,7 @@ const TimelinesList = () => {
   const {
     focusedTimeline,
     timelines = [],
-    loadWorlds: loadTimelines
+    loadUserData: loadTimelines
   } = useGlobalWorld(["focusedTimeline", "timelines"]);
   const clearComponentData = () => clearGlobalModal();
   const onEditTimeline = (timeline: APIData<Timeline>) => {

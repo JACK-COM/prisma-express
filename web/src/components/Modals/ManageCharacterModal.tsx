@@ -1,7 +1,7 @@
 import CreateCharacterForm from "components/Form.CreateCharacter";
 import {
   CreateCharacterData,
-  createOrUpdateCharacter
+  upsertCharacter
 } from "graphql/requests/characters.graphql";
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
@@ -29,7 +29,7 @@ export default function ManageCharacterModal(props: ManageCharacterModalProps) {
     // Create
     setError("");
     if (!formData.description) formData.description = "No description.";
-    const resp = await createOrUpdateCharacter(formData);
+    const resp = await upsertCharacter(formData);
     if (typeof resp === "string") return setError(resp);
 
     // Notify

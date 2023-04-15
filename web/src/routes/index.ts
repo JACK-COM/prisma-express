@@ -1,21 +1,5 @@
-const MediaPaths = (root: string) => ({
-  Books: {
-    path: `${root}/books`,
-    text: "Books"
-  }
-});
-
-/** All app route keys for maximum convenience */
-type AppRoute =
-  | "Search"
-  | "Dashboard"
-  | "BooksAndSeries"
-  | "Timelines"
-  | "Characters"
-  | "Worlds";
-
 /** All app routes for maximum convenience */
-export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> = {
+export const Paths = {
   Search: {
     Index: {
       path: "/",
@@ -34,34 +18,18 @@ export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> = {
     }
   },
 
-  BooksAndSeries: {
+  Library: {
     Index: {
-      path: "/bibliography",
-      text: "Books & Series"
+      path: "/library",
+      text: "Book Library"
     },
-    Books: {
-      path: "/bibliography/books",
-      text: "My Books"
-    },
-    ManageBook: {
-      path: "/bibliography/books/:bookId",
-      text: "Manage Book"
-    },
-    NewBook: {
-      path: "/bibliography/books/new",
-      text: "New Book"
-    },
-    NewSeries: {
-      path: "/bibliography/series/new",
-      text: "New Series"
+    Book: {
+      path: "/library/books/:bookId",
+      text: "View Book"
     },
     Series: {
-      path: "/bibliography/series",
-      text: "My Series"
-    },
-    SeriesById: {
-      path: "/bibliography/series/:seriesId",
-      text: "Manage Series"
+      path: "/library/series/:seriesId",
+      text: "View Book"
     }
   },
 
@@ -103,6 +71,8 @@ export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> = {
   }
 };
 
+/** All app route keys for maximum convenience */
+export type AppRoutes = typeof Paths;
 export interface RouteDef {
   path: string;
   text: string;

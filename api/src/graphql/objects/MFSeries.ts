@@ -6,14 +6,20 @@ export const MFSeries = objectType({
   description: "A collection of `Books` (e.g. a trilogy)",
   definition(t) {
     t.nonNull.int("id");
-    t.int("order");
     t.nonNull.string("title");
+    t.nonNull.boolean("public", { description: "Series is publicly visible" });
+    t.nonNull.boolean("free", { description: "Series is free to read" });
     t.nonNull.string("description");
     t.nonNull.string("genre");
     t.int("authorId", { description: "Book Author/owner" });
-    t.field("Author", { type: "MFUser" });
+    t.field("created", { type: "CsDateTime", description: "Item created" });
+    t.field("updated", { type: "CsDateTime", description: "Item updated" });
+    t.field("publishDate", { type: "CsDateTime", description: "Item published for public consumption" });
 
-    // List properties 
+    // List properties
     t.nonNull.list.field("Books", { type: "MFBook" });
+
+    // relation
+    t.field("Author", { type: "MFAuthor" });
   }
 });

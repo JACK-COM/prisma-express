@@ -12,7 +12,7 @@ export const MFTimeline = objectType({
 
     // relationships
     t.field("World", { type: "MFWorld" });
-    t.field("Author", { type: "MFUser" });
+    t.field("Author", { type: "MFAuthor" });
 
     // List properties
     t.list.field("Scenes", { type: "MFScene" });

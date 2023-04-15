@@ -11,7 +11,7 @@ const ModalContainer = styled(FlexColumn)`
   position: fixed;
   top: 0;
   width: 100vw;
-  z-index: 9999;
+  z-index: 999;
 
   &::before {
     background: #00000099;

@@ -1,13 +1,23 @@
 import styled from "styled-components";
-import { APIData, UserRole, Location, World, Richness } from "utils/types";
-import { noOp } from "utils";
-import { lineclamp } from "theme/theme.shared";
-import { GridContainer, MatIcon } from "components/Common/Containers";
-import { Hint } from "components/Forms/Form";
+import {
+  APIData,
+  UserRole,
+  Location,
+  World,
+  Richness,
+  PermissionProps
+} from "utils/types";
+import { noOp, requireAuthor } from "utils";
+import {
+  GridContainer,
+  ItemDescription,
+  ItemName,
+  MatIcon
+} from "components/Common/Containers";
 
-type WICProps = { permissions: UserRole };
-const Container = styled(GridContainer)<WICProps>`
+const Container = styled(GridContainer)<PermissionProps>`
   border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
+  cursor: pointer;
   grid-template-areas:
     "icon name"
     "icon description";
@@ -15,34 +25,13 @@ const Container = styled(GridContainer)<WICProps>`
   padding: ${({ theme }) => theme.sizes.xs} 0;
   width: 100%;
 `;
-const Icon = styled(MatIcon).attrs({ icon: "pin_drop" })<WICProps>`
+const Icon = styled(MatIcon)<PermissionProps>`
   align-self: center;
   animation: bounce 400ms linear;
   grid-area: icon;
   margin-right: ${({ theme }) => theme.sizes.sm};
   pointer-events: ${({ permissions }) =>
     permissions === "Author" ? "fill" : "none"};
-`;
-const Description = styled(Hint)`
-  ${lineclamp(1)};
-  grid-area: description;
-  width: 100%;
-`;
-const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<WICProps>`
-  grid-area: name;
-  cursor: pointer;
-  pointer-events: ${({ permissions }) =>
-    permissions === "Author" ? "fill" : "none"};
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.accent};
-  }
-
-  .icon {
-    display: inline-block;
-    padding: ${({ theme }) => theme.sizes.xs};
-    font-size: smaller;
-  }
 `;
 
 type LocationItemProps = {
@@ -61,32 +50,28 @@ const LocationItem = ({
   permissions = "Reader"
 }: LocationItemProps) => {
   const { public: isPublic } = world;
-  const iconClass = isPublic ? "icon success--text" : "icon grey--text";
+  const isAuthor = permissions === "Author";
+  const iconClass = isPublic ? "icon success--text" : "icon error--text";
   const title = isPublic ? "Public Location" : "Private Location";
-  const edit: React.MouseEventHandler = (e) => {
-    if (permissions !== "Author") return;
-    e.stopPropagation();
-    onEdit(location);
-  };
-  const select: React.MouseEventHandler = (e) => {
-    e.stopPropagation();
-    onSelect(location);
-  };
+  const edit = requireAuthor(() => onEdit(location), permissions);
+  const select = requireAuthor(() => onSelect(location), permissions);
 
   return (
     <Container onClick={select} permissions={permissions}>
       <Icon
-        icon="pin_drop"
+        icon={isAuthor ? "pin_drop" : "lock"}
         permissions={permissions}
         className={iconClass}
         title={title}
       />
 
-      <Name permissions={permissions} onClick={edit}>
+      <ItemName permissions={permissions} onClick={edit}>
         {location.name}
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
-      </Name>
-      <Description dangerouslySetInnerHTML={locationDescription(location)} />
+      </ItemName>
+      <ItemDescription
+        dangerouslySetInnerHTML={locationDescription(location)}
+      />
     </Container>
   );
 };

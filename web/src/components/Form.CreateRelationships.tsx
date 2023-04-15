@@ -28,6 +28,7 @@ export type CreateRelationshipsProps = {
   onChange?: (data: Partial<CreateRelationshipData>[]) => void;
 };
 
+/* relationship link in UI */
 const RelationshipItem = styled(FormRow)`
   margin-bottom: 0.6rem;
   padding-bottom: 0.6rem;
@@ -82,6 +83,9 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
   const required = (rel: Partial<CreateRelationshipData>) => {
     return primary(rel) ? "label required" : "label";
   };
+  const CharName = character && (
+    <b className="accent--text">{character.name}</b>
+  );
 
   return (
     <Form>
@@ -128,9 +132,7 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
                 itemText={(d: APIData<Character>) => d.name}
                 itemValue={(d) => d.id}
                 emptyMessage={
-                  isPrimary
-                    ? "No other characters in world."
-                    : char.name
+                  isPrimary ? "No other characters in world." : char.name
                 }
                 placeholder="Select a target:"
                 onChange={(ch) => updateTarget(ch, i)}
@@ -139,17 +141,24 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
 
             {/* Relationship description */}
             <Label direction="column">
-              <span className={isRequired}>
-                {isPrimary
-                  ? `Relationship(s) to ${character.name}`
-                  : `"${character.name}" is their:`}
-              </span>
-              <Input
-                disabled={relt.characterId !== character.id}
-                placeholder={`How do they relate to ${character.name}?`}
-                value={relt?.relationship || ""}
-                onChange={(e) => updateRelationship(e, i)}
-              />
+              {isPrimary ? (
+                <>
+                  <span className={isRequired}>
+                    Connection(s) to {CharName}
+                  </span>
+                  <Input
+                    disabled={relt.characterId !== character.id}
+                    placeholder={`How do they relate to ${character.name}?`}
+                    value={relt?.relationship || ""}
+                    onChange={(e) => updateRelationship(e, i)}
+                  />
+                </>
+              ) : (
+                <>
+                  <span className={isRequired}>{CharName} is their:</span>
+                  <b className="success--text" children={relt?.relationship || ""} />
+                </>
+              )}
             </Label>
 
             {isPrimary && (

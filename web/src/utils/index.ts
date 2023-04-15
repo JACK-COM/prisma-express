@@ -1,3 +1,7 @@
+/**
+ * @module Utils
+ * @description Export all utility functions and constants from here
+ */
 import { APP_VERSION, APP_VERSION_KEY } from "./constants";
 import { UserRole, APIData } from "./types";
 
@@ -13,6 +17,7 @@ export async function checkVersionChanged() {
 
 /** Merge two arrays of `APIData` data, preferring the second */
 export function mergeLists<T extends APIData<any>>(a: T[], b: T[]): T[] {
+  if (!a.length) return [...b];
   const next = [...a];
   b.forEach((item: any) => {
     const x = next.findIndex((l: any) => l.id === item.id);

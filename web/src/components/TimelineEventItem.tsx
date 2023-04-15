@@ -4,16 +4,11 @@ import {
   PermissionProps,
   UserRole,
   TimelineEvent,
-  EventPolarity,
-  EventPolarityColors,
   EventPolarityText
 } from "utils/types";
-import { noOp, suppressEvent } from "utils";
-import { lineclamp } from "theme/theme.shared";
-import { GridContainer, MatIcon } from "./Common/Containers";
-import { Hint } from "./Forms/Form";
+import { noOp } from "utils";
+import { GridContainer, ItemDescription, ItemName } from "./Common/Containers";
 import { DeleteItemIcon, PermissionedIcon } from "./ComponentIcons";
-import { Paths, insertId } from "routes";
 import { requireAuthor } from "utils";
 
 const Container = styled(GridContainer)<PermissionProps>`
@@ -37,32 +32,7 @@ const Container = styled(GridContainer)<PermissionProps>`
     background-color: ${({ theme }) => theme.colors.semitransparent};
   }
 `;
-const Description = styled(Hint)`
-  ${lineclamp(1)};
-  grid-column: 2 / -1;
-  grid-row: 2;
-  width: 100%;
-`;
-type NameProps = PermissionProps & { polarity?: EventPolarity };
-const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<NameProps>`
-  color: ${({ polarity }) => EventPolarityColors(polarity)};
-  grid-column: 2;
-  grid-row: 1;
-  pointer-events: ${({ permissions }) =>
-    permissions === "Author" ? "fill" : "none"};
-  width: fit-content;
 
-  &:hover {
-    color: ${({ theme }) => theme.colors.accent};
-  }
-
-  .icon {
-    display: inline-block;
-    padding: ${({ theme }) => theme.sizes.xs};
-    font-size: smaller;
-    cursor: pointer;
-  }
-`;
 const TimelineEventIcon = styled(PermissionedIcon)`
   grid-column: 1;
   grid-row: 1/3;
@@ -98,16 +68,15 @@ const TimelineEventItem = ({
         permissions={permissions}
       />
 
-      <Name
+      <ItemName
         polarity={tEvent.Event?.polarity}
         permissions={permissions}
         onClick={edit}
       >
         {tEvent?.Event?.name}
-        {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
-      </Name>
+      </ItemName>
       {showDescription && (
-        <Description dangerouslySetInnerHTML={itemDescription(tEvent)} />
+        <ItemDescription dangerouslySetInnerHTML={itemDescription(tEvent)} />
       )}
       {showDescription && permissions === "Author" && (
         <DeleteItemIcon

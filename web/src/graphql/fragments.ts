@@ -45,3 +45,26 @@ export const MFTimelineFragment = `
     World { ${MFWorldFragment} },
     TimelineEvents { ${MFTimelineEventFragment} }
 `;
+
+/** graphql `Scene` fragment */
+export const MFSceneFragment = `
+    id, order, title, description, text, authorId, chapterId, characterId, eventContextId, locationId, timelineId
+`;
+
+/** graphql `Chapter` fragment */
+export const MFChapterFragment = `
+    id, order, title, description, authorId, bookId
+`;
+
+/** graphql `Book` fragment */
+export const MFBookFragment = `
+    id, title, description, genre, authorId, seriesId,
+`;
+
+/** graphql `Series` fragment */
+export const MFSeriesFragment = `
+    id, name, description, authorId, worldId,
+    Books {
+      ${MFBookFragment}
+    }
+`;

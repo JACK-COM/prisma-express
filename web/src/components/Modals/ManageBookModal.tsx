@@ -50,7 +50,7 @@ export default function ManageBookModal(props: ManageBookModalProps) {
   };
 
   useEffect(() => {
-    if (data) setFormData({ ...data, ...formData });
+    if (data) setFormData({ ...data });
     else if (!data) setFormData(emptyForm());
 
     return () => {

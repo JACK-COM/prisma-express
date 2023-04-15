@@ -117,7 +117,7 @@ export const upsertBookMutation = mutationField("upsertBook", {
     if (!chapters?.length) return newBook;
 
     await ChaptersService.upsertChapters(
-      chapters.map((chapter: any, i) => ({
+      chapters.map((chapter, i) => ({
         ...ChaptersService.pruneChapterData(chapter, i),
         authorId: chapter.authorId || user.id,
         bookId: newBook.id

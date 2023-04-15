@@ -122,21 +122,31 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
           >
             {/* Target Character (id) */}
             <Label direction="column">
-              <span className={isRequired}>
-                {isPrimary ? "Target" : "Other Relation"}
-              </span>
-              <Select
-                disabled={!isPrimary || !targets.length}
-                data={isPrimary ? targets : []}
-                value={relt.targetId || ""}
-                itemText={(d: APIData<Character>) => d.name}
-                itemValue={(d) => d.id}
-                emptyMessage={
-                  isPrimary ? "No other characters in world." : char.name
-                }
-                placeholder="Select a target:"
-                onChange={(ch) => updateTarget(ch, i)}
-              />
+              {isPrimary ? (
+                <>
+                  <span className={isRequired}>Target</span>
+                  <Select
+                    disabled={!isPrimary || !targets.length}
+                    data={isPrimary ? targets : []}
+                    value={relt.targetId || ""}
+                    itemText={(d: APIData<Character>) => d.name}
+                    itemValue={(d) => d.id}
+                    emptyMessage={
+                      isPrimary ? "No other characters in world." : char.name
+                    }
+                    placeholder="Select a target:"
+                    onChange={(ch) => updateTarget(ch, i)}
+                  />
+                </>
+              ) : (
+                <>
+                  <span className={isRequired}>{CharName} is a:</span>
+                  <b
+                    className="success--text"
+                    children={relt?.relationship || ""}
+                  />
+                </>
+              )}
             </Label>
 
             {/* Relationship description */}
@@ -155,8 +165,8 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
                 </>
               ) : (
                 <>
-                  <span className={isRequired}>{CharName} is their:</span>
-                  <b className="success--text" children={relt?.relationship || ""} />
+                  <span className="label">to this character:</span>
+                  <b className="accent--text" children={char.name} />
                 </>
               )}
             </Label>

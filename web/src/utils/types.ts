@@ -53,6 +53,26 @@ export const EventPolarityColors = (p?: EventPolarity) => {
   return p ? colors[p] : "inherit";
 };
 
+export const EventPolaritySymbols = (p?: EventPolarity) => {
+  const symbols = {
+    [EventPolarity.PositiveExpected]: "👍",
+    [EventPolarity.PositiveUnexpected]: "🤩",
+    [EventPolarity.Neutral]: "🤷",
+    [EventPolarity.NegativeExpected]: "👎",
+    [EventPolarity.NegativeUnexpected]: "😱"
+  };
+  return p ? symbols[p] : symbols[EventPolarity.Neutral];
+};
+
+export const EventTargetSymbols = (p?: EventTarget) => {
+  const symbols = {
+    [EventTarget.World]: "public",
+    [EventTarget.Local]: "pin_drop",
+    [EventTarget.Person]: "face"
+  };
+  return p ? symbols[p] : symbols[EventTarget.World];
+};
+
 /** The target of a significant Event that occurs in a World */
 export enum EventTarget {
   /** affects all characters in a World  */

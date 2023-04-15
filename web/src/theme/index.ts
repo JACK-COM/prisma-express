@@ -26,6 +26,18 @@ const THEME: GlobalTheme = {
     }
   }
 
+  /* Main App container */
+  .App {
+    display: grid;
+    grid-template-columns: 160px auto;
+    min-height: 100vh;
+
+    @media screen and (max-width: 768px) {
+      grid-template-columns: 1fr;
+      grid-template-rows: max-content;
+    }
+  }
+
   .ellipsis {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -36,6 +48,11 @@ const THEME: GlobalTheme = {
   .flex {
     align-items: center;
     display: flex !important;
+  } 
+
+  .inline-flex {
+    align-items: center;
+    display: inline-flex !important;
   } 
 
   .hide-scrollbar {
@@ -64,7 +81,6 @@ const THEME: GlobalTheme = {
     font-family: 'Source Sans 3', sans-serif;
     height: 100%;
     margin: 0;
-    min-height: 100vh;
     overflow-y: auto;
 
     *:not(code) { 

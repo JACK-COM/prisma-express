@@ -17,7 +17,7 @@ type BreadcrumbsProps = { data: RouteDef[] };
 /** Application path breadcrumb container */
 const Breadcrumbs = (props: BreadcrumbsProps) => {
   const { data } = props;
-  const crumbs = [Paths.Dashboard.Index, ...data]
+  const crumbs = [Paths.Dashboard.Index, ...data];
   const active = data.filter(({ path }) => useMatch(path) !== null);
 
   return (

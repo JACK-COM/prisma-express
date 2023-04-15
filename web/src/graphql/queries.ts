@@ -72,7 +72,7 @@ export const getSeriesQuery = () =>
 /** List `Books` */
 export const listBooksQuery = () =>
   `query ListBooks(
-    $title: String, $genre: String, $description: String, $authorId: Int, $seriesId: Int, $publicOnly: Boolean, $freeOnly: Boolean
+    $title: String, $genre: String, $description: String, $authorId: Int, $seriesId: Int, $public: Boolean, $free: Boolean
     ) {
       listBooks(
         title: $title,
@@ -80,8 +80,8 @@ export const listBooksQuery = () =>
         description: $description,
         authorId: $authorId,
         seriesId: $seriesId,
-        publicOnly: $publicOnly,
-        freeOnly: $freeOnly
+        public: $public,
+        free: $free
       ) {
         ${MFBookFragment}
       }

@@ -9,6 +9,13 @@ enum Authenticator {
   other
 }
 
+"""The status of a Chapter"""
+enum ChapterStatus {
+  Archived
+  Draft
+  Published
+}
+
 """The general climate of a setting."""
 enum Climate {
   Polar
@@ -119,6 +126,9 @@ type MFChapter {
   description: String
   id: Int!
   order: Int!
+
+  """Status"""
+  status: ChapterStatus
   title: String!
 
   """Item updated"""
@@ -616,7 +626,8 @@ type Query {
   getSeriesById(id: Int!): MFSeries
   getTimelineById(id: Int!): MFTimeline
   getWorldById(id: Int!): MFWorld
-  listBooks(authorId: Int, description: String, freeOnly: Boolean = false, genre: String, publicOnly: Boolean = false, seriesId: Int, title: String): [MFBook]
+  listBookPublications(authorId: Int, description: String, freeOnly: Boolean = false, genre: String, seriesId: Int, title: String): [MFBook]
+  listBooks(authorId: Int, description: String, free: Boolean = false, genre: String, public: Boolean = false, seriesId: Int, title: String): [MFBook]
   listChapters(authorId: Int, bookId: Int!, description: String, id: [Int!], title: String): [MFChapter]
 
   """
@@ -633,6 +644,7 @@ type Query {
   listRelationships(characterId: Int, id: Int, relationship: String, targetId: Int): [MFCharacterRelationship]
   listScenes(authorId: Int, chapterId: Int!, description: String, id: [Int!], text: String, title: String): [MFScene]
   listSeries(authorId: Int, description: String, freeOnly: Boolean, genre: String, publicOnly: Boolean, title: String): [MFSeries]
+  listSeriesPublications(authorId: Int, description: String, genre: String, title: String): [MFSeries]
   listTimelineEvents(timelineId: Int!): [MFTimelineEvent]
   listTimelines(authorId: Int, name: String, worldId: Int): [MFTimeline]
   listWorldEvents(authorId: Int, characterId: Int, description: String, groupId: Int, locationId: Int, name: String, polarity: EventPolarity, target: EventTarget, worldId: Int): [MFEvent]

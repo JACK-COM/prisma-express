@@ -18,6 +18,7 @@ import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { clearGlobalWorld } from "state";
 import { SharedButtonProps } from "components/Forms/Button.Helpers";
+import PageLayout from "components/Common/PageLayout";
 
 const { Worlds: WorldPaths } = Paths;
 const AddWorldButton = styled(ButtonWithIcon)`
@@ -64,15 +65,12 @@ const WorldsList = () => {
   }, []);
 
   return (
-    <PageContainer id="world-list">
-      <header>
-        <Breadcrumbs data={[WorldPaths.Index]} />
-        <PageTitle>{WorldPaths.Index.text}</PageTitle>
-        <PageDescription>
-          Create or manage your <b>Worlds</b> and realms here.
-        </PageDescription>
-      </header>
-
+    <PageLayout
+      id="world-list"
+      title={WorldPaths.Index.text}
+      breadcrumbs={[WorldPaths.Index]}
+      description="Create or manage your <b>Worlds</b> and realms here."
+    >
       <h3 className="h4">{authenticated ? "Your" : "Public"} Worlds</h3>
       <Card>
         {/* Empty List message */}
@@ -107,7 +105,7 @@ const WorldsList = () => {
         open={active === MODAL.MANAGE_WORLD}
         onClose={clearComponentData}
       />
-    </PageContainer>
+    </PageLayout>
   );
 };
 

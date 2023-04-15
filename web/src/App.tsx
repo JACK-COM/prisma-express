@@ -1,5 +1,10 @@
 import { Suspense, lazy, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation
+} from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import THEME from "./theme/index";
 import { GlobalUser } from "./state";
@@ -8,7 +13,7 @@ import AppHeader from "components/AppHeader";
 import { useGlobalTheme } from "hooks/GlobalTheme";
 import FullScreenLoader from "components/Common/FullscreenLoader";
 import { Paths, wildcard } from "routes";
-import { loadUserData } from "hooks/GlobalWorld";
+import { loadUser, loadUserData } from "hooks/loadUserData";
 import ActiveNotifications from "components/ActiveNotifications";
 
 const CharactersRoute = lazy(() => import("./routes/CharactersRoute"));
@@ -20,12 +25,10 @@ const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
 
 function App() {
   const { theme } = useGlobalTheme();
+
   const checkLoggedIn = async () => {
-    const fOpts: RequestInit = { method: "post", credentials: "include" };
-    const { user } = await fetch(AUTH_ROUTE, fOpts).then((r) => r.json());
-    if (!user) return;
-    await loadUserData({ userId: user.id });
-    GlobalUser.multiple({ ...user, authenticated: true });
+    const user = await loadUser();
+    await loadUserData({ userId: user?.id });
   };
 
   useEffect(() => {

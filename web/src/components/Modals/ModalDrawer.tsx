@@ -4,13 +4,13 @@ import styled, { css } from "styled-components";
 import { noOp } from "utils";
 import { FlexColumn, GridContainer, MatIcon } from "../Common/Containers";
 
-const ModalContainer = styled(FlexColumn)`
+const DrawerContainer = styled(FlexColumn)`
   height: 100vh;
   left: 0;
   place-content: center;
+  align-items: start;
   position: fixed;
   top: 0;
-  width: 100vw;
   z-index: 999;
 
   &::before {
@@ -24,10 +24,15 @@ const ModalContainer = styled(FlexColumn)`
 `;
 /** Shared width of content */
 const contentWidthBoundary = css`
-  width: 100vw;
+  width: 50vw;
   min-width: 300px;
+  z-index: 995;
+
+  @media screen and (max-width: 768px) {
+    width: 100vw;
+  }
 `;
-const ModalControls = styled(GridContainer)`
+const ModalDrawerControls = styled(GridContainer)`
   ${contentWidthBoundary}
   background-color: ${({ theme }) => theme.colors.bgColor};
   bottom: -10px;
@@ -41,7 +46,7 @@ const ModalControls = styled(GridContainer)`
     margin: 0;
   }
 `;
-const ModalTitle = styled(GridContainer).attrs({
+const ModalDrawerTitle = styled(GridContainer).attrs({
   columns: "auto min-content"
 })`
   ${contentWidthBoundary}
@@ -58,20 +63,21 @@ const ModalTitle = styled(GridContainer).attrs({
   }
 `;
 type ContentProps = { centered?: boolean };
-const ModalContents = styled(FlexColumn).attrs({ padded: true })<ContentProps>`
+const ModalDrawerContents = styled(FlexColumn).attrs({
+  padded: true
+})<ContentProps>`
   ${contentWidthBoundary}
   background: ${({ theme }) => theme.colors.bgColor};
   border-radius: ${({ theme }) => theme.presets.round.default};
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
   color: ${({ theme }) => theme.colors.primary};
-  height: 80vh;
+  height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
   place-content: ${({ centered = false }) => (centered ? "center" : "start")};
-  z-index: inherit;
 `;
 
-type ModalProps = {
+type ModalDrawerProps = {
   title?: string;
   confirmText?: string;
   cancelText?: string;
@@ -81,7 +87,7 @@ type ModalProps = {
   onConfirm?: { (): any };
 } & React.ComponentPropsWithRef<"div">;
 
-const Modal = (p: ModalProps) => {
+const ModalDrawer = (p: ModalDrawerProps) => {
   const {
     title,
     onClose = noOp,
@@ -93,7 +99,7 @@ const Modal = (p: ModalProps) => {
     cancelText = ""
   } = p;
   const rootClass = "modal-root--default";
-  const contentEntryClass = "scale-in";
+  const contentEntryClass = "slide-in-left";
   const modalControlCols = useMemo(
     () => (confirmText && cancelText ? "repeat(2,1fr)" : "auto"),
     [confirmText, cancelText]
@@ -115,20 +121,23 @@ const Modal = (p: ModalProps) => {
   if (!open) return <></>;
 
   return (
-    <ModalContainer className={rootClass} onClick={onBGClick}>
-      <ModalTitle>
+    <DrawerContainer className={rootClass} onClick={onBGClick}>
+      <ModalDrawerTitle>
         {title && <h1 className="title h4">{title}</h1>}
         <Button variant="transparent" onClick={onClose}>
           <MatIcon icon="close" />
         </Button>
-      </ModalTitle>
+      </ModalDrawerTitle>
 
-      <ModalContents centered={centerContent} className={contentEntryClass}>
+      <ModalDrawerContents
+        centered={centerContent}
+        className={contentEntryClass}
+      >
         {children}
-      </ModalContents>
+      </ModalDrawerContents>
 
       {(confirmText || cancelText) && (
-        <ModalControls columns={modalControlCols}>
+        <ModalDrawerControls columns={modalControlCols}>
           {cancelText && (
             <WideButton variant="transparent" onClick={onClose}>
               {cancelText}
@@ -137,10 +146,10 @@ const Modal = (p: ModalProps) => {
           {confirmText && (
             <WideButton onClick={onConfirm}>{confirmText}</WideButton>
           )}
-        </ModalControls>
+        </ModalDrawerControls>
       )}
-    </ModalContainer>
+    </DrawerContainer>
   );
 };
 
-export default Modal;
+export default ModalDrawer;

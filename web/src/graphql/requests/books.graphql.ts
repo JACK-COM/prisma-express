@@ -276,6 +276,7 @@ export function pruneBookForAPI(raw: Partial<UpsertBookData>) {
   const data: UpsertBookData = {
     authorId: raw.authorId,
     seriesId: raw.seriesId,
+    order: raw.order || 0,
     title: raw.title || "No Title",
     description: raw.description || "No description",
     genre: raw.genre || "No Genre",

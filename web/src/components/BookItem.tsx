@@ -1,18 +1,14 @@
 import styled from "styled-components";
-import { APIData, Book, PermissionProps, UserRole, World } from "utils/types";
+import { APIData, Book, PermissionProps, UserRole } from "utils/types";
 import { noOp, suppressEvent } from "utils";
 import { MatIcon, ItemDescription, ItemName } from "./Common/Containers";
-import {
-  DeleteItemIcon,
-  DeleteWorldIcon,
-  WorldPublicIcon
-} from "./ComponentIcons";
+import { DeleteItemIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
 import { Link } from "react-router-dom";
 import { requireAuthor } from "utils";
 import { PermissionedIcon } from "./ComponentIcons";
 import { deleteBook } from "graphql/requests/books.graphql";
-import { removeBookFromState, updateAsError } from "state";
+import { GlobalUser, removeBookFromState, updateAsError } from "state";
 
 const Container = styled(Link)<PermissionProps>`
   border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
@@ -48,6 +44,7 @@ const BookItem = ({
   onEdit = noOp,
   permissions = "Reader"
 }: WorldItemProps) => {
+  const { id: userId } = GlobalUser.getState();
   const url = insertId(Paths.Library.Book.path, book.id);
   const edit = requireAuthor(() => onEdit(book), permissions);
   const remove = requireAuthor(async () => {
@@ -61,21 +58,26 @@ const BookItem = ({
     suppressEvent(e);
     onSelect(book);
   };
+  const owner = book.authorId === userId;
+  const icon = owner ? "menu_book" : "lock";
+  const iconColor = book.public ? "success--text" : "error--text";
 
   return (
     <Container to={url} onClick={select} permissions={permissions}>
-      <BookIcon icon="menu_book" permissions={permissions} />
+      <BookIcon icon={icon} className={iconColor} permissions={permissions} />
 
       <ItemName permissions={permissions} onClick={edit}>
         {book.title}
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </ItemName>
       <ItemDescription dangerouslySetInnerHTML={{ __html: book.description }} />
-      <DeleteItemIcon
-        onItemClick={remove}
-        permissions={permissions}
-        data={book}
-      />
+      {permissions === "Author" && (
+        <DeleteItemIcon
+          onItemClick={remove}
+          permissions={permissions}
+          data={book}
+        />
+      )}
     </Container>
   );
 };

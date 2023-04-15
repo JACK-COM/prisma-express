@@ -147,8 +147,8 @@ export const listBooks = queryField("listBooks", {
     description: stringArg(),
     seriesId: intArg(),
     authorId: intArg(),
-    publicOnly: arg({ type: "Boolean", default: false }),
-    freeOnly: arg({ type: "Boolean", default: false })
+    public: arg({ type: "Boolean", default: false }),
+    free: arg({ type: "Boolean", default: false })
   },
 
   /**
@@ -160,19 +160,67 @@ export const listBooks = queryField("listBooks", {
    * @throws Error if book not found or book is private and user is not the author
    */
   resolve: async (_, args, { user }) => {
-    const { authorId, publicOnly, freeOnly } = args;
+    const { authorId,  } = args;
     const books = await BooksService.findAllBooks({
       title: args.title || undefined,
       genre: args.genre || undefined,
       authorId,
-      public: !user || publicOnly || false,
-      free: freeOnly || false,
+      public: !user || args.public || false,
+      free: args.free || false,
       description: args.description || undefined,
       seriesId: args.seriesId || undefined
     });
 
     // filter out private books if user is not the author
-    return books.filter((book) => book.public || book.authorId === user?.id);
+    return books
+  }
+});
+
+/** List all published books */
+export const listBookPublications = queryField("listBookPublications", {
+  type: list("MFBook"),
+  args: {
+    title: stringArg(),
+    genre: stringArg(),
+    description: stringArg(),
+    seriesId: intArg(),
+    authorId: intArg(),
+    freeOnly: arg({ type: "Boolean", default: false })
+  },
+
+  resolve: async (_, args, __dbCtx) => {
+    const { authorId, freeOnly } = args;
+    return BooksService.findAllPublishedBooks({
+      title: args.title || undefined,
+      genre: args.genre || undefined,
+      authorId,
+      public: true,
+      free: freeOnly || false,
+      description: args.description || undefined,
+      seriesId: args.seriesId || undefined
+    });
+  }
+});
+
+/** List all published series */
+export const listSeriesPublications = queryField("listSeriesPublications", {
+  type: list("MFSeries"),
+  args: {
+    title: stringArg(),
+    genre: stringArg(),
+    description: stringArg(),
+    authorId: intArg()
+  },
+
+  resolve: async (_, args, __dbCtx) => {
+    const { authorId } = args;
+    return SeriesService.findAllPublishedSeries({
+      title: args.title || undefined,
+      genre: args.genre || undefined,
+      authorId,
+      public: true,
+      description: args.description || undefined
+    });
   }
 });
 

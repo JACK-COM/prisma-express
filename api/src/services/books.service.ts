@@ -19,7 +19,7 @@ type SearchBookInput = Partial<
     | "genre"
     | "seriesId"
   >
-> & { id?: Book["id"][] };
+> & { id?: Book["id"][]; published?: boolean };
 
 const { Books, Chapters, Scenes } = context;
 
@@ -31,8 +31,8 @@ export async function upsertBook(book: BookUpsertInput) {
   data.lastUpdated = DateTime.now().toISO();
 
   return book.id
-    ? Books.update({ data: book, where: { id: book.id } })
-    : Books.create({ data: book });
+    ? Books.update({ data, where: { id: book.id } })
+    : Books.create({ data });
 }
 
 /** create or update `Book` records */
@@ -43,6 +43,32 @@ export async function upsertBooks(books: BookUpsertInput[]) {
 /** find all `Book` records matching params */
 export async function findAllBooks(filters: SearchBookInput) {
   const where: Prisma.BookWhereInput = {};
+  if (filters.authorId) where.authorId = filters.authorId;
+  if (filters.id) where.id = { in: filters.id };
+  if (filters.seriesId) where.seriesId = filters.seriesId;
+  if (filters.title) where.title = { contains: filters.title };
+  if (filters.description)
+    where.description = { contains: filters.description };
+
+  if (filters.published) {
+    where.publishDate = { lte: DateTime.now().toISO() };
+  }
+
+  if (filters.genre) {
+    where.OR = [];
+    where.OR.push({ genre: { contains: filters.genre } });
+  }
+
+  return Books.findMany({
+    where,
+    include: { Author: true, Chapters: true }
+  });
+}
+
+/** find all published `Book` records matching params */
+export async function findAllPublishedBooks(filters: SearchBookInput) {
+  const where: Prisma.BookWhereInput = {};
+  where.publishDate = { lte: DateTime.now().toISO() };
   if (filters.id) where.id = { in: filters.id };
   if (filters.seriesId) where.seriesId = filters.seriesId;
   if (filters.title) where.title = { contains: filters.title };

@@ -20,6 +20,16 @@ export const Climate = enumType({
   }
 });
 
+export const ChapterStatus = enumType({
+  name: "ChapterStatus",
+  description: "The status of a Chapter",
+  members: {
+    Draft: "Draft",
+    Published: "Published",
+    Archived: "Archived"
+  }
+});
+
 export const EventPolarity = enumType({
   name: "EventPolarity",
   description: "The type of significant Event that occurs in a World.",

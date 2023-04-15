@@ -11,6 +11,7 @@ export const MFChapter = objectType({
     t.string("description");
     t.int("authorId", { description: "Author owner" });
     t.int("bookId", { description: "Chapter's Book id" });
+    t.field("status", { type: "ChapterStatus", description: "Status" });
     t.field("created", { type: "CsDateTime", description: "Item created" });
     t.field("updated", { type: "CsDateTime", description: "Item updated" });
 

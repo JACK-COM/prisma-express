@@ -1,5 +1,5 @@
 import { useMatch } from "react-router";
-import { Paths, RouteDef } from "routes";
+import { Paths, AppRouteDef } from "routes";
 import { FlexRow, GridContainer, MatIcon } from "./Containers";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -12,7 +12,7 @@ const Container = styled(GridContainer)`
   width: fit-content;
 `;
 
-type BreadcrumbsProps = { data: RouteDef[] };
+type BreadcrumbsProps = { data: AppRouteDef[] };
 
 /** Application path breadcrumb container */
 const Breadcrumbs = (props: BreadcrumbsProps) => {

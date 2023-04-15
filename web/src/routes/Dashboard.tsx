@@ -20,7 +20,10 @@ const Container = styled(PageContainer)`
   height: 100vh;
   overflow: hidden;
 
-  /* @media screen and (max-width: 768px) {} */
+  @media screen and (max-width: 768px) {
+    height: auto;
+    overflow-y: auto;
+  }
   @media screen and (max-height: 600px) {
     height: auto;
     overflow-y: auto;

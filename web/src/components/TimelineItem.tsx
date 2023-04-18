@@ -6,36 +6,14 @@ import { lineclamp } from "theme/theme.shared";
 import {
   ItemDescription,
   ItemName,
+  ItemLinkContainer,
   MatIcon
 } from "components/Common/Containers";
 import { Hint } from "components/Forms/Form";
-import { PermissionedIcon } from "./ComponentIcons";
+import { TallIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
 import { TimelineItemEventIcon } from "./TimelineItem.EventIcon";
 
-const Container = styled(Link)<PermissionProps>`
-  border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
-  display: grid;
-  color: inherit;
-  column-gap: ${({ theme }) => theme.sizes.sm};
-  grid-template-columns: 24px 10fr max-content;
-  justify-content: space-between;
-  padding: ${({ theme }) => theme.sizes.xs} 0;
-  width: 100%;
-
-  @media screen and (max-width: 600px) {
-    grid-template-columns: 24px 3fr 1fr;
-  }
-`;
-const TimelineIcon = styled(PermissionedIcon)`
-  align-self: center;
-  display: inline-block;
-  grid-row: 1/3;
-  margin-right: ${({ theme }) => theme.sizes.xs};
-`;
-const TimelineEventIcon = styled(MatIcon)`
-  font-size: small;
-`;
 const TimelineWorld = styled(Hint)`
   ${lineclamp(1)};
   align-self: center;
@@ -53,6 +31,8 @@ type TimelineItemProps = {
   onSelect?: (w: APIData<Timeline>) => void;
   permissions?: UserRole;
 };
+
+/** @component A single `Timeline` created by a user */
 const TimelineItem = ({
   timeline,
   onSelect = undefined,
@@ -73,9 +53,9 @@ const TimelineItem = ({
   const events = timeline.TimelineEvents || [];
 
   return (
-    <Container to={url} onClick={select} permissions={permissions}>
-      <TimelineIcon
-        icon="timeline"
+    <ItemLinkContainer to={url} onClick={select} permissions={permissions}>
+      <TallIcon
+        icon={permissions === "Author" ? "timeline" : "lock"}
         permissions={permissions}
         className={`icon ${colorClass}`}
         title={title}
@@ -87,14 +67,18 @@ const TimelineItem = ({
       </ItemName>
       <ItemDescription>
         {events.map((e, i) => (
-          <TimelineItemEventIcon key={e.id} data={e} last={i === events.length - 1} />
+          <TimelineItemEventIcon
+            key={e.id}
+            data={e}
+            last={i === events.length - 1}
+          />
         ))}
       </ItemDescription>
       <TimelineWorld
         className={colorClass}
         children={timelineDescription(timeline)}
       />
-    </Container>
+    </ItemLinkContainer>
   );
 };
 

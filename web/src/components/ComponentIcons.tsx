@@ -24,6 +24,9 @@ export const editableStyles = css`
     color: ${({ theme }) => theme.colors.accent};
   }
 `;
+
+// ICONS
+
 export const PermissionedIcon = styled(MatIcon)<PermissionProps>`
   pointer-events: ${({ permissions }) =>
     permissions === "Author" ? "fill" : "none"};
@@ -31,14 +34,19 @@ export const PermissionedIcon = styled(MatIcon)<PermissionProps>`
   cursor: pointer;
   ${editableStyles};
 `;
-
-/** `World` Icon Container (indicates a `World` data-type) */
-const WorldIcon = styled(PermissionedIcon)<PermissionProps>`
+export const TallIcon = styled(PermissionedIcon)`
   align-self: center;
-  animation: shake 280ms linear;
-  grid-row: 1/3;
+  animation-fill-mode: backwards;
+  font-size: 1rem;
+  grid-row: 1 / span 2;
   pointer-events: ${({ permissions }) =>
     permissions === "Author" ? "fill" : "none"};
+  text-align: center;
+`;
+
+/** `World` Icon Container (indicates a `World` data-type) */
+const WorldIcon = styled(TallIcon)`
+  animation: shake 280ms linear;
 
   &:hover {
     animation-name: spin;
@@ -72,12 +80,10 @@ export const WorldPublicIcon = (props: WorldIconProps) => {
 };
 
 /** Generic "Delete Item" Icon */
-type DIProps = { disabled: boolean };
-const PDeleteIcon = styled(PermissionedIcon).attrs({ icon: "delete" })<DIProps>`
-  align-self: last baseline;
-  cursor: ${({ disabled = false }) => (disabled ? "not-allowed" : "pointer")};
-  pointer-events: ${({ permissions, disabled }) =>
-    !disabled && permissions === "Author" ? "fill" : "none"};
+const PDeleteIcon = styled(TallIcon).attrs({ icon: "delete" })`
+  align-self: center;
+  cursor: ${({ "aria-disabled": disabled }) =>
+    disabled ? "not-allowed" : "pointer"};
   grid-column: initial;
   grid-row: initial;
 `;
@@ -90,8 +96,8 @@ export const DeleteItemIcon = (props: ItemIconProps) => {
     onItemClick = noOp,
     ...rest
   } = props;
-  const color = disabled ? "grey--text" : "error--text";
-  const iconClass = `${color} ${className || ""}`.trim() || undefined;
+  const color = disabled ? "grey--text" : className;
+  const iconClass = `delete ${color || ""}`.trim() || undefined;
   const onRemove = requireAuthor(
     () => !disabled && onItemClick(data),
     permissions
@@ -99,7 +105,7 @@ export const DeleteItemIcon = (props: ItemIconProps) => {
 
   return (
     <PDeleteIcon
-      disabled={disabled}
+      aria-disabled={disabled || permissions === "Reader"}
       {...rest}
       icon="delete"
       permissions={permissions || "Reader"}
@@ -128,6 +134,7 @@ export const DeleteWorldIcon = (props: WorldIconProps & ItemIconProps) => {
     <DeleteItemIcon
       className={`icon ${iconClass}`}
       {...rest}
+      disabled={props.disabled || props["aria-disabled"] === "true"}
       data={world}
       onItemClick={onDelete}
       permissions="Author"

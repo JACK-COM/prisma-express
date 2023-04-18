@@ -6,7 +6,8 @@ import {
   Book,
   Chapter,
   Scene,
-  Series
+  Series,
+  ArrayKeys
 } from "utils/types";
 
 /* Convenience */
@@ -45,14 +46,17 @@ export const GlobalLibrary = createState({
 export type GlobalLibraryInstance = ReturnType<typeof GlobalLibrary.getState>;
 export type GlobalLibraryInstanceKey = keyof GlobalLibraryInstance;
 /** All lists in state */
-export type GlobalLibraryListKey =
-  | "series"
-  | "books"
-  | "library"
-  | "chapters"
-  | "scenes";
+export type GlobalLibraryListKey = ArrayKeys<GlobalLibraryInstance>;
 
 //  LIST HELPERS
+
+export function clearGlobalBooksState() {
+  GlobalLibrary.multiple({
+    focusedBook: null,
+    focusedChapter: null,
+    focusedScene: null
+  });
+}
 
 /**
  * Update list of `Series` in state

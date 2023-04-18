@@ -1,35 +1,16 @@
 import styled from "styled-components";
-import { APIData, UserRole, Character, PermissionProps } from "utils/types";
+import { APIData, UserRole, Character } from "utils/types";
 import { requireAuthor, noOp } from "utils";
 import { ellipsis } from "theme/theme.shared";
 import {
-  GridContainer,
   ItemDescription,
+  ItemGridContainer,
   ItemName,
   MatIcon
 } from "components/Common/Containers";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
-import { PermissionedIcon } from "./ComponentIcons";
-
-const Container = styled(GridContainer)<PermissionProps>`
-  border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
-  cursor: ${({ permissions }) =>
-    permissions === "Author" ? "pointer" : "inherit"};
-  grid-template-columns: 24px 1fr max-content 24px 24px;
-  grid-column-gap: ${({ theme }) => theme.sizes.sm};
-  justify-content: start;
-  padding: ${({ theme }) => theme.sizes.xs} 0;
-  width: 100%;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.semitransparent};
-  }
-
-  @media screen and (max-width: 424px) {
-    grid-template-columns: 24px 1fr 24px 24px; // Drop to 4 columns
-  }
-`;
+import { TallIcon } from "./ComponentIcons";
 
 const Location = styled.span`
   ${ellipsis()};
@@ -43,12 +24,6 @@ const Location = styled.span`
     display: none;
   }
 `;
-const TallIcon = styled(PermissionedIcon)`
-  align-self: center;
-  animation-fill-mode: backwards;
-  grid-row: 1 / span 2;
-`;
-const Face = styled(TallIcon)``;
 const Relationships = styled(TallIcon).attrs({ icon: "groups" })`
   animation-delay: 200ms;
 `;
@@ -65,6 +40,7 @@ type CharacterItemProps = {
   permissions?: UserRole;
 };
 
+/** @component A single `Character` created by a user */
 const CharacterItem = ({
   character,
   onSelect = noOp,
@@ -88,8 +64,8 @@ const CharacterItem = ({
   );
 
   return (
-    <Container onClick={select} permissions={permissions}>
-      <Face
+    <ItemGridContainer onClick={select} permissions={permissions}>
+      <TallIcon
         icon={isOwner ? "face" : "lock"}
         className={pubClass}
         permissions={permissions}
@@ -118,7 +94,7 @@ const CharacterItem = ({
           <DeleteIcon onClick={deleteCharacter} permissions={permissions} />
         </>
       )}
-    </Container>
+    </ItemGridContainer>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { ReactNode, ReactText } from "react";
 import styled from "styled-components";
-import { noOp } from "../../utils/index";
+import { noOp, suppressEvent } from "../../utils/index";
 
 export type ListViewProps<T> = {
   data: T[];
@@ -26,9 +26,14 @@ const UnorderedList = styled.ul`
 /** Single item in a `ListView` */
 const ListViewItem = styled.li`
   align-items: center;
+  border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
   display: flex;
   flex-shrink: 0;
   text-align: left;
+
+  &:last-of-type {
+    border: 0;
+  }
 `;
 
 /**
@@ -38,11 +43,15 @@ const ListViewItem = styled.li`
 const ListView = styled((props: ListViewProps<any>): JSX.Element => {
   const { data, itemText, onItemClick = noOp, ordered, ...rest } = props;
   const Wrapper: any = ordered ? OrderedList : UnorderedList;
+  const itemClicked = (item: any) => (e: React.MouseEvent) => {
+    suppressEvent(e);
+    onItemClick(item);
+  };
 
   return (
     <Wrapper {...rest}>
       {data.map((item: any, i: number) => (
-        <ListViewItem key={i} onClick={() => onItemClick(item)}>
+        <ListViewItem key={i} onClick={itemClicked(item)}>
           {itemText(item, i)}
         </ListViewItem>
       ))}

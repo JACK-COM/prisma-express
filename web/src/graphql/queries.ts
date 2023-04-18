@@ -90,10 +90,11 @@ export const listBooksQuery = () =>
 /** Get `Book` */
 export const getBookQuery = () =>
   `query GetBook($id: Int!) {
-    getBook(id: $id) {
+    getBookById(id: $id) {
       ${MFBookFragment}
       Chapters {
-        ${MFChapterFragment}
+        ${MFChapterFragment},
+        Scenes { ${MFSceneFragment} }
       }
     }
   }`;
@@ -117,11 +118,9 @@ export const listChaptersQuery = () =>
 /** Get `Chapter` */
 export const getChapterQuery = () =>
   `query GetChapter($id: Int!) {
-    getChapter(id: $id) {
-      ${MFChapterFragment}
-      Scenes {
-        ${MFSceneFragment}
-      }
+    getChapterById(id: $id) {
+      ${MFChapterFragment},
+      Scenes { ${MFSceneFragment} }
     }
   }`;
 
@@ -192,6 +191,14 @@ export const listWorldsQuery = () =>
       public: $public) {
       ${MFWorldFragment}
     } 
+  }`;
+
+/** Get `World` by Id */
+export const getWorldQuery = () =>
+  `query GetWorld($id: Int!) {
+    getWorld(id: $id) {
+      ${MFWorldFragment}
+    }
   }`;
 
 /** List `Timelines` graphql query */

@@ -48,7 +48,7 @@ export const MFTimelineFragment = `
 
 /** graphql `Scene` fragment */
 export const MFSceneFragment = `
-    id, order, title, description, text, authorId, chapterId, characterId, eventContextId, locationId, timelineId
+    id, order, title, description, text, authorId, chapterId, characterId, eventContextId, timelineId
 `;
 
 /** graphql `Chapter` fragment */

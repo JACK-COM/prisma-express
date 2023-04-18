@@ -162,7 +162,7 @@ export const MFChapterUpsertInput = inputObjectType({
     t.string("description");
     t.int("order", { description: "Sequence in book (if part of one" });
     t.int("authorId", { description: "Item Author/owner" });
-    t.int("bookId", { description: "Parent Book" });
+    t.nonNull.int("bookId", { description: "Parent Book" });
     t.list.field("scenes", { type: nonNull("MFSceneUpsertInput") });
   }
 });

@@ -1,11 +1,5 @@
 import styled from "styled-components";
-import {
-  GridContainer,
-  PageContainer,
-  PageDescription,
-  PageTitle
-} from "components/Common/Containers";
-import GridImageLink from "components/Common/GridImageLink";
+import { GridContainer } from "components/Common/Containers";
 import { useGlobalWindow } from "hooks/GlobalWindow";
 import { useMemo } from "react";
 import { Paths } from "routes";
@@ -15,20 +9,9 @@ import timelines from "assets/mystic-time.png";
 import characters from "assets/mystic-characters.png";
 import books from "assets/mystic-books.png";
 import { Link } from "react-router-dom";
+import PageLayout from "components/Common/PageLayout";
 
-const Container = styled(PageContainer)`
-  height: 100vh;
-  overflow: hidden;
-
-  @media screen and (max-width: 768px) {
-    height: auto;
-    overflow-y: auto;
-  }
-  @media screen and (max-height: 600px) {
-    height: auto;
-    overflow-y: auto;
-  }
-`;
+const Container = styled(PageLayout)``;
 const Controls = styled(GridContainer)`
   align-self: stretch;
   height: 100%;
@@ -39,6 +22,8 @@ const Control = styled(Link)<{ image: string }>`
   color: white;
   font-size: 1.6rem;
   font-weight: 600;
+  height: 88vh;
+  overflow: hidden;
   place-content: center;
   text-shadow: 0 0 0.3rem #111b;
   &:hover {
@@ -65,17 +50,15 @@ const Dashboard = () => {
     if (width > 400) return [2, "0"];
     return [1, "0"];
   }, [width]);
-  const dashSections = SECTIONS; //.filter(({ auth }) => !auth || email);
 
   return (
-    <Container id="app-dashboard">
-      <header>
-        <PageTitle>Home</PageTitle>
-        <PageDescription>A forge of myths and legends</PageDescription>
-      </header>
-
+    <Container
+      id="app-dashboard"
+      title="MythosForge"
+      description="A forge of myths and legends"
+    >
       <Controls columns={`repeat(${gridColumns},1fr)`} gap={gridGap}>
-        {dashSections.map(({ data, src }) => (
+        {SECTIONS.map(({ data, src }) => (
           <Control
             className="flex"
             key={data.Index.text}

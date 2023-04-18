@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { Paths, trimParent } from "routes";
-import WorldsList from "./WorldsList";
+import WorldsListRoute from "./WorldsList";
 import WorldLocations from "./WorldLocationsList";
 
 const { Worlds: WorldPaths } = Paths;
@@ -9,7 +9,7 @@ const { Worlds: WorldPaths } = Paths;
 const Worlds = () => {
   return (
     <Routes>
-      <Route index element={<WorldsList />} />
+      <Route index element={<WorldsListRoute />} />
 
       <Route
         path={trimParent(WorldPaths.Locations.path, "worlds")}

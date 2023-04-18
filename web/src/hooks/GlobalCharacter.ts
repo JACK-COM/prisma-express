@@ -34,26 +34,9 @@ export function useGlobalCharacter(
     // Helpers
     /** @helper De-select the globally-selected `Character` */
     clearGlobalCharacter,
-    /** @helper Load `Character` data from API */
-    loadCharacters,
     /** @helper Replace one or more `Character Relationships` in state */
     updateRelationships,
     /** @helper Replace one or more `Characters` in state */
     updateCharacters
   };
-}
-
-/** Load initial character data */
-async function loadCharacters(authorId: number) {
-  const { characters, focusedCharacter: focused } = GlobalCharacter.getState();
-  if (characters.length > 1) return GlobalCharacter.characters([...characters]);
-
-  const apiChars = await listCharacters({ authorId });
-  const next = focused && apiChars.find((c) => c.id === focused.id);
-  if (next) {
-    GlobalCharacter.multiple({
-      characters: apiChars,
-      focusedCharacter: focused
-    });
-  } else GlobalCharacter.characters(apiChars);
 }

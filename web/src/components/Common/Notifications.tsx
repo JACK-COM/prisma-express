@@ -8,11 +8,16 @@ const Wrapper = styled(FlexRow)<{ error?: boolean }>`
   background-color: ${({ theme, error = false }) =>
     error ? theme.colors.error : theme.colors.accent};
   border-radius: ${({ theme }) => theme.presets.round.xs};
+  color: ${({ theme, error }) => (error ? "#fff" : theme.colors.primary)};
   box-shadow: 0 2px 4px #1118;
   height: minmax(3rem, 80px);
   margin-bottom: ${({ theme }) => theme.sizes.xs};
   pointer-events: all;
   width: 100%;
+
+  &.error {
+    color: white;
+  }
 
   .material-icons {
     background: transparent;
@@ -59,18 +64,18 @@ export const AutoDismissNotification = styled((props: ADNProps) => {
     class: `${className || ""} slide-in-left`
   });
   const clear = () => {
-    if (state.timeout) clearTimeout(state.timeout as NodeJS.Timeout);
-    removeNotification(props.notification as Alert);
+    if (state.timeout) clearTimeout(state.timeout);
+    removeNotification(notification.time);
   };
   const animate = () => {
     clearTimeout(state.timeout as NodeJS.Timeout);
-    setState({ class: `${className || ""} slide-out-right` });
+    setState((o) => ({ ...o, class: `${className || ""} slide-out-right` }));
     setTimeout(clear, 500);
   };
 
   useEffect(() => {
     if (state.timeout !== null) return;
-    setState({ timeout: setTimeout(animate, timeout) });
+    setState((o) => ({ ...o, timeout: setTimeout(animate, timeout) }));
   }, [state.class]);
 
   return (
@@ -102,4 +107,4 @@ type ADNProps = NotificationBaseProps & {
 type ADNState = {
   timeout: NodeJS.Timeout | null;
   class: string;
-} & any;
+};

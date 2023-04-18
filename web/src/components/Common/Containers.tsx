@@ -1,5 +1,6 @@
 import { ComponentPropsWithRef } from "react";
-import styled from "styled-components";
+import { Link } from "react-router-dom";
+import styled, { css } from "styled-components";
 import { lineclamp } from "theme/theme.shared";
 import {
   EventPolarity,
@@ -29,6 +30,11 @@ export const Card = styled(BaseContainer).attrs({ className: "card" })`
   @media screen and (max-width: 768px) {
     padding: 0.4em;
   }
+`;
+export const CardTitle = styled.h3.attrs({ className: "h4" })`
+  border-bottom: 1px solid ${({ theme }) => theme.colors.semitransparent};
+  height: 2.5em;
+  line-height: 2.5em;
 `;
 
 /** Page or View description element */
@@ -122,6 +128,42 @@ export const ItemName = styled.b.attrs({
     padding: ${({ theme }) => theme.sizes.xs};
     font-size: smaller;
     cursor: pointer;
+  }
+`;
+
+// Shared list item styles
+const sharedListItemStyles = css`
+  color: initial;
+  column-gap: ${({ theme }) => theme.sizes.sm};
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 24px 10fr max-content;
+  padding: ${({ theme }) => theme.sizes.xs};
+  width: 100%;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.semitransparent};
+  }
+`;
+// Shared ListItem grid container
+export const ItemGridContainer = styled(GridContainer)<PermissionProps>`
+  ${sharedListItemStyles}
+  justify-content: space-between;
+
+  .list-item {
+    padding-right: 0;
+  }
+`;
+// Shared ListItem link container
+export const ItemLinkContainer = styled(Link).attrs({
+  className: "list-item"
+})<PermissionProps>`
+  ${sharedListItemStyles}
+
+  .delete {
+    align-self: center;
+    padding: ${({ theme }) => theme.sizes.xs};
+    grid-row: 1/3;
   }
 `;
 

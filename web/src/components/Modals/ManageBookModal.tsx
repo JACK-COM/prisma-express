@@ -8,11 +8,12 @@ import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import { clearGlobalModal, updateAsError, updateBooksState } from "state";
 import { ErrorMessage } from "components/Common/Containers";
+import { useGlobalLibrary } from "hooks/GlobalLibrary";
 
 /** Modal props */
 type ManageBookModalProps = {
   open: boolean;
-  data?: Partial<UpsertBookData> | null;
+  // data?: Partial<UpsertBookData> | null;
   onClose?: () => void;
 };
 
@@ -21,8 +22,9 @@ const emptyForm = (): Partial<UpsertBookData> => ({ public: false });
 
 /** Specialized Modal for creating/editing a `Book` */
 export default function ManageBookModal(props: ManageBookModalProps) {
-  const { data, open, onClose = clearGlobalModal } = props;
+  const { open, onClose = clearGlobalModal } = props;
   const [formData, setFormData] = useState(emptyForm());
+  const { focusedBook: data } = useGlobalLibrary();
   const [error, setError] = useState("");
   const err = (msg: string) => {
     setError(msg);

@@ -23,9 +23,13 @@ export const Paths = {
       path: "/library",
       text: "Book Library"
     },
-    Book: {
-      path: "/library/books/:bookId",
+    BookViewer: {
+      path: "/library/books/:bookId/view",
       text: "View Book"
+    },
+    BookEditor: {
+      path: "/library/books/:bookId/edit",
+      text: "Edit Book"
     },
     Series: {
       path: "/library/series/:seriesId",

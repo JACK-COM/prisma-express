@@ -1,38 +1,12 @@
-import styled from "styled-components";
-import {
-  APIData,
-  UserRole,
-  Location,
-  World,
-  Richness,
-  PermissionProps
-} from "utils/types";
+import { APIData, UserRole, Location, World, Richness } from "utils/types";
 import { noOp, requireAuthor } from "utils";
 import {
-  GridContainer,
+  ItemGridContainer,
   ItemDescription,
   ItemName,
   MatIcon
 } from "components/Common/Containers";
-
-const Container = styled(GridContainer)<PermissionProps>`
-  border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
-  cursor: pointer;
-  grid-template-areas:
-    "icon name"
-    "icon description";
-  justify-content: left;
-  padding: ${({ theme }) => theme.sizes.xs} 0;
-  width: 100%;
-`;
-const Icon = styled(MatIcon)<PermissionProps>`
-  align-self: center;
-  animation: bounce 400ms linear;
-  grid-area: icon;
-  margin-right: ${({ theme }) => theme.sizes.sm};
-  pointer-events: ${({ permissions }) =>
-    permissions === "Author" ? "fill" : "none"};
-`;
+import { TallIcon } from "./ComponentIcons";
 
 type LocationItemProps = {
   world: APIData<World>;
@@ -57,8 +31,8 @@ const LocationItem = ({
   const select = requireAuthor(() => onSelect(location), permissions);
 
   return (
-    <Container onClick={select} permissions={permissions}>
-      <Icon
+    <ItemGridContainer onClick={select} permissions={permissions}>
+      <TallIcon
         icon={isAuthor ? "pin_drop" : "lock"}
         permissions={permissions}
         className={iconClass}
@@ -72,7 +46,7 @@ const LocationItem = ({
       <ItemDescription
         dangerouslySetInnerHTML={locationDescription(location)}
       />
-    </Container>
+    </ItemGridContainer>
   );
 };
 

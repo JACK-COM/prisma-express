@@ -31,7 +31,7 @@ export const upsertCharacterMutation = mutationField("upsertCharacter", {
    * database directly, or to access the authenticated `user` if the request has one.
    * @returns `MFCharacter` object from service
    */
-  resolve: async (_, { data }, { user, Worlds }) => {
+  resolve: async (_, { data }, { user }) => {
     // require authentication
     if (!user?.id) {
       throw new Error("You must be logged in to create a character");
@@ -42,11 +42,8 @@ export const upsertCharacterMutation = mutationField("upsertCharacter", {
       throw new Error("Author role required to create a character");
     }
 
-    // require ownership
-    const world = await Worlds.findUnique({ where: { id: data.worldId } });
-    if (!world) throw new Error("World not found");
-    else if (data.id && data.authorId !== world.authorId) {
-      throw new Error("You don't have permission to change this character");
+    if (data.authorId && data.authorId !== user.id) {
+      throw new Error("You don't own this character");
     }
 
     // append authorId and data
@@ -130,31 +127,40 @@ export const upsertCharacterRelationshipMutation = mutationField(
      * @returns `MFCharacterRelationship` object from service
      */
     resolve: async (_, { data }, { user }) => {
-      // require authentication
-      if (!user?.id) {
-        throw new Error("You must be logged in to create relationships");
-      }
-
-      // require Author role
-      if (user.role !== "Author") {
-        throw new Error("Author role required to create relationships");
-      }
-
       if (!data.length) return [];
 
-      // require ownership
-      const [first] = data;
-      const character = await CharactersService.getCharacter({
-        id: first.characterId
+      // require authentication
+      if (!user?.id) throw new Error("Not authenticated");
+
+      // require Author role
+      if (user.role !== "Author") throw new Error("Unauthorized user role");
+
+      // require owned relationships and primary characters
+      const ownedRels: typeof data = [];
+      const charIds = new Set<number>();
+      data.forEach((d) => {
+        if (d.authorId && d.authorId !== user.id) return;
+        ownedRels.push(d);
+        charIds.add(d.characterId);
       });
+      if (!ownedRels.length) return [];
+      if (charIds.size !== 1)
+        throw new Error("All relationships must be for the same character");
+
+      // require character ownership
+      const charId = ownedRels[0].characterId;
+      const character = await CharactersService.getCharacter({ id: charId });
       if (!character) throw new Error("Character not found");
-      else if (character.authorId !== user.id) {
+      if (character.authorId !== user.id)
         throw new Error("You do not own this character");
-      }
 
       // append authorId and data
       return RelationshipsService.upsertCharacterRelationships(
-        data.map((d) => ({ ...d, id: d.id || undefined }))
+        ownedRels.map((d) => ({
+          ...d,
+          id: d.id || undefined,
+          authorId: d.authorId || user.id
+        }))
       );
     }
   }
@@ -191,9 +197,7 @@ export const deleteRelationshipMutation = mutationField("deleteRelationship", {
     // require ownership
     const rel = await RelationshipsService.getCharacterRelationship({ id });
     if (!rel) throw new Error("Relationship not found");
-    const character = await CharactersService.getCharacter({ id });
-    if (!character) throw new Error("Character not found");
-    else if (character.authorId !== user.id) {
+    else if (rel.authorId && rel.authorId !== user.id) {
       throw new Error("You do not own this character");
     }
 

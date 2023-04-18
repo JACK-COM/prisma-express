@@ -181,7 +181,7 @@ export type Book = {
   genre: string;
   public: boolean;
   free: boolean;
-  Chapters: Chapter[];
+  Chapters: APIData<Chapter>[];
 } & AuthorRelation &
   SeriesRelation;
 
@@ -210,8 +210,8 @@ export type CharacterRelationship = {
   characterId: number; // ( references Character  )
   targetId: number; // ( references Character | no relation )
   relationship: string;
-  Character: Character; // @relation(fields: [characterId], references: [id], onDelete: Cascade)
-};
+} & CharacterRelation &
+  AuthorRelation;
 
 /** `Event` (`WorldEvent` in UI) is a significant `World` occurrence */
 export type WorldEvent = {
@@ -296,8 +296,8 @@ export type World = {
   name: string;
   description: string;
   type: WorldType;
-  Location: APIData<Location>[];
-  Timeline: APIData<Timeline>[];
+  Locations: APIData<Location>[];
+  Timelines: APIData<Timeline>[];
   Events: APIData<WorldEvent>[];
   Groups: APIData<PopulationGroup>[];
   Characters: APIData<Character>[];
@@ -315,3 +315,10 @@ export type LibraryPurchase = {
   Book?: APIData<Book>;
   Series?: APIData<Series>;
 };
+
+/* HELPERS */
+
+// An inferred type that extracts all array keys from a type
+export type ArrayKeys<T> = {
+  [K in keyof T]: T[K] extends Array<any> ? K : never;
+}[keyof T];

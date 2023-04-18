@@ -106,7 +106,7 @@
   }
 
   100% {
-    transform: scale(1.02);
+    transform: scale(1.01);
     z-index: 9999;
   }
 }
@@ -140,7 +140,7 @@
 
 @keyframes slide-left {
   from {
-    transform: translateX(-5%);
+    transform: translateX(5%);
   }
 
   to {
@@ -300,7 +300,12 @@
   animation-fill-mode: forwards;
 }
 
-.slide-down-fade-in {
+.slide-in-up {
+  will-change: opacity, transform;
+  @include merge-animations(slide-up, fade-in, 300ms, 300ms);
+}
+
+.slide-in-down {
   will-change: opacity, transform;
   @include merge-animations(slide-down, fade-in, 300ms, 300ms);
 }
@@ -322,9 +327,8 @@
   animation-direction: reverse;
 }
 
-.slide-up-fade-out {
-  @extend .slide-down-fade-in;
-  animation-direction: reverse;
+.slide-out-up {
+  @include merge-animations(slide-up, fade-out, 250ms, 250ms);
 }
 
 .shake {

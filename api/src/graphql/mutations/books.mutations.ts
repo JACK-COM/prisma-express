@@ -117,11 +117,16 @@ export const upsertBookMutation = mutationField("upsertBook", {
     if (!chapters?.length) return newBook;
 
     await ChaptersService.upsertChapters(
-      chapters.map((chapter, i) => ({
-        ...ChaptersService.pruneChapterData(chapter, i),
-        authorId: chapter.authorId || user.id,
-        bookId: newBook.id
-      }))
+      chapters.map((chapter, i) =>
+        ChaptersService.pruneChapterData(
+          {
+            ...chapter,
+            authorId: chapter.authorId || user.id,
+            bookId: newBook.id
+          },
+          i
+        )
+      )
     );
 
     return BooksService.getBookById(newBook.id);
@@ -152,31 +157,50 @@ export const upsertChapterMutation = mutationField("upsertChapter", {
    */
   resolve: async (_, { data }, { user }) => {
     // require authentication and Author role
-    if (!user?.id || user.role !== "Author") {
+    if (!user || !user.id || user.role !== "Author") {
       throw new Error("Author role required to create a chapter");
     }
 
+    console.log(
+      ChaptersService.pruneChapterData({
+        ...data,
+        authorId: data.authorId || user.id,
+        bookId: data.bookId || undefined
+      })
+    );
+
     // Create chapter
-    const newChapter = await ChaptersService.upsertChapter({
-      ...ChaptersService.pruneChapterData(data),
-      authorId: data.authorId || user.id,
-      bookId: data.bookId || undefined
-    });
+    const newChapter = await ChaptersService.upsertChapter(
+      ChaptersService.pruneChapterData({
+        ...data,
+        authorId: data.authorId || user.id,
+        bookId: data.bookId || undefined
+      })
+    );
 
     // create new scenes
     const { scenes = [] } = data;
-    if (!scenes?.length) return newChapter;
-
-    await ScenesService.upsertScenes(
-      scenes.map((scene: any, i) => ({
-        ...ScenesService.pruneSceneData(scene, i),
-        authorId: scene.authorId || user.id,
+    if (scenes?.length) {
+      await ScenesService.upsertScenes(
+        scenes.map((scene, i) => ({
+          ...ScenesService.pruneSceneData(scene, i),
+          authorId: scene.authorId || user.id,
+          chapterId: newChapter.id,
+          title: scene.title || "Untitled Scene",
+          text: scene.text || "",
+          order: scene.order || i + 1
+        }))
+      );
+    } else if (!data.id) {
+      // if no scenes are provided, create a default scene
+      await ScenesService.upsertScene({
+        title: "Scene 1",
+        authorId: user.id,
+        order: 1,
         chapterId: newChapter.id,
-        title: scene.title || "Untitled Scene",
-        text: scene.text || "",
-        order: scene.order || i + 1
-      }))
-    );
+        text: ""
+      });
+    }
 
     return ChaptersService.getChapterById(newChapter.id);
   }
@@ -219,7 +243,7 @@ export const upsertSceneMutation = mutationField("upsertScene", {
       chapterId: scene.chapterId,
       title: scene.title || "Untitled Scene",
       text: scene.text || "",
-      order: scene.order
+      order: scene.order || 0
     });
   }
 });

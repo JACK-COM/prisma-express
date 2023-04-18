@@ -78,27 +78,28 @@ enum WorldType {
 
 // A user
 model User {
-  id              Int               @id @default(autoincrement())
-  email           String            @unique @db.VarChar(255)
-  displayName     String
-  authSource      Authenticator // Authenticator (facebook, google, twitter, other)
-  password        String?           @db.VarChar(255) // Account password
-  role            UserRole
-  created         DateTime          @default(now()) // Account creation date
-  lastSeen        DateTime          @default(now()) // Last login date
-  Books           Book[]
-  Chapters        Chapter[]
-  Characters      Character[]
-  Events          Event[]
-  Groups          PopulationGroup[]
-  Locations       Location[]
-  Scenes          Scene[]
-  Timelines       Timeline[]
-  Worlds          World[]
-  Series          Series[]
-  TimelineEvent   TimelineEvent[]
-  PersonalLibrary Library[]
-  Notes           Notes[]
+  id                    Int                     @id @default(autoincrement())
+  email                 String                  @unique @db.VarChar(255)
+  displayName           String
+  authSource            Authenticator // Authenticator (facebook, google, twitter, other)
+  password              String?                 @db.VarChar(255) // Account password
+  role                  UserRole
+  created               DateTime                @default(now()) // Account creation date
+  lastSeen              DateTime                @default(now()) // Last login date
+  Books                 Book[]
+  Chapters              Chapter[]
+  Characters            Character[]
+  Events                Event[]
+  Groups                PopulationGroup[]
+  Locations             Location[]
+  Scenes                Scene[]
+  Timelines             Timeline[]
+  Worlds                World[]
+  Series                Series[]
+  TimelineEvent         TimelineEvent[]
+  PersonalLibrary       Library[]
+  Notes                 Notes[]
+  CharacterRelationship CharacterRelationship[]
 }
 
 // A Chapter is a collection of one or more Scenes. 
@@ -162,8 +163,10 @@ model CharacterRelationship {
   id           Int       @id @default(autoincrement())
   characterId  Int // ( references Character  )
   targetId     Int // ( references Character | no relation )
+  authorId     Int? // ( references User )
   relationship String // `characterId`'s relationship to `targetId`
   Character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  Author       User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
 }
 
 // An Event is a significant occurrence in a World or other location that acts as a story catalyst. It may affect a World, a Location, or one or more Characters.

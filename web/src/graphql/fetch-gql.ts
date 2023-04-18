@@ -3,9 +3,6 @@ type GQLError = { message: string };
 type ChildProperty<T> = { [k: string]: T } & { errors?: string };
 
 /** Generic graphql response handler */
-type GQLResponseHandler<T> = {
-  (x: ChildProperty<T>, errors?: string): T | string;
-};
 
 /** Generic graphql Fetch options */
 type FetchGQLOpts<T> = {
@@ -16,7 +13,7 @@ type FetchGQLOpts<T> = {
   /** grapqhl request variables (if any) */
   variables?: any;
   /** Function to call with the grapqhl response */
-  onResolve: GQLResponseHandler<T>;
+  onResolve(x: ChildProperty<T>, errors?: string): T | string;
   /** Optional fallback value if response fails */
   fallbackResponse?: T;
 };
@@ -44,7 +41,10 @@ export async function fetchGQL<T>(opts: FetchGQLOpts<T>) {
     })
       .then((res) => res.json())
       .then((res) =>
-        onResolve(res.data || fallback, condenseErrors(res.errors))
+        onResolve(
+          res.data || fallback,
+          res.errors && condenseErrors(res.errors)
+        )
       )
       .catch((e) =>
         onResolve(
@@ -79,7 +79,10 @@ export async function withTimeout<T>(opts: CancelableProps<T>): Promise<T> {
   });
 }
 
-function condenseErrors(errors?: GQLError[]) {
-  const e = errors?.map(({ message }) => message).join("\n");
+function condenseErrors(errors?: GQLError[] | Error) {
+  if (!errors) return undefined;
+  if ((errors as Error).message) return (errors as Error).message;
+  if (typeof errors === "string") return errors;
+  const e = (errors as GQLError[]).map(({ message }) => message).join("\n");
   return e;
 }

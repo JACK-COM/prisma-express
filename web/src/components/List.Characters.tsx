@@ -33,9 +33,7 @@ type CharactersListProps = {
 const CharactersList = (props: CharactersListProps) => {
   const { characters = [], relationships = [], focusedCharacter } = props;
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal([
-    "active"
-  ]);
+  const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const { clearGlobalCharacter } = useGlobalCharacter([]);
   const clearComponentData = () => {
     clearGlobalModal();

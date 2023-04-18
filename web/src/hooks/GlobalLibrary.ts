@@ -7,7 +7,6 @@ import {
   updateBooksState,
   updateLibrariesState,
   updateChaptersState,
-  updateScenesState,
   clearGlobalBooksState
 } from "state";
 
@@ -38,8 +37,6 @@ export function useGlobalLibrary(keys: GlobalLibraryInstanceKey[] = allKeys) {
     /** @helper Set a list of `Library Purchases` */
     updateLibrariesState,
     /** @helper Set a list of `Chapters` */
-    updateChaptersState,
-    /** @helper Set a list of `Scenes` */
-    updateScenesState
+    updateChaptersState
   };
 }

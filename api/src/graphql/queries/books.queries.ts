@@ -17,6 +17,7 @@ import * as ChaptersService from "../../services/chapters.service";
 import * as SeriesService from "../../services/series.service";
 import * as ScenesService from "../../services/scenes.service";
 import { checkLibrary } from "../../services/libraries.service";
+import { DateTime } from "luxon";
 
 /**
  * Get a single `Book` by ID
@@ -37,10 +38,26 @@ export const getBookById = queryField("getBookById", {
    * @throws Error if book not found or book is private and user is not the author
    */
   resolve: async (_, { id }, { user }) => {
-    const book = await BooksService.getBookById(id);
-    const isAuthor = book?.authorId === user?.id;
+    const [book, inLibrary] = await Promise.all([
+      BooksService.getBookById(id),
+      checkLibrary({ bookId: id, userId: user?.id })
+    ]);
     // require public book or author
-    return !book || !isAuthor ? null : book;
+    if (!book || (user && book.authorId === user?.id)) return book;
+
+    // allow scenes if published or in library
+    if (book.publishDate || book.public) {
+      const isPublished = book.publishDate
+        ? DateTime.now() > DateTime.fromJSDate(book.publishDate)
+        : false;
+      const allowScenes = book.public && (isPublished || inLibrary);
+      if (allowScenes) return book;
+      const Chapters = book.Chapters.map((c) => ({ ...c, Scenes: [] }));
+      return { ...book, Chapters };
+    }
+
+    // remove scenes
+    return null;
   }
 });
 
@@ -70,7 +87,12 @@ export const getChapterById = queryField("getChapterById", {
     const isAuthor = chapter.authorId === user?.id;
     if (!user || !isAuthor) {
       const book = await Books.findUnique({ where: { id: chapter.bookId } });
-      if (!book || !book.public) return null;
+      const returnNull =
+        !book ||
+        !book.public ||
+        !book.publishDate ||
+        DateTime.now() < DateTime.fromJSDate(book.publishDate);
+      if (returnNull) return null;
     }
 
     return chapter;
@@ -160,7 +182,7 @@ export const listBooks = queryField("listBooks", {
    * @throws Error if book not found or book is private and user is not the author
    */
   resolve: async (_, args, { user }) => {
-    const { authorId,  } = args;
+    const { authorId } = args;
     const books = await BooksService.findAllBooks({
       title: args.title || undefined,
       genre: args.genre || undefined,
@@ -172,7 +194,7 @@ export const listBooks = queryField("listBooks", {
     });
 
     // filter out private books if user is not the author
-    return books
+    return books;
   }
 });
 
@@ -260,8 +282,8 @@ export const listChapters = queryField("listChapters", {
     if (book.public) {
       // check if book is free or user has purchased it
       if (!book.free) {
-        const library = await checkLibrary({ userId, bookId });
-        if (!library) return [];
+        const inLibrary = await checkLibrary({ userId, bookId });
+        if (!inLibrary) return [];
       }
     } else if (!isAuthor) return [];
 
@@ -338,8 +360,8 @@ export const listScenes = queryField("listScenes", {
 
     // Book is not free, so check if user has purchased it
     const bookId = chapter.bookId;
-    const library = await checkLibrary({ userId, bookId });
-    if (library) return scenes();
+    const inLibrary = await checkLibrary({ userId, bookId });
+    if (inLibrary) return scenes();
 
     // Book is not free and user has not purchased it
     return [];

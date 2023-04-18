@@ -23,15 +23,15 @@ export const BaseContainer = styled.section``;
 
 /** UI bordered section */
 export const Card = styled(BaseContainer).attrs({ className: "card" })`
-  border: ${({ theme }) => `1px dashed ${theme.colors.semitransparent}`};
+  border: ${({ theme }) => `1px dotted ${theme.colors.semitransparent}`};
   border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
-  padding: 1em;
+  padding: 0 1em 1em;
 
   @media screen and (max-width: 768px) {
     padding: 0.4em;
   }
 `;
-export const CardTitle = styled.h3.attrs({ className: "h4" })`
+export const CardTitle = styled.h4`
   border-bottom: 1px solid ${({ theme }) => theme.colors.semitransparent};
   height: 2.5em;
   line-height: 2.5em;

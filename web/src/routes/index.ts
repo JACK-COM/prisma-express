@@ -23,7 +23,7 @@ export const Paths = {
       path: "/library",
       text: "Book Library"
     },
-    BookViewer: {
+    BookPreview: {
       path: "/library/books/:bookId/view",
       text: "View Book"
     },

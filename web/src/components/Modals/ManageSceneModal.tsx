@@ -1,10 +1,10 @@
-import CreateChapterForm from "components/Form.CreateChapter";
+import CreateSceneForm from "components/Form.CreateScene";
 import {
-  UpsertChapterData,
-  pruneChapterForAPI,
-  upsertChapter
+  UpsertSceneData,
+  pruneSceneForAPI,
+  upsertScene
 } from "graphql/requests/books.graphql";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import {
   GlobalLibrary,
@@ -17,22 +17,20 @@ import { ErrorMessage } from "components/Common/Containers";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
 
 /** Modal props */
-type ManageChapterModalProps = {
+type ManageSceneModalProps = {
   open: boolean;
   onClose?: () => void;
 };
 
-/** Specialized Modal for creating/editing a `Chapter` */
-export default function ManageChapterModal(props: ManageChapterModalProps) {
+/** Specialized Modal for creating/editing a `Scene` */
+export default function ManageSceneModal(props: ManageSceneModalProps) {
   const { open, onClose = clearGlobalModal } = props;
-  const { focusedChapter: data, focusedBook: book } = useGlobalLibrary([
-    "focusedChapter",
-    "focusedBook"
+  const { focusedScene: data, focusedChapter: chapter } = useGlobalLibrary([
+    "focusedScene",
+    "focusedChapter"
   ]);
-  const order = useMemo(() => (book?.Chapters || []).length + 1, [book]);
-  const emptyForm = (): Partial<UpsertChapterData> => ({
-    bookId: book?.id,
-    order
+  const emptyForm = (): Partial<UpsertSceneData> => ({
+    chapterId: chapter?.id
   });
   const [formData, setFormData] = useState(data || emptyForm());
   const [notificationId, setNotificationId] = useState<number | null>(null);
@@ -43,23 +41,27 @@ export default function ManageChapterModal(props: ManageChapterModalProps) {
     else setNotificationId(updateAsError(msg));
   };
   const submit = async () => {
-    err("");
+    if (!chapter) return err("No chapter selected");
 
     // Create
-    if (!formData.title) formData.title = "Untitled Chapter";
-    if (!formData.order) formData.order = order;
-    if (!formData.description) formData.description = "";
-    formData.bookId = book?.id;
-    const resp = await upsertChapter(pruneChapterForAPI(formData));
+    err("");
+    const resp = await upsertScene(
+      pruneSceneForAPI({
+        ...formData,
+        title: formData.title || "Untitled Scene",
+        order: formData.order || 0,
+        description: formData.description || "",
+        chapterId: formData.chapterId || chapter?.id
+      })
+    );
     if (typeof resp === "string") return err(resp);
 
     // Notify
     if (resp) {
-      const updates = updateChaptersState([resp]);
-      const focusedChapter = updates.chapters.find(c => c.id === resp.id);
-      GlobalLibrary.multiple({ ...updates, focusedChapter });
+      updateChaptersState([resp])
+      // GlobalLibrary.multiple({ focusedScene, chapters, scenes });
       onClose();
-    } else err("Did not create chapter: please check your entries.");
+    } else err("Did not create scene: please check your entries.");
   };
 
   useEffect(() => {
@@ -76,12 +78,12 @@ export default function ManageChapterModal(props: ManageChapterModalProps) {
     <Modal
       open={open}
       onClose={onClose}
-      title={data?.id ? "Edit Chapter" : "Create Chapter"}
+      title={data?.id ? "Edit Scene" : "Create Scene"}
       cancelText="Cancel"
       confirmText={data?.id ? "Update" : "Create"}
       onConfirm={submit}
     >
-      <CreateChapterForm data={formData} onChange={setFormData} />
+      <CreateSceneForm data={formData} onChange={setFormData} />
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </Modal>
   );

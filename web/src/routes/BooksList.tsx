@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Paths } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { useGlobalUser } from "hooks/GlobalUser";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
 import PageLayout from "components/Common/PageLayout";
 import ChaptersList from "components/List.Books";
@@ -10,7 +9,6 @@ const { Library } = Paths;
 
 /** ROUTE: List of worlds */
 const BooksListRoute = () => {
-  const { authenticated } = useGlobalUser(["id", "authenticated"]);
   const { clearGlobalModal } = useGlobalModal();
   const {
     clearGlobalBooksState,

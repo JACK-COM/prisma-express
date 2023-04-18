@@ -42,7 +42,7 @@ const BookItem = ({
   const { id: userId } = GlobalUser.getState();
   const url =
     permissions === "Reader"
-      ? insertId(Paths.Library.BookViewer.path, book.id)
+      ? insertId(Paths.Library.BookPreview.path, book.id)
       : insertId(Paths.Library.BookEditor.path, book.id);
   const edit = requireAuthor(() => onEdit(book), permissions);
   const remove = requireAuthor(async () => {

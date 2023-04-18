@@ -38,8 +38,15 @@ export async function findAllTimelines(filter: SearchTimelineInput) {
   const where: Prisma.TimelineWhereInput = {};
   if (id) where.id = id;
   if (name) where.name = { contains: name, mode: "insensitive" };
-  if (authorId) where.authorId = authorId;
+  where.OR = [];
   if (worldId) where.worldId = worldId;
+  else where.OR.push({ World: { public: true } });
+  if (authorId) {
+    where.OR.push(
+      { World: { public: false }, authorId },
+      { World: { public: true }, authorId }
+    );
+  }
 
   return await Timelines.findMany({
     where,

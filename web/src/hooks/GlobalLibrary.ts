@@ -7,7 +7,8 @@ import {
   updateBooksState,
   updateLibrariesState,
   updateChaptersState,
-  updateScenesState
+  updateScenesState,
+  clearGlobalBooksState
 } from "state";
 
 type HookState = Partial<GlobalLibraryInstance>;
@@ -29,13 +30,7 @@ export function useGlobalLibrary(keys: GlobalLibraryInstanceKey[] = allKeys) {
 
     // Helpers
     /** @helper reset focused items in state */
-    clearGlobalBooksState: () => {
-      GlobalLibrary.multiple({
-        focusedBook: null,
-        focusedChapter: null,
-        focusedScene: null
-      });
-    },
+    clearGlobalBooksState,
     /** @helper Set a list of `Series` */
     updateSeriesState,
     /** @helper Set a list of `Books` */

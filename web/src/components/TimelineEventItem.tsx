@@ -1,42 +1,17 @@
-import styled from "styled-components";
 import {
   APIData,
-  PermissionProps,
   UserRole,
   TimelineEvent,
   EventPolarityText
 } from "utils/types";
 import { noOp } from "utils";
-import { GridContainer, ItemDescription, ItemName } from "./Common/Containers";
-import { DeleteItemIcon, PermissionedIcon } from "./ComponentIcons";
+import {
+  ItemDescription,
+  ItemGridContainer,
+  ItemName
+} from "./Common/Containers";
+import { DeleteItemIcon, TallIcon } from "./ComponentIcons";
 import { requireAuthor } from "utils";
-
-const Container = styled(GridContainer)<PermissionProps>`
-  border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
-  color: inherit;
-  cursor: pointer;
-  display: grid;
-  column-gap: ${({ theme }) => theme.sizes.sm};
-  grid-template-columns: min-content ${({ permissions }) =>
-      permissions === "Author" ? "3fr 24px" : "4fr"};
-  justify-content: left;
-  padding: ${({ theme }) => theme.sizes.xs};
-  width: 100%;
-
-  .delete {
-    align-self: center;
-    grid-row: 1/3;
-  }
-
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.semitransparent};
-  }
-`;
-
-const TimelineEventIcon = styled(PermissionedIcon)`
-  grid-column: 1;
-  grid-row: 1/3;
-`;
 
 type TimelineEventItemProps = {
   timelineEvent: APIData<TimelineEvent>;
@@ -47,6 +22,7 @@ type TimelineEventItemProps = {
   showDescription?: boolean;
 };
 
+/** @component A `World Event` in a timeline */
 const TimelineEventItem = ({
   timelineEvent: tEvent,
   onSelect = noOp,
@@ -61,12 +37,8 @@ const TimelineEventItem = ({
   const select = requireAuthor(() => onSelect(tEvent), permissions);
 
   return (
-    <Container onClick={select} permissions={permissions}>
-      <TimelineEventIcon
-        className={color}
-        icon={icon}
-        permissions={permissions}
-      />
+    <ItemGridContainer onClick={select} permissions={permissions}>
+      <TallIcon className={color} icon={icon} permissions={permissions} />
 
       <ItemName
         polarity={tEvent.Event?.polarity}
@@ -86,7 +58,7 @@ const TimelineEventItem = ({
           data={tEvent.id}
         />
       )}
-    </Container>
+    </ItemGridContainer>
   );
 };
 

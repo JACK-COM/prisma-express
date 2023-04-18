@@ -11,10 +11,13 @@ import { GlobalUser } from "./state";
 import { AUTH_ROUTE } from "./utils";
 import AppHeader from "components/AppHeader";
 import { useGlobalTheme } from "hooks/GlobalTheme";
+import { loadUser, loadUserData } from "hooks/loadUserData";
 import FullScreenLoader from "components/Common/FullscreenLoader";
 import { Paths, wildcard } from "routes";
-import { loadUser, loadUserData } from "hooks/loadUserData";
+import { useGlobalModal } from "hooks/GlobalModal";
 import ActiveNotifications from "components/ActiveNotifications";
+import ManageBookModal from "components/Modals/ManageBookModal";
+import ManageChapterModal from "components/Modals/ManageChapterModal";
 
 const CharactersRoute = lazy(() => import("./routes/CharactersRoute"));
 const Dashboard = lazy(() => import("./routes/Dashboard"));
@@ -25,7 +28,7 @@ const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
 
 function App() {
   const { theme } = useGlobalTheme();
-
+  const { active, MODAL, clearGlobalModal } = useGlobalModal();
   const checkLoggedIn = async () => {
     const user = await loadUser();
     await loadUserData({ userId: user?.id });
@@ -120,6 +123,20 @@ function App() {
       </Suspense>
 
       <ActiveNotifications />
+
+      {/* Modals */}
+      {active === MODAL.MANAGE_BOOK && (
+        <ManageBookModal
+          open={active === MODAL.MANAGE_BOOK}
+          onClose={clearGlobalModal}
+        />
+      )}
+      {active === MODAL.MANAGE_CHAPTER && (
+        <ManageChapterModal
+          open={active === MODAL.MANAGE_CHAPTER}
+          onClose={clearGlobalModal}
+        />
+      )}
     </ThemeProvider>
   );
 }

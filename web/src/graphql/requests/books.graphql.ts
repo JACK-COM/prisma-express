@@ -42,16 +42,17 @@ export type UpsertBookData = ItemId & {
 /** Data required to create a chapter */
 export type UpsertChapterData = ItemId & {
   scenes?: UpsertSceneData[];
-} & Pick<Chapter, "title" | "description" | "bookId">;
+} & Pick<Chapter, "title" | "authorId" | "order" | "description" | "bookId">;
 
 /** Data required to create a scene */
 export type UpsertSceneData =
-  | ItemId &
-      Pick<
+  | ItemId & Pick<
         Scene,
+        | "order"
         | "title"
         | "description"
         | "authorId"
+        | "chapterId"
         | "characterId"
         | "text"
         | "eventContextId"
@@ -67,10 +68,12 @@ export type UpsertSeriesData = ItemId & {
 
 // QUERIES
 
-type ListBookFilters = Omit<UpsertBookData, "public" | "free"> & {
-  publicOnly: boolean;
-  freeOnly: boolean;
-};
+type ListBookFilters = Partial<
+  Omit<UpsertBookData, "public" | "free"> & {
+    publicOnly: boolean;
+    freeOnly: boolean;
+  }
+>;
 /** Get a list of books with fetchGQL (filtered) */
 export async function listBooks(
   filters: ListBookFilters
@@ -82,6 +85,18 @@ export async function listBooks(
       return errors || x.listBooks;
     },
     fallbackResponse: []
+  });
+}
+
+/** Get a single book by ID */
+export async function getBook(id: number): Promise<APIData<Book> | null> {
+  return fetchGQL<APIData<Book> | null>({
+    query: getBookQuery(),
+    variables: { id },
+    onResolve(x, errors) {
+      return errors || x.getBookById;
+    },
+    fallbackResponse: null
   });
 }
 
@@ -99,6 +114,18 @@ export async function listChapters(
       return errors || x.listChapters;
     },
     fallbackResponse: []
+  });
+}
+
+/** Get a single chapter by ID */
+export async function getChapter(id: number): Promise<APIData<Chapter> | null> {
+  return fetchGQL<APIData<Chapter> | null>({
+    query: getChapterQuery(),
+    variables: { id },
+    onResolve(x, errors) {
+      return errors || x.getChapterById;
+    },
+    fallbackResponse: null
   });
 }
 
@@ -286,5 +313,37 @@ export function pruneBookForAPI(raw: Partial<UpsertBookData>) {
   if (raw.id) data.id = raw.id;
   if (raw.order) data.order = raw.order;
   if (raw.chapters) data.chapters = raw.chapters;
+  return data;
+}
+
+/** Format `Chapter` data for API */
+export function pruneChapterForAPI(raw: Partial<UpsertChapterData>) {
+  const data: UpsertChapterData = {
+    order: raw.order || 0,
+    title: raw.title || "Untitled Chapter",
+    bookId: raw.bookId,
+    description: raw.description || "No description"
+  };
+  if (raw.id) data.id = raw.id;
+  // if (raw.authorId) data.authorId = raw.authorId;
+  if (raw.order) data.order = raw.order;
+  if (raw.scenes) data.scenes = raw.scenes;
+  return data;
+}
+
+
+/** Format `Scene` data for API */
+export function pruneSceneForAPI(raw: UpsertSceneData) {
+  const order = raw.order || 0;
+  const data: UpsertSceneData = {
+    order,
+    title: raw.title || `Scene ${order + 1}`,
+    chapterId: raw.chapterId,
+    description: raw.description || "No description",
+    text: raw.text || ""
+  };
+  if (raw.id) data.id = raw.id;
+  if (raw.authorId) data.authorId = raw.authorId;
+  if (raw.order) data.order = raw.order;
   return data;
 }

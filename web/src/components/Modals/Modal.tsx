@@ -1,8 +1,9 @@
 import Button, { WideButton } from "components/Forms/Button";
-import { MouseEventHandler, useEffect, useMemo } from "react";
+import { MouseEventHandler, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { noOp } from "utils";
 import { FlexColumn, GridContainer, MatIcon } from "../Common/Containers";
+import useEscapeKeyListener from "hooks/GlobalEscapeKeyEvent";
 
 const ModalContainer = styled(FlexColumn)`
   height: 100vh;
@@ -103,14 +104,8 @@ const Modal = (p: ModalProps) => {
     if ($elem.classList.contains(rootClass)) onClose();
   };
 
-  useEffect(() => {
-    // close modal on ESC key press
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handleEsc);
-    return () => document.removeEventListener("keydown", handleEsc);
-  }, []);
+  // close modal on ESC key press
+  useEscapeKeyListener(onClose);
 
   if (!open) return <></>;
 

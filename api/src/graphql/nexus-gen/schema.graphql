@@ -140,7 +140,7 @@ input MFChapterUpsertInput {
   authorId: Int
 
   """Parent Book"""
-  bookId: Int
+  bookId: Int!
   description: String
 
   """Chapter ID"""
@@ -155,6 +155,7 @@ input MFChapterUpsertInput {
 """A significant actor in a `World`"""
 type MFCharacter {
   CharacterRelationship: [MFCharacterRelationship]
+  World: MFWorld
 
   """Author owner"""
   authorId: Int
@@ -625,6 +626,7 @@ type Query {
   getSceneById(id: Int!): MFScene
   getSeriesById(id: Int!): MFSeries
   getTimelineById(id: Int!): MFTimeline
+  getWorld(id: Int!): MFWorld
   getWorldById(id: Int!): MFWorld
   listBookPublications(authorId: Int, description: String, freeOnly: Boolean = false, genre: String, seriesId: Int, title: String): [MFBook]
   listBooks(authorId: Int, description: String, free: Boolean = false, genre: String, public: Boolean = false, seriesId: Int, title: String): [MFBook]

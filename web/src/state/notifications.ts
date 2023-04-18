@@ -52,10 +52,10 @@ export function resetNotifications(msg?: string, persist = false) {
   return msgId;
 }
 
-export function removeNotification(msg: Alert) {
+export function removeNotification(msgID: Alert['time']) {
   if (!notificationsActive()) return;
   const { all: notifications } = Notifications.getState();
-  const i = notifications.findIndex((n) => n.time === msg.time);
+  const i = notifications.findIndex((n) => n.time === msgID);
   if (i === -1) return;
 
   const updates = [...notifications];
@@ -64,7 +64,7 @@ export function removeNotification(msg: Alert) {
 }
 
 export function updateAsError(msg: string, id?: number | null) {
-  if (!notificationsActive()) return;
+  if (!msg || !notificationsActive()) return id || null;
   const { all: notifications } = Notifications.getState();
   const msgIndex = notifications.findIndex(({ time }) => time === id);
   const newAlert = createAlert(msg, true);
@@ -76,6 +76,7 @@ export function updateAsError(msg: string, id?: number | null) {
   else updates.splice(msgIndex, 1, newAlert);
 
   Notifications.all(updates);
+  return newAlert.time;
 }
 
 export function updateNotification(

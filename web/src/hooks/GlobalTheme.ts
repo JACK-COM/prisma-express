@@ -18,7 +18,7 @@ export function useGlobalTheme() {
   };
 
   useEffect(() => {
-    return GlobalTheme.subscribeToKeys(onTheme, ["theme"]);
+    return GlobalTheme.subscribe(onTheme);
   }, []);
 
   return { activeTheme, theme: themeData, logoImage, setTheme };

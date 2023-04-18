@@ -165,8 +165,8 @@ export const listBooks = queryField("listBooks", {
       title: args.title || undefined,
       genre: args.genre || undefined,
       authorId,
-      public: !user || args.public || false,
-      free: args.free || false,
+      public: !user || args.public || undefined,
+      free: args.free || undefined,
       description: args.description || undefined,
       seriesId: args.seriesId || undefined
     });

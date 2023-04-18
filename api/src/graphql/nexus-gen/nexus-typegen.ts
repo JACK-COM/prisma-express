@@ -43,7 +43,7 @@ export interface NexusGenInputs {
   }
   MFChapterUpsertInput: { // input type
     authorId?: number | null; // Int
-    bookId?: number | null; // Int
+    bookId: number; // Int!
     description?: string | null; // String
     id?: number | null; // Int
     order?: number | null; // Int
@@ -199,6 +199,7 @@ export interface NexusGenObjects {
   }
   MFCharacter: { // root type
     CharacterRelationship?: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
+    World?: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId?: number | null; // Int
     description: string; // String!
     groupId?: number | null; // Int
@@ -376,6 +377,7 @@ export interface NexusGenFieldTypes {
   }
   MFCharacter: { // field return type
     CharacterRelationship: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
+    World: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId: number | null; // Int
     description: string; // String!
     groupId: number | null; // Int
@@ -539,6 +541,7 @@ export interface NexusGenFieldTypes {
     getSceneById: NexusGenRootTypes['MFScene'] | null; // MFScene
     getSeriesById: NexusGenRootTypes['MFSeries'] | null; // MFSeries
     getTimelineById: NexusGenRootTypes['MFTimeline'] | null; // MFTimeline
+    getWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     getWorldById: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     listBookPublications: Array<NexusGenRootTypes['MFBook'] | null> | null; // [MFBook]
     listBooks: Array<NexusGenRootTypes['MFBook'] | null> | null; // [MFBook]
@@ -592,6 +595,7 @@ export interface NexusGenFieldTypeNames {
   }
   MFCharacter: { // field return type name
     CharacterRelationship: 'MFCharacterRelationship'
+    World: 'MFWorld'
     authorId: 'Int'
     description: 'String'
     groupId: 'Int'
@@ -755,6 +759,7 @@ export interface NexusGenFieldTypeNames {
     getSceneById: 'MFScene'
     getSeriesById: 'MFSeries'
     getTimelineById: 'MFTimeline'
+    getWorld: 'MFWorld'
     getWorldById: 'MFWorld'
     listBookPublications: 'MFBook'
     listBooks: 'MFBook'
@@ -874,6 +879,9 @@ export interface NexusGenArgTypes {
       id: number; // Int!
     }
     getTimelineById: { // args
+      id: number; // Int!
+    }
+    getWorld: { // args
       id: number; // Int!
     }
     getWorldById: { // args

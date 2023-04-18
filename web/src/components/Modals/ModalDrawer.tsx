@@ -1,8 +1,9 @@
 import Button, { WideButton } from "components/Forms/Button";
-import { MouseEventHandler, useEffect, useMemo } from "react";
+import { MouseEventHandler, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { noOp } from "utils";
 import { FlexColumn, GridContainer, MatIcon } from "../Common/Containers";
+import useEscapeKeyListener from "hooks/GlobalEscapeKeyEvent";
 
 const DrawerContainer = styled(FlexColumn)`
   height: 100vh;
@@ -82,6 +83,7 @@ type ModalDrawerProps = {
   confirmText?: string;
   cancelText?: string;
   open?: boolean;
+  openTowards?: string & ("left" | "right" | "up" | "down");
   centerContent?: boolean;
   onClose?: { (): void };
   onConfirm?: { (): any };
@@ -95,11 +97,12 @@ const ModalDrawer = (p: ModalDrawerProps) => {
     children,
     centerContent,
     open,
+    openTowards: openFrom = "left",
     confirmText = "",
     cancelText = ""
   } = p;
   const rootClass = "modal-root--default";
-  const contentEntryClass = "slide-in-left";
+  const contentEntryClass = `slide-in-${openFrom}`;
   const modalControlCols = useMemo(
     () => (confirmText && cancelText ? "repeat(2,1fr)" : "auto"),
     [confirmText, cancelText]
@@ -109,14 +112,8 @@ const ModalDrawer = (p: ModalDrawerProps) => {
     if ($elem.classList.contains(rootClass)) onClose();
   };
 
-  useEffect(() => {
-    // close modal on ESC key press
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handleEsc);
-    return () => document.removeEventListener("keydown", handleEsc);
-  }, []);
+  // Close on escape
+  useEscapeKeyListener(onClose);
 
   if (!open) return <></>;
 

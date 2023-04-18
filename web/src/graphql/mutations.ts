@@ -155,7 +155,8 @@ mutation DeleteBook($id: Int!) {
 export const upsertChapterMutation = () => `
 mutation UpsertChapter($data: MFChapterUpsertInput!) {
   upsertChapter(data: $data) {
-    ${MFChapterFragment}
+    ${MFChapterFragment},
+    Scenes { ${MFSceneFragment} }
   }
 }`;
 

@@ -8,7 +8,11 @@ import {
   upsertLocationMutation,
   upsertWorldMutation
 } from "graphql/mutations";
-import { listWorldsQuery, listLocationsQuery } from "graphql/queries";
+import {
+  getWorldQuery,
+  listWorldsQuery,
+  listLocationsQuery
+} from "graphql/queries";
 import { APIData, Location, World } from "utils/types";
 
 /** Data required to create a world */
@@ -24,6 +28,16 @@ export type CreateLocationData = {
   Location,
   "name" | "description" | "climate" | "flora" | "fauna" | "worldId"
 >;
+
+// Fetch a single `World` by ID
+export async function getWorld(worldId: number) {
+  return await fetchGQL<APIData<World> | null>({
+    query: getWorldQuery(),
+    variables: { id: worldId },
+    onResolve: ({ getWorld: list }, errors) => errors || list,
+    fallbackResponse: null
+  });
+}
 
 // Use fetchGQL to create a `World` on the server
 export async function upsertWorld(raw: Partial<CreateWorldData>) {
@@ -45,6 +59,7 @@ export async function upsertWorld(raw: Partial<CreateWorldData>) {
   return newWorld;
 }
 
+// Delete a `World` on the server
 export async function deleteWorld(worldId: number) {
   const respWorld = await fetchGQL<APIData<World> | null>({
     query: deleteWorldMutation(),

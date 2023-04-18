@@ -8,11 +8,16 @@ const Wrapper = styled(FlexRow)<{ error?: boolean }>`
   background-color: ${({ theme, error = false }) =>
     error ? theme.colors.error : theme.colors.accent};
   border-radius: ${({ theme }) => theme.presets.round.xs};
+  color: ${({ theme, error }) => (error ? "#fff" : theme.colors.primary)};
   box-shadow: 0 2px 4px #1118;
   height: minmax(3rem, 80px);
   margin-bottom: ${({ theme }) => theme.sizes.xs};
   pointer-events: all;
   width: 100%;
+
+  &.error {
+    color: white;
+  }
 
   .material-icons {
     background: transparent;
@@ -60,7 +65,7 @@ export const AutoDismissNotification = styled((props: ADNProps) => {
   });
   const clear = () => {
     if (state.timeout) clearTimeout(state.timeout as NodeJS.Timeout);
-    removeNotification(props.notification as Alert);
+    removeNotification(notification.time);
   };
   const animate = () => {
     clearTimeout(state.timeout as NodeJS.Timeout);

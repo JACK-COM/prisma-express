@@ -4,13 +4,15 @@ import {
   Modal,
   ModalStore,
   ModalStoreKey,
-  clearGlobalModal
+  clearGlobalModal,
+  setGlobalModal
 } from "state";
 
 type HookState = Omit<Partial<ModalStore>, "active"> & { active: MODAL };
+const MODAL_KEYS = Object.keys(Modal.getState()) as ModalStoreKey[];
 
 /** Reusable subscription to `Modal` state  */
-export function useGlobalModal(keys: ModalStoreKey[] = ["active"]) {
+export function useGlobalModal(keys: ModalStoreKey[] = MODAL_KEYS) {
   const gState = Modal.getState();
   const init: HookState = {
     ...keys.reduce((agg, k) => ({ ...agg, [k]: gState[k] }), {}),
@@ -28,6 +30,6 @@ export function useGlobalModal(keys: ModalStoreKey[] = ["active"]) {
 
     // Helpers
     clearGlobalModal,
-    setGlobalModal: (m: MODAL) => Modal.active(m)
+    setGlobalModal
   };
 }

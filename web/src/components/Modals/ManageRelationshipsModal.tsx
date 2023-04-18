@@ -5,59 +5,79 @@ import {
 } from "graphql/requests/characters.graphql";
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
-import { clearGlobalModal, updateRelationships } from "state";
+import {
+  clearGlobalModal,
+  removeNotification,
+  updateAsError,
+  updateRelationships
+} from "state";
 import { ErrorMessage } from "components/Common/Containers";
 import { useGlobalCharacter } from "hooks/GlobalCharacter";
 
 /** Modal props */
-type CreateRelationshipsModalProps = {
+type ManageRelationshipsModalProps = {
   open: boolean;
   data?: Partial<CreateRelationshipData>[];
   onClose?: () => void;
 };
 
-/* const condenseData = (data: Partial<CreateRelationshipData>[]) =>
-  data.map((c) => ({
-    characterId: c.characterId,
-    targetId: c.targetId,
-    relationship: c.relationship,
-    id: c.id || undefined
-  })); */
-
 /** Specialized Modal for creating/editing a `Relationship` */
-export default function CreateRelationshipsModal(
-  props: CreateRelationshipsModalProps
+export default function ManageRelationshipsModal(
+  props: ManageRelationshipsModalProps
 ) {
   const { data = [], open, onClose = clearGlobalModal } = props;
   const { focusedCharacter } = useGlobalCharacter(["focusedCharacter"]);
+  const [notificationID, setNotificationID] = useState<number | null>(null);
   const [formData, setFormData] =
     useState<Partial<CreateRelationshipData>[]>(data);
   const [error, setError] = useState("");
-  const submit = async () => {
-    // Validate
-    const nextError = formData.reduce((acc, curr) => {
+  const showError = (msg: string) => {
+    setError(msg);
+    setNotificationID(updateAsError(msg));
+  };
+  const clearErrors = () => {
+    setError("");
+    if (notificationID) {
+      removeNotification(notificationID);
+      setNotificationID(null);
+    }
+  };
+  // Validate form data
+  const validateFormData = (data: Partial<CreateRelationshipData>[]) => {
+    return data.reduce((acc, curr) => {
       if (!curr.characterId) curr.characterId = focusedCharacter?.id;
       if (acc.length > 0) return acc;
       if (!curr.targetId) return "Relationship target is required";
       return acc;
     }, "");
-    setError(nextError);
-    if (nextError.length > 0) return;
-
+  };
+  // Submit form data
+  const submit = async () => {
+    if (!focusedCharacter) return showError("No character selected.");
+    const nextError = validateFormData(formData);
+    if (nextError.length > 0) return showError(nextError);
     // Create
-    const resp = await upsertRelationships(formData);
-
+    setError(nextError);
+    const resp = await upsertRelationships(focusedCharacter.id, formData);
     // Notify
-    if (resp) {
+    if (typeof resp === "string") showError(resp);
+    else if (resp) {
       updateRelationships([resp]);
       onClose();
-    } else setError("Did not link characters: please check your entries.");
+    } else showError("Did not link characters: please check your entries.");
+  };
+  const updateFormData = (data: Partial<CreateRelationshipData>[]) => {
+    setFormData(data);
+    clearErrors();
   };
 
   useEffect(() => {
-    if (data.length) setFormData([...data, ...formData]);
+    if (data.length) setFormData([...data]);
     else setFormData([]);
-    return () => setFormData([]);
+    return () => {
+      setFormData([]);
+      clearErrors();
+    };
   }, [data]);
 
   if (!focusedCharacter) return <></>;
@@ -74,7 +94,7 @@ export default function CreateRelationshipsModal(
       <CreateRelationshipForm
         character={focusedCharacter}
         data={formData}
-        onChange={setFormData}
+        onChange={updateFormData}
       />
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </Modal>

@@ -42,9 +42,15 @@ export async function upsertBooks(books: BookUpsertInput[]) {
 
 /** find all `Book` records matching params */
 export async function findAllBooks(filters: SearchBookInput) {
-  const where: Prisma.BookWhereInput = {};
-  if (filters.authorId) where.authorId = filters.authorId;
+  const where: Prisma.BookWhereInput = { public: filters.public };
+  where.OR = [];
   if (filters.id) where.id = { in: filters.id };
+  if (filters.authorId) {
+    where.OR.push(
+      { public: true },
+      { authorId: filters.authorId, public: false }
+    );
+  } else where.OR.push({ public: true });
   if (filters.seriesId) where.seriesId = filters.seriesId;
   if (filters.title) where.title = { contains: filters.title };
   if (filters.description)
@@ -90,7 +96,7 @@ export async function findAllPublishedBooks(filters: SearchBookInput) {
 export async function getBookById(id: Book["id"]) {
   return Books.findUnique({
     where: { id },
-    include: { Author: true, Chapters: true }
+    include: { Author: true, Chapters: { include: { Scenes: true } } }
   });
 }
 

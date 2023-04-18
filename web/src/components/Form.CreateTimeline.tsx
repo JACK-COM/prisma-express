@@ -1,17 +1,12 @@
 import { ChangeEvent } from "react";
 import { noOp } from "../utils";
-import { Timeline } from "../utils/types";
 import {
   Form,
-  FormRow,
   Hint,
   Input,
   Label,
   Legend,
-  RadioInput,
-  RadioLabel,
-  Select,
-  Textarea
+  Select
 } from "components/Forms/Form";
 import { CreateTimelineData } from "graphql/requests/timelines.graphql";
 import { useGlobalWorld } from "hooks/GlobalWorld";
@@ -24,7 +19,7 @@ export type CreateTimelineProps = {
 /** Create or edit a `Timeline` */
 const CreateTimelineForm = (props: CreateTimelineProps) => {
   const { data, onChange = noOp } = props;
-  const { events = [], worlds = [] } = useGlobalWorld();
+  const { worlds = [] } = useGlobalWorld();
   const updateOrigin = (id: string) => {
     const worldId = Number(id);
     onChange({ ...data, worldId: isNaN(worldId) ? -1 : worldId });
@@ -35,7 +30,10 @@ const CreateTimelineForm = (props: CreateTimelineProps) => {
 
   return (
     <Form>
-      <Legend>New Timeline</Legend>
+      <Legend>
+        {data?.id ? "Edit" : "New"}{" "}
+        <span className="accent--text">Timeline</span>
+      </Legend>
       <Hint>
         A <b>Timeline</b> is <b>a collection of unique events</b>. Use them to
         experiment with different historical backgrounds and outcomes for your

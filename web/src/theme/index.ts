@@ -70,8 +70,7 @@ const THEME: GlobalTheme = {
   }
 
   html {
-    height: 100vh;
-    overflow: hidden;
+    height: minmax(100vh, auto);
   }
 
   body {
@@ -81,7 +80,6 @@ const THEME: GlobalTheme = {
     font-family: 'Source Sans 3', sans-serif;
     height: 100%;
     margin: 0;
-    overflow-y: auto;
 
     *:not(code) { 
       box-sizing: border-box;

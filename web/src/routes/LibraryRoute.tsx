@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { Paths, trimParent } from "routes";
-import BooksList from "./BooksList";
+import BooksListRoute from "./BooksList";
+import BookEditorRoute from "./BookEditor";
 
 const { Library } = Paths;
 
@@ -8,18 +9,19 @@ const { Library } = Paths;
 const LibraryRoute = () => {
   return (
     <Routes>
-      <Route index element={<BooksList />} />
+      {/* Books list */}
+      <Route index element={<BooksListRoute />} />
 
       <Route
-        // Books list
-        path={trimParent(Library.Book.path, "library")}
-        element={<BooksList />}
+        // Book Editor
+        path={trimParent(Library.BookEditor.path, "library")}
+        element={<BookEditorRoute />}
       />
 
       <Route
         // Series
         path={trimParent(Library.Series.path, "library")}
-        element={<BooksList />}
+        element={<BooksListRoute />}
       />
     </Routes>
   );

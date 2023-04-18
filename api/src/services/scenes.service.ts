@@ -21,7 +21,7 @@ export async function upsertScene(newScene: UpsertSceneInput) {
   const data: UpsertSceneInput = { ...newScene };
   const now = DateTime.now().toISO();
   data.created = newScene.created || now;
-  data.lastUpdated = DateTime.now().toISO();
+  data.lastUpdated = now;
 
   return data.id
     ? Scenes.update({ data, where: { id: data.id } })
@@ -55,7 +55,7 @@ export async function deleteScene(id: number) {
 }
 
 /** Prune data */
-export async function pruneSceneData(scene: any, i = 0) {
+export function pruneSceneData(scene: any, i = 0) {
   return {
     id: scene.id || undefined,
     title: scene.title || "Untitled Scene",

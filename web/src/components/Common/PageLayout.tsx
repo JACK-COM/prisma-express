@@ -3,7 +3,7 @@ import { PageContainer, PageDescription, PageTitle } from "./Containers";
 import Breadcrumbs from "./Breadcrumbs";
 
 type PageLayoutProps = {
-  title: string;
+  title: string | React.ReactNode;
   id?: string;
   breadcrumbs?: AppRouteDef[];
   description?: string;

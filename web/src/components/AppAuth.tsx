@@ -29,12 +29,10 @@ const LOGIN_URL = `${API}/login/google?`;
 const AppAuth = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { email } = useGlobalUser(["email"]);
+  const { email, authenticated } = useGlobalUser(["email", "authenticated"]);
   const [authUrl, authTitle, authClass] = useMemo(() => {
     const url = email ? LOGOUT_URL : LOGIN_URL;
-    return email
-      ? [url, `Log out ${email}`, undefined]
-      : [url, "Log in", "error"];
+    return email ? [url, `Log out ${email}`, "error"] : [url, "Log in"];
   }, [email]);
   // Set authenticating state for reload
   const onAuth = (e: any) => {
@@ -67,6 +65,7 @@ const AppAuth = () => {
         className={authClass}
         onClick={onAuth}
         title={authTitle}
+        variant={authenticated ? undefined : "transparent"}
       >
         <MatIcon icon={email ? "account_circle" : "login"} />
       </RoundButton>

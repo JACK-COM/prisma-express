@@ -1,8 +1,8 @@
 import { Editor } from "@tinymce/tinymce-react";
 import { useGlobalTheme } from "hooks/GlobalTheme";
 import { useGlobalWindow } from "hooks/GlobalWindow";
+import { AppTheme } from "shared";
 import { noOp } from "utils";
-import { AppTheme } from "/Users/raphaelokure/Software/brokenwire-projects/mythos-forge/web/src/shared";
 
 const editorKey = import.meta.env.VITE_TINYMCE_KEY;
 const production = import.meta.env.PROD;

@@ -64,18 +64,18 @@ export const AutoDismissNotification = styled((props: ADNProps) => {
     class: `${className || ""} slide-in-left`
   });
   const clear = () => {
-    if (state.timeout) clearTimeout(state.timeout as NodeJS.Timeout);
+    if (state.timeout) clearTimeout(state.timeout);
     removeNotification(notification.time);
   };
   const animate = () => {
     clearTimeout(state.timeout as NodeJS.Timeout);
-    setState({ class: `${className || ""} slide-out-right` });
+    setState((o) => ({ ...o, class: `${className || ""} slide-out-right` }));
     setTimeout(clear, 500);
   };
 
   useEffect(() => {
     if (state.timeout !== null) return;
-    setState({ timeout: setTimeout(animate, timeout) });
+    setState((o) => ({ ...o, timeout: setTimeout(animate, timeout) }));
   }, [state.class]);
 
   return (
@@ -107,4 +107,4 @@ type ADNProps = NotificationBaseProps & {
 type ADNState = {
   timeout: NodeJS.Timeout | null;
   class: string;
-} & any;
+};

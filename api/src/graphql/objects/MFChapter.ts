@@ -7,16 +7,18 @@ export const MFChapter = objectType({
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.int("order");
-    t.nonNull.string("name");
-    t.nonNull.string("description");
+    t.nonNull.string("title");
+    t.string("description");
     t.int("authorId", { description: "Author owner" });
     t.int("bookId", { description: "Chapter's Book id" });
-    t.nonNull.field("created", { type: "CsDateTime" });
-    t.nonNull.field("lastSeen", { type: "CsDateTime" });
-    t.field("Author", { type: "MFUser" });
-    t.field("Book", { type: "MFBook" });
+    t.field("status", { type: "ChapterStatus", description: "Status" });
+    t.field("created", { type: "CsDateTime", description: "Item created" });
+    t.field("updated", { type: "CsDateTime", description: "Item updated" });
 
     // List properties
-    t.nonNull.list.field("Scenes", { type: "MFScene" });
+    t.list.field("Scenes", { type: "MFScene" });
+
+    // relationships
+    t.field("Author", { type: "MFAuthor" });
   }
 });

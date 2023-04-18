@@ -3,23 +3,26 @@ import { ComponentPropsWithRef } from "react";
 import styled, { css } from "styled-components";
 import { noOp } from "utils";
 
+export { TinyMCE } from "./TinyMCE";
+
 type ReactText = string | number;
 const requiredInputStyles = css`
   content: "*";
   display: inline-block;
   color: ${({ theme }) => theme.colors.error};
+  filter: saturate(5);
   font-size: 1rem;
 `;
 const sharedInputStyles = css`
   border-radius: ${({ theme }) => theme.presets.round.sm};
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
-  font-size: 0.9em;
+  font-size: 16px;
   height: ${({ theme }) => theme.sizes.lg};
   line-height: ${({ theme }) => theme.sizes.lg};
   padding: ${({ theme }) => theme.sizes.xs};
 
-  @media screen and (max-width: 900px) {
-    font-size: 16px;
+  &[aria-invalid="true"] {
+    outline: 2px solid ${({ theme }) => theme.colors.error};
   }
 `;
 const sharedRadioStyles = css`
@@ -32,7 +35,7 @@ export const Fieldset = styled.fieldset`
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
   border-radius: ${({ theme }) => theme.presets.round.sm};
   padding: ${({ theme }) => theme.sizes.sm};
-  margin-bottom: ${({ theme }) => theme.sizes.lg};
+  margin-bottom: ${({ theme }) => theme.sizes.md};
   width: calc(100% - 2px) !important;
 
   &:last-of-type {
@@ -116,6 +119,7 @@ type SelectProps<T = any> = Omit<
   "onChange"
 > & {
   data: T[];
+  emptyMessage?: string;
   itemText(d: T): ReactText;
   itemValue(d: T): ReactText;
   onChange?: (e: T) => void;
@@ -124,6 +128,10 @@ type SelectProps<T = any> = Omit<
 const StyledSelect = styled.select<{ wide?: boolean }>`
   ${sharedInputStyles};
   width: ${({ wide = false }) => (wide ? "100%" : "auto")};
+
+  option {
+    font-size: 16px;
+  }
 `;
 export const Select = styled((props: SelectProps) => {
   const {
@@ -131,6 +139,7 @@ export const Select = styled((props: SelectProps) => {
     data,
     itemValue,
     itemText,
+    emptyMessage = "No items to display",
     placeholder = "Select an Item:",
     ...rest
   } = props;
@@ -140,13 +149,13 @@ export const Select = styled((props: SelectProps) => {
       onInput={(e) => onChange(e.currentTarget.value)}
       {...rest}
     >
-      {data.length > 0 && <option value="null">{placeholder}</option>}
+      {data.length > 0 && <option value={""}>{placeholder}</option>}
       {data.map((d, i) => (
         <option key={i} value={itemValue(d)}>
           {itemText(d)}
         </option>
       ))}
-      {data.length === 0 && <option value="null">No items to display</option>}
+      {data.length === 0 && <option>{emptyMessage}</option>}
     </StyledSelect>
   );
 })``;

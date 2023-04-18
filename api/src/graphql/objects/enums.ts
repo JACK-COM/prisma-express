@@ -14,9 +14,19 @@ export const Climate = enumType({
   name: "Climate",
   description: "The general climate of a setting.",
   members: {
-    hot: "hot",
-    warm: "warm",
-    cool: "cool"
+    Warm: "Warm",
+    Temperate: "Temperate",
+    Polar: "Polar"
+  }
+});
+
+export const ChapterStatus = enumType({
+  name: "ChapterStatus",
+  description: "The status of a Chapter",
+  members: {
+    Draft: "Draft",
+    Published: "Published",
+    Archived: "Archived"
   }
 });
 

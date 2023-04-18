@@ -11,7 +11,7 @@ const ModalContainer = styled(FlexColumn)`
   position: fixed;
   top: 0;
   width: 100vw;
-  z-index: 10;
+  z-index: 999;
 
   &::before {
     background: #00000099;
@@ -37,6 +37,7 @@ const ModalControls = styled(GridContainer)`
   padding: 0.4rem;
 
   > button {
+    font-weight: bolder;
     margin: 0;
   }
 `;
@@ -67,6 +68,7 @@ const ModalContents = styled(FlexColumn).attrs({ padded: true })<ContentProps>`
   overflow-y: auto;
   overflow-x: hidden;
   place-content: ${({ centered = false }) => (centered ? "center" : "start")};
+  z-index: inherit;
 `;
 
 type ModalProps = {

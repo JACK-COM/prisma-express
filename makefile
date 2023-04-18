@@ -1,4 +1,5 @@
 VARS="secrets.tfvars"
+
 # dev env spin up
 dev:
 	npm i -g concurrently
@@ -26,3 +27,9 @@ terraform-deploy: tf-init
 
 terraform-destroy:
 	cd ./terraform && terraform destroy -var-file="$(VARS)"
+tf-init:
+	cd ./terraform && terraform init
+
+# Not sure if this is needed but I merged in anyway
+terraform-push:
+	cd ./terraform && terraform plan -var-file="$(VARS)" && terraform apply -var-file="$(VARS)"

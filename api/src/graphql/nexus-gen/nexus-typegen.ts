@@ -29,6 +29,109 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  MFBookUpsertInput: { // input type
+    authorId?: number | null; // Int
+    chapters?: NexusGenInputs['MFChapterUpsertInput'][] | null; // [MFChapterUpsertInput!]
+    description: string; // String!
+    free?: boolean | null; // Boolean
+    genre: string; // String!
+    id?: number | null; // Int
+    order?: number | null; // Int
+    public?: boolean | null; // Boolean
+    seriesId?: number | null; // Int
+    title: string; // String!
+  }
+  MFChapterUpsertInput: { // input type
+    authorId?: number | null; // Int
+    bookId?: number | null; // Int
+    description?: string | null; // String
+    id?: number | null; // Int
+    order?: number | null; // Int
+    scenes?: NexusGenInputs['MFSceneUpsertInput'][] | null; // [MFSceneUpsertInput!]
+    title: string; // String!
+  }
+  MFCharacterUpsertInput: { // input type
+    authorId?: number | null; // Int
+    description: string | null; // String
+    groupId?: number | null; // Int
+    id?: number | null; // Int
+    locationId?: number | null; // Int
+    name: string; // String!
+    worldId: number; // Int!
+  }
+  MFEventUpsertInput: { // input type
+    authorId?: number | null; // Int
+    characterId?: number | null; // Int
+    description: string | null; // String
+    groupId?: number | null; // Int
+    id?: number | null; // Int
+    locationId?: number | null; // Int
+    name: string; // String!
+    polarity: NexusGenEnums['EventPolarity']; // EventPolarity!
+    target: NexusGenEnums['EventTarget']; // EventTarget!
+    worldId: number; // Int!
+  }
+  MFGroupUpsertInput: { // input type
+    authorId?: number | null; // Int
+    description: string; // String!
+    id?: number | null; // Int
+    name: string; // String!
+    type: NexusGenEnums['GroupType']; // GroupType!
+    worldId: number; // Int!
+  }
+  MFLocationUpsertInput: { // input type
+    authorId?: number | null; // Int
+    climate?: NexusGenEnums['Climate'] | null; // Climate
+    description: string; // String!
+    fauna?: NexusGenEnums['Richness'] | null; // Richness
+    flora?: NexusGenEnums['Richness'] | null; // Richness
+    id?: number | null; // Int
+    name: string; // String!
+    worldId: number; // Int!
+  }
+  MFRelationshipUpsertInput: { // input type
+    authorId?: number | null; // Int
+    characterId: number; // Int!
+    id?: number | null; // Int
+    relationship: string; // String!
+    targetId: number; // Int!
+  }
+  MFSceneUpsertInput: { // input type
+    authorId?: number | null; // Int
+    chapterId: number; // Int!
+    characterId?: number | null; // Int
+    description?: string | null; // String
+    eventContextId?: number | null; // Int
+    id?: number | null; // Int
+    order: number; // Int!
+    text: string; // String!
+    timelineId?: number | null; // Int
+    title: string; // String!
+  }
+  MFSeriesUpsertInput: { // input type
+    authorId?: number | null; // Int
+    books?: NexusGenInputs['MFBookUpsertInput'][] | null; // [MFBookUpsertInput!]
+    description: string; // String!
+    free?: boolean | null; // Boolean
+    genre: string; // String!
+    id?: number | null; // Int
+    public?: boolean | null; // Boolean
+    title: string; // String!
+  }
+  MFTimelineEventUpsertInput: { // input type
+    authorId?: number | null; // Int
+    eventId: number; // Int!
+    id?: number | null; // Int
+    order: number; // Int!
+    timelineId: number; // Int!
+  }
+  MFTimelineUpsertInput: { // input type
+    authorId?: number | null; // Int
+    events?: NexusGenInputs['MFTimelineEventUpsertInput'][] | null; // [MFTimelineEventUpsertInput!]
+    id?: number | null; // Int
+    name: string; // String!
+    worldId: number; // Int!
+  }
   MFWorldUpsertInput: { // input type
     authorId?: number | null; // Int
     description: string; // String!
@@ -41,7 +144,8 @@ export interface NexusGenInputs {
 
 export interface NexusGenEnums {
   Authenticator: "google" | "magic" | "other"
-  Climate: "cool" | "hot" | "warm"
+  ChapterStatus: "Archived" | "Draft" | "Published"
+  Climate: "Polar" | "Temperate" | "Warm"
   EventPolarity: "NegativeExpected" | "NegativeUnexpected" | "Neutral" | "PositiveExpected" | "PositiveUnexpected"
   EventTarget: "Local" | "Person" | "World"
   GroupType: "Culture" | "Other" | "Philosophy" | "Trade"
@@ -60,34 +164,41 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenObjects {
+  MFAuthor: { // root type
+    displayName: string; // String!
+  }
   MFBook: { // root type
-    Author?: NexusGenRootTypes['MFUser'] | null; // MFUser
-    Chapters: Array<NexusGenRootTypes['MFChapter'] | null>; // [MFChapter]!
+    Author?: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
+    Chapters?: Array<NexusGenRootTypes['MFChapter'] | null> | null; // [MFChapter]
+    Series?: NexusGenRootTypes['MFSeries'] | null; // MFSeries
     authorId?: number | null; // Int
-    created: NexusGenScalars['CsDateTime']; // CsDateTime!
+    created?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     description: string; // String!
+    free: boolean; // Boolean!
     genre: string; // String!
     id: number; // Int!
-    lastSeen: NexusGenScalars['CsDateTime']; // CsDateTime!
     order?: number | null; // Int
+    public: boolean; // Boolean!
+    publishDate?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     seriesId?: number | null; // Int
     title: string; // String!
+    updated?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
   }
   MFChapter: { // root type
-    Author?: NexusGenRootTypes['MFUser'] | null; // MFUser
-    Book?: NexusGenRootTypes['MFBook'] | null; // MFBook
-    Scenes: Array<NexusGenRootTypes['MFScene'] | null>; // [MFScene]!
+    Author?: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
+    Scenes?: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
     authorId?: number | null; // Int
     bookId?: number | null; // Int
-    created: NexusGenScalars['CsDateTime']; // CsDateTime!
-    description: string; // String!
+    created?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
+    description?: string | null; // String
     id: number; // Int!
-    lastSeen: NexusGenScalars['CsDateTime']; // CsDateTime!
-    name: string; // String!
     order: number; // Int!
+    status?: NexusGenEnums['ChapterStatus'] | null; // ChapterStatus
+    title: string; // String!
+    updated?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
   }
   MFCharacter: { // root type
-    CharacterRelationship: Array<NexusGenRootTypes['MFCharacterRelationship'] | null>; // [MFCharacterRelationship]!
+    CharacterRelationship?: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
     authorId?: number | null; // Int
     description: string; // String!
     groupId?: number | null; // Int
@@ -97,15 +208,17 @@ export interface NexusGenObjects {
     worldId: number; // Int!
   }
   MFCharacterRelationship: { // root type
+    Character?: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
     characterId: number; // Int!
     id: number; // Int!
     relationship: string; // String!
     targetId: number; // Int!
   }
   MFEvent: { // root type
+    World?: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId?: number | null; // Int
     characterId?: number | null; // Int
-    description: string; // String!
+    description?: string | null; // String
     groupId?: number | null; // Int
     id: number; // Int!
     locationId?: number | null; // Int
@@ -119,6 +232,7 @@ export interface NexusGenObjects {
     Events?: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     Groups?: Array<NexusGenRootTypes['MFPopulationGroup'] | null> | null; // [MFPopulationGroup]
     Scenes?: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
+    World?: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
     authorId?: number | null; // Int
     climate: NexusGenEnums['Climate']; // Climate!
     description: string; // String!
@@ -128,17 +242,9 @@ export interface NexusGenObjects {
     name: string; // String!
     worldId: number; // Int!
   }
-  MFParagraph: { // root type
-    authorId?: number | null; // Int
-    characterId?: number | null; // Int
-    id: number; // Int!
-    order: number; // Int!
-    sceneId?: number | null; // Int
-    text: string; // String!
-  }
   MFPopulationGroup: { // root type
-    Character: Array<NexusGenRootTypes['MFCharacter'] | null>; // [MFCharacter]!
-    Event: Array<NexusGenRootTypes['MFEvent'] | null>; // [MFEvent]!
+    Character?: Array<NexusGenRootTypes['MFCharacter'] | null> | null; // [MFCharacter]
+    Event?: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     authorId?: number | null; // Int
     description: string; // String!
     id: number; // Int!
@@ -148,38 +254,45 @@ export interface NexusGenObjects {
     worldId: number; // Int!
   }
   MFScene: { // root type
-    Paragraphs: Array<NexusGenRootTypes['MFParagraph'] | null>; // [MFParagraph]!
     authorId?: number | null; // Int
     chapterId: number; // Int!
     characterId?: number | null; // Int
-    description: string; // String!
+    created?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
+    description?: string | null; // String
     eventContextId?: number | null; // Int
     id: number; // Int!
-    locationId: number; // Int!
-    name: string; // String!
     order: number; // Int!
+    text?: string | null; // String
     timelineId?: number | null; // Int
+    title: string; // String!
+    updated?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
   }
   MFSeries: { // root type
-    Author?: NexusGenRootTypes['MFUser'] | null; // MFUser
+    Author?: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
     Books: Array<NexusGenRootTypes['MFBook'] | null>; // [MFBook]!
     authorId?: number | null; // Int
+    created?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     description: string; // String!
+    free: boolean; // Boolean!
     genre: string; // String!
     id: number; // Int!
-    order?: number | null; // Int
+    public: boolean; // Boolean!
+    publishDate?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     title: string; // String!
+    updated?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
   }
   MFTimeline: { // root type
-    Scenes: Array<NexusGenRootTypes['MFScene'] | null>; // [MFScene]!
+    Author?: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
+    Scenes?: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
+    TimelineEvents?: Array<NexusGenRootTypes['MFTimelineEvent'] | null> | null; // [MFTimelineEvent]
+    World?: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId?: number | null; // Int
-    description: string; // String!
     id: number; // Int!
     name: string; // String!
-    order: number; // Int!
     worldId: number; // Int!
   }
   MFTimelineEvent: { // root type
+    Event?: NexusGenRootTypes['MFEvent'] | null; // MFEvent
     Scenes?: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
     authorId?: number | null; // Int
     eventId: number; // Int!
@@ -188,6 +301,11 @@ export interface NexusGenObjects {
     timelineId: number; // Int!
   }
   MFUser: { // root type
+    Books?: Array<NexusGenRootTypes['MFBook'] | null> | null; // [MFBook]
+    Characters?: Array<NexusGenRootTypes['MFCharacter'] | null> | null; // [MFCharacter]
+    Series?: Array<NexusGenRootTypes['MFSeries'] | null> | null; // [MFSeries]
+    Timelines?: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
+    Worlds?: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
     authSource: NexusGenEnums['Authenticator']; // Authenticator!
     created: NexusGenScalars['CsDateTime']; // CsDateTime!
     displayName: string; // String!
@@ -197,7 +315,7 @@ export interface NexusGenObjects {
     role: NexusGenEnums['UserRole']; // UserRole!
   }
   MFWorld: { // root type
-    Event?: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
+    Events?: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     Groups?: Array<NexusGenRootTypes['MFPopulationGroup'] | null> | null; // [MFPopulationGroup]
     Locations?: Array<NexusGenRootTypes['MFLocation'] | null> | null; // [MFLocation]
     Timelines?: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
@@ -223,34 +341,41 @@ export type NexusGenRootTypes = NexusGenObjects
 export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars & NexusGenEnums
 
 export interface NexusGenFieldTypes {
+  MFAuthor: { // field return type
+    displayName: string; // String!
+  }
   MFBook: { // field return type
-    Author: NexusGenRootTypes['MFUser'] | null; // MFUser
-    Chapters: Array<NexusGenRootTypes['MFChapter'] | null>; // [MFChapter]!
+    Author: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
+    Chapters: Array<NexusGenRootTypes['MFChapter'] | null> | null; // [MFChapter]
+    Series: NexusGenRootTypes['MFSeries'] | null; // MFSeries
     authorId: number | null; // Int
-    created: NexusGenScalars['CsDateTime']; // CsDateTime!
+    created: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     description: string; // String!
+    free: boolean; // Boolean!
     genre: string; // String!
     id: number; // Int!
-    lastSeen: NexusGenScalars['CsDateTime']; // CsDateTime!
     order: number | null; // Int
+    public: boolean; // Boolean!
+    publishDate: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     seriesId: number | null; // Int
     title: string; // String!
+    updated: NexusGenScalars['CsDateTime'] | null; // CsDateTime
   }
   MFChapter: { // field return type
-    Author: NexusGenRootTypes['MFUser'] | null; // MFUser
-    Book: NexusGenRootTypes['MFBook'] | null; // MFBook
-    Scenes: Array<NexusGenRootTypes['MFScene'] | null>; // [MFScene]!
+    Author: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
+    Scenes: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
     authorId: number | null; // Int
     bookId: number | null; // Int
-    created: NexusGenScalars['CsDateTime']; // CsDateTime!
-    description: string; // String!
+    created: NexusGenScalars['CsDateTime'] | null; // CsDateTime
+    description: string | null; // String
     id: number; // Int!
-    lastSeen: NexusGenScalars['CsDateTime']; // CsDateTime!
-    name: string; // String!
     order: number; // Int!
+    status: NexusGenEnums['ChapterStatus'] | null; // ChapterStatus
+    title: string; // String!
+    updated: NexusGenScalars['CsDateTime'] | null; // CsDateTime
   }
   MFCharacter: { // field return type
-    CharacterRelationship: Array<NexusGenRootTypes['MFCharacterRelationship'] | null>; // [MFCharacterRelationship]!
+    CharacterRelationship: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
     authorId: number | null; // Int
     description: string; // String!
     groupId: number | null; // Int
@@ -260,15 +385,17 @@ export interface NexusGenFieldTypes {
     worldId: number; // Int!
   }
   MFCharacterRelationship: { // field return type
+    Character: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
     characterId: number; // Int!
     id: number; // Int!
     relationship: string; // String!
     targetId: number; // Int!
   }
   MFEvent: { // field return type
+    World: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId: number | null; // Int
     characterId: number | null; // Int
-    description: string; // String!
+    description: string | null; // String
     groupId: number | null; // Int
     id: number; // Int!
     locationId: number | null; // Int
@@ -282,6 +409,7 @@ export interface NexusGenFieldTypes {
     Events: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     Groups: Array<NexusGenRootTypes['MFPopulationGroup'] | null> | null; // [MFPopulationGroup]
     Scenes: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
+    World: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
     authorId: number | null; // Int
     climate: NexusGenEnums['Climate']; // Climate!
     description: string; // String!
@@ -291,17 +419,9 @@ export interface NexusGenFieldTypes {
     name: string; // String!
     worldId: number; // Int!
   }
-  MFParagraph: { // field return type
-    authorId: number | null; // Int
-    characterId: number | null; // Int
-    id: number; // Int!
-    order: number; // Int!
-    sceneId: number | null; // Int
-    text: string; // String!
-  }
   MFPopulationGroup: { // field return type
-    Character: Array<NexusGenRootTypes['MFCharacter'] | null>; // [MFCharacter]!
-    Event: Array<NexusGenRootTypes['MFEvent'] | null>; // [MFEvent]!
+    Character: Array<NexusGenRootTypes['MFCharacter'] | null> | null; // [MFCharacter]
+    Event: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     authorId: number | null; // Int
     description: string; // String!
     id: number; // Int!
@@ -311,38 +431,45 @@ export interface NexusGenFieldTypes {
     worldId: number; // Int!
   }
   MFScene: { // field return type
-    Paragraphs: Array<NexusGenRootTypes['MFParagraph'] | null>; // [MFParagraph]!
     authorId: number | null; // Int
     chapterId: number; // Int!
     characterId: number | null; // Int
-    description: string; // String!
+    created: NexusGenScalars['CsDateTime'] | null; // CsDateTime
+    description: string | null; // String
     eventContextId: number | null; // Int
     id: number; // Int!
-    locationId: number; // Int!
-    name: string; // String!
     order: number; // Int!
+    text: string | null; // String
     timelineId: number | null; // Int
+    title: string; // String!
+    updated: NexusGenScalars['CsDateTime'] | null; // CsDateTime
   }
   MFSeries: { // field return type
-    Author: NexusGenRootTypes['MFUser'] | null; // MFUser
+    Author: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
     Books: Array<NexusGenRootTypes['MFBook'] | null>; // [MFBook]!
     authorId: number | null; // Int
+    created: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     description: string; // String!
+    free: boolean; // Boolean!
     genre: string; // String!
     id: number; // Int!
-    order: number | null; // Int
+    public: boolean; // Boolean!
+    publishDate: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     title: string; // String!
+    updated: NexusGenScalars['CsDateTime'] | null; // CsDateTime
   }
   MFTimeline: { // field return type
-    Scenes: Array<NexusGenRootTypes['MFScene'] | null>; // [MFScene]!
+    Author: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
+    Scenes: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
+    TimelineEvents: Array<NexusGenRootTypes['MFTimelineEvent'] | null> | null; // [MFTimelineEvent]
+    World: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId: number | null; // Int
-    description: string; // String!
     id: number; // Int!
     name: string; // String!
-    order: number; // Int!
     worldId: number; // Int!
   }
   MFTimelineEvent: { // field return type
+    Event: NexusGenRootTypes['MFEvent'] | null; // MFEvent
     Scenes: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
     authorId: number | null; // Int
     eventId: number; // Int!
@@ -351,6 +478,11 @@ export interface NexusGenFieldTypes {
     timelineId: number; // Int!
   }
   MFUser: { // field return type
+    Books: Array<NexusGenRootTypes['MFBook'] | null> | null; // [MFBook]
+    Characters: Array<NexusGenRootTypes['MFCharacter'] | null> | null; // [MFCharacter]
+    Series: Array<NexusGenRootTypes['MFSeries'] | null> | null; // [MFSeries]
+    Timelines: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
+    Worlds: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
     authSource: NexusGenEnums['Authenticator']; // Authenticator!
     created: NexusGenScalars['CsDateTime']; // CsDateTime!
     displayName: string; // String!
@@ -360,7 +492,7 @@ export interface NexusGenFieldTypes {
     role: NexusGenEnums['UserRole']; // UserRole!
   }
   MFWorld: { // field return type
-    Event: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
+    Events: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     Groups: Array<NexusGenRootTypes['MFPopulationGroup'] | null> | null; // [MFPopulationGroup]
     Locations: Array<NexusGenRootTypes['MFLocation'] | null> | null; // [MFLocation]
     Timelines: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
@@ -372,40 +504,91 @@ export interface NexusGenFieldTypes {
     type: NexusGenEnums['WorldType']; // WorldType!
   }
   Mutation: { // field return type
+    deleteBook: NexusGenRootTypes['MFBook'] | null; // MFBook
+    deleteChapter: NexusGenRootTypes['MFChapter'] | null; // MFChapter
+    deleteCharacter: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
+    deleteEvent: NexusGenRootTypes['MFEvent'] | null; // MFEvent
+    deleteLocation: NexusGenRootTypes['MFLocation'] | null; // MFLocation
+    deleteRelationship: NexusGenRootTypes['MFCharacterRelationship'] | null; // MFCharacterRelationship
+    deleteScene: NexusGenRootTypes['MFScene'] | null; // MFScene
+    deleteSeries: NexusGenRootTypes['MFSeries'] | null; // MFSeries
+    deleteTimeline: NexusGenRootTypes['MFTimeline'] | null; // MFTimeline
+    deleteTimelineEvent: NexusGenRootTypes['MFTimelineEvent'] | null; // MFTimelineEvent
+    deleteWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
+    publishBook: NexusGenRootTypes['MFBook'] | null; // MFBook
+    publishSeries: NexusGenRootTypes['MFSeries'] | null; // MFSeries
+    upsertBook: NexusGenRootTypes['MFBook'] | null; // MFBook
+    upsertChapter: NexusGenRootTypes['MFChapter'] | null; // MFChapter
+    upsertCharacter: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
+    upsertEvents: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
+    upsertLocation: NexusGenRootTypes['MFLocation'] | null; // MFLocation
+    upsertRelationships: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
+    upsertScene: NexusGenRootTypes['MFScene'] | null; // MFScene
+    upsertSeries: NexusGenRootTypes['MFSeries'] | null; // MFSeries
+    upsertTimeline: NexusGenRootTypes['MFTimeline'] | null; // MFTimeline
+    upsertTimelineEvents: Array<NexusGenRootTypes['MFTimelineEvent'] | null> | null; // [MFTimelineEvent]
     upsertWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
   }
   Query: { // field return type
+    getBookById: NexusGenRootTypes['MFBook'] | null; // MFBook
+    getChapterById: NexusGenRootTypes['MFChapter'] | null; // MFChapter
+    getCharacterById: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
+    getEventById: NexusGenRootTypes['MFEvent'] | null; // MFEvent
+    getLocationById: NexusGenRootTypes['MFLocation'] | null; // MFLocation
+    getRelationshipById: NexusGenRootTypes['MFCharacterRelationship'] | null; // MFCharacterRelationship
+    getSceneById: NexusGenRootTypes['MFScene'] | null; // MFScene
+    getSeriesById: NexusGenRootTypes['MFSeries'] | null; // MFSeries
+    getTimelineById: NexusGenRootTypes['MFTimeline'] | null; // MFTimeline
     getWorldById: NexusGenRootTypes['MFWorld'] | null; // MFWorld
+    listBookPublications: Array<NexusGenRootTypes['MFBook'] | null> | null; // [MFBook]
+    listBooks: Array<NexusGenRootTypes['MFBook'] | null> | null; // [MFBook]
+    listChapters: Array<NexusGenRootTypes['MFChapter'] | null> | null; // [MFChapter]
+    listCharacters: Array<NexusGenRootTypes['MFCharacter'] | null> | null; // [MFCharacter]
+    listLocations: Array<NexusGenRootTypes['MFLocation'] | null> | null; // [MFLocation]
+    listRelationships: Array<NexusGenRootTypes['MFCharacterRelationship'] | null> | null; // [MFCharacterRelationship]
+    listScenes: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
+    listSeries: Array<NexusGenRootTypes['MFSeries'] | null> | null; // [MFSeries]
+    listSeriesPublications: Array<NexusGenRootTypes['MFSeries'] | null> | null; // [MFSeries]
+    listTimelineEvents: Array<NexusGenRootTypes['MFTimelineEvent'] | null> | null; // [MFTimelineEvent]
+    listTimelines: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
+    listWorldEvents: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     listWorlds: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
   }
 }
 
 export interface NexusGenFieldTypeNames {
+  MFAuthor: { // field return type name
+    displayName: 'String'
+  }
   MFBook: { // field return type name
-    Author: 'MFUser'
+    Author: 'MFAuthor'
     Chapters: 'MFChapter'
+    Series: 'MFSeries'
     authorId: 'Int'
     created: 'CsDateTime'
     description: 'String'
+    free: 'Boolean'
     genre: 'String'
     id: 'Int'
-    lastSeen: 'CsDateTime'
     order: 'Int'
+    public: 'Boolean'
+    publishDate: 'CsDateTime'
     seriesId: 'Int'
     title: 'String'
+    updated: 'CsDateTime'
   }
   MFChapter: { // field return type name
-    Author: 'MFUser'
-    Book: 'MFBook'
+    Author: 'MFAuthor'
     Scenes: 'MFScene'
     authorId: 'Int'
     bookId: 'Int'
     created: 'CsDateTime'
     description: 'String'
     id: 'Int'
-    lastSeen: 'CsDateTime'
-    name: 'String'
     order: 'Int'
+    status: 'ChapterStatus'
+    title: 'String'
+    updated: 'CsDateTime'
   }
   MFCharacter: { // field return type name
     CharacterRelationship: 'MFCharacterRelationship'
@@ -418,12 +601,14 @@ export interface NexusGenFieldTypeNames {
     worldId: 'Int'
   }
   MFCharacterRelationship: { // field return type name
+    Character: 'MFCharacter'
     characterId: 'Int'
     id: 'Int'
     relationship: 'String'
     targetId: 'Int'
   }
   MFEvent: { // field return type name
+    World: 'MFWorld'
     authorId: 'Int'
     characterId: 'Int'
     description: 'String'
@@ -440,6 +625,7 @@ export interface NexusGenFieldTypeNames {
     Events: 'MFEvent'
     Groups: 'MFPopulationGroup'
     Scenes: 'MFScene'
+    World: 'MFWorld'
     authorId: 'Int'
     climate: 'Climate'
     description: 'String'
@@ -448,14 +634,6 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
     name: 'String'
     worldId: 'Int'
-  }
-  MFParagraph: { // field return type name
-    authorId: 'Int'
-    characterId: 'Int'
-    id: 'Int'
-    order: 'Int'
-    sceneId: 'Int'
-    text: 'String'
   }
   MFPopulationGroup: { // field return type name
     Character: 'MFCharacter'
@@ -469,38 +647,45 @@ export interface NexusGenFieldTypeNames {
     worldId: 'Int'
   }
   MFScene: { // field return type name
-    Paragraphs: 'MFParagraph'
     authorId: 'Int'
     chapterId: 'Int'
     characterId: 'Int'
+    created: 'CsDateTime'
     description: 'String'
     eventContextId: 'Int'
     id: 'Int'
-    locationId: 'Int'
-    name: 'String'
     order: 'Int'
+    text: 'String'
     timelineId: 'Int'
+    title: 'String'
+    updated: 'CsDateTime'
   }
   MFSeries: { // field return type name
-    Author: 'MFUser'
+    Author: 'MFAuthor'
     Books: 'MFBook'
     authorId: 'Int'
+    created: 'CsDateTime'
     description: 'String'
+    free: 'Boolean'
     genre: 'String'
     id: 'Int'
-    order: 'Int'
+    public: 'Boolean'
+    publishDate: 'CsDateTime'
     title: 'String'
+    updated: 'CsDateTime'
   }
   MFTimeline: { // field return type name
+    Author: 'MFAuthor'
     Scenes: 'MFScene'
+    TimelineEvents: 'MFTimelineEvent'
+    World: 'MFWorld'
     authorId: 'Int'
-    description: 'String'
     id: 'Int'
     name: 'String'
-    order: 'Int'
     worldId: 'Int'
   }
   MFTimelineEvent: { // field return type name
+    Event: 'MFEvent'
     Scenes: 'MFScene'
     authorId: 'Int'
     eventId: 'Int'
@@ -509,6 +694,11 @@ export interface NexusGenFieldTypeNames {
     timelineId: 'Int'
   }
   MFUser: { // field return type name
+    Books: 'MFBook'
+    Characters: 'MFCharacter'
+    Series: 'MFSeries'
+    Timelines: 'MFTimeline'
+    Worlds: 'MFWorld'
     authSource: 'Authenticator'
     created: 'CsDateTime'
     displayName: 'String'
@@ -518,7 +708,7 @@ export interface NexusGenFieldTypeNames {
     role: 'UserRole'
   }
   MFWorld: { // field return type name
-    Event: 'MFEvent'
+    Events: 'MFEvent'
     Groups: 'MFPopulationGroup'
     Locations: 'MFLocation'
     Timelines: 'MFTimeline'
@@ -530,29 +720,256 @@ export interface NexusGenFieldTypeNames {
     type: 'WorldType'
   }
   Mutation: { // field return type name
+    deleteBook: 'MFBook'
+    deleteChapter: 'MFChapter'
+    deleteCharacter: 'MFCharacter'
+    deleteEvent: 'MFEvent'
+    deleteLocation: 'MFLocation'
+    deleteRelationship: 'MFCharacterRelationship'
+    deleteScene: 'MFScene'
+    deleteSeries: 'MFSeries'
+    deleteTimeline: 'MFTimeline'
+    deleteTimelineEvent: 'MFTimelineEvent'
+    deleteWorld: 'MFWorld'
+    publishBook: 'MFBook'
+    publishSeries: 'MFSeries'
+    upsertBook: 'MFBook'
+    upsertChapter: 'MFChapter'
+    upsertCharacter: 'MFCharacter'
+    upsertEvents: 'MFEvent'
+    upsertLocation: 'MFLocation'
+    upsertRelationships: 'MFCharacterRelationship'
+    upsertScene: 'MFScene'
+    upsertSeries: 'MFSeries'
+    upsertTimeline: 'MFTimeline'
+    upsertTimelineEvents: 'MFTimelineEvent'
     upsertWorld: 'MFWorld'
   }
   Query: { // field return type name
+    getBookById: 'MFBook'
+    getChapterById: 'MFChapter'
+    getCharacterById: 'MFCharacter'
+    getEventById: 'MFEvent'
+    getLocationById: 'MFLocation'
+    getRelationshipById: 'MFCharacterRelationship'
+    getSceneById: 'MFScene'
+    getSeriesById: 'MFSeries'
+    getTimelineById: 'MFTimeline'
     getWorldById: 'MFWorld'
+    listBookPublications: 'MFBook'
+    listBooks: 'MFBook'
+    listChapters: 'MFChapter'
+    listCharacters: 'MFCharacter'
+    listLocations: 'MFLocation'
+    listRelationships: 'MFCharacterRelationship'
+    listScenes: 'MFScene'
+    listSeries: 'MFSeries'
+    listSeriesPublications: 'MFSeries'
+    listTimelineEvents: 'MFTimelineEvent'
+    listTimelines: 'MFTimeline'
+    listWorldEvents: 'MFEvent'
     listWorlds: 'MFWorld'
   }
 }
 
 export interface NexusGenArgTypes {
   Mutation: {
+    deleteBook: { // args
+      id: number; // Int!
+    }
+    deleteChapter: { // args
+      id: number; // Int!
+    }
+    deleteCharacter: { // args
+      id: number; // Int!
+    }
+    deleteEvent: { // args
+      id: number; // Int!
+    }
+    deleteLocation: { // args
+      id: number; // Int!
+    }
+    deleteRelationship: { // args
+      id: number; // Int!
+    }
+    deleteScene: { // args
+      id: number; // Int!
+    }
+    deleteSeries: { // args
+      id: number; // Int!
+    }
+    deleteTimeline: { // args
+      id: number; // Int!
+    }
+    deleteTimelineEvent: { // args
+      id: number; // Int!
+    }
+    deleteWorld: { // args
+      id: number; // Int!
+    }
+    publishBook: { // args
+      id: number; // Int!
+    }
+    publishSeries: { // args
+      id: number; // Int!
+    }
+    upsertBook: { // args
+      data: NexusGenInputs['MFBookUpsertInput']; // MFBookUpsertInput!
+    }
+    upsertChapter: { // args
+      data: NexusGenInputs['MFChapterUpsertInput']; // MFChapterUpsertInput!
+    }
+    upsertCharacter: { // args
+      data: NexusGenInputs['MFCharacterUpsertInput']; // MFCharacterUpsertInput!
+    }
+    upsertEvents: { // args
+      data: Array<NexusGenInputs['MFEventUpsertInput'] | null>; // [MFEventUpsertInput]!
+    }
+    upsertLocation: { // args
+      data: NexusGenInputs['MFLocationUpsertInput']; // MFLocationUpsertInput!
+    }
+    upsertRelationships: { // args
+      data: NexusGenInputs['MFRelationshipUpsertInput'][]; // [MFRelationshipUpsertInput!]!
+    }
+    upsertScene: { // args
+      data: NexusGenInputs['MFSceneUpsertInput']; // MFSceneUpsertInput!
+    }
+    upsertSeries: { // args
+      data: NexusGenInputs['MFSeriesUpsertInput']; // MFSeriesUpsertInput!
+    }
+    upsertTimeline: { // args
+      data: NexusGenInputs['MFTimelineUpsertInput']; // MFTimelineUpsertInput!
+    }
+    upsertTimelineEvents: { // args
+      events?: NexusGenInputs['MFTimelineEventUpsertInput'][] | null; // [MFTimelineEventUpsertInput!]
+      id: number; // Int!
+    }
     upsertWorld: { // args
       data: NexusGenInputs['MFWorldUpsertInput']; // MFWorldUpsertInput!
     }
   }
   Query: {
+    getBookById: { // args
+      id: number; // Int!
+    }
+    getChapterById: { // args
+      id: number; // Int!
+    }
+    getCharacterById: { // args
+      id: number; // Int!
+    }
+    getEventById: { // args
+      id: number; // Int!
+    }
+    getLocationById: { // args
+      id: number; // Int!
+    }
+    getRelationshipById: { // args
+      id: number; // Int!
+    }
+    getSceneById: { // args
+      id: number; // Int!
+    }
+    getSeriesById: { // args
+      id: number; // Int!
+    }
+    getTimelineById: { // args
+      id: number; // Int!
+    }
     getWorldById: { // args
       id: number; // Int!
+    }
+    listBookPublications: { // args
+      authorId?: number | null; // Int
+      description?: string | null; // String
+      freeOnly?: boolean | null; // Boolean
+      genre?: string | null; // String
+      seriesId?: number | null; // Int
+      title?: string | null; // String
+    }
+    listBooks: { // args
+      authorId?: number | null; // Int
+      description?: string | null; // String
+      free?: boolean | null; // Boolean
+      genre?: string | null; // String
+      public?: boolean | null; // Boolean
+      seriesId?: number | null; // Int
+      title?: string | null; // String
+    }
+    listChapters: { // args
+      authorId?: number | null; // Int
+      bookId: number; // Int!
+      description?: string | null; // String
+      id?: number[] | null; // [Int!]
+      title?: string | null; // String
+    }
+    listCharacters: { // args
+      authorId?: number | null; // Int
+      description?: string | null; // String
+      id?: number | null; // Int
+      name?: string | null; // String
+      worldId?: number | null; // Int
+    }
+    listLocations: { // args
+      authorId?: number | null; // Int
+      description?: string | null; // String
+      id?: number | null; // Int
+      name?: string | null; // String
+      worldId: number; // Int!
+    }
+    listRelationships: { // args
+      characterId?: number | null; // Int
+      id?: number | null; // Int
+      relationship?: string | null; // String
+      targetId?: number | null; // Int
+    }
+    listScenes: { // args
+      authorId?: number | null; // Int
+      chapterId: number; // Int!
+      description?: string | null; // String
+      id?: number[] | null; // [Int!]
+      text?: string | null; // String
+      title?: string | null; // String
+    }
+    listSeries: { // args
+      authorId?: number | null; // Int
+      description?: string | null; // String
+      freeOnly?: boolean | null; // Boolean
+      genre?: string | null; // String
+      publicOnly?: boolean | null; // Boolean
+      title?: string | null; // String
+    }
+    listSeriesPublications: { // args
+      authorId?: number | null; // Int
+      description?: string | null; // String
+      genre?: string | null; // String
+      title?: string | null; // String
+    }
+    listTimelineEvents: { // args
+      timelineId: number; // Int!
+    }
+    listTimelines: { // args
+      authorId?: number | null; // Int
+      name?: string | null; // String
+      worldId?: number | null; // Int
+    }
+    listWorldEvents: { // args
+      authorId?: number | null; // Int
+      characterId?: number | null; // Int
+      description?: string | null; // String
+      groupId?: number | null; // Int
+      locationId?: number | null; // Int
+      name?: string | null; // String
+      polarity?: NexusGenEnums['EventPolarity'] | null; // EventPolarity
+      target?: NexusGenEnums['EventTarget'] | null; // EventTarget
+      worldId?: number | null; // Int
     }
     listWorlds: { // args
       authorId?: number | null; // Int
       description?: string | null; // String
       id?: number | null; // Int
       name?: string | null; // String
+      public: boolean | null; // Boolean
     }
   }
 }

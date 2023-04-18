@@ -6,55 +6,74 @@ import { Prisma, CharacterRelationship } from "@prisma/client";
 import { context } from "../graphql/context";
 
 type UpsertArgs = Prisma.CharacterRelationshipUpsertArgs;
-type CreateCharacterRelationshipInput =
-  | UpsertArgs["create"] & UpsertArgs["update"];
-type SearchCharacterRelationshipInput = Pick<
-  CreateCharacterRelationshipInput,
-  "relationship"
->;
+type UpsertRelationshipInput = UpsertArgs["create"] & UpsertArgs["update"];
+type SearchCharacterRelationshipInput =
+  | Pick<UpsertRelationshipInput, "id"> &
+      Partial<
+        Pick<CharacterRelationship, "relationship" | "characterId" | "targetId">
+      >;
 type CharacterRelationshipByIdInput = Pick<CharacterRelationship, "id">;
+
 const { CharacterRelationships } = context;
 
-/** create character-relationship record */
-export async function upsertCharacterRelationship(
-  newCharacterRelationship: CreateCharacterRelationshipInput
-) {
-  const data: CreateCharacterRelationshipInput = {
-    ...newCharacterRelationship
-  };
+/** create `Character-Relationship` record */
+export async function upsertCharacterRelationships(
+  newItems: UpsertRelationshipInput[]
+): Promise<CharacterRelationship[]> {
+  const rels: Promise<CharacterRelationship>[] = [];
+  newItems.forEach((data) => {
+    const where = { id: data.id };
+    if (data.id) rels.push(CharacterRelationships.update({ data, where }));
+    else rels.push(CharacterRelationships.create({ data }));
+  });
 
-  return CharacterRelationships.upsert({
-    create: data,
-    update: data,
-    where: { id: newCharacterRelationship.id }
+  return Promise.all(rels);
+}
+
+/** find all `Character-Relationship` records matching params */
+export async function findAllCharacterRelationship(
+  filter: SearchCharacterRelationshipInput
+) {
+  const where: Prisma.CharacterRelationshipFindManyArgs["where"] = {};
+  const { characterId, id, targetId, relationship } = filter;
+  if (id) where.id = id;
+  if (relationship) where.relationship = { contains: relationship };
+
+  where.OR = [];
+  if (characterId) where.OR.push({ characterId }, { targetId: characterId });
+  if (targetId) where.OR.push({ targetId }, { characterId: targetId });
+
+  return CharacterRelationships.findMany({
+    where,
+    include: { Character: true }
   });
 }
 
-/** find all character-relationship records matching params */
-export async function findAllCharacterRelationship(
-  where: CharacterRelationshipByIdInput | SearchCharacterRelationshipInput
-) {
-  return CharacterRelationships.findMany({ where });
-}
-
-/** find one character-relationship record matching params */
+/** find one `Character-Relationship` record matching params */
 export async function getCharacterRelationship(
   where: CharacterRelationshipByIdInput
 ) {
-  return CharacterRelationships.findUnique({ where });
+  return CharacterRelationships.findUnique({
+    where,
+    include: { Character: true }
+  });
 }
 
-/** update one character-relationship record matching params */
+/** update one `Character-Relationship` record matching params */
 export async function updateCharacterRelationship(
   where: CharacterRelationshipByIdInput,
-  data: CreateCharacterRelationshipInput
+  data: UpsertRelationshipInput
 ) {
-  return CharacterRelationships.update({ data, where });
+  return CharacterRelationships.update({
+    data,
+    where,
+    include: { Character: true }
+  });
 }
 
-/** delete a character-relationship */
+/** delete a `Character-Relationship` */
 export async function deleteCharacterRelationship(
   where: CharacterRelationshipByIdInput
 ) {
-  return CharacterRelationships.delete({ where });
+  return CharacterRelationships.delete({ where, include: { Character: true } });
 }

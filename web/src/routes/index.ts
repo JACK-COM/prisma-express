@@ -1,110 +1,88 @@
-const MediaPaths = (root: string) => ({
-  Books: {
-    path: `${root}/books`,
-    text: "Books"
+/** All app routes for maximum convenience */
+export const Paths = {
+  Search: {
+    Index: {
+      path: "/",
+      text: "Search"
+    },
+    Results: {
+      path: "/results",
+      text: "Search results"
+    }
+  },
+
+  Dashboard: {
+    Index: {
+      path: "/dashboard",
+      text: "Dashboard"
+    }
+  },
+
+  Library: {
+    Index: {
+      path: "/library",
+      text: "Book Library"
+    },
+    Book: {
+      path: "/library/books/:bookId",
+      text: "View Book"
+    },
+    Series: {
+      path: "/library/series/:seriesId",
+      text: "View Book"
+    }
+  },
+
+  Timelines: {
+    Index: {
+      path: "/timelines",
+      text: "Timelines"
+    },
+    Events: {
+      path: "/timelines/:timelineId/events",
+      text: "Timeline Events"
+    }
+  },
+
+  Characters: {
+    Index: {
+      path: "/characters",
+      text: "Cast & Characters"
+    },
+    Relationships: {
+      path: "/characters/relationships",
+      text: "Relationships"
+    }
+  },
+
+  Worlds: {
+    Index: {
+      path: "/worlds",
+      text: "Worlds & Settings"
+    },
+    Events: {
+      path: "/worlds/:worldId/events",
+      text: "Major World Events"
+    },
+    Locations: {
+      path: "/worlds/:worldId/locations",
+      text: "World Locations"
+    }
   }
-});
+};
 
 /** All app route keys for maximum convenience */
-type AppRoute =
-  | "Search"
-  | "Dashboard"
-  | "BooksAndSeries"
-  | "Timelines"
-  | "Characters"
-  | "Worlds";
-
-/** All app routes for maximum convenience */
-export const Paths: Record<AppRoute, Record<"Index" | string, RouteDef>> =
-  {
-    Search: {
-      Index: {
-        path: "/",
-        text: "Search"
-      },
-      Results: {
-        path: "/results",
-        text: "Search results"
-      }
-    },
-
-    Dashboard: {
-      Index: {
-        path: "/dashboard",
-        text: "Dashboard"
-      }
-    },
-
-    BooksAndSeries: {
-      Index: {
-        path: "/bibliography",
-        text: "Books & Series"
-      },
-      Books: {
-        path: "/bibliography/books",
-        text: "My Books"
-      },
-      BookById: {
-        path: "/bibliography/books/:bookId",
-        text: "Manage Book"
-      },
-      NewBook: {
-        path: "/bibliography/books/new",
-        text: "New Book"
-      },
-      NewSeries: {
-        path: "/bibliography/series/new",
-        text: "New Series"
-      },
-      Series: {
-        path: "/bibliography/series",
-        text: "My Series"
-      },
-      SeriesById: {
-        path: "/bibliography/series/:seriesId",
-        text: "Manage Series"
-      }
-    },
-
-    Timelines: {
-      Index: {
-        path: "/timelines",
-        text: "Timelines & Events"
-      },
-      Events: {
-        path: "/timelines/events",
-        text: "Major Events"
-      }
-    },
-
-    Characters: {
-      Index: {
-        path: "/characters",
-        text: "Cast & Characters"
-      },
-      Relationships: {
-        path: "/characters/relationships",
-        text: "Relationships"
-      }
-    },
-
-    Worlds: {
-      Index: {
-        path: "/worlds",
-        text: "Worlds & Settings"
-      },
-      Locations: {
-        path: "/worlds/locations",
-        text: "World Locations"
-      }
-    }
-  };
-
-export interface RouteDef {
+export type AppRoutes = typeof Paths;
+export interface AppRouteDef {
   path: string;
   text: string;
   component?: any;
   render?: (p?: any) => JSX.Element;
+}
+
+// Replace id wildcard with actual id
+export function insertId(path: string, id: string | number) {
+  return path.replace(/:\b(\w*Id)/, id.toString());
 }
 
 /**

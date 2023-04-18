@@ -8,7 +8,7 @@ export const MFEvent = objectType({
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.string("name");
-    t.nonNull.string("description");
+    t.string("description");
     t.nonNull.field("target", { type: "EventTarget" });
     t.nonNull.field("polarity", { type: "EventPolarity" });
     t.int("authorId", { description: "Event Author" });
@@ -16,5 +16,8 @@ export const MFEvent = objectType({
     t.int("groupId", { description: "`Group` target (optional)" });
     t.int("locationId", { description: "`Location` target (optional)" });
     t.nonNull.int("worldId", { description: "Event target `World`" });
+
+    // relationships
+    t.field("World", { type: "MFWorld" });
   }
 });

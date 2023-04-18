@@ -5,27 +5,54 @@
 import { Prisma, Character } from "@prisma/client";
 import { context } from "../graphql/context";
 
-type CreateCharacterInput =
+type UpsertCharacterInput =
   | Prisma.CharacterUpsertArgs["create"] & Prisma.CharacterUpsertArgs["update"];
-type SearchCharacterInput = Pick<CreateCharacterInput, "name" | "description">;
 type CharacterByIdInput = Pick<Character, "id">;
-const { Characters } = context;
+type SearchCharacterInput = { authorId: number; id?: number } & Partial<
+  Pick<Character, "name" | "worldId" | "groupId" | "description">
+>;
+const { Characters, Worlds } = context;
 
 /** create character record */
-export async function upsertCharacter(newCharacter: CreateCharacterInput) {
-  const data: CreateCharacterInput = { ...newCharacter };
+export async function upsertCharacter(newCharacter: UpsertCharacterInput) {
+  const data: UpsertCharacterInput = { ...newCharacter };
+  return data.id
+    ? Characters.update({ data, where: { id: newCharacter.id } })
+    : Characters.create({ data });
+}
 
-  return Characters.upsert({
-    create: data,
-    update: data,
-    where: { id: newCharacter.id }
+/** find all public character records */
+export async function findAllPublicCharacter() {
+  const pubWorlds = await Worlds.findMany({ where: { public: true } });
+  const pubWorldIds = pubWorlds.map((w) => w.id);
+  return Characters.findMany({
+    where: { worldId: { in: pubWorldIds } }
   });
 }
 
 /** find all character records matching params */
-export async function findAllCharacter(
-  where: CharacterByIdInput | SearchCharacterInput
-) {
+export async function findAllCharacter(filters: SearchCharacterInput) {
+  const { id, name, authorId, worldId, groupId, description } = filters;
+  if (!id && !name && !authorId && !worldId && !groupId && !description) {
+    return findAllPublicCharacter();
+  }
+
+  const where: Prisma.CharacterFindManyArgs["where"] = {};
+  where.OR = [];
+  if (authorId) where.OR.push({ authorId });
+  if (id) where.OR.push({ id });
+  if (name) {
+    where.OR.push({ name: { contains: name, mode: "insensitive" } });
+  }
+  if (description) {
+    where.OR.push({
+      description: { contains: description, mode: "insensitive" }
+    });
+  }
+  if (worldId) where.OR.push({ worldId });
+  if (groupId) where.OR.push({ groupId });
+  if (!where.OR.length) delete where.OR;
+
   return Characters.findMany({ where });
 }
 
@@ -37,7 +64,7 @@ export async function getCharacter(where: CharacterByIdInput) {
 /** update one character record matching params */
 export async function updateCharacter(
   where: CharacterByIdInput,
-  data: CreateCharacterInput
+  data: UpsertCharacterInput
 ) {
   return Characters.update({ data, where });
 }

@@ -1,5 +1,5 @@
 import { useMatch } from "react-router";
-import { RouteDef } from "routes";
+import { Paths, AppRouteDef } from "routes";
 import { FlexRow, GridContainer, MatIcon } from "./Containers";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -12,19 +12,20 @@ const Container = styled(GridContainer)`
   width: fit-content;
 `;
 
-type BreadcrumbsProps = { data: RouteDef[] };
+type BreadcrumbsProps = { data: AppRouteDef[] };
 
 /** Application path breadcrumb container */
 const Breadcrumbs = (props: BreadcrumbsProps) => {
   const { data } = props;
+  const crumbs = [Paths.Dashboard.Index, ...data];
   const active = data.filter(({ path }) => useMatch(path) !== null);
 
   return (
-    <Container columns={`repeat(${data.length}, max-content)`}>
-      {data.map(({ path, text }, i) => (
+    <Container columns={`repeat(${crumbs.length}, max-content)`}>
+      {crumbs.map(({ path, text }, i) => (
         <FlexRow key={path}>
           {path === active[0]?.path ? text : <Link to={path}>{text}</Link>}
-          {i < data.length - 1 && <MatIcon icon="chevron_right" />}
+          {i < crumbs.length - 1 && <MatIcon icon="chevron_right" />}
         </FlexRow>
       ))}
     </Container>

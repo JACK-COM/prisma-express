@@ -1,6 +1,6 @@
 export type ContentStatus = "live" | "draft" | "hidden";
 export type ReporterType = "experiencer" | "observer" | "researcher";
-export type UserRole = "Ruthor" | "Reader";
+export type UserRole = "Author" | "Reader";
 export type NullableString = string | null;
 
 /** Saved data from server. Use when an id is expected on an object */
@@ -30,6 +30,48 @@ export enum EventPolarity {
   NegativeExpected = "NegativeExpected",
   NegativeUnexpected = "NegativeUnexpected"
 }
+
+export const EventPolarityText = (p: EventPolarity) => {
+  const text = {
+    [EventPolarity.PositiveExpected]: "Positive (expected)",
+    [EventPolarity.PositiveUnexpected]: "Positive (unexpected)",
+    [EventPolarity.Neutral]: "Neutral",
+    [EventPolarity.NegativeExpected]: "Negative (expected)",
+    [EventPolarity.NegativeUnexpected]: "Negative (unexpected)"
+  };
+  return text[p];
+};
+
+export const EventPolarityColors = (p?: EventPolarity) => {
+  const colors = {
+    [EventPolarity.PositiveUnexpected]: "#00982d",
+    [EventPolarity.PositiveExpected]: "#47855a",
+    [EventPolarity.Neutral]: "gray",
+    [EventPolarity.NegativeExpected]: "#a66359",
+    [EventPolarity.NegativeUnexpected]: "#a72d25"
+  };
+  return p ? colors[p] : "inherit";
+};
+
+export const EventPolaritySymbols = (p?: EventPolarity) => {
+  const symbols = {
+    [EventPolarity.PositiveExpected]: "👍",
+    [EventPolarity.PositiveUnexpected]: "🤩",
+    [EventPolarity.Neutral]: "🤷",
+    [EventPolarity.NegativeExpected]: "👎",
+    [EventPolarity.NegativeUnexpected]: "😱"
+  };
+  return p ? symbols[p] : symbols[EventPolarity.Neutral];
+};
+
+export const EventTargetSymbols = (p?: EventTarget) => {
+  const symbols = {
+    [EventTarget.World]: "public",
+    [EventTarget.Local]: "pin_drop",
+    [EventTarget.Person]: "face"
+  };
+  return p ? symbols[p] : symbols[EventTarget.World];
+};
 
 /** The target of a significant Event that occurs in a World */
 export enum EventTarget {
@@ -72,25 +114,40 @@ export enum WorldType {
 }
 
 /** Content created by an author */
-export type AuthorRelation = { authorId?: number; Author?: User };
+export type AuthorRelation = { authorId?: number; Author?: APIData<User> };
+
+/** Content relating to a Series */
+export type SeriesRelation = { seriesId?: number; Series?: APIData<Series> };
 
 /** Content created by an author */
-export type BookRelation = { bookId?: number; Book?: Book };
+export type BookRelation = { bookId?: number; Book?: APIData<Book> };
 
 /** Content relating to a `Character` */
-export type CharacterRelation = { characterId?: number; Character?: Character };
+export type CharacterRelation = {
+  characterId?: number;
+  Character?: APIData<Character>;
+};
 
 /** Content tagged to a `PopulationGroup` */
-export type GroupRelation = { groupId?: number; Group?: PopulationGroup };
+export type GroupRelation = {
+  groupId?: number;
+  Group?: APIData<PopulationGroup>;
+};
 
 /** Content tagged to a `Location` */
-export type LocationRelation = { locationId?: number; Location?: Location };
+export type LocationRelation = {
+  locationId?: number;
+  Location?: APIData<Location>;
+};
 
 /** Content added to a `Timeline` */
-export type TimelineRelation = { timelineId?: number; Timeline?: Timeline };
+export type TimelineRelation = {
+  timelineId?: number;
+  Timeline?: APIData<Timeline>;
+};
 
 /** Content belonging to a `World` */
-export type WorldRelation = { worldId?: number; World?: World };
+export type WorldRelation = { worldId?: number; World?: APIData<World> };
 
 /** Confidential data required to create a User */
 export type CreateUserInput = {
@@ -104,17 +161,16 @@ export type User = {
   displayName: string;
   created: string; //  @default(now()) // Account creation date
   lastSeen: string; //  @default(now()) // Last login date
-  Books?: Book[];
-  Chapters?: Chapter[];
-  Characters?: Character[];
-  Events?: Event[];
-  Groups?: PopulationGroup[];
-  Locations?: Location[];
-  Paragraphs?: Paragraph[];
-  Scenes?: Scene[];
-  Timelines?: Timeline[];
-  Worlds?: World[];
-  Series?: Series[];
+  Books?: APIData<Book>[];
+  Chapters?: APIData<Chapter>[];
+  Characters?: APIData<Character>[];
+  Events?: APIData<Event>[];
+  Groups?: APIData<PopulationGroup>[];
+  Locations?: APIData<Location>[];
+  Scenes?: APIData<Scene>[];
+  Timelines?: APIData<Timeline>[];
+  Worlds?: APIData<World>[];
+  Series?: APIData<Series>[];
 };
 
 /** A `Book` is a collection of `Chapters` */
@@ -123,17 +179,18 @@ export type Book = {
   title: string;
   description: string;
   genre: string;
-  seriesId?: number;
+  public: boolean;
+  free: boolean;
   Chapters: Chapter[];
-  Series?: Series[];
-} & AuthorRelation;
+} & AuthorRelation &
+  SeriesRelation;
 
 /** A `Chapter` is a collection of `Scenes` */
 export type Chapter = {
   order: number;
-  name: string;
+  title: string;
   description: string;
-  Scenes: Scene[];
+  Scenes: APIData<Scene>[];
 } & AuthorRelation &
   BookRelation;
 
@@ -143,11 +200,18 @@ export type Character = {
   description: string;
   Event: APIData<WorldEvent>[];
   Scene: APIData<Scene>[];
-  Paragraph: APIData<Paragraph>[];
 } & AuthorRelation &
   GroupRelation &
   LocationRelation &
   WorldRelation;
+
+/** A `CharacterRelationship` associates two `Characters` */
+export type CharacterRelationship = {
+  characterId: number; // ( references Character  )
+  targetId: number; // ( references Character | no relation )
+  relationship: string;
+  Character: Character; // @relation(fields: [characterId], references: [id], onDelete: Cascade)
+};
 
 /** `Event` (`WorldEvent` in UI) is a significant `World` occurrence */
 export type WorldEvent = {
@@ -155,7 +219,6 @@ export type WorldEvent = {
   description: string;
   target: EventTarget;
   polarity: EventPolarity;
-  TimelineEvent: APIData<TimelineEvent>[];
 } & AuthorRelation &
   CharacterRelation &
   GroupRelation &
@@ -172,18 +235,8 @@ export type Location = {
   Characters: Character[];
   Events: Event[];
   Groups: PopulationGroup[];
-  Scenes: Scene[];
 } & AuthorRelation &
   WorldRelation;
-
-/** A Paragraph is a literal paragraph in a story. They can be combined to create scenes. */
-export type Paragraph = {
-  order: number;
-  text: string;
-  sceneId?: number;
-  Scene?: Scene;
-} & AuthorRelation &
-  CharacterRelation;
 
 /** A `PopulationGroup` is a collection of Characters in a World or other location. */
 export type PopulationGroup = {
@@ -196,16 +249,16 @@ export type PopulationGroup = {
   LocationRelation &
   WorldRelation;
 
-/** A Scene is a collection of Paragraphs where one or more Characters interact with (each other or a) distinct setting within a Location. A Scene happens in the context of a Story Chapter. */
+/** A Scene is a collection of paragraphs where one or more Characters interact with (each other or a) distinct setting within a Location. A Scene happens in the context of a Story Chapter. */
 export type Scene = {
   order: number;
-  name: string;
+  title: string;
   description: string;
+  text: string;
   chapterId: number;
-  Chapter?: Chapter;
+  Chapter?: APIData<Chapter>;
   eventContextId?: number;
-  EventContext: TimelineEvent;
-  Paragraphs: Paragraph[];
+  EventContext: APIData<TimelineEvent>;
 } & AuthorRelation &
   CharacterRelation &
   LocationRelation &
@@ -213,26 +266,29 @@ export type Scene = {
 
 /** A Series is a collection of two or more Books. */
 export type Series = {
-  order: number;
   title: string;
   description: string;
+  public: boolean;
+  free: boolean;
   genre: string;
-  Books: Book[];
+  Books: APIData<Book>[];
 } & AuthorRelation;
 
 /** A `Timeline` is named Event-sequence in a `World` */
 export type Timeline = {
   name: string;
-  TimelineEvents: TimelineEvent[];
+  TimelineEvents?: APIData<TimelineEvent>[];
 } & AuthorRelation &
   WorldRelation;
 
 /** A record that associates `Events` to `Timelines` */
 export type TimelineEvent = {
   eventId: number;
+  timelineId: number;
   order: number;
+  Event?: APIData<WorldEvent>;
 } & AuthorRelation &
-  TimelineRelation;
+  Pick<TimelineRelation, "Timeline">;
 
 /** A `World` is the superset of locations where a story occurs */
 export type World = {
@@ -240,9 +296,22 @@ export type World = {
   name: string;
   description: string;
   type: WorldType;
-  Location: Location[];
-  Timeline: Timeline[];
-  Event: Event[];
-  Groups: PopulationGroup[];
-  Characters: Character[];
+  Location: APIData<Location>[];
+  Timeline: APIData<Timeline>[];
+  Events: APIData<WorldEvent>[];
+  Groups: APIData<PopulationGroup>[];
+  Characters: APIData<Character>[];
 } & AuthorRelation;
+
+export type PermissionProps = { permissions: UserRole };
+
+/** A `Library` associates a User with one or more Books */
+export type LibraryPurchase = {
+  userId: number;
+  bookId?: number;
+  seriesId?: number;
+  order: number;
+  publicPurchase: boolean;
+  Book?: APIData<Book>;
+  Series?: APIData<Series>;
+};

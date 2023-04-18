@@ -26,10 +26,16 @@ const THEME: GlobalTheme = {
     }
   }
 
-  .card {
-    border: ${({ theme }) => `1px dashed ${theme.colors.semitransparent}`};
-    border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
-    padding: 1.2em;
+  /* Main App container */
+  .App {
+    display: grid;
+    grid-template-columns: 160px auto;
+    min-height: 100vh;
+
+    @media screen and (max-width: 768px) {
+      grid-template-columns: 1fr;
+      grid-template-rows: max-content;
+    }
   }
 
   .ellipsis {
@@ -37,6 +43,16 @@ const THEME: GlobalTheme = {
     text-overflow: ellipsis;
     white-space: nowrap;
     width: $parent;
+  } 
+
+  .flex {
+    align-items: center;
+    display: flex !important;
+  } 
+
+  .inline-flex {
+    align-items: center;
+    display: inline-flex !important;
   } 
 
   .hide-scrollbar {
@@ -65,7 +81,6 @@ const THEME: GlobalTheme = {
     font-family: 'Source Sans 3', sans-serif;
     height: 100%;
     margin: 0;
-    min-height: 100vh;
     overflow-y: auto;
 
     *:not(code) { 
@@ -79,11 +94,19 @@ const THEME: GlobalTheme = {
       background-color: ${({ theme }) => theme.colors.bgColor}; 
     }
     .bg-gradient { 
-      background-color: ${({ theme }) => theme.colors.bgGradient}; 
+      background: ${({ theme }) => theme.colors.bgGradient}; 
     }
     .error { 
       background-color: ${({ theme }) => theme.colors.error}; 
       color: white;
+    }
+    .warning { 
+      background-color: ${({ theme }) => theme.colors.warning}; 
+      color: white;
+    }
+    .flex {
+      align-items: center;
+      display: flex;
     }
     .grey {
       background-color: #9c9c9c;
@@ -115,12 +138,21 @@ const THEME: GlobalTheme = {
     .secondary--text{ 
       color: ${({ theme }) => theme.colors.secondary}; 
     }
+    .success--text{ 
+      color: ${({ theme }) => theme.colors.success};
+    }
     .warning--text{ 
       color: ${({ theme }) => theme.colors.warning}; 
     }
   
     a {
       color: ${({ theme }) => theme.colors.accent};
+    }
+
+    hr {
+      background-color: ${({ theme }) => theme.colors.semitransparent};
+      border: 0;
+      height: 0.025rem;
     }
   }
 

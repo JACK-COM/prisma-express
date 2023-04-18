@@ -14,9 +14,10 @@ export const GlobalUser = createState({
   id: -1 as number,
   email: null as NullableString,
   error: null as NullableString,
-  role: "researcher" as UserRole,
+  role: "Reader" as UserRole,
   lastSeen: ""
 });
 
+export type MicroUser = { id: number; email: string; role: UserRole };
 export type GlobalUserInstance = ReturnType<typeof GlobalUser.getState>;
 export type GlobalUserInstanceKey = keyof GlobalUserInstance;

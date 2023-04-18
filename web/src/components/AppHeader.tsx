@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import AppNav from "./AppNav";
-import { FlexRow, GridContainer } from "./Common/Containers";
+import { GridContainer } from "./Common/Containers";
 import { useGlobalTheme } from "hooks/GlobalTheme";
 
 const LogoLink = styled(Link)`
   align-items: center;
   display: flex;
+  top: 0;
+  margin-top: 0.5rem;
 
   .logo {
     display: block;
@@ -17,26 +19,35 @@ const LogoLink = styled(Link)`
     will-change: filter;
   }
 
-  &:hover {
-    filter: drop-shadow(0 0 8px #646cffaa) drop-shadow(0 -2em 2em #ffb964aa);
+  img {
+    filter: contrast(0.1) brightness(5) drop-shadow(0 0px 2px #0009);
+  }
 
-    .logo {
-      filter: blur(2px);
-    }
+  &:hover .logo {
+    filter: drop-shadow(0 0 2px #747bff9d) drop-shadow(0 -2px 2px #ffd773b1)
+      drop-shadow(0 2px 3px #00fbff24);
+    /* filter: blur(2px); */
   }
 `;
 const HeaderContainer = styled(GridContainer)`
-  background-color: black;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.semitransparent};
+  align-items: start;
+  background-color: ${({ theme }) => theme.colors.secondary};
   color: ${({ theme }) => theme.colors.primary};
-  height: 60px;
-  justify-content: space-between;
+  grid-template-columns: max-content;
+  grid-template-rows: max-content auto;
+  justify-content: start;
+  overflow-y: hidden;
   padding: 0 0.5rem;
+  position: sticky;
   top: 0;
+  z-index: 999;
 
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: 768px) {
+    align-items: center;
+    grid-template-columns: repeat(2, max-content);
     height: fit-content;
-    grid-template-columns: auto;
+    justify-content: space-between;
+    width: 100%;
   }
 `;
 

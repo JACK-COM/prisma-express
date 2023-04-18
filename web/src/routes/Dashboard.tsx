@@ -2,6 +2,7 @@ import styled from "styled-components";
 import {
   GridContainer,
   PageContainer,
+  PageDescription,
   PageTitle
 } from "components/Common/Containers";
 import GridImageLink from "components/Common/GridImageLink";
@@ -13,42 +14,79 @@ import worlds from "assets/mystic-world.png";
 import timelines from "assets/mystic-time.png";
 import characters from "assets/mystic-characters.png";
 import books from "assets/mystic-books.png";
+import { Link } from "react-router-dom";
 
-const userSections = [
-  { data: Paths.Worlds, src: worlds }, // "Worlds & settings",
-  { data: Paths.Timelines, src: timelines }, // "Events & Timelines",
-  { data: Paths.Characters, src: characters }, // "Cast & Characters",
-  { data: Paths.BooksAndSeries, src: books } // "Books & Series"
-];
+const Container = styled(PageContainer)`
+  height: 100vh;
+  overflow: hidden;
+
+  @media screen and (max-width: 768px) {
+    height: auto;
+    overflow-y: auto;
+  }
+  @media screen and (max-height: 600px) {
+    height: auto;
+    overflow-y: auto;
+  }
+`;
 const Controls = styled(GridContainer)`
+  align-self: stretch;
+  height: 100%;
   padding: 1rem 0;
 `;
+const Control = styled(Link)<{ image: string }>`
+  background: ${({ image }) => `url(${image}) no-repeat bottom center / cover`};
+  color: white;
+  font-size: 1.6rem;
+  font-weight: 600;
+  place-content: center;
+  text-shadow: 0 0 0.3rem #111b;
+  &:hover {
+    animation: scale-up 150ms ease-in;
+    animation-fill-mode: forwards;
+    box-shadow: 0 0 0.5rem 0.1rem ${({ theme }) => theme.colors.accent};
+  }
 
+  @media screen and (max-width: 768px) {
+    height: 50vh;
+  }
+`;
+
+const SECTIONS = [
+  { auth: false, data: Paths.Library, src: books }, // "Books & Series"
+  { auth: false, data: Paths.Characters, src: characters }, // "Cast & Characters",
+  { auth: false, data: Paths.Worlds, src: worlds }, // "Worlds & settings",
+  { auth: true, data: Paths.Timelines, src: timelines } // "Events & Timelines",
+];
 const Dashboard = () => {
   const { width } = useGlobalWindow();
   const [gridColumns, gridGap] = useMemo(() => {
-    if (width > 1280) return [4, "1rem"];
-    if (width > 1024) return [3, "0.9rem"];
-    if (width > 400) return [2, "0.4rem"];
-    return [1, "0.25rem"];
+    if (width > 1024) return [4, "0"];
+    if (width > 400) return [2, "0"];
+    return [1, "0"];
   }, [width]);
+  const dashSections = SECTIONS; //.filter(({ auth }) => !auth || email);
 
   return (
-    <PageContainer>
-      <PageTitle>Dashboard</PageTitle>
-      <p>Jump to a section:</p>
+    <Container id="app-dashboard">
+      <header>
+        <PageTitle>Home</PageTitle>
+        <PageDescription>A forge of myths and legends</PageDescription>
+      </header>
 
       <Controls columns={`repeat(${gridColumns},1fr)`} gap={gridGap}>
-        {userSections.map(({ data, src }, i) => (
-          <GridImageLink
+        {dashSections.map(({ data, src }) => (
+          <Control
+            className="flex"
             key={data.Index.text}
-            href={data.Index.path}
+            to={data.Index.path}
             title={data.Index.text}
+            children={data.Index.text}
             image={src}
           />
         ))}
       </Controls>
-    </PageContainer>
+    </Container>
   );
 };
 

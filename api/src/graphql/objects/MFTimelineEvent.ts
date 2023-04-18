@@ -11,6 +11,9 @@ export const MFTimelineEvent = objectType({
     t.nonNull.int("eventId", { description: "Target `Event` id" });
     t.nonNull.int("timelineId", { description: "Target `Timeline` id" });
 
+    // relationships
+    t.field("Event", { type: "MFEvent" });
+
     // List properties
     t.list.field("Scenes", { type: "MFScene" });
   }

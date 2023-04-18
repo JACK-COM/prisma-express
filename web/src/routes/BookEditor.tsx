@@ -31,17 +31,13 @@ import { loadBook, loadChapter } from "hooks/loadUserData";
 import ModalDrawer from "components/Modals/ModalDrawer";
 import TinyMCE from "components/Forms/TinyMCE";
 import { useGlobalWindow } from "hooks/GlobalWindow";
-import { noOp, suppressEvent } from "utils";
-import { Form } from "components/Forms/Form";
 import { upsertScene } from "graphql/requests/books.graphql";
 
 const { Library } = Paths;
-const AddWorldButton = styled(ButtonWithIcon)`
-  align-self: end;
-`;
-const EditorForm = styled(Form)`
-  margin-top: 0;
-  max-width: unset;
+const Clickable = styled.span`
+  color: ${({ theme }) => theme.colors.accent};
+  cursor: pointer;
+  font-weight: bold;
 `;
 const EditorTitle = styled(CardTitle)`
   display: grid;
@@ -66,14 +62,13 @@ const BooksEditorRoute = () => {
   ]);
   const { bookId } = useParams<{ bookId: string }>();
   const [draft, updateDraft] = useState(focusedScene?.text || "");
-  const [pageTitle, chapterTitle, sceneName, chapterSelectOpen] = useMemo(
+  const [pageTitle, chapterTitle, sceneName] = useMemo(
     () => [
       focusedBook?.title || Library.BookEditor.text,
       focusedChapter
-        ? `${focusedChapter.order + 1}. ${focusedChapter.title}`
+        ? `${focusedChapter.order}. ${focusedChapter.title}`
         : "No chapter selected",
-      focusedScene?.title || "",
-      !focusedChapter || active === MODAL.SELECT_CHAPTER
+      focusedScene?.title || ""
     ],
     [focusedBook, focusedChapter, focusedScene, active]
   );
@@ -101,7 +96,7 @@ const BooksEditorRoute = () => {
     updateDraft(scene.text);
     clearGlobalModal();
   };
-  const updateScene = (content: string) => {
+  const updateText = (content: string) => {
     if (!focusedScene) return;
     updateDraft(content);
   };
@@ -111,8 +106,8 @@ const BooksEditorRoute = () => {
     const resp = await upsertScene({ ...focusedScene, text: draft });
     if (typeof resp === "string") updateAsError(resp, notificationId);
     else if (resp && focusedChapter) {
-      const chapterUpdates = await loadChapter(focusedChapter?.id, true);
-      GlobalLibrary.multiple({ ...chapterUpdates, focusedScene: resp });
+      const newScene = resp.Scenes.find(({ id }) => id === focusedScene.id);
+      GlobalLibrary.multiple({ focusedChapter: resp, focusedScene: newScene });
     }
   };
 
@@ -125,41 +120,51 @@ const BooksEditorRoute = () => {
   return (
     <PageLayout
       title={pageTitle}
-      breadcrumbs={[Library.Index]}
+      breadcrumbs={[Library.Index, Library.BookEditor]}
       id="books-list"
-      description={`Create or edit your <b>work</b> here.`}
+      description={
+        focusedChapter
+          ? `Editing <b>${focusedChapter.title}</b> (Chapter ${focusedChapter.order})`
+          : `Create or edit your <b>work</b> here.`
+      }
     >
-      {focusedScene && (
-        <>
-          <EditorTitle>
-            <ButtonWithIcon
-              type="button"
-              icon="segment"
-              text=""
-              variant="transparent"
-              onClick={() => setGlobalModal(MODAL.SELECT_CHAPTER)}
-            />
-            {pageSubtitle}
-          </EditorTitle>
-          <TinyMCE
-            height={height * 0.78}
-            value={draft}
-            onChange={updateScene}
-            triggerSave={saveScene}
-          />
-        </>
+      <EditorTitle>
+        <ButtonWithIcon
+          type="button"
+          icon="segment"
+          text=""
+          variant="transparent"
+          onClick={() => setGlobalModal(MODAL.SELECT_CHAPTER)}
+        />
+        {pageSubtitle}
+      </EditorTitle>
+
+      {focusedScene ? (
+        <TinyMCE
+          height={height * 0.78}
+          value={draft}
+          onChange={updateText}
+          triggerSave={saveScene}
+        />
+      ) : (
+        <Card>
+          <Clickable onClick={() => setGlobalModal(MODAL.SELECT_CHAPTER)}>
+            {chapters.length ? "Select" : "Create"}
+          </Clickable>
+          &nbsp; a <b>chapter</b> to start writing!
+        </Card>
       )}
 
       <ModalDrawer
         title={`${pageTitle} - Chapters`}
         openTowards="right"
-        open={chapterSelectOpen}
+        open={active === MODAL.SELECT_CHAPTER}
         onClose={clearGlobalModal}
       >
         <ChaptersList
-          showTitle
           chapters={chapters}
           focusedChapter={focusedChapter}
+          focusedScene={focusedScene}
           onSelectChapter={focusChapter}
           onSelectScene={focusScene}
         />

@@ -5,7 +5,9 @@ import {
   GlobalUser,
   MicroUser,
   GlobalCharacter,
-  getByIdFromWorldState
+  getByIdFromWorldState,
+  updateChaptersState,
+  GlobalLibraryInstance
 } from "state";
 import {
   listTimelines,
@@ -78,14 +80,17 @@ export async function loadWorld(opts: HOOK__LoadWorldOpts) {
 
 /** Load and focus a single chapter */
 export async function loadChapter(chapterId: number, skipUpdates = false) {
-  if (!chapterId)
-    return { focusedChapter: null, focusedScene: null, scenes: [] };
+  const noresponse: Pick<
+    GlobalLibraryInstance,
+    "focusedChapter" | "focusedScene" | "chapters"
+  > = { focusedChapter: null, focusedScene: null, chapters: [] };
+  if (!chapterId) return noresponse;
 
   const focusedChapter = await getChapter(chapterId);
-  const scenes = (focusedChapter || { Scenes: [] }).Scenes;
-  // Get most recent scene
-  const focusedScene = scenes[0] || null;
-  const updates = { focusedChapter, focusedScene, scenes };
+  if (!focusedChapter) return noresponse;
+
+  const updates = updateChaptersState([focusedChapter]);
+  updates.focusedChapter = focusedChapter;
   if (!skipUpdates) GlobalLibrary.multiple(updates);
   return updates;
 }
@@ -98,27 +103,26 @@ export async function loadBook(bookId: number) {
       focusedBook: lib.focusedBook,
       chapters: lib.chapters,
       focusedChapter: lib.focusedChapter,
-      scenes: lib.scenes,
       focusedScene: lib.focusedScene
     };
 
   const focusedBook = await getBook(bookId);
   const { Chapters: chapters = [] } = focusedBook || {};
   let focusedChapter: APIData<Chapter> | null = chapters[0] || null;
-  let scenes = focusedChapter?.Scenes || [];
+  const scenes = focusedChapter?.Scenes || [];
   let focusedScene: APIData<Scene> | null = scenes[0] || null;
-  const allUpdates = {
+  const allUpdates: Partial<GlobalLibraryInstance> = {
     focusedBook,
     chapters,
     focusedChapter,
-    scenes,
     focusedScene
   };
   if (chapters.length) {
     // If user has chapters, load the most-recent one
-    const updates = await loadChapter(chapters[chapters.length - 1].id, true);
-    GlobalLibrary.multiple({ ...allUpdates, ...updates });
-    return { ...allUpdates, ...updates };
+    const last = chapters[chapters.length - 1];
+    const { focusedChapter } = await loadChapter(last.id, true);
+    allUpdates.focusedChapter = focusedChapter;
+    allUpdates.focusedScene = focusedChapter?.Scenes[0] || null;
   }
 
   GlobalLibrary.multiple(allUpdates);

@@ -37,10 +37,8 @@ export const GlobalLibrary = createState({
   books: [] as APIBook[],
   /** All `Library Purchases` */
   library: [] as APIPurchase[],
-  /** All `Chapters` */
-  chapters: [] as APIChapter[],
-  /** All `Scenes` */
-  scenes: [] as APIScene[]
+  /** All `Chapters` in focused book */
+  chapters: [] as APIChapter[]
 });
 
 export type GlobalLibraryInstance = ReturnType<typeof GlobalLibrary.getState>;
@@ -100,20 +98,27 @@ export function updateLibrariesState(lib: APIPurchase[], skipUpdate = false) {
  * @returns Updated list of `Chapters`
  */
 export function updateChaptersState(chaps: APIChapter[], skipUpdate = false) {
-  const updates = updateLibraryStateList(chaps, "chapters");
-  if (!skipUpdate) GlobalLibrary.chapters(updates);
-  return updates;
-}
+  const additional: Pick<GlobalLibraryInstance, "chapters"> &
+    Partial<Pick<GlobalLibraryInstance, "focusedChapter" | "focusedScene">> = {
+    chapters: updateLibraryStateList(chaps, "chapters")
+  };
 
-/**
- * Update list of `Scenes` in state
- * @param scenes New `Scenes`
- * @returns Updated list of `Scenes`
- */
-export function updateScenesState(scenes: APIScene[], skipUpdate = false) {
-  const updates = updateLibraryStateList(scenes, "scenes");
-  if (!skipUpdate) GlobalLibrary.scenes(updates);
-  return updates;
+  // re-focus chapter and scene if they exist
+  const newChapters = additional.chapters;
+  const { focusedChapter, focusedScene } = GlobalLibrary.getState();
+  if (focusedChapter) {
+    const newChapter =
+      newChapters.find(({ id }) => id === focusedChapter.id) || focusedChapter;
+    additional.focusedChapter = newChapter;
+  }
+  if (focusedScene) {
+    const newScenes = additional.focusedChapter?.Scenes || [];
+    additional.focusedScene =
+      newScenes.find(({ id }) => id === focusedScene?.id) || focusedScene;
+  }
+
+  if (!skipUpdate) GlobalLibrary.multiple(additional);
+  return additional;
 }
 
 /** Remove a book from state */
@@ -128,13 +133,6 @@ export function removeChapterFromState(chapterId: number) {
   const state = GlobalLibrary.getState();
   const chapters = state.chapters.filter((c) => c.id !== chapterId);
   GlobalLibrary.chapters(chapters);
-}
-
-/** Remove a scene from state */
-export function removeSceneFromState(sceneId: number) {
-  const state = GlobalLibrary.getState();
-  const scenes = state.scenes.filter((s) => s.id !== sceneId);
-  GlobalLibrary.scenes(scenes);
 }
 
 /** Remove a series from state */

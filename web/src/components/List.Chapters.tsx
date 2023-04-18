@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { Card, CardTitle } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
-import { Paths } from "routes";
 import ListView from "components/Common/ListView";
 import ChapterItem from "components/ChapterItem";
 import { useGlobalModal } from "hooks/GlobalModal";
@@ -11,7 +10,6 @@ import { SharedButtonProps } from "components/Forms/Button.Helpers";
 import { GlobalLibrary } from "state";
 import { noOp } from "utils";
 
-const { Library } = Paths;
 const AddButtons = styled(ButtonWithIcon)`
   align-self: end;
 `;
@@ -22,35 +20,48 @@ const List = styled(ListView)`
   margin: ${({ theme }) => theme.sizes.md} 0;
 `;
 
-type BooksListProps = {
+type ChaptersListProps = {
   focusedChapter?: APIData<Chapter> | null;
+  focusedScene?: APIData<Scene> | null;
   chapters?: APIData<Chapter>[];
-  showTitle?: boolean;
+  hideTitle?: boolean;
+  title?: string;
+  emptyText?: string;
   onSelectChapter?: (d: APIData<Chapter>) => any;
   onSelectScene?: (d: APIData<Scene>) => any;
 };
 /** @component List of worlds */
-const ChaptersList = (props: BooksListProps) => {
+const ChaptersList = (props: ChaptersListProps) => {
   const {
+    emptyText,
     focusedChapter,
+    focusedScene,
     chapters = [],
-    showTitle = false,
+    title = "Select Chapter",
+    hideTitle = false,
     onSelectChapter = noOp,
     onSelectScene = noOp
   } = props;
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
+  const { focusedBook } = GlobalLibrary.getState();
   const { setGlobalModal, MODAL } = useGlobalModal();
   const onEditChapter = (chapter: APIData<Chapter>) => {
     GlobalLibrary.focusedChapter(chapter);
     setGlobalModal(MODAL.MANAGE_CHAPTER);
   };
+  const onEditScene = (scene: APIData<Scene>) => {
+    GlobalLibrary.focusedScene(scene);
+    setGlobalModal(MODAL.MANAGE_SCENE);
+  };
   const onNewChapter = () => {
+    console.log("onNewChapter");
     GlobalLibrary.focusedChapter(null);
     setGlobalModal(MODAL.MANAGE_CHAPTER);
   };
 
+  const owner = focusedBook?.authorId === userId;
   const controls = (variant: SharedButtonProps["variant"] = "outlined") =>
-    authenticated ? (
+    owner ? (
       <AddButtons
         icon="segment"
         size="lg"
@@ -63,14 +74,18 @@ const ChaptersList = (props: BooksListProps) => {
     );
 
   return (
-    <Card>
-      {showTitle && <CardTitle>Select Chapter</CardTitle>}
+    <Card style={{ paddingTop: 0 }}>
+      {!hideTitle && <CardTitle className="h5">{title}</CardTitle>}
 
       {/* Empty List message */}
       {!chapters.length && (
         <EmptyText>
-          The Creator paused in final thought. The first <b>words</b> were about
-          to be spoken.
+          {emptyText || (
+            <>
+              The Creator paused in final thought. The first <b>words</b> were
+              about to be spoken.
+            </>
+          )}
         </EmptyText>
       )}
 
@@ -84,7 +99,9 @@ const ChaptersList = (props: BooksListProps) => {
           <ChapterItem
             chapter={chapter}
             active={focusedChapter?.id === chapter.id}
-            onEdit={onEditChapter}
+            activeSceneId={focusedScene?.id}
+            onEditChapter={onEditChapter}
+            onEditScene={onEditScene}
             onSelectChapter={onSelectChapter}
             onSelectScene={onSelectScene}
             permissions={chapter.authorId === userId ? "Author" : "Reader"}

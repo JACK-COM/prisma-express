@@ -1,6 +1,11 @@
 import { useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { Card, CardTitle, PageDescription } from "components/Common/Containers";
+import {
+  Card,
+  CardTitle,
+  GridContainer,
+  PageDescription
+} from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
@@ -9,7 +14,6 @@ import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useParams } from "react-router";
 import { WorldPublicIcon } from "components/ComponentIcons";
-import { FormRow } from "components/Forms/Form";
 import { loadWorld } from "hooks/loadUserData";
 import WorldLocationsList from "../components/List.WorldLocations";
 import PageLayout from "components/Common/PageLayout";
@@ -17,6 +21,12 @@ import PageLayout from "components/Common/PageLayout";
 const { Worlds: WorldPaths } = Paths;
 const AddItemButton = styled(ButtonWithIcon)`
   align-self: end;
+`;
+const PageGrid = styled(GridContainer)`
+  grid-template-columns: 4fr 1.5fr;
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 /** @route List of World `Locations` */
@@ -76,31 +86,33 @@ const WorldLocationsListRoute = () => {
         <b>unique story settings</b> in <b>{worldName}</b>
       </PageDescription>
 
-      {(isAuthor || isPublic) && (
-        <Card>
-          <CardTitle>World Actions</CardTitle>
-          <FormRow columns="repeat(2,1fr)" style={{ marginBottom: "1.5rem" }}>
-            <AddItemButton
-              icon="face"
-              text="Add a Character"
-              variant="outlined"
-              onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
-            />
-            <AddItemButton
-              icon="timeline"
-              text="Add World Event"
-              variant="outlined"
-              onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
-            />
-          </FormRow>
-        </Card>
-      )}
+      <PageGrid gap="0.6rem">
+        <WorldLocationsList
+          focusedWorld={focusedWorld}
+          focusedLocation={focusedLocation}
+          worldLocations={worldLocations}
+        />
 
-      <WorldLocationsList
-        focusedWorld={focusedWorld}
-        focusedLocation={focusedLocation}
-        worldLocations={worldLocations}
-      />
+        {(isAuthor || isPublic) && (
+          <Card>
+            <CardTitle>World Actions</CardTitle>
+            <GridContainer columns="1fr" style={{ marginBottom: "1.5rem" }}>
+              <AddItemButton
+                icon="face"
+                text="Add a Character"
+                variant="outlined"
+                onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
+              />
+              <AddItemButton
+                icon="timeline"
+                text="Add World Event"
+                variant="outlined"
+                onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
+              />
+            </GridContainer>
+          </Card>
+        )}
+      </PageGrid>
     </PageLayout>
   );
 };

@@ -18,6 +18,7 @@ import { useGlobalModal } from "hooks/GlobalModal";
 import ActiveNotifications from "components/ActiveNotifications";
 import ManageBookModal from "components/Modals/ManageBookModal";
 import ManageChapterModal from "components/Modals/ManageChapterModal";
+import ManageSceneModal from "components/Modals/ManageSceneModal";
 
 const CharactersRoute = lazy(() => import("./routes/CharactersRoute"));
 const Dashboard = lazy(() => import("./routes/Dashboard"));
@@ -131,9 +132,17 @@ function App() {
           onClose={clearGlobalModal}
         />
       )}
+
       {active === MODAL.MANAGE_CHAPTER && (
         <ManageChapterModal
           open={active === MODAL.MANAGE_CHAPTER}
+          onClose={clearGlobalModal}
+        />
+      )}
+
+      {active === MODAL.MANAGE_SCENE && (
+        <ManageSceneModal
+          open={active === MODAL.MANAGE_SCENE}
           onClose={clearGlobalModal}
         />
       )}

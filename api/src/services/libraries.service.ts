@@ -74,11 +74,11 @@ type CheckLibraryInput = {
 
 /** Check if a user `Library` contains an item */
 export async function checkLibrary(opts: CheckLibraryInput) {
-  if (!opts.userId) return null;
-  else if (!opts.bookId && !opts.seriesId) return null;
+  if (!opts.userId) return false;
+  else if (!opts.bookId && !opts.seriesId) return false;
   const where: Prisma.LibraryWhereInput = { userId: opts.userId };
   if (opts.bookId) where.bookId = opts.bookId;
   if (opts.seriesId) where.seriesId = opts.seriesId;
 
-  return Libraries.findFirst({ where });
+  return Boolean(await Libraries.findFirst({ where }));
 }

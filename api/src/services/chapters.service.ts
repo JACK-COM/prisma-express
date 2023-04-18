@@ -25,7 +25,7 @@ export async function upsertChapter(chapter: ChapterUpsertInput) {
     ? Chapters.update({
         data,
         where: { id: chapter.id },
-        include: { Author: true, Scenes: { orderBy: { lastUpdated: "desc" } } }
+        include: { Author: true, Scenes: { orderBy: { order: "asc" } } }
       })
     : Chapters.create({ data });
 }
@@ -55,7 +55,7 @@ export async function findAllChapters(filters: SearchChapterInput) {
 export async function getChapterById(id: Chapter["id"]) {
   return Chapters.findUnique({
     where: { id },
-    include: { Author: true, Scenes: { orderBy: { lastUpdated: "desc" } } }
+    include: { Author: true, Scenes: { orderBy: { order: "asc" } } }
   });
 }
 
@@ -63,7 +63,7 @@ export async function getChapterById(id: Chapter["id"]) {
 export async function deleteChapterById(id: Chapter["id"]) {
   return Chapters.delete({
     where: { id },
-    include: { Author: true, Scenes: { orderBy: { lastUpdated: "desc" } } }
+    include: { Author: true, Scenes: { orderBy: { order: "asc" } } }
   });
 }
 

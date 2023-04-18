@@ -67,7 +67,7 @@ export async function findAllBooks(filters: SearchBookInput) {
 
   return Books.findMany({
     where,
-    include: { Author: true, Chapters: true }
+    include: { Author: true, Chapters: { orderBy: { order: "asc" } } }
   });
 }
 
@@ -88,7 +88,7 @@ export async function findAllPublishedBooks(filters: SearchBookInput) {
 
   return Books.findMany({
     where,
-    include: { Author: true, Chapters: true }
+    include: { Author: true, Chapters: { orderBy: { order: "asc" } } }
   });
 }
 
@@ -96,7 +96,10 @@ export async function findAllPublishedBooks(filters: SearchBookInput) {
 export async function getBookById(id: Book["id"]) {
   return Books.findUnique({
     where: { id },
-    include: { Author: true, Chapters: { include: { Scenes: true } } }
+    include: {
+      Author: true,
+      Chapters: { include: { Scenes: true }, orderBy: { order: "asc" } }
+    }
   });
 }
 

@@ -68,7 +68,7 @@ export function updateRelationships(
  * Remove `Character` from list in from state
  * @param targetId Id of target object
  */
-export function removeCharacter(targetId: number) {
+export function removeCharacterFromState(targetId: number) {
   return removeFromCharsList(targetId, "characters");
 }
 

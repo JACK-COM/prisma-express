@@ -19,55 +19,9 @@ const THEME: GlobalTheme = {
     margin: 0;
     width: 100%;
   }
-
-  @media (prefers-reduced-motion: no-preference) {
-    a:nth-of-type(2) .logo {
-      animation: logo-spin infinite 20s linear;
-    }
-  }
-
-  /* Main App container */
-  .App {
-    display: grid;
-    grid-template-columns: 160px auto;
-    min-height: 100vh;
-
-    @media screen and (max-width: 768px) {
-      grid-template-columns: 1fr;
-      grid-template-rows: max-content;
-    }
-  }
-
-  .ellipsis {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: $parent;
-  } 
-
-  .flex {
-    align-items: center;
-    display: flex !important;
-  } 
-
-  .inline-flex {
-    align-items: center;
-    display: inline-flex !important;
-  } 
-
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  .sticky {
-    position: sticky;
-    z-index: 999;
-  }
+  
+  /* @media (prefers-color-scheme: dark) {
+  } */
 
   html {
     height: minmax(100vh, auto);
@@ -144,7 +98,13 @@ const THEME: GlobalTheme = {
     }
   
     a {
-      color: ${({ theme }) => theme.colors.accent};
+      font-weight: 500;
+      color: #5380f2;
+      text-decoration: inherit;
+
+      &:hover {
+        color: #74a7ff;
+      }
     }
 
     hr {
@@ -154,12 +114,56 @@ const THEME: GlobalTheme = {
     }
   }
 
+  
   code {
     background-color: #07C;
     border-radius: ${({ theme }) => theme.presets.round.xs};
     display: inline-block;
     font-family: monospace; 
     padding: ${({ theme }) => `0 ${theme.sizes.xxs}`};
+  }
+
+  /* Main App container */
+  .App {
+    display: grid;
+    grid-template-columns: 160px auto;
+    min-height: 100vh;
+
+    @media screen and (max-width: 768px) {
+      grid-template-columns: 1fr;
+      grid-template-rows: max-content;
+    }
+  }
+
+  .ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: $parent;
+  } 
+
+  .flex {
+    align-items: center;
+    display: flex !important;
+  } 
+
+  .inline-flex {
+    align-items: center;
+    display: inline-flex !important;
+  } 
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .sticky {
+    position: sticky;
+    z-index: 999;
   }
   `
 };

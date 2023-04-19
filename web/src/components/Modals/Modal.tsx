@@ -1,8 +1,7 @@
 import { RoundButton, WideButton } from "components/Forms/Button";
-import { MouseEventHandler, useMemo } from "react";
-import styled, { css } from "styled-components";
+import { MouseEventHandler, useEffect, useMemo } from "react";
 import { noOp } from "utils";
-import { FlexColumn, GridContainer, MatIcon } from "../Common/Containers";
+import { MatIcon } from "../Common/Containers";
 import useEscapeKeyListener from "hooks/GlobalEscapeKeyEvent";
 import {
   ModalContainer,
@@ -44,7 +43,19 @@ const Modal = (p: ModalProps) => {
   };
 
   // close modal on ESC key press
-  useEscapeKeyListener(onClose);
+  useEffect(() => {
+    if (!open) return noOp;
+    // Trigger handler on ESC keypress
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [open]);
 
   if (!open) return <></>;
 

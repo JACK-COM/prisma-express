@@ -20,13 +20,12 @@ const LogoLink = styled(Link)`
   }
 
   img {
-    filter: contrast(0.1) brightness(5) drop-shadow(0 0px 2px #0009);
+    filter: contrast(0.1) brightness(5) drop-shadow(0 0px 2px #001125ca);
   }
 
   &:hover .logo {
     filter: drop-shadow(0 0 2px #747bff9d) drop-shadow(0 -2px 2px #ffd773b1)
-      drop-shadow(0 2px 3px #00fbff24);
-    /* filter: blur(2px); */
+      drop-shadow(0 2px 3px #001125ca);
   }
 `;
 const HeaderContainer = styled(GridContainer)`

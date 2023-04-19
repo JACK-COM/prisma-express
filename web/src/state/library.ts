@@ -56,6 +56,15 @@ export function clearGlobalBooksState() {
   });
 }
 
+// Globally select a chapter and overwrite the selected scene
+export function setGlobalChapter(focusedChapter: APIData<Chapter>) {
+  if (!focusedChapter.Scenes.length) return;
+  GlobalLibrary.multiple({
+    focusedChapter,
+    focusedScene: focusedChapter.Scenes[0] || null
+  });
+}
+
 /**
  * Update list of `Series` in state
  * @param series New `Series`

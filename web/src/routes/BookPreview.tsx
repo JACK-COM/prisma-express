@@ -9,11 +9,12 @@ import {
 import { Paths } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
-import { GlobalLibrary } from "state";
+import { GlobalLibrary, setGlobalChapter } from "state";
 import PageLayout from "components/Common/PageLayout";
 import ChaptersList from "components/List.Chapters";
 import { useParams } from "react-router";
 import { loadBook } from "hooks/loadUserData";
+import { APIData, Chapter } from "utils/types";
 
 const { Library } = Paths;
 const PreviewGrid = styled(GridContainer)`
@@ -24,13 +25,26 @@ const PreviewGrid = styled(GridContainer)`
 
 /** @route Preview a `Book` */
 const BookPreviewRoute = () => {
-  const { active } = useGlobalModal();
-  const { focusedBook } = useGlobalLibrary(["focusedBook"]);
+  const { focusedBook, focusedChapter, focusedScene, chapters } =
+    useGlobalLibrary([
+      "focusedBook",
+      "focusedChapter",
+      "focusedScene",
+      "chapters"
+    ]);
   const { bookId } = useParams<{ bookId: string }>();
-  const [pageTitle] = useMemo(
-    () => [focusedBook?.title || Library.BookPreview.text],
-    [focusedBook, active]
-  );
+  const [pageTitle, sectionTitle, sectionText] = useMemo(() => {
+    const title = focusedBook?.title || Library.BookPreview.text;
+    if (focusedChapter) {
+      const txt = focusedScene
+        ? focusedScene.text || "No text in scene"
+        : "No scene selected";
+      const { order, title: cTitle } = focusedChapter as Chapter;
+      return [title, `${order}. ${cTitle}`, txt];
+    }
+
+    return [title, "Overview", focusedBook?.description || "No book selected"];
+  }, [focusedBook, focusedChapter, focusedScene]);
   const clearComponentData = () => {
     GlobalLibrary.focusedBook(null);
   };
@@ -43,6 +57,23 @@ const BookPreviewRoute = () => {
     return () => clearComponentData();
   }, []);
 
+  if (!focusedBook)
+    return (
+      <PageLayout
+        title={pageTitle}
+        breadcrumbs={[Library.Index, Library.BookPreview]}
+        id="books-list"
+        description="Book Preview"
+      >
+        <Card>
+          <Description>
+            Loading Book Preview... If this takes too long, please refresh the
+            page.
+          </Description>
+        </Card>
+      </PageLayout>
+    );
+
   return (
     <PageLayout
       title={pageTitle}
@@ -50,33 +81,23 @@ const BookPreviewRoute = () => {
       id="books-list"
       description="Book Preview"
     >
-      {focusedBook ? (
-        <>
-          <PreviewGrid columns="4fr 1.5fr" gap="0.6rem">
-            {/* Overview/Summary */}
-            <Card>
-              <CardTitle>Description</CardTitle>
-              <section
-                dangerouslySetInnerHTML={{ __html: focusedBook?.description }}
-              />
-            </Card>
+      <PreviewGrid columns="4fr 1.5fr" gap="0.6rem">
+        {/* Overview/Summary */}
+        <section>
+          <Card>
+            <CardTitle>{sectionTitle}</CardTitle>
+            <section dangerouslySetInnerHTML={{ __html: sectionText }} />
+          </Card>
+        </section>
 
-            {/* Chapters */}
-            <ChaptersList
-              title="Chapters"
-              emptyText="There are no chapters in this book."
-              chapters={focusedBook?.Chapters}
-            />
-          </PreviewGrid>
-        </>
-      ) : (
-        <Card>
-          <Description>
-            Loading Book Preview... If this takes too long, please refresh the
-            page.
-          </Description>
-        </Card>
-      )}
+        {/* Chapters */}
+        <ChaptersList
+          title="Chapters"
+          emptyText="There are no chapters in this book."
+          chapters={chapters}
+          onSelectChapter={setGlobalChapter}
+        />
+      </PreviewGrid>
     </PageLayout>
   );
 };

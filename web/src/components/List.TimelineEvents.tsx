@@ -7,14 +7,14 @@ import { useGlobalModal } from "hooks/GlobalModal";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useParams } from "react-router";
-import { GlobalWorld } from "state";
+import { GlobalWorld, updateAsError } from "state";
 import { SharedButtonProps } from "components/Forms/Button.Helpers";
 import ManageTimelineEventsModal from "components/Modals/ManageTimelineEventsModal";
 import ListView from "components/Common/ListView";
 import TimelineEventItem from "components/TimelineEventItem";
 import { deleteTimelineEvent } from "graphql/requests/timelines.graphql";
 import { loadTimelines } from "hooks/loadUserData";
-import { APIData, Timeline, World } from "utils/types";
+import { APIData, Timeline, UserRole, World } from "utils/types";
 
 const { Timelines: TimelinePaths } = Paths;
 const AddEventButton = styled(ButtonWithIcon)`
@@ -29,32 +29,18 @@ type TimelinesEventsListProps = {
 const TimelinesEventsList = (props: TimelinesEventsListProps) => {
   const { focusedTimeline } = props;
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const { timelineId } = useParams<{ timelineId: string }>();
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const { updateTimelines } = useGlobalWorld([]);
-  const role = useMemo(
-    () => (userId === focusedTimeline?.authorId ? "Author" : "Reader"),
-    [focusedTimeline]
-  );
-  const [crumbTitle, timelineEvents] = useMemo(() => {
-    const { name = "Timeline", TimelineEvents = [] } = focusedTimeline || {};
-    return [`${name} Events`, TimelineEvents];
+  const [timelineId, role, crumbTitle, timelineEvents] = useMemo(() => {
+    const { authorId, id, name = "Timeline" } = focusedTimeline || {};
+    const userRole: UserRole = userId === authorId ? "Author" : "Reader";
+    const events = focusedTimeline?.TimelineEvents || [];
+    return [id, userRole, `${name} Events`, events];
   }, [focusedTimeline]);
-  const crumbs = [
-    TimelinePaths.Index,
-    {
-      text: crumbTitle,
-      path: insertId(TimelinePaths.Events.path, Number(timelineId))
-    }
-  ];
-  const clearComponentData = () => {
-    clearGlobalModal();
-    GlobalWorld.focusedTimeline(null);
-  };
   const deleteItem = async (itemId: number) => {
     const resp = await deleteTimelineEvent(itemId);
-    if (!resp) return console.log("Timeline event was not deleted.");
-    if (typeof resp === "string") return console.log(resp);
+    if (typeof resp === "string") return updateAsError(resp);
+    if (!resp) return updateAsError("Timeline event was not deleted.");
     updateTimelines([resp]);
     GlobalWorld.focusedTimeline(resp);
   };
@@ -69,15 +55,10 @@ const TimelinesEventsList = (props: TimelinesEventsListProps) => {
       />
     ) : null;
 
-  useEffect(() => {
-    loadTimelines({ timelineId: Number(timelineId) });
-    return () => clearComponentData();
-  }, []);
-
   return (
     <>
       <Card>
-        <CardTitle>Timeline Events</CardTitle>
+        <CardTitle>{crumbTitle}</CardTitle>
         {/* Controls */}
         {authenticated && timelineEvents.length > 5 && controls("transparent")}
 

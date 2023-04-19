@@ -19,12 +19,13 @@ import ActiveNotifications from "components/ActiveNotifications";
 import ManageBookModal from "components/Modals/ManageBookModal";
 import ManageChapterModal from "components/Modals/ManageChapterModal";
 import ManageSceneModal from "components/Modals/ManageSceneModal";
+import Home from "routes/Home";
 
 const CharactersRoute = lazy(() => import("./routes/CharactersRoute"));
-const Dashboard = lazy(() => import("./routes/Dashboard"));
+const Dashboard = lazy(() => import("./routes/DashboardRoute"));
+const LibraryRoute = lazy(() => import("./routes/LibraryRoute"));
 const NotFound = lazy(() => import("./routes/NotFound"));
 const TimelinesRoute = lazy(() => import("./routes/TimelinesRoute"));
-const LibraryRoute = lazy(() => import("./routes/LibraryRoute"));
 const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
 
 function App() {
@@ -54,14 +55,14 @@ function App() {
                 index
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
-                    <Dashboard />
+                    <Home />
                   </Suspense>
                 }
               />
 
               <Route
                 // Application Home + Author dashboard
-                path={Paths.Dashboard.Index.path}
+                path={wildcard(Paths.Dashboard.Index.path)}
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
                     <Dashboard />

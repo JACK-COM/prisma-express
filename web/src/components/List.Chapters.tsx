@@ -54,7 +54,6 @@ const ChaptersList = (props: ChaptersListProps) => {
     setGlobalModal(MODAL.MANAGE_SCENE);
   };
   const onNewChapter = () => {
-    console.log("onNewChapter");
     GlobalLibrary.focusedChapter(null);
     setGlobalModal(MODAL.MANAGE_CHAPTER);
   };

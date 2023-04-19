@@ -53,7 +53,7 @@ const TimelineItem = ({
   const events = timeline.TimelineEvents || [];
 
   return (
-    <ItemLinkContainer to={url} onClick={select} permissions={permissions}>
+    <ItemLinkContainer to={url} permissions={permissions}>
       <TallIcon
         icon={permissions === "Author" ? "timeline" : "lock"}
         permissions={permissions}

@@ -9,7 +9,7 @@ import {
   PageTitle
 } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
-import { Paths } from "routes";
+import { Paths, insertId } from "routes";
 import ManageBookModal from "components/Modals/ManageBookModal";
 import ListView from "components/Common/ListView";
 import BookItem from "components/BookItem";
@@ -61,6 +61,10 @@ const BooksEditorRoute = () => {
     "focusedBook"
   ]);
   const { bookId } = useParams<{ bookId: string }>();
+  const previewUrl = useMemo(
+    () => (bookId ? insertId(Paths.Library.BookPreview.path, bookId) : "#"),
+    [bookId]
+  );
   const [draft, updateDraft] = useState(focusedScene?.text || "");
   const [pageTitle, chapterTitle, sceneName] = useMemo(
     () => [
@@ -124,7 +128,7 @@ const BooksEditorRoute = () => {
       id="books-list"
       description={
         focusedChapter
-          ? `Editing <b>${focusedChapter.title}</b> (Chapter ${focusedChapter.order})`
+          ? `Editing: <b class="secondary--text">${chapterTitle}</b> - <a href="${previewUrl}"><b>Preview</b></a>`
           : `Create or edit your <b>work</b> here.`
       }
     >

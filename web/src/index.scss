@@ -17,16 +17,6 @@
   -webkit-text-size-adjust: 100%;
 }
 
-a {
-  font-weight: 500;
-  color: #5380f2;
-  text-decoration: inherit;
-
-  &:hover {
-    color: #293579;
-  }
-}
-
 h1, .h1 {
   @include h1();
 }
@@ -55,10 +45,6 @@ button:focus-visible {
   :root {
     color: #213547;
     background-color: #ffffff;
-  }
-
-  a:hover {
-    color: #747bff;
   }
 
   button {

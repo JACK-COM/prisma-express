@@ -57,3 +57,11 @@ export function suppressEvent(e: React.MouseEvent | React.FormEvent) {
   e.stopPropagation();
   if (e.nativeEvent) e.nativeEvent.stopImmediatePropagation();
 }
+
+/** Shortens string to `XXXX...XXXX`; padding determined by optional `pad` parameter */
+export function truncateString(str?: string | null, pad = 6): string {
+  if (!str) return "";
+  const { length } = str;
+  const start = str.substring(0, pad);
+  return `${start}...${str.substring(length - pad, length)}`;
+}

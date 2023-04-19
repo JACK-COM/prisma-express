@@ -47,20 +47,18 @@ export async function upsertCharacter(raw: Partial<CreateCharacterData>) {
 
 /** @mutation Delete a `Character` on the server */
 export async function deleteCharacter(id: number) {
-  const respCharacter = await fetchGQL<APIData<Character> | null>({
+  return fetchGQL<APIData<Character> | null>({
     query: deleteCharacterMutation(),
-    variables: { data: { id } },
+    variables:{ id },
     onResolve: ({ upsertCharacter: list }, err) => err || list,
     fallbackResponse: null
   });
-
-  return respCharacter;
 }
 
 /** @mutation Create a `Character Relationship` on the server */
 export async function upsertRelationships(
   characterId: number,
-  raw: Partial<CreateRelationshipData>[],
+  raw: Partial<CreateRelationshipData>[]
 ) {
   const formatForAPI = (r: Partial<CreateRelationshipData>) => ({
     characterId: r.characterId || undefined,

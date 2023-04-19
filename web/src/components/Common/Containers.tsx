@@ -94,6 +94,7 @@ export const GridContainer = styled.div<{ columns?: string; gap?: string }>`
 
 export const ItemDescription = styled.div`
   ${lineclamp(1)};
+  color: ${({ theme }) => theme.colors.primary};
   font-size: smaller;
   grid-column: 2 / -1;
   grid-row: 2;
@@ -101,6 +102,7 @@ export const ItemDescription = styled.div`
   margin: 0;
   opacity: 0.7;
   padding: 0;
+  text-shadow: none;
   width: 100%;
 
   > p {
@@ -139,10 +141,12 @@ const sharedListItemStyles = css`
   display: grid;
   grid-template-columns: 24px 10fr max-content;
   padding: ${({ theme }) => theme.sizes.xs};
+  text-shadow: ${({ theme }) => theme.presets.elevate.xxs} #001125ec;
   width: 100%;
 
   &:hover {
     background-color: ${({ theme }) => theme.colors.semitransparent};
+    text-shadow: none;
   }
 `;
 // Shared ListItem grid container
@@ -267,9 +271,8 @@ export const MatIcon = ({ icon, ...props }: MatIconProps) => (
 
 export const GridItem = styled(GridContainer)`
   background-color: inherit;
-  border: 1px solid #232325;
+  border-top: 1px solid ${({ theme }) => theme.colors.semitransparent};
   grid-template-columns: ${({ columns = "auto 4.8rem" }) => columns};
-  margin-bottom: 1rem;
 
   &:last-of-type {
     margin: 0;

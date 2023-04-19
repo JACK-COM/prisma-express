@@ -15,6 +15,10 @@ export const Paths = {
     Index: {
       path: "/dashboard",
       text: "Dashboard"
+    },
+    Settings: {
+      path: "/dashboard/settings",
+      text: "User Settings"
     }
   },
 

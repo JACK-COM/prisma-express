@@ -197,3 +197,18 @@ export const MFUserUpsertInput = inputObjectType({
     t.string("lastName");
   }
 });
+
+/** Input fields for creating a `ContentLink` */
+export const MFContentLinkUpsertInput = inputObjectType({
+  name: "MFContentLinkUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "ContentLink ID" });
+    t.nonNull.string("text", { default: "Mystery Link" });
+    t.nonNull.int("originId", { description: "Link's scene of origin" });
+    t.int("seriesId");
+    t.nonNull.int("bookId", { default: undefined });
+    t.int("chapterId");
+    t.int("sceneId");
+    t.int("authorId", { description: "Item Author/owner" });
+  }
+});

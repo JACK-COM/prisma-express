@@ -9,6 +9,7 @@ import {
   MFBookFragment,
   MFChapterFragment,
   MFCharacterFragment,
+  MFContentLinkFragment,
   MFEventFragment,
   MFLocationFragment,
   MFRelationshipFragment,
@@ -120,7 +121,7 @@ export const getChapterQuery = () =>
   `query GetChapter($id: Int!) {
     getChapterById(id: $id) {
       ${MFChapterFragment},
-      Scenes { ${MFSceneFragment} }
+      Scenes { ${MFSceneFragment}, Links { ${MFContentLinkFragment} } }
     }
   }`;
 
@@ -242,5 +243,31 @@ export const getTimelineQuery = () =>
   `query GetTimeline( $id: Int! ) { 
     getTimelineById( id: $id ) {
       ${MFTimelineFragment}
+    } 
+  }`;
+
+/** Get `ContentLink` by id graphql query */
+export const getContentLinkQuery = () =>
+  `query GetContentLink( $id: Int! ) { 
+    getContentLink( id: $id ) {
+      ${MFContentLinkFragment}
+    } 
+  }`;
+
+/** List `ContentLinks` graphql query */
+export const listContentLinksQuery = () =>
+  `query ListContentLinks(
+    $id: Int, $authorId: Int, $sceneId: Int, $chapterId: Int, $bookId: Int, $seriesId: Int, $text: String
+   ) { 
+    listContentLinks(
+      id: $id, 
+      authorId: $authorId, 
+      sceneId: $sceneId,
+      chapterId: $chapterId,
+      bookId: $bookId,
+      seriesId: $seriesId,
+      text: $text
+      ) {
+      ${MFContentLinkFragment}
     } 
   }`;

@@ -20,6 +20,7 @@ import ManageBookModal from "components/Modals/ManageBookModal";
 import ManageChapterModal from "components/Modals/ManageChapterModal";
 import ManageSceneModal from "components/Modals/ManageSceneModal";
 import Home from "routes/Home";
+import ManageContentLinksModal from "components/Modals/ManageLinksModal";
 
 const CharactersRoute = lazy(() => import("./routes/CharactersRoute"));
 const Dashboard = lazy(() => import("./routes/DashboardRoute"));
@@ -128,24 +129,19 @@ function App() {
 
       {/* Modals */}
       {active === MODAL.MANAGE_BOOK && (
-        <ManageBookModal
-          open={active === MODAL.MANAGE_BOOK}
-          onClose={clearGlobalModal}
-        />
+        <ManageBookModal open={active === MODAL.MANAGE_BOOK} />
       )}
 
       {active === MODAL.MANAGE_CHAPTER && (
-        <ManageChapterModal
-          open={active === MODAL.MANAGE_CHAPTER}
-          onClose={clearGlobalModal}
-        />
+        <ManageChapterModal open={active === MODAL.MANAGE_CHAPTER} />
       )}
 
       {active === MODAL.MANAGE_SCENE && (
-        <ManageSceneModal
-          open={active === MODAL.MANAGE_SCENE}
-          onClose={clearGlobalModal}
-        />
+        <ManageSceneModal open={active === MODAL.MANAGE_SCENE} />
+      )}
+
+      {active === MODAL.LINK_SCENE && (
+        <ManageContentLinksModal open={active === MODAL.LINK_SCENE} />
       )}
     </ThemeProvider>
   );

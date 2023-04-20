@@ -123,6 +123,7 @@ input MFBookUpsertInput {
 """A collection of Story `Scenes`"""
 type MFChapter {
   Author: MFAuthor
+  Links: [MFSceneContentLink]
   Scenes: [MFScene]
 
   """Author owner"""
@@ -217,15 +218,20 @@ input MFCharacterUpsertInput {
   worldId: Int!
 }
 
-"""A link to a piece of content"""
-type MFContentLink {
+input MFContentLinkUpsertInput {
+  """Item Author/owner"""
   authorId: Int
-  bookId: Int
+  bookId: Int!
   chapterId: Int
-  id: Int!
+
+  """ContentLink ID"""
+  id: Int
+
+  """Link's scene of origin"""
+  originId: Int!
   sceneId: Int
   seriesId: Int
-  text: String!
+  text: String! = "Mystery Link"
 }
 
 """
@@ -373,6 +379,8 @@ input MFRelationshipUpsertInput {
 
 """A chunk of story in a chapter`"""
 type MFScene {
+  Links: [MFSceneContentLink]
+
   """Scene Author"""
   authorId: Int
 
@@ -398,6 +406,18 @@ type MFScene {
 
   """Item updated"""
   updated: CsDateTime
+}
+
+"""A link to a piece of content"""
+type MFSceneContentLink {
+  authorId: Int
+  bookId: Int!
+  chapterId: Int
+  id: Int!
+  originId: Int!
+  sceneId: Int
+  seriesId: Int
+  text: String!
 }
 
 input MFSceneUpsertInput {
@@ -591,6 +611,7 @@ type Mutation {
   deleteBook(id: Int!): MFBook
   deleteChapter(id: Int!): MFChapter
   deleteCharacter(id: Int!): MFCharacter
+  deleteContentLink(id: Int!): MFSceneContentLink
 
   """Delete an `Event`"""
   deleteEvent(id: Int!): MFEvent
@@ -622,6 +643,7 @@ type Mutation {
     """The data to create a new character"""
     data: MFCharacterUpsertInput!
   ): MFCharacter
+  upsertContentLinks(data: [MFContentLinkUpsertInput!]): [MFSceneContentLink]
 
   """Create or update one or more `Events`"""
   upsertEvents(data: [MFEventUpsertInput]!): [MFEvent]
@@ -657,6 +679,7 @@ type Query {
   getBookById(id: Int!): MFBook
   getChapterById(id: Int!): MFChapter
   getCharacterById(id: Int!): MFCharacter
+  getContentLink(id: Int!): MFSceneContentLink
   getEventById(id: Int!): MFEvent
   getLocationById(id: Int!): MFLocation
   getRelationshipById(id: Int!): MFCharacterRelationship
@@ -673,6 +696,7 @@ type Query {
   List/filter multiple `Characters`. Author can view their own characters, a reader can view public characters
   """
   listCharacters(authorId: Int, description: String, id: Int, name: String, worldId: Int): [MFCharacter]
+  listContentLinks(authorId: Int, bookId: Int, chapterId: Int, sceneId: Int, seriesId: Int, text: String): [MFSceneContentLink]
 
   """
   List/filter multiple `Locations`. Author can view their own locations, a reader can view public locations

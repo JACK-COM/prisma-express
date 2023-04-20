@@ -157,7 +157,7 @@ const UserSettings = () => {
           </Fieldset>
         </SettingsForm>
 
-        <CardTitle>UI</CardTitle>
+        <CardTitle>User Interface</CardTitle>
         <SettingsForm>
           <Fieldset>
             <Legend>Notifications</Legend>

@@ -68,3 +68,8 @@ export const MFSeriesFragment = `
       ${MFBookFragment}
     }
 `;
+
+/** graphql `ContentLink` fragment */
+export const MFContentLinkFragment = `
+    id, text, authorId, originId, seriesId, bookId, chapterId, sceneId
+`;

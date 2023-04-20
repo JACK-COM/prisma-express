@@ -66,7 +66,11 @@ export const LOGOUT_URL = `${API}/logout/google?`;
 const AppAuth = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { email, authenticated } = useGlobalUser(["email", "authenticated"]);
+  const { email, displayName, authenticated } = useGlobalUser([
+    "email",
+    "displayName",
+    "authenticated"
+  ]);
   const [submenu, showSubmenu] = useState(false);
   const [authUrl, authTitle, authClass] = useMemo(() => {
     const url = email ? LOGOUT_URL : LOGIN_URL;
@@ -81,7 +85,7 @@ const AppAuth = () => {
   // Login/logout handler. Opens new window for Google auth if no email in state
   const authenticate = () => {
     closeSubmenu();
-    localStorage.setItem("authenticating", String(Number(!email)));
+    localStorage.setItem("authenticating", String(Number(!displayName)));
     window.open(authUrl, "_self");
   };
 
@@ -116,12 +120,12 @@ const AppAuth = () => {
     const lastViewed = localStorage.getItem("nextPath") || current;
     const authenticating = localStorage.getItem("authenticating") === "1";
 
-    if (email && authenticating) {
+    if (displayName && authenticating) {
       localStorage.removeItem("nextPath");
       localStorage.removeItem("authenticating");
       navigate(lastViewed, { replace: true });
     } else if (!authenticating) localStorage.setItem("nextPath", current);
-  }, [pathname, email]);
+  }, [pathname, displayName]);
 
   return (
     <Container ref={containerRef}>
@@ -133,7 +137,7 @@ const AppAuth = () => {
         title={authTitle}
         variant={authenticated ? undefined : "transparent"}
       >
-        <MatIcon icon={email ? "account_circle" : "login"} />
+        <MatIcon icon={displayName ? "account_circle" : "login"} />
       </RoundButton>
 
       {/* submenu */}
@@ -142,7 +146,7 @@ const AppAuth = () => {
           {authenticated && (
             <SubmenuTitle className="accent--text">
               <TallIcon permissions="Reader" icon="person" />
-              {truncateString(email, 4)}
+              {truncateString(displayName, 4)}
             </SubmenuTitle>
           )}
           <SubmenuLink

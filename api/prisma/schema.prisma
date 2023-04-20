@@ -106,7 +106,6 @@ model User {
   PersonalLibrary       Library[]
   Notes                 Notes[]
   CharacterRelationship CharacterRelationship[]
-  ContentLink           ContentLink[]
 }
 
 // A Chapter is a collection of one or more Scenes. 
@@ -132,20 +131,20 @@ model Book {
 
 // A Chapter is a collection of one or more Scenes. 
 model Chapter {
-  id          Int           @id @default(autoincrement())
+  id          Int                @id @default(autoincrement())
   order       Int
   title       String
   description String
   authorId    Int? // ( references User )
   bookId      Int
-  created     DateTime      @default(now()) // Item created
-  lastUpdated DateTime      @default(now()) // Item updated
-  status      ChapterStatus @default(Draft)
+  created     DateTime           @default(now()) // Item created
+  lastUpdated DateTime           @default(now()) // Item updated
+  status      ChapterStatus      @default(Draft)
   Scenes      Scene[]
   Notes       Notes[]
-  ContentLink ContentLink[]
-  Author      User?         @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  Book        Book          @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  Links       SceneContentLink[]
+  Author      User?              @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Book        Book               @relation(fields: [bookId], references: [id], onDelete: Cascade)
 }
 
 // A Character is a significant actor in a World or other location.
@@ -177,18 +176,34 @@ model CharacterRelationship {
   Author       User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
 }
 
-// A ContentLink is a direct link to a piece of content (e.g. a chapter or scene) 
-model ContentLink {
-  id        Int      @id @default(autoincrement())
-  text      String
-  seriesId  Int? // ( references Series | nullable )
-  bookId    Int? // ( references Book | nullable )
-  chapterId Int? // ( references Chapter | nullable )
-  sceneId   Int? // ( references Scene | nullable )
-  authorId  Int? // ( references User )
-  Author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  Chapter   Chapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
-  Scene     Scene?   @relation(fields: [sceneId], references: [id], onDelete: SetNull)
+// Collaborations track content-specific contributions from multiple users.
+model Collaboration {
+  id             Int  @id @default(autoincrement())
+  authorId       Int // ( references User )
+  collaboratorId Int // ( references User )
+  seriesId       Int? // ( references Series | nullable )
+  bookId         Int // ( references Book | nullable )
+  chapterId      Int? // ( references Chapter | nullable )
+  sceneId        Int? // ( references Scene | nullable )
+}
+
+// A SceneContentLink is a direct link to a piece of content (e.g. a chapter or scene) 
+model SceneContentLink {
+  id          Int      @id @default(autoincrement())
+  text        String
+  originId    Int // ( references Scene )
+  seriesId    Int? // ( references Series | nullable )
+  bookId      Int // ( references Book | nullable )
+  chapterId   Int? // ( references Chapter | nullable )
+  sceneId     Int? // ( references Scene | nullable )
+  authorId    Int? // ( references User )
+  characterId Int? // ( references Character)
+  locationId  Int? // ( references Location)
+  worldId     Int? // ( references World)
+  created     DateTime @default(now()) // Item created
+  lastUpdated DateTime @default(now()) // Item updated
+  Chapter     Chapter? @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  Scene       Scene    @relation(fields: [originId], references: [id], onDelete: Cascade)
 }
 
 // An Event is a significant occurrence in a World or other location that acts as a story catalyst. It may affect a World, a Location, or one or more Characters.
@@ -247,25 +262,25 @@ model PopulationGroup {
 
 // A Scene is a collection of paragraphs where one or more Characters interact with (each other or a) distinct setting within a Location. A Scene happens in the context of a Story Chapter.
 model Scene {
-  id             Int            @id @default(autoincrement())
+  id             Int                @id @default(autoincrement())
   order          Int
   title          String
   description    String?
-  text           String         @db.Text()
+  text           String             @db.Text()
   authorId       Int? // ( references User )
   chapterId      Int // ( references Chapter | nullable )
   characterId    Int?
   eventContextId Int? // ( references TimelineEvent | nullable )
   timelineId     Int? // ( references Timeline | nullable )
-  created        DateTime       @default(now()) // Item created
-  lastUpdated    DateTime       @default(now()) // Item updated
-  Author         User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  Chapter        Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  Character      Character?     @relation(fields: [characterId], references: [id])
-  EventContext   TimelineEvent? @relation(fields: [eventContextId], references: [id], onDelete: SetNull)
-  Timeline       Timeline?      @relation(fields: [timelineId], references: [id], onDelete: SetNull)
+  created        DateTime           @default(now()) // Item created
+  lastUpdated    DateTime           @default(now()) // Item updated
   Notes          Notes[]
-  ContentLink    ContentLink[]
+  Links          SceneContentLink[]
+  Author         User?              @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Chapter        Chapter            @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  Character      Character?         @relation(fields: [characterId], references: [id])
+  EventContext   TimelineEvent?     @relation(fields: [eventContextId], references: [id], onDelete: SetNull)
+  Timeline       Timeline?          @relation(fields: [timelineId], references: [id], onDelete: SetNull)
 }
 
 // A Series is a collection of two or more Books. 

@@ -17,6 +17,7 @@ export const MFChapter = objectType({
 
     // List properties
     t.list.field("Scenes", { type: "MFScene" });
+    t.list.field("Links", { type: "MFSceneContentLink" });
 
     // relationships
     t.field("Author", { type: "MFAuthor" });

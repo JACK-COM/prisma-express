@@ -201,7 +201,7 @@ export async function upsertChapter(
 export async function upsertScene(data: UpsertSceneData) {
   const res = await fetchGQL<APIData<Scene>>({
     query: upsertSceneMutation(),
-    variables: { data },
+    variables: { data: pruneSceneForAPI(data) },
     onResolve(x, errors) {
       return errors || x.upsertScene;
     },
@@ -210,6 +210,18 @@ export async function upsertScene(data: UpsertSceneData) {
 
   if (typeof res === "string" || !res) return res;
   return getChapter(data.chapterId);
+}
+
+/** Fetch a single scene */
+export async function getScene(id: number): Promise<APIData<Scene> | null> {
+  return fetchGQL<APIData<Scene> | null>({
+    query: getSceneQuery(),
+    variables: { id },
+    onResolve(x, errors) {
+      return errors || x.getSceneById;
+    },
+    fallbackResponse: null
+  });
 }
 
 /** Create/update a series with fetchGQL */

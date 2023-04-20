@@ -215,3 +215,12 @@ mutation PublishBook($id: Int!) {
     ${MFBookFragment}
   }
 }`;
+
+/** Alter a user */
+export const upsertUserMutation = () => `
+mutation UpdateUser($data: MFUserUpsertInput!, $id: Int!) {
+  updateUser(id: $id, data: $data) {
+    ${MFUserFragment}
+  }
+}
+`;

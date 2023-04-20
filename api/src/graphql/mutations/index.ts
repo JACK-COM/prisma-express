@@ -9,3 +9,4 @@ export * from "./locations.mutations";
 export * from "./books.mutations";
 export * from "./characters.mutations";
 export * from "./timelines.mutations";
+export * from "./users.mutations";

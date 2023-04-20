@@ -1,6 +1,6 @@
 export type ContentStatus = "live" | "draft" | "hidden";
 export type ReporterType = "experiencer" | "observer" | "researcher";
-export type UserRole = "Author" | "Reader";
+export type UserRole = "Admin" | "Moderator" | "Author" | "Reader";
 export type NullableString = string | null;
 
 /** Saved data from server. Use when an id is expected on an object */
@@ -19,7 +19,8 @@ export enum Authenticator {
 export enum Climate {
   Warm = "Warm",
   Temperate = "Temperate",
-  Polar = "Polar"
+  Polar = "Polar",
+  Unspecified = "Unspecified"
 }
 
 /** The type of significant Event that occurs in a World */
@@ -100,7 +101,8 @@ export enum Richness {
   Abundant = "Abundant",
   Adequate = "Adequate",
   Sparse = "Sparse",
-  Barren = "Barren"
+  Barren = "Barren",
+  Unspecified = "Unspecified"
 }
 
 /** The type of World (super-set of locations)  */
@@ -232,6 +234,7 @@ export type Location = {
   climate: Climate;
   fauna: Richness;
   flora: Richness;
+  parentLocationId: number;
   Characters: Character[];
   Events: Event[];
   Groups: PopulationGroup[];

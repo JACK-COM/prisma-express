@@ -1,7 +1,10 @@
 import { PrismaClient, User } from "@prisma/client";
 
 /** This is the user object obtained by passport and injected into global graphql context */
-export type CtxUser = Pick<User, "id" | "role" | "email" | "lastSeen">;
+export type CtxUser = Pick<
+  User,
+  "id" | "role" | "displayName" | "email" | "lastSeen"
+>;
 
 /**
  * `PrismaClient` instance with all tables. Contents will be determined
@@ -73,4 +76,3 @@ export const context: DBContext = {
   TimelineEvents: db.timelineEvent,
   Worlds: db.world
 };
-

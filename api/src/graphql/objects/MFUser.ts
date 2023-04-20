@@ -8,6 +8,8 @@ export const MFUser = objectType({
     t.nonNull.int("id");
     t.nonNull.string("email");
     t.nonNull.string("displayName");
+    t.string("firstName");
+    t.string("lastName");
     t.nonNull.field("authSource", { type: "Authenticator" });
     t.nonNull.field("role", { type: "UserRole" });
     t.nonNull.field("created", { type: "CsDateTime" });

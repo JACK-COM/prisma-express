@@ -1,32 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import Breadcrumbs from "components/Common/Breadcrumbs";
-import {
-  Card,
-  CardTitle,
-  PageContainer,
-  PageDescription,
-  PageTitle
-} from "components/Common/Containers";
+import { Card, CardTitle } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths, insertId } from "routes";
-import ManageBookModal from "components/Modals/ManageBookModal";
-import ListView from "components/Common/ListView";
-import BookItem from "components/BookItem";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { APIData, Book, Chapter, Scene } from "utils/types";
-import { useGlobalUser } from "hooks/GlobalUser";
-import { SharedButtonProps } from "components/Forms/Button.Helpers";
+import { APIData, Chapter, Scene } from "utils/types";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
 import {
   GlobalLibrary,
   addNotification,
   clearGlobalBooksState,
+  setGlobalChapter,
+  setGlobalScene,
   updateAsError
 } from "state";
 import PageLayout from "components/Common/PageLayout";
 import ChaptersList from "components/List.Chapters";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import { loadBook, loadChapter } from "hooks/loadUserData";
 import ModalDrawer from "components/Modals/ModalDrawer";
 import TinyMCE from "components/Forms/TinyMCE";
@@ -34,6 +24,9 @@ import { useGlobalWindow } from "hooks/GlobalWindow";
 import { upsertScene } from "graphql/requests/books.graphql";
 
 const { Library } = Paths;
+const Ellipsis = styled.span`
+  ${({ theme }) => theme.mixins.ellipsis};
+`;
 const Clickable = styled.span`
   color: ${({ theme }) => theme.colors.accent};
   cursor: pointer;
@@ -91,12 +84,18 @@ const BooksEditorRoute = () => {
     clearGlobalBooksState();
   };
   const focusChapter = async (chapter: APIData<Chapter>) => {
-    const { focusedScene: scene } = await loadChapter(chapter.id);
-    if (scene) updateDraft(scene.text);
+    if (!chapter.Scenes?.length) {
+      const { focusedScene: scene } = await loadChapter(chapter.id);
+      if (scene) updateDraft(scene.text);
+    } else {
+      const scenes = chapter.Scenes;
+      setGlobalChapter(chapter);
+      updateDraft(scenes[0].text);
+    }
     clearGlobalModal();
   };
   const focusScene = async (scene: APIData<Scene>) => {
-    GlobalLibrary.focusedScene(scene);
+    setGlobalScene(scene);
     updateDraft(scene.text);
     clearGlobalModal();
   };
@@ -140,7 +139,7 @@ const BooksEditorRoute = () => {
           variant="transparent"
           onClick={() => setGlobalModal(MODAL.SELECT_CHAPTER)}
         />
-        {pageSubtitle}
+        <Ellipsis>{pageSubtitle}</Ellipsis>
       </EditorTitle>
 
       {focusedScene ? (

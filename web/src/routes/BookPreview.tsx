@@ -9,7 +9,7 @@ import {
 import { Paths } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
-import { GlobalLibrary, setGlobalChapter } from "state";
+import { GlobalLibrary, setGlobalChapter, setGlobalScene } from "state";
 import PageLayout from "components/Common/PageLayout";
 import ChaptersList from "components/List.Chapters";
 import { useParams } from "react-router";
@@ -96,6 +96,7 @@ const BookPreviewRoute = () => {
           emptyText="There are no chapters in this book."
           chapters={chapters}
           onSelectChapter={setGlobalChapter}
+          onSelectScene={setGlobalScene}
         />
       </PreviewGrid>
     </PageLayout>

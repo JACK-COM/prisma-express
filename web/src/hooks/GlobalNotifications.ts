@@ -6,7 +6,7 @@ import { Notifications, NotificationsStore } from "state";
  * @returns Last ten notifications published to app`
  */
 export default function useGlobalNotifications() {
-  const { all } = Notifications.getState();
+  const { all, active } = Notifications.getState();
   const [msgs, setMsgs] = useState([...all]);
   const onNotification = (n: Partial<NotificationsStore>) => {
     if (!Array.isArray(n.all)) return;
@@ -15,5 +15,6 @@ export default function useGlobalNotifications() {
   };
 
   useEffect(() => Notifications.subscribe(onNotification), []);
-  return { lastTenNotifications: msgs, all };
+
+  return { lastTenNotifications: msgs, all, active };
 }

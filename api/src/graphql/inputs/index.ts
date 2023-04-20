@@ -185,3 +185,15 @@ export const MFSceneUpsertInput = inputObjectType({
     t.int("timelineId", { description: "Scene event timeline" });
   }
 });
+
+/** User upsert input fields */
+export const MFUserUpsertInput = inputObjectType({
+  name: "MFUserUpsertInput",
+  definition(t) {
+    t.string("email");
+    t.string("password");
+    t.string("displayName");
+    t.string("firstName");
+    t.string("lastName");
+  }
+});

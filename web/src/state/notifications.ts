@@ -20,8 +20,15 @@ export type Alert = {
   error?: boolean;
 };
 
-function notificationsActive() {
+/** Check if alerts (UI only) are globally enabled */
+export function notificationsActive() {
   return Notifications.getState().active;
+}
+
+/** Globally enable/disable alerts (UI only) */
+export function toggleGlobalNotifications() {
+  const { active } = Notifications.getState();
+  Notifications.active(!active);
 }
 
 export function addNotification(
@@ -52,7 +59,7 @@ export function resetNotifications(msg?: string, persist = false) {
   return msgId;
 }
 
-export function removeNotification(msgID: Alert['time']) {
+export function removeNotification(msgID: Alert["time"]) {
   if (!notificationsActive()) return;
   const { all: notifications } = Notifications.getState();
   const i = notifications.findIndex((n) => n.time === msgID);

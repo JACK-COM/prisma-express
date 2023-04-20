@@ -121,6 +121,12 @@ export const ItemName = styled.b.attrs({
     permissions === "Author" ? "fill" : "none"};
   width: fit-content;
 
+  /* Experimental
+  background: #10191839;
+  border-radius: 4px;
+  padding: 0 0.4rem;
+  /* Experimental */
+
   &:hover {
     color: ${({ theme }) => theme.colors.accent};
   }

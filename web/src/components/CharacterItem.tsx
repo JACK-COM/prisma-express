@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { APIData, UserRole, Character } from "utils/types";
 import { requireAuthor, noOp } from "utils";
-import { ellipsis } from "theme/theme.shared";
 import {
   ItemDescription,
   ItemGridContainer,
@@ -13,7 +12,7 @@ import { useGlobalUser } from "hooks/GlobalUser";
 import { TallIcon } from "./ComponentIcons";
 
 const Location = styled.span`
-  ${ellipsis()};
+  ${({ theme }) => theme.mixins.ellipsis};
   align-self: center;
   font-size: small;
   grid-row: 1 / span 2;

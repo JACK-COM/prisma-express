@@ -3,7 +3,6 @@ import {
   GlobalWorld,
   GlobalLibrary,
   GlobalUser,
-  MicroUser,
   GlobalCharacter,
   getByIdFromWorldState,
   updateChaptersState,
@@ -17,6 +16,7 @@ import { getBook, getChapter, listBooks } from "graphql/requests/books.graphql";
 import { AUTH_ROUTE } from "utils";
 import { listCharacters } from "graphql/requests/characters.graphql";
 import { APIData, Book, Chapter, Scene, Timeline, World } from "utils/types";
+import { MicroUser } from "graphql/requests/users.graphql";
 
 // Additonal instructions for focusing data in the global state
 type HOOK__LoadWorldOpts = {
@@ -89,7 +89,7 @@ export async function loadChapter(chapterId: number, skipUpdates = false) {
   const focusedChapter = await getChapter(chapterId);
   if (!focusedChapter) return noresponse;
 
-  const updates = updateChaptersState([focusedChapter]);
+  const updates = updateChaptersState([focusedChapter], true);
   updates.focusedChapter = focusedChapter;
   if (!skipUpdates) GlobalLibrary.multiple(updates);
   return updates;

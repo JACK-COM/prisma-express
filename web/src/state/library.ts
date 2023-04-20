@@ -65,6 +65,19 @@ export function setGlobalChapter(focusedChapter: APIData<Chapter>) {
   });
 }
 
+// Globally select a scene and overwrite the selected chapter
+export function setGlobalScene(focusedScene: APIData<Scene>) {
+  if (focusedScene === null) return GlobalLibrary.focusedScene(null);
+
+  const { focusedChapter: och, chapters } = GlobalLibrary.getState();
+  let focusedChapter = och;
+  if (!och || och.id !== focusedScene.chapterId) {
+    focusedChapter =
+      chapters.find((c) => c.id === focusedScene.chapterId) || null;
+  }
+  GlobalLibrary.multiple({ focusedChapter, focusedScene });
+}
+
 /**
  * Update list of `Series` in state
  * @param series New `Series`
@@ -120,11 +133,12 @@ export function updateChaptersState(chaps: APIChapter[], skipUpdate = false) {
       newChapters.find(({ id }) => id === focusedChapter.id) || focusedChapter;
     additional.focusedChapter = newChapter;
   }
+  const newScenes = additional.focusedChapter?.Scenes || [];
+  const newScene = newScenes[0] || null;
   if (focusedScene) {
-    const newScenes = additional.focusedChapter?.Scenes || [];
     additional.focusedScene =
-      newScenes.find(({ id }) => id === focusedScene?.id) || focusedScene;
-  }
+      newScenes.find(({ id }) => id === focusedScene?.id) || newScene;
+  } else additional.focusedScene = newScene;
 
   if (!skipUpdate) GlobalLibrary.multiple(additional);
   return additional;

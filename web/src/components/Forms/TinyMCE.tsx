@@ -8,23 +8,20 @@ const editorKey = import.meta.env.VITE_TINYMCE_KEY;
 const production = import.meta.env.PROD;
 
 type TinyMCEInit = {
+  content_style?: string;
   height?: number;
   menubar?: boolean;
   plugins?: string | string[];
-  toolbar?: string | string[] | boolean;
   skin?: string;
-  content_style?: string;
+  toolbar?: string | string[] | boolean;
 };
 
 type TinyMCEProps = {
-  height?: number;
   disabled?: boolean;
-  menubar?: boolean;
-  toolbar?: string;
   value?: string;
   onChange?: (content: string, editor?: any) => void;
   triggerSave?: () => void;
-};
+} & Pick<TinyMCEInit, "height" | "menubar" | "toolbar">;
 
 const plugins = [
   "advlist",
@@ -101,13 +98,13 @@ function makeInitOpts(
   opts: TinyMCEProps
 ): TinyMCEInit & ReturnType<typeof prepInitOpts> {
   return {
-    menubar: !isMobile,
+    menubar: false,
     // Editor styles
     content_style: `body { 
         background: ${theme.colors.bgColor}; 
         color: ${theme.colors.secondary};
         font-family:Helvetica,Arial,sans-serif; 
-        font-size:16px 
+        font-size:16px;
       }
       `,
     plugins,

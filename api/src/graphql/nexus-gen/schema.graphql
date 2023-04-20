@@ -20,6 +20,7 @@ enum ChapterStatus {
 enum Climate {
   Polar
   Temperate
+  Unspecified
   Warm
 }
 
@@ -52,7 +53,16 @@ enum GroupType {
 
 """An abbreviated `MFUser` model"""
 type MFAuthor {
+  Books: [MFBook]
+  Series: [MFSeries]
+  Timelines: [MFTimeline]
+  Worlds: [MFWorld]
   displayName: String!
+  email: String!
+  firstName: String
+  id: Int!
+  lastName: String
+  role: UserRole
 }
 
 """A collection of story `Chapters`"""
@@ -207,6 +217,17 @@ input MFCharacterUpsertInput {
   worldId: Int!
 }
 
+"""A link to a piece of content"""
+type MFContentLink {
+  authorId: Int
+  bookId: Int
+  chapterId: Int
+  id: Int!
+  sceneId: Int
+  seriesId: Int
+  text: String!
+}
+
 """
 A significant occurrence in a World or other location that acts as a story catalyst. 
 """
@@ -282,12 +303,15 @@ type MFLocation {
 
   """Event Author"""
   authorId: Int
-  climate: Climate!
+  climate: Climate
   description: String!
-  fauna: Richness!
-  flora: Richness!
+  fauna: Richness
+  flora: Richness
   id: Int!
   name: String!
+
+  """Parent Location"""
+  parentLocationId: Int
 
   """Event target `World`"""
   worldId: Int!
@@ -518,9 +542,19 @@ type MFUser {
   created: CsDateTime!
   displayName: String!
   email: String!
+  firstName: String
   id: Int!
+  lastName: String
   lastSeen: CsDateTime!
   role: UserRole!
+}
+
+input MFUserUpsertInput {
+  displayName: String
+  email: String
+  firstName: String
+  lastName: String
+  password: String
 }
 
 """A collection of `Locations`"""
@@ -573,6 +607,9 @@ type Mutation {
   deleteWorld(id: Int!): MFWorld
   publishBook(id: Int!): MFBook
   publishSeries(id: Int!): MFSeries
+
+  """Update user info"""
+  updateUser(data: MFUserUpsertInput!, id: Int!): MFAuthor
   upsertBook(
     """The data to create a new book"""
     data: MFBookUpsertInput!
@@ -663,11 +700,14 @@ enum Richness {
   Adequate
   Barren
   Sparse
+  Unspecified
 }
 
 """A type of application user"""
 enum UserRole {
+  Admin
   Author
+  Moderator
   Reader
 }
 

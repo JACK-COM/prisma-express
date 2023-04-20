@@ -15,7 +15,7 @@ import { Paths, insertId } from "routes";
 import { TimelineItemEventIcon } from "./TimelineItem.EventIcon";
 
 const TimelineWorld = styled(Hint)`
-  ${lineclamp(1)};
+  ${({ theme }) => theme.mixins.lineclamp(1)};
   align-self: center;
   font-size: small;
   grid-column: 3;

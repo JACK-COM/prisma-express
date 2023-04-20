@@ -6,7 +6,7 @@ import session, { CookieOptions, SessionOptions } from "express-session";
 import passport from "passport";
 import GoogleStrategy from "passport-google-oidc";
 import { CtxUser } from "../graphql/context";
-import { getUser, upsertUser } from "../services/users.service";
+import { findFirstUser, upsertUser } from "../services/users.service";
 import configureAuthRoutes from "../routes/auth.router";
 
 type PassportUser = {
@@ -43,6 +43,7 @@ const toCtxUser = (u: User): CtxUser => ({
   id: u.id,
   email: u.email,
   role: u.role,
+  displayName: u.displayName,
   lastSeen: DateTime.now().toJSDate()
 });
 
@@ -104,10 +105,10 @@ async function verify(
   // Retrieve or create user
   const [{ value: email }] = profile.emails;
   const internalUser =
-    (await getUser({ email })) ||
+    (await findFirstUser({ email })) ||
     (await upsertUser({
       email,
-      role: 'Author',
+      role: "Author",
       displayName: email,
       authSource: getAuthIssuer(issuer)
     }));

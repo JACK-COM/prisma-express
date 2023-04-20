@@ -31,6 +31,17 @@ const presets = {
   }
 };
 
+/** CSS mixins */
+const mixins = {
+  ellipsis: `
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+  `,
+  lineclamp
+};
+
 /**
  * Defines additional properties you want to access when using styled
  * components. The properties of `shared` can be accessed inline using
@@ -44,22 +55,13 @@ const shared = {
     bgGradient: "linear-gradient(180deg, #282c34 0%, #101918 100%)",
     success: "#2ca258"
   },
-  presets
+  presets,
+  mixins
 };
 
 export default shared;
 
 /* Shared CSS Helpers */
-
-/** apply ellipsis rule (limit displayed text length with ellipsis) */
-export function ellipsis() {
-  return `
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 100%;
-  `;
-}
 
 /** apply line-clamp rule (limit number of displayed lines with ellipsis) */
 export function lineclamp(lines: number) {

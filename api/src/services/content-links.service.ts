@@ -2,12 +2,13 @@
  * @file Content-Links.Service
  * @description Database helper service for `ContentLink` model
  */
-import { Prisma, ContentLink } from "@prisma/client";
+import { Prisma, SceneContentLink as ContentLink } from "@prisma/client";
 import { context } from "../graphql/context";
 import { DateTime } from "luxon";
 
-export type ContentLinkUpsertInput = Prisma.ContentLinkUpsertArgs["create"] &
-  Prisma.ContentLinkUpsertArgs["update"] & { id?: ContentLink["id"] };
+export type ContentLinkUpsertInput =
+  Prisma.SceneContentLinkUpsertArgs["create"] &
+    Prisma.SceneContentLinkUpsertArgs["update"] & { id?: ContentLink["id"] };
 type SearchContentLinkInput = Partial<
   Pick<
     ContentLink,
@@ -41,7 +42,7 @@ export async function getContentLinkById(id: ContentLink["id"]) {
 
 /** find multiple `ContentLink` records matching filters */
 export async function findManyContentLinks(filters: SearchContentLinkInput) {
-  const where: Prisma.ContentLinkWhereInput = {};
+  const where: Prisma.SceneContentLinkWhereInput = {};
   if (filters.id) where.id = { in: filters.id };
   if (filters.authorId) where.authorId = filters.authorId;
   if (filters.seriesId) where.seriesId = filters.seriesId;
@@ -55,7 +56,7 @@ export async function findManyContentLinks(filters: SearchContentLinkInput) {
 
 /** find a single `ContentLink` record matching filters */
 export async function findOneContentLink(filters: SearchContentLinkInput) {
-  const where: Prisma.ContentLinkWhereInput = {};
+  const where: Prisma.SceneContentLinkWhereInput = {};
   if (filters.id) where.id = { in: filters.id };
   if (filters.authorId) where.authorId = filters.authorId;
   if (filters.seriesId) where.seriesId = filters.seriesId;

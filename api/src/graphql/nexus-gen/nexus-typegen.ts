@@ -231,6 +231,15 @@ export interface NexusGenObjects {
     relationship: string; // String!
     targetId: number; // Int!
   }
+  MFContentLink: { // root type
+    authorId?: number | null; // Int
+    bookId?: number | null; // Int
+    chapterId?: number | null; // Int
+    id: number; // Int!
+    sceneId?: number | null; // Int
+    seriesId?: number | null; // Int
+    text: string; // String!
+  }
   MFEvent: { // root type
     World?: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId?: number | null; // Int
@@ -251,10 +260,10 @@ export interface NexusGenObjects {
     Scenes?: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
     World?: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
     authorId?: number | null; // Int
-    climate: NexusGenEnums['Climate']; // Climate!
+    climate?: NexusGenEnums['Climate'] | null; // Climate
     description: string; // String!
-    fauna: NexusGenEnums['Richness']; // Richness!
-    flora: NexusGenEnums['Richness']; // Richness!
+    fauna?: NexusGenEnums['Richness'] | null; // Richness
+    flora?: NexusGenEnums['Richness'] | null; // Richness
     id: number; // Int!
     name: string; // String!
     parentLocationId?: number | null; // Int
@@ -421,6 +430,15 @@ export interface NexusGenFieldTypes {
     relationship: string; // String!
     targetId: number; // Int!
   }
+  MFContentLink: { // field return type
+    authorId: number | null; // Int
+    bookId: number | null; // Int
+    chapterId: number | null; // Int
+    id: number; // Int!
+    sceneId: number | null; // Int
+    seriesId: number | null; // Int
+    text: string; // String!
+  }
   MFEvent: { // field return type
     World: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId: number | null; // Int
@@ -441,10 +459,10 @@ export interface NexusGenFieldTypes {
     Scenes: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
     World: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
     authorId: number | null; // Int
-    climate: NexusGenEnums['Climate']; // Climate!
+    climate: NexusGenEnums['Climate'] | null; // Climate
     description: string; // String!
-    fauna: NexusGenEnums['Richness']; // Richness!
-    flora: NexusGenEnums['Richness']; // Richness!
+    fauna: NexusGenEnums['Richness'] | null; // Richness
+    flora: NexusGenEnums['Richness'] | null; // Richness
     id: number; // Int!
     name: string; // String!
     parentLocationId: number | null; // Int
@@ -651,6 +669,15 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
     relationship: 'String'
     targetId: 'Int'
+  }
+  MFContentLink: { // field return type name
+    authorId: 'Int'
+    bookId: 'Int'
+    chapterId: 'Int'
+    id: 'Int'
+    sceneId: 'Int'
+    seriesId: 'Int'
+    text: 'String'
   }
   MFEvent: { // field return type name
     World: 'MFWorld'

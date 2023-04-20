@@ -9,9 +9,9 @@ export const MFLocation = objectType({
     t.nonNull.string("name");
     t.nonNull.string("description");
     t.int("parentLocationId", { description: "Parent Location" });
-    t.nonNull.field("climate", { type: "Climate" });
-    t.nonNull.field("fauna", { type: "Richness" });
-    t.nonNull.field("flora", { type: "Richness" });
+    t.field("climate", { type: "Climate" });
+    t.field("fauna", { type: "Richness" });
+    t.field("flora", { type: "Richness" });
     t.int("authorId", { description: "Event Author" });
     t.nonNull.int("worldId", { description: "Event target `World`" });
     // List properties: uncomment if we want to auto-expose these fields

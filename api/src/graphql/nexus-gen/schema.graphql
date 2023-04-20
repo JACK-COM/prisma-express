@@ -217,6 +217,17 @@ input MFCharacterUpsertInput {
   worldId: Int!
 }
 
+"""A link to a piece of content"""
+type MFContentLink {
+  authorId: Int
+  bookId: Int
+  chapterId: Int
+  id: Int!
+  sceneId: Int
+  seriesId: Int
+  text: String!
+}
+
 """
 A significant occurrence in a World or other location that acts as a story catalyst. 
 """
@@ -292,10 +303,10 @@ type MFLocation {
 
   """Event Author"""
   authorId: Int
-  climate: Climate!
+  climate: Climate
   description: String!
-  fauna: Richness!
-  flora: Richness!
+  fauna: Richness
+  flora: Richness
   id: Int!
   name: String!
 

@@ -16,17 +16,13 @@ const requiredInputStyles = css`
 const sharedInputStyles = css`
   border-radius: ${({ theme }) => theme.presets.round.sm};
   border: 1px solid ${({ theme }) => theme.colors.semitransparent};
-  font-size: 0.9em;
+  font-size: 16px;
   height: ${({ theme }) => theme.sizes.lg};
   line-height: ${({ theme }) => theme.sizes.lg};
   padding: ${({ theme }) => theme.sizes.xs};
 
   &[aria-invalid="true"] {
     outline: 2px solid ${({ theme }) => theme.colors.error};
-  }
-
-  @media screen and (max-width: 900px) {
-    font-size: 16px;
   }
 `;
 const sharedRadioStyles = css`
@@ -59,12 +55,13 @@ export const Textarea = styled.textarea`
   ${sharedInputStyles};
   height: 120px;
 `;
-export const Label = styled.label<{ direction?: "row" | "column" }>`
-  align-items: ${({ direction }) =>
+type LabelProps = { direction?: "row" | "column"; columns?: string };
+export const Label = styled.label<LabelProps>`
+  align-items: ${({ direction = "row" }) =>
     direction === "row" ? "center" : undefined};
   display: grid;
-  grid-template-columns: ${({ direction }) =>
-    direction === "column" ? "auto" : "max-content auto"};
+  grid-template-columns: ${({ direction = "row", columns }) =>
+    columns || (direction === "column" ? "auto" : "max-content auto")};
 
   .label {
     color: ${({ theme }) => theme.colors.secondary};
@@ -132,6 +129,10 @@ type SelectProps<T = any> = Omit<
 const StyledSelect = styled.select<{ wide?: boolean }>`
   ${sharedInputStyles};
   width: ${({ wide = false }) => (wide ? "100%" : "auto")};
+
+  option {
+    font-size: 16px;
+  }
 `;
 export const Select = styled((props: SelectProps) => {
   const {

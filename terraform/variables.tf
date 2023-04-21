@@ -2,34 +2,6 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
-variable "vpc_cidr_block" {
-  description = "CIDR block for VPC"
-  type        = string
-  default     = "10.0.0.0/16"
-}
-
-variable "public_subnet_cidr_blocks" {
-  description = "Available CIDR blocks for public subnets"
-  type        = list(string)
-  default = [
-    "10.0.1.0/24",
-    "10.0.2.0/24",
-    "10.0.3.0/24",
-    "10.0.4.0/24"
-  ]
-}
-
-variable "private_subnet_cidr_blocks" {
-  description = "Available CIDR blocks for private subnets"
-  type        = list(string)
-  default = [
-    "10.0.101.0/24",
-    "10.0.102.0/24",
-    "10.0.103.0/24",
-    "10.0.104.0/24",
-  ]
-}
-
 variable "resource_settings" {
   description = "Configuration settings"
   type        = map(any)
@@ -39,18 +11,35 @@ variable "resource_settings" {
       engine              = "postgres"       // engine type
       engine_version      = "12"      // engine version
       instance_class      = "db.t2.micro" // rds instance type
-      db_name             = "mythos_forge"    // database name
+      db_name             = "mythos_forge_main"    // database name
       skip_final_snapshot = true
     },
+
     "web_app" = {
       count         = 1          // the number of EC2 instances
       instance_type = "t2.micro" // the EC2 instance
-      ami_id = "ami-007855ac798b5175e" // the AMI ID
+      ami_id = "ami-04d693ea042f5c1f8" // the AMI ID
+    }
+
+    "api" = {
+      count         = 1          // the number of EC2 instances
+      instance_type = "t2.micro" // the EC2 instance
+      ami_id = "ami-04d693ea042f5c1f8" // the AMI ID
     }
   }
 }
 
-variable "mf_ec2" {
+variable "subnet_id_1" {
+  description = "subnet id 1"
+  type        = string
+}
+
+variable "subnet_id_2" {
+  description = "subnet id 2"
+  type        = string
+}
+
+variable "ssh_key" {
   description = "ssh key for ec2 instances"
   type        = string
   sensitive   = true

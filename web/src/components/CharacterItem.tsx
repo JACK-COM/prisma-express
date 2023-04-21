@@ -1,55 +1,18 @@
-import styled, { css } from "styled-components";
-import { APIData, UserRole, Character, World, Richness } from "utils/types";
+import styled from "styled-components";
+import { APIData, UserRole, Character } from "utils/types";
 import { requireAuthor, noOp } from "utils";
-import { ellipsis, lineclamp } from "theme/theme.shared";
-import { GridContainer, MatIcon } from "components/Common/Containers";
-import { Hint } from "components/Forms/Form";
-import { useMemo } from "react";
+import {
+  ItemDescription,
+  ItemGridContainer,
+  ItemName,
+  MatIcon
+} from "components/Common/Containers";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
-import { PermissionedIcon, editableStyles } from "./ComponentIcons";
+import { TallIcon } from "./ComponentIcons";
 
-type WICProps = { permissions: UserRole };
-const Container = styled(GridContainer)<WICProps>`
-  border-bottom: ${({ theme }) => `1px solid ${theme.colors.accent}33`};
-  grid-template-columns: 24px 1fr max-content 24px 24px;
-  grid-column-gap: ${({ theme }) => theme.sizes.sm};
-  justify-content: start;
-  padding: ${({ theme }) => theme.sizes.xs} 0;
-  width: 100%;
-
-  @media screen and (max-width: 424px) {
-    /* Drop to 4 columns */
-    grid-template-columns: 24px 1fr 24px 24px;
-  }
-`;
-
-const Description = styled(Hint)`
-  ${lineclamp(1)};
-  grid-column: 2/-1;
-  grid-row: 2;
-
-  > p {
-    margin: 0;
-  }
-`;
-const Name = styled.b.attrs({ role: "button", tabIndex: -1 })<WICProps>`
-  cursor: pointer;
-  grid-column: 2/-1;
-  grid-row: 1;
-  pointer-events: ${({ permissions }) =>
-    permissions === "Author" ? "fill" : "none"};
-
-  ${editableStyles};
-
-  > .icon {
-    display: inline-block;
-    padding: ${({ theme }) => theme.sizes.xs};
-    font-size: smaller;
-  }
-`;
 const Location = styled.span`
-  ${ellipsis()};
+  ${({ theme }) => theme.mixins.ellipsis};
   align-self: center;
   font-size: small;
   grid-row: 1 / span 2;
@@ -60,12 +23,6 @@ const Location = styled.span`
     display: none;
   }
 `;
-const TallIcon = styled(PermissionedIcon)`
-  align-self: center;
-  animation-fill-mode: backwards;
-  grid-row: 1 / span 2;
-`;
-const Face = styled(TallIcon)``;
 const Relationships = styled(TallIcon).attrs({ icon: "groups" })`
   animation-delay: 200ms;
 `;
@@ -78,13 +35,16 @@ type CharacterItemProps = {
   onEdit?: (w: APIData<Character>) => void;
   onSelect?: (w: APIData<Character>) => void;
   onRelationships?: (w: APIData<Character>) => void;
+  onRemove?: (w: number) => void;
   permissions?: UserRole;
 };
 
+/** @component A single `Character` created by a user */
 const CharacterItem = ({
   character,
   onSelect = noOp,
   onEdit = noOp,
+  onRemove = noOp,
   onRelationships = noOp,
   permissions = "Reader"
 }: CharacterItemProps) => {
@@ -94,33 +54,31 @@ const CharacterItem = ({
   const isOwner = character.authorId === id;
   const isPub = world?.public;
   const pubClass = !world ? "gray" : isPub ? "success--text" : "error--text";
-  const editCharacter = requireAuthor(() => {
-    onEdit(character);
-  }, role);
+  const deleteCharacter = requireAuthor(() => onRemove(character.id), role);
+  const select = requireAuthor(() => onSelect(character), role);
+  const editCharacter = requireAuthor(() => onEdit(character), role);
   const editRelationships = requireAuthor(
     () => onRelationships(character),
     role
   );
-  const deleteCharacter = requireAuthor(() => {
-    /* onDelete(character) */
-  }, role);
-  const select = requireAuthor(() => onSelect(character), role);
 
   return (
-    <Container onClick={select} permissions={permissions}>
-      <Face
+    <ItemGridContainer onClick={select} permissions={permissions}>
+      <TallIcon
         icon={isOwner ? "face" : "lock"}
         className={pubClass}
         permissions={permissions}
         onClick={editCharacter}
       />
 
-      <Name permissions={permissions} onClick={editCharacter}>
+      <ItemName permissions={permissions} onClick={editCharacter}>
         {character.name}
         {isOwner && <MatIcon className="icon" icon="edit" />}
-      </Name>
+      </ItemName>
 
-      <Description dangerouslySetInnerHTML={characterDescription(character)} />
+      <ItemDescription
+        dangerouslySetInnerHTML={characterDescription(character)}
+      />
 
       {character.worldId && (
         <Location className={pubClass} children={world?.name || ""} />
@@ -135,7 +93,7 @@ const CharacterItem = ({
           <DeleteIcon onClick={deleteCharacter} permissions={permissions} />
         </>
       )}
-    </Container>
+    </ItemGridContainer>
   );
 };
 

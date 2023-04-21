@@ -1,11 +1,11 @@
 import CreateCharacterForm from "components/Form.CreateCharacter";
 import {
   CreateCharacterData,
-  createOrUpdateCharacter
+  upsertCharacter
 } from "graphql/requests/characters.graphql";
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
-import { clearGlobalModal, updateCharacters } from "state";
+import { clearGlobalModal, updateAsError, updateCharacters } from "state";
 import { ErrorMessage } from "components/Common/Containers";
 
 /** Modal props */
@@ -20,28 +20,34 @@ export default function ManageCharacterModal(props: ManageCharacterModalProps) {
   const { data, open, onClose = clearGlobalModal } = props;
   const [formData, setFormData] = useState<Partial<CreateCharacterData>>({});
   const [error, setError] = useState("");
+  const showError = (msg: string) => {
+    setError(msg);
+    updateAsError(msg);
+  };
   const submit = async () => {
     // Validate
-    if (!formData.name) return setError("Name is required.");
+    if (!formData.name) return showError("Name is required.");
     if (formData.name.length < 2)
-      return setError("Name must be at least 2 characters.");
+      return showError("Name must be at least 2 characters.");
 
     // Create
     setError("");
     if (!formData.description) formData.description = "No description.";
-    const resp = await createOrUpdateCharacter(formData);
+    const resp = await upsertCharacter(formData);
     if (typeof resp === "string") return setError(resp);
-
-    // Notify
-    if (resp) {
+    else if (resp) {
+      // Notify
       updateCharacters([resp]);
       onClose();
-    } else setError("Did not create character: please check your entries.");
+    } else showError("Did not create character: please check your entries.");
   };
 
   useEffect(() => {
     if (data) setFormData({ ...data, ...formData });
-    return () => setFormData({});
+    return () => {
+      setFormData({});
+      setError("");
+    };
   }, [data]);
 
   return (

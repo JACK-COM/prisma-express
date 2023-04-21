@@ -3,12 +3,17 @@
 import {
   MFUserFragment,
   MFWorldFragment,
+  MFBookFragment,
+  MFChapterFragment,
   MFCharacterFragment,
+  MFContentLinkFragment,
+  MFEventFragment,
   MFLocationFragment,
   MFRelationshipFragment,
-  MFTimelineFragment,
+  MFSceneFragment,
+  MFSeriesFragment,
   MFTimelineEventFragment,
-  MFEventFragment
+  MFTimelineFragment
 } from "./fragments";
 
 /** Create new `User` */
@@ -128,5 +133,110 @@ export const deleteEventMutation = () => `
 mutation DeleteEvent($id: Int!) {
   deleteEvent(id: $id) {
     ${MFEventFragment}
+  }
+}`;
+
+/** Create new `Book` */
+export const upsertBookMutation = () => `
+mutation UpsertBook($data: MFBookUpsertInput!) {
+  upsertBook(data: $data) { 
+    ${MFBookFragment}
+  }
+}`;
+
+/** Delete a `Book` */
+export const deleteBookMutation = () => `
+mutation DeleteBook($id: Int!) {
+  deleteBook(id: $id) {
+    ${MFBookFragment}
+  }
+}`;
+
+/** Create new `Chapter` */
+export const upsertChapterMutation = () => `
+mutation UpsertChapter($data: MFChapterUpsertInput!) {
+  upsertChapter(data: $data) {
+    ${MFChapterFragment},
+    Scenes { ${MFSceneFragment} }
+  }
+}`;
+
+/** Delete a `Chapter` */
+export const deleteChapterMutation = () => `
+mutation DeleteChapter($id: Int!) {
+  deleteChapter(id: $id) {
+    ${MFChapterFragment}
+  }
+}`;
+
+/** Create new `Scene` */
+export const upsertSceneMutation = () => `
+mutation UpsertScene($data: MFSceneUpsertInput!) {
+  upsertScene(data: $data) {
+    ${MFSceneFragment}
+  }
+}`;
+
+/** Delete a `Scene` */
+export const deleteSceneMutation = () => `
+mutation DeleteScene($id: Int!) {
+  deleteScene(id: $id) {
+    ${MFSceneFragment}
+  }
+}`;
+
+/** Create new `Book Series` */
+export const upsertSeriesMutation = () => `
+mutation UpsertSeries($data: [MFSeriesUpsertInput]!) {
+  upsertSeries(data: $data) {
+    ${MFSeriesFragment}
+  }
+}`;
+
+/** Delete a `Book Series` */
+export const deleteSeriesMutation = () => `
+mutation DeleteSeries($id: Int!) {
+  deleteSeries(id: $id) {
+    ${MFSeriesFragment}
+  }
+}`;
+
+/** Publish a `Book Series` */
+export const publishSeriesMutation = () => `
+mutation PublishSeries($id: Int!) {
+  publishSeries(id: $id) {
+    ${MFSeriesFragment}
+  }
+}`;
+
+/** Publish a `Book` */
+export const publishBookMutation = () => `
+mutation PublishBook($id: Int!) {
+  publishBook(id: $id) {
+    ${MFBookFragment}
+  }
+}`;
+
+/** Alter a user */
+export const upsertUserMutation = () => `
+mutation UpdateUser($data: MFUserUpsertInput!, $id: Int!) {
+  updateUser(id: $id, data: $data) {
+    ${MFUserFragment}
+  }
+}`;
+
+/** Create multiple `ContentLinks` */
+export const upsertContentLinksMutation = () => `
+mutation UpsertContentLinks($data: [MFContentLinkUpsertInput!]) {
+  upsertContentLinks(data: $data) {
+    ${MFContentLinkFragment}
+  }
+}`;
+
+/** Delete a `ContentLink` */
+export const deleteContentLinkMutation = () => `
+mutation DeleteContentLink($id: Int!) {
+  deleteContentLink(id: $id) {
+    ${MFContentLinkFragment}
   }
 }`;

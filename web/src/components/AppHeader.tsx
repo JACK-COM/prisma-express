@@ -8,6 +8,7 @@ const LogoLink = styled(Link)`
   align-items: center;
   display: flex;
   top: 0;
+  margin-top: 0.5rem;
 
   .logo {
     display: block;
@@ -19,32 +20,33 @@ const LogoLink = styled(Link)`
   }
 
   img {
-    filter: contrast(0.1) brightness(5);
+    filter: contrast(0.1) brightness(5) drop-shadow(0 0px 2px #001125ca);
   }
 
-  &:hover {
-    &,
-    .logo {
-      filter: drop-shadow(0 0 8px #646cffaa) drop-shadow(0 -2em 2em #fbd679cb)
-        drop-shadow(0 2px 1em #62e0ffca);
-      /* filter: blur(2px); */
-    }
+  &:hover .logo {
+    filter: drop-shadow(0 0 2px #747bff9d) drop-shadow(0 -2px 2px #ffd773b1)
+      drop-shadow(0 2px 3px #001125ca);
   }
 `;
 const HeaderContainer = styled(GridContainer)`
+  align-items: start;
   background-color: ${({ theme }) => theme.colors.secondary};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.semitransparent};
   color: ${({ theme }) => theme.colors.primary};
-  height: 60px;
-  justify-content: space-between;
+  grid-template-columns: max-content;
+  grid-template-rows: max-content auto;
+  justify-content: start;
   overflow-y: hidden;
   padding: 0 0.5rem;
   position: sticky;
   top: 0;
   z-index: 999;
 
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: 768px) {
+    align-items: center;
+    grid-template-columns: repeat(2, max-content);
     height: fit-content;
+    justify-content: space-between;
+    width: 100%;
   }
 `;
 

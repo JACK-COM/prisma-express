@@ -92,6 +92,34 @@ export const listWorlds = queryField("listWorlds", {
       // enforce public worlds if no authed user
       public: args.public || undefined
     });
-    return worlds; 
+    return worlds;
+  }
+});
+
+/**
+ * Get a single `World` by ID
+ * @param id World ID
+ * @returns `MFWorld` object from service
+ * @throws Error if world not found, or user is not authorized to view world
+ */
+export const getWorld = queryField("getWorld", {
+  type: "MFWorld",
+  args: {
+    id: nonNull(intArg())
+  },
+
+  /**
+   * Query resolver
+   * @param _ Source object (ignored in mutations/queries)
+   * @param args Args (everything defined in `args` property above)
+   * @param _ctx This is `DBContext` from `src/context.ts`.
+   */
+  resolve: async (_, { id }, { user }) => {
+    const world = await WorldsService.getWorld({ id });
+    const isAuthor = world?.public || user?.id === world?.authorId;
+
+    // require public world or author
+    if (!isAuthor) throw new Error("World not found");
+    return world;
   }
 });

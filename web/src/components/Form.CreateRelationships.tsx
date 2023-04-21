@@ -1,6 +1,11 @@
 import { ChangeEvent, useMemo } from "react";
 import { noOp } from "../utils";
-import { APIData, Character, CharacterRelationship } from "../utils/types";
+import {
+  APIData,
+  Character,
+  CharacterRelationship,
+  UserRole
+} from "../utils/types";
 import {
   Form,
   FormRow,
@@ -18,9 +23,10 @@ import { useGlobalCharacter } from "hooks/GlobalCharacter";
 import { ButtonWithIcon, WideButton } from "./Forms/Button";
 import { DeleteItemIcon } from "./ComponentIcons";
 import styled from "styled-components";
+import { useGlobalUser } from "hooks/GlobalUser";
 
 export type CreateRelationshipsProps = {
-  /** Character to link to relationships */
+  /** Primary character (to be linked to others) */
   character: APIData<Character>;
   /** Pre-existing relationship data (if any) */
   data?: Partial<CreateRelationshipData>[];
@@ -28,6 +34,7 @@ export type CreateRelationshipsProps = {
   onChange?: (data: Partial<CreateRelationshipData>[]) => void;
 };
 
+/* relationship link in UI */
 const RelationshipItem = styled(FormRow)`
   margin-bottom: 0.6rem;
   padding-bottom: 0.6rem;
@@ -44,6 +51,13 @@ type ItemKey = keyof APIData<CharacterRelationship>;
 const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
   const { character, data = [], onChange = noOp } = props;
   const { characters = [] } = useGlobalCharacter(["characters"]);
+  const { id: userId } = useGlobalUser(["id"]);
+  const role: UserRole = useMemo(() => {
+    return !character.id ||
+      (character.authorId && userId === character.authorId)
+      ? "Author"
+      : "Reader";
+  }, [userId, character]);
   const targets = useMemo(() => {
     return characters.filter(
       (c) => c.id !== character.id && c.worldId === character.worldId
@@ -82,6 +96,9 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
   const required = (rel: Partial<CreateRelationshipData>) => {
     return primary(rel) ? "label required" : "label";
   };
+  const CharName = character && (
+    <b className="accent--text">{character.name}</b>
+  );
 
   return (
     <Form>
@@ -89,11 +106,19 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
       <Legend>
         <span className="accent--text">{character.name}'s</span> Relationships
       </Legend>
-      <Hint>
-        Here, you can define a link between {character.name} and{" "}
-        <b>one or more characters</b> in their world. It is a simple way to keep
-        track of who knows or is related to whom.
-      </Hint>
+      {role === "Reader" ? (
+        <Hint className="error--text">
+          You do not own <b>{character.name}</b>, and cannot edit their edit
+          their relationships. You can still link any of your own characters in
+          the same world to them.
+        </Hint>
+      ) : (
+        <Hint>
+          Here, you can link {character.name} to <b>one or more characters</b>{" "}
+          in their world. It is a simple way to keep track of who knows (or is
+          related to) whom.
+        </Hint>
+      )}
 
       <hr />
 
@@ -110,6 +135,7 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
         const isPrimary = primary(relt);
         const isRequired = required(relt);
         const { Character: char } = relt as CharacterRelationship;
+
         return (
           <RelationshipItem
             key={i}
@@ -118,44 +144,64 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
           >
             {/* Target Character (id) */}
             <Label direction="column">
-              <span className={isRequired}>
-                {isPrimary ? "Target" : "Other Relation"}
-              </span>
-              <Select
-                disabled={!isPrimary || !targets.length}
-                data={isPrimary ? targets : []}
-                value={relt.targetId || ""}
-                itemText={(d: APIData<Character>) => d.name}
-                itemValue={(d) => d.id}
-                emptyMessage={
-                  isPrimary
-                    ? "No other characters in world."
-                    : char.name
-                }
-                placeholder="Select a target:"
-                onChange={(ch) => updateTarget(ch, i)}
-              />
+              {isPrimary ? (
+                <>
+                  <span className={isRequired}>Target</span>
+                  <Select
+                    disabled={
+                      role === "Reader" || !isPrimary || !targets.length
+                    }
+                    data={isPrimary ? targets : []}
+                    value={relt.targetId || ""}
+                    itemText={(d: APIData<Character>) => d.name}
+                    itemValue={(d) => d.id}
+                    emptyMessage={
+                      isPrimary ? "No other characters in world." : char?.name
+                    }
+                    placeholder="Select a target:"
+                    onChange={(ch) => updateTarget(ch, i)}
+                  />
+                </>
+              ) : (
+                <>
+                  <span className={isRequired}>{CharName} is a:</span>
+                  <b
+                    className="success--text"
+                    children={relt?.relationship || ""}
+                  />
+                </>
+              )}
             </Label>
 
             {/* Relationship description */}
             <Label direction="column">
-              <span className={isRequired}>
-                {isPrimary
-                  ? `Relationship(s) to ${character.name}`
-                  : `"${character.name}" is their:`}
-              </span>
-              <Input
-                disabled={relt.characterId !== character.id}
-                placeholder={`How do they relate to ${character.name}?`}
-                value={relt?.relationship || ""}
-                onChange={(e) => updateRelationship(e, i)}
-              />
+              {isPrimary ? (
+                <>
+                  <span className={isRequired}>
+                    Connection(s) to {CharName}
+                  </span>
+                  <Input
+                    disabled={
+                      role === "Reader" || relt.characterId !== character.id
+                    }
+                    placeholder={`How do they relate to ${character.name}?`}
+                    value={relt?.relationship || ""}
+                    onChange={(e) => updateRelationship(e, i)}
+                  />
+                </>
+              ) : (
+                <>
+                  <span className="label">to this character:</span>
+                  <b className="accent--text" children={char?.name} />
+                </>
+              )}
             </Label>
 
             {isPrimary && (
               <DeleteItemIcon
+                disabled={role === "Reader"}
                 style={{ gridColumn: 3 }}
-                permissions="Author"
+                permissions={role}
                 data={i}
                 onItemClick={removeRelationship}
               />
@@ -171,14 +217,16 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
 
       <hr />
 
-      <ButtonWithIcon
-        type="button"
-        onClick={addRelationshipStub}
-        icon="add"
-        text={data.length ? "Add another relationship" : "Add a relationship"}
-        size="lg"
-        variant="outlined"
-      />
+      {role === "Author" && (
+        <ButtonWithIcon
+          type="button"
+          icon="add"
+          onClick={addRelationshipStub}
+          size="lg"
+          text={data.length ? "Add another relationship" : "Add a relationship"}
+          variant="outlined"
+        />
+      )}
     </Form>
   );
 };

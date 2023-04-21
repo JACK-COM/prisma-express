@@ -1,6 +1,6 @@
 export type ContentStatus = "live" | "draft" | "hidden";
 export type ReporterType = "experiencer" | "observer" | "researcher";
-export type UserRole = "Author" | "Reader";
+export type UserRole = "Admin" | "Moderator" | "Author" | "Reader";
 export type NullableString = string | null;
 
 /** Saved data from server. Use when an id is expected on an object */
@@ -19,7 +19,8 @@ export enum Authenticator {
 export enum Climate {
   Warm = "Warm",
   Temperate = "Temperate",
-  Polar = "Polar"
+  Polar = "Polar",
+  Unspecified = "Unspecified"
 }
 
 /** The type of significant Event that occurs in a World */
@@ -50,7 +51,27 @@ export const EventPolarityColors = (p?: EventPolarity) => {
     [EventPolarity.NegativeExpected]: "#a66359",
     [EventPolarity.NegativeUnexpected]: "#a72d25"
   };
-  return p ? colors[p] : 'inherit';
+  return p ? colors[p] : "inherit";
+};
+
+export const EventPolaritySymbols = (p?: EventPolarity) => {
+  const symbols = {
+    [EventPolarity.PositiveExpected]: "👍",
+    [EventPolarity.PositiveUnexpected]: "🤩",
+    [EventPolarity.Neutral]: "🤷",
+    [EventPolarity.NegativeExpected]: "👎",
+    [EventPolarity.NegativeUnexpected]: "😱"
+  };
+  return p ? symbols[p] : symbols[EventPolarity.Neutral];
+};
+
+export const EventTargetSymbols = (p?: EventTarget) => {
+  const symbols = {
+    [EventTarget.World]: "public",
+    [EventTarget.Local]: "pin_drop",
+    [EventTarget.Person]: "face"
+  };
+  return p ? symbols[p] : symbols[EventTarget.World];
 };
 
 /** The target of a significant Event that occurs in a World */
@@ -80,7 +101,8 @@ export enum Richness {
   Abundant = "Abundant",
   Adequate = "Adequate",
   Sparse = "Sparse",
-  Barren = "Barren"
+  Barren = "Barren",
+  Unspecified = "Unspecified"
 }
 
 /** The type of World (super-set of locations)  */
@@ -95,6 +117,9 @@ export enum WorldType {
 
 /** Content created by an author */
 export type AuthorRelation = { authorId?: number; Author?: APIData<User> };
+
+/** Content relating to a Series */
+export type SeriesRelation = { seriesId?: number; Series?: APIData<Series> };
 
 /** Content created by an author */
 export type BookRelation = { bookId?: number; Book?: APIData<Book> };
@@ -138,17 +163,16 @@ export type User = {
   displayName: string;
   created: string; //  @default(now()) // Account creation date
   lastSeen: string; //  @default(now()) // Last login date
-  Books?: Book[];
-  Chapters?: Chapter[];
-  Characters?: Character[];
-  Events?: Event[];
-  Groups?: PopulationGroup[];
-  Locations?: Location[];
-  Paragraphs?: Paragraph[];
-  Scenes?: Scene[];
-  Timelines?: Timeline[];
-  Worlds?: World[];
-  Series?: Series[];
+  Books?: APIData<Book>[];
+  Chapters?: APIData<Chapter>[];
+  Characters?: APIData<Character>[];
+  Events?: APIData<Event>[];
+  Groups?: APIData<PopulationGroup>[];
+  Locations?: APIData<Location>[];
+  Scenes?: APIData<Scene>[];
+  Timelines?: APIData<Timeline>[];
+  Worlds?: APIData<World>[];
+  Series?: APIData<Series>[];
 };
 
 /** A `Book` is a collection of `Chapters` */
@@ -157,17 +181,19 @@ export type Book = {
   title: string;
   description: string;
   genre: string;
-  seriesId?: number;
-  Chapters: Chapter[];
-  Series?: Series[];
-} & AuthorRelation;
+  public: boolean;
+  free: boolean;
+  Chapters: APIData<Chapter>[];
+} & AuthorRelation &
+  SeriesRelation;
 
 /** A `Chapter` is a collection of `Scenes` */
 export type Chapter = {
   order: number;
-  name: string;
+  title: string;
   description: string;
-  Scenes: Scene[];
+  Scenes: APIData<Scene>[];
+  Links: APIData<ContentLink>[];
 } & AuthorRelation &
   BookRelation;
 
@@ -177,7 +203,6 @@ export type Character = {
   description: string;
   Event: APIData<WorldEvent>[];
   Scene: APIData<Scene>[];
-  Paragraph: APIData<Paragraph>[];
 } & AuthorRelation &
   GroupRelation &
   LocationRelation &
@@ -188,7 +213,18 @@ export type CharacterRelationship = {
   characterId: number; // ( references Character  )
   targetId: number; // ( references Character | no relation )
   relationship: string;
-  Character: Character; // @relation(fields: [characterId], references: [id], onDelete: Cascade)
+} & CharacterRelation &
+  AuthorRelation;
+
+/** A `ContentLink` allows an author to link to a book scene */
+export type ContentLink = {
+  bookId: number;
+  text: string;
+  originId: number;
+  seriesId?: number;
+  chapterId?: number;
+  sceneId?: number;
+  authorId?: number;
 };
 
 /** `Event` (`WorldEvent` in UI) is a significant `World` occurrence */
@@ -210,21 +246,12 @@ export type Location = {
   climate: Climate;
   fauna: Richness;
   flora: Richness;
+  parentLocationId: number;
   Characters: Character[];
   Events: Event[];
   Groups: PopulationGroup[];
-  Scenes: Scene[];
 } & AuthorRelation &
   WorldRelation;
-
-/** A Paragraph is a literal paragraph in a story. They can be combined to create scenes. */
-export type Paragraph = {
-  order: number;
-  text: string;
-  sceneId?: number;
-  Scene?: Scene;
-} & AuthorRelation &
-  CharacterRelation;
 
 /** A `PopulationGroup` is a collection of Characters in a World or other location. */
 export type PopulationGroup = {
@@ -237,16 +264,17 @@ export type PopulationGroup = {
   LocationRelation &
   WorldRelation;
 
-/** A Scene is a collection of Paragraphs where one or more Characters interact with (each other or a) distinct setting within a Location. A Scene happens in the context of a Story Chapter. */
+/** A Scene is a collection of paragraphs where one or more Characters interact with (each other or a) distinct setting within a Location. A Scene happens in the context of a Story Chapter. */
 export type Scene = {
   order: number;
-  name: string;
+  title: string;
   description: string;
+  text: string;
   chapterId: number;
-  Chapter?: Chapter;
+  Chapter?: APIData<Chapter>;
   eventContextId?: number;
-  EventContext: TimelineEvent;
-  Paragraphs: Paragraph[];
+  EventContext: APIData<TimelineEvent>;
+  Links: APIData<ContentLink>[]; // ( references ContentLink  )
 } & AuthorRelation &
   CharacterRelation &
   LocationRelation &
@@ -254,17 +282,18 @@ export type Scene = {
 
 /** A Series is a collection of two or more Books. */
 export type Series = {
-  order: number;
   title: string;
   description: string;
+  public: boolean;
+  free: boolean;
   genre: string;
-  Books: Book[];
+  Books: APIData<Book>[];
 } & AuthorRelation;
 
 /** A `Timeline` is named Event-sequence in a `World` */
 export type Timeline = {
   name: string;
-  TimelineEvents?: TimelineEvent[];
+  TimelineEvents?: APIData<TimelineEvent>[];
 } & AuthorRelation &
   WorldRelation;
 
@@ -273,7 +302,7 @@ export type TimelineEvent = {
   eventId: number;
   timelineId: number;
   order: number;
-  Event?: WorldEvent;
+  Event?: APIData<WorldEvent>;
 } & AuthorRelation &
   Pick<TimelineRelation, "Timeline">;
 
@@ -283,11 +312,29 @@ export type World = {
   name: string;
   description: string;
   type: WorldType;
-  Location: APIData<Location>[];
-  Timeline: APIData<Timeline>[];
+  Locations: APIData<Location>[];
+  Timelines: APIData<Timeline>[];
   Events: APIData<WorldEvent>[];
   Groups: APIData<PopulationGroup>[];
   Characters: APIData<Character>[];
 } & AuthorRelation;
 
 export type PermissionProps = { permissions: UserRole };
+
+/** A `Library` associates a User with one or more Books */
+export type LibraryPurchase = {
+  userId: number;
+  bookId?: number;
+  seriesId?: number;
+  order: number;
+  publicPurchase: boolean;
+  Book?: APIData<Book>;
+  Series?: APIData<Series>;
+};
+
+/* HELPERS */
+
+// An inferred type that extracts all array keys from a type
+export type ArrayKeys<T> = {
+  [K in keyof T]: T[K] extends Array<any> ? K : never;
+}[keyof T];

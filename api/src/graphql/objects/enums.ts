@@ -16,7 +16,18 @@ export const Climate = enumType({
   members: {
     Warm: "Warm",
     Temperate: "Temperate",
-    Polar: "Polar"
+    Polar: "Polar",
+    Unspecified: "Unspecified"
+  }
+});
+
+export const ChapterStatus = enumType({
+  name: "ChapterStatus",
+  description: "The status of a Chapter",
+  members: {
+    Draft: "Draft",
+    Published: "Published",
+    Archived: "Archived"
   }
 });
 
@@ -60,7 +71,8 @@ export const Richness = enumType({
     Abundant: "Abundant",
     Adequate: "Adequate",
     Sparse: "Sparse",
-    Barren: "Barren"
+    Barren: "Barren",
+    Unspecified: "Unspecified"
   }
 });
 
@@ -68,6 +80,8 @@ export const UserRole = enumType({
   name: "UserRole",
   description: "A type of application user",
   members: {
+    Admin: "Admin",
+    Moderator: "Moderator",
     Author: "Author",
     Reader: "Reader"
   }

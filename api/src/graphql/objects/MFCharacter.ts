@@ -13,7 +13,10 @@ export const MFCharacter = objectType({
     t.int("locationId", { description: "Character's `Location` id" });
     t.nonNull.int("worldId", { description: "Character's `World` id" });
 
-    // List properties: uncomment if we want to auto-expose these fields
+    // Relationships
+    t.field("World", { type: "MFWorld" });
+
+    // List properties
     t.list.field("CharacterRelationship", { type: "MFCharacterRelationship" });
   }
 });

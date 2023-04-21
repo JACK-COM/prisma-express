@@ -1,26 +1,40 @@
 import { Suspense, lazy, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation
+} from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import THEME from "./theme/index";
 import { GlobalUser } from "./state";
 import { AUTH_ROUTE } from "./utils";
 import AppHeader from "components/AppHeader";
 import { useGlobalTheme } from "hooks/GlobalTheme";
+import { loadUser, loadUserData } from "hooks/loadUserData";
 import FullScreenLoader from "components/Common/FullscreenLoader";
 import { Paths, wildcard } from "routes";
+import { useGlobalModal } from "hooks/GlobalModal";
+import ActiveNotifications from "components/ActiveNotifications";
+import ManageBookModal from "components/Modals/ManageBookModal";
+import ManageChapterModal from "components/Modals/ManageChapterModal";
+import ManageSceneModal from "components/Modals/ManageSceneModal";
+import Home from "routes/Home";
+import ManageContentLinksModal from "components/Modals/ManageLinksModal";
 
 const CharactersRoute = lazy(() => import("./routes/CharactersRoute"));
-const Dashboard = lazy(() => import("./routes/Dashboard"));
+const Dashboard = lazy(() => import("./routes/DashboardRoute"));
+const LibraryRoute = lazy(() => import("./routes/LibraryRoute"));
 const NotFound = lazy(() => import("./routes/NotFound"));
 const TimelinesRoute = lazy(() => import("./routes/TimelinesRoute"));
 const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
 
 function App() {
   const { theme } = useGlobalTheme();
+  const { active, MODAL, clearGlobalModal } = useGlobalModal();
   const checkLoggedIn = async () => {
-    const fOpts: RequestInit = { method: "post", credentials: "include" };
-    const { user } = await fetch(AUTH_ROUTE, fOpts).then((r) => r.json());
-    if (user) GlobalUser.multiple({ ...user, authenticated: true });
+    const user = await loadUser();
+    await loadUserData({ userId: user?.id });
   };
 
   useEffect(() => {
@@ -42,14 +56,14 @@ function App() {
                 index
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
-                    <Dashboard />
+                    <Home />
                   </Suspense>
                 }
               />
 
               <Route
                 // Application Home + Author dashboard
-                path={Paths.Dashboard.Index.path}
+                path={wildcard(Paths.Dashboard.Index.path)}
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
                     <Dashboard />
@@ -69,10 +83,10 @@ function App() {
 
               <Route
                 // Books and Series
-                path={wildcard(Paths.BooksAndSeries.Index.path)}
+                path={wildcard(Paths.Library.Index.path)}
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
-                    <Dashboard />
+                    <LibraryRoute />
                   </Suspense>
                 }
               />
@@ -110,6 +124,25 @@ function App() {
           </section>
         </Router>
       </Suspense>
+
+      <ActiveNotifications />
+
+      {/* Modals */}
+      {active === MODAL.MANAGE_BOOK && (
+        <ManageBookModal open={active === MODAL.MANAGE_BOOK} />
+      )}
+
+      {active === MODAL.MANAGE_CHAPTER && (
+        <ManageChapterModal open={active === MODAL.MANAGE_CHAPTER} />
+      )}
+
+      {active === MODAL.MANAGE_SCENE && (
+        <ManageSceneModal open={active === MODAL.MANAGE_SCENE} />
+      )}
+
+      {active === MODAL.LINK_SCENE && (
+        <ManageContentLinksModal open={active === MODAL.LINK_SCENE} />
+      )}
     </ThemeProvider>
   );
 }

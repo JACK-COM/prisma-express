@@ -1,7 +1,10 @@
 import { PrismaClient, User } from "@prisma/client";
 
 /** This is the user object obtained by passport and injected into global graphql context */
-export type CtxUser = Pick<User, "id" | "role" | "email" | "lastSeen">;
+export type CtxUser = Pick<
+  User,
+  "id" | "role" | "displayName" | "email" | "lastSeen"
+>;
 
 /**
  * `PrismaClient` instance with all tables. Contents will be determined
@@ -29,12 +32,14 @@ export interface DBContext {
   Characters: PrismaClient["character"];
   /** `Character Relationships` table */
   CharacterRelationships: PrismaClient["characterRelationship"];
+  /** `Content Link` table */
+  ContentLinks: PrismaClient["sceneContentLink"];
   /** `Events` table */
   Events: PrismaClient["event"];
+  /** `Library` table */
+  Libraries: PrismaClient["library"];
   /** `Locations` table */
   Locations: PrismaClient["location"];
-  /** `Paragraphs` table */
-  Paragraphs: PrismaClient["paragraph"];
   /** `Population Groups` table */
   PopulationGroups: PrismaClient["populationGroup"];
   /** `Scenes` table */
@@ -63,9 +68,10 @@ export const context: DBContext = {
   Chapters: db.chapter,
   Characters: db.character,
   CharacterRelationships: db.characterRelationship,
+  ContentLinks: db.sceneContentLink,
   Events: db.event,
+  Libraries: db.library,
   Locations: db.location,
-  Paragraphs: db.paragraph,
   PopulationGroups: db.populationGroup,
   Scenes: db.scene,
   Series: db.series,

@@ -7,6 +7,7 @@ import createState from "@jackcom/raphsducks";
  * you need.
  */
 export const Notifications = createState({
+  active: true,
   all: [] as Alert[]
 });
 
@@ -19,11 +20,23 @@ export type Alert = {
   error?: boolean;
 };
 
+/** Check if alerts (UI only) are globally enabled */
+export function notificationsActive() {
+  return Notifications.getState().active;
+}
+
+/** Globally enable/disable alerts (UI only) */
+export function toggleGlobalNotifications() {
+  const { active } = Notifications.getState();
+  Notifications.active(!active);
+}
+
 export function addNotification(
   msg: string | Alert,
   persist = false,
   additional = {}
 ) {
+  if (!notificationsActive()) return null;
   const note = (msg as Alert).time
     ? (msg as Alert)
     : createAlert(msg as string, persist);
@@ -34,6 +47,7 @@ export function addNotification(
 }
 
 export function resetNotifications(msg?: string, persist = false) {
+  if (!notificationsActive()) return null;
   const updates = [];
   let msgId = null;
   if (msg) {
@@ -45,9 +59,10 @@ export function resetNotifications(msg?: string, persist = false) {
   return msgId;
 }
 
-export function removeNotification(msg: Alert) {
+export function removeNotification(msgID: Alert["time"]) {
+  if (!notificationsActive()) return;
   const { all: notifications } = Notifications.getState();
-  const i = notifications.findIndex((n) => n.time === msg.time);
+  const i = notifications.findIndex((n) => n.time === msgID);
   if (i === -1) return;
 
   const updates = [...notifications];
@@ -55,7 +70,8 @@ export function removeNotification(msg: Alert) {
   Notifications.all(updates);
 }
 
-export function updateAsError(id: number | null, msg: string) {
+export function updateAsError(msg: string, id?: number | null) {
+  if (!msg || !notificationsActive()) return id || null;
   const { all: notifications } = Notifications.getState();
   const msgIndex = notifications.findIndex(({ time }) => time === id);
   const newAlert = createAlert(msg, true);
@@ -67,13 +83,15 @@ export function updateAsError(id: number | null, msg: string) {
   else updates.splice(msgIndex, 1, newAlert);
 
   Notifications.all(updates);
+  return newAlert.time;
 }
 
 export function updateNotification(
-  id: number | null,
   msg: string,
+  id?: number | null,
   persist = false
 ) {
+  if (!notificationsActive()) return;
   const { all: notifications } = Notifications.getState();
   const i = notifications.findIndex(({ time }) => time === id);
   const newAlert = createAlert(msg, true);

@@ -14,7 +14,7 @@ export const MFPopulationGroup = objectType({
     t.nonNull.int("worldId", { description: "`PopulationGroup`'s World id" });
 
     // List properties
-    t.nonNull.list.field("Character", { type: "MFCharacter" });
-    t.nonNull.list.field("Event", { type: "MFEvent" });
+    t.list.field("Character", { type: "MFCharacter" });
+    t.list.field("Event", { type: "MFEvent" });
   }
 });

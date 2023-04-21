@@ -33,7 +33,8 @@ const defaultButtonCSS = css`
 
   &:not([disabled]):hover {
     background-color: ${UI.bgColorHover};
-    box-shadow: 0 1px 0.4em #030630b5;
+    box-shadow: 0 1px 0.4em inset #001125ca;
+    outline: 1px solid ${({ theme }) => theme.colors.semitransparent};
     filter: drop-shadow(0 0 1.2em #aa64ffaa);
     transform: scale(0.99, 0.99);
     transition: 0.12s linear;

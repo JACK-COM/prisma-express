@@ -7,7 +7,6 @@ Story world builder frontend. Uses `ReactJS`, `Typescript`, `styled-components`,
 - [⚒ **MythosForge UI**](#-mythosforge-ui)
   - [Getting started](#getting-started)
     - [Frontend Application](#frontend-application)
-    - [Storybook](#storybook)
 
 ---
 
@@ -17,16 +16,12 @@ Story world builder frontend. Uses `ReactJS`, `Typescript`, `styled-components`,
 ### Frontend Application
 Run the following in here (`web/` directory). 
 ```bash
-# First run only: -f to force-resolve storybook dependencies
-$. npm install -f 
+# First run only
+$. npm install # install deps
+$. npm run postinstall # copy `tinymce` over to your local /public directory
 $. npm run start # (runs on :5173 unless you override PORT in .env)
 ```
 The **MythosForge** frontend uses ReactJS with ViteJS for bundling. 
 
 
-### Storybook
-Run the following in here (`web/` directory). 
-```bash
-$. npm run storybook # (runs on :6006)
-```
 

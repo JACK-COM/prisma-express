@@ -6,10 +6,15 @@
  */
 
 import {
+  MFBookFragment,
+  MFChapterFragment,
   MFCharacterFragment,
+  MFContentLinkFragment,
   MFEventFragment,
   MFLocationFragment,
   MFRelationshipFragment,
+  MFSceneFragment,
+  MFSeriesFragment,
   MFTimelineEventFragment,
   MFTimelineFragment,
   MFUserFragment,
@@ -37,6 +42,111 @@ export const listLocationsQuery = () =>
       name: $name) {
       ${MFLocationFragment}
     } 
+  }`;
+
+/** List `Series` */
+export const listSeriesQuery = () =>
+  `query ListSeries(
+    $authorId: Int, $description: String, $title: String, $genre: String
+    ) { 
+      listSeries(
+        authorId: $authorId,
+        description: $description,
+        genre: $genre,
+        title: $title
+      ) {
+        ${MFSeriesFragment}
+      }
+    }`;
+
+/** Get `Series` */
+export const getSeriesQuery = () =>
+  `query GetSeries($id: Int!) {
+    getSeries(id: $id) {
+      ${MFSeriesFragment},
+      Books {
+        ${MFBookFragment}
+      }
+    }
+  }`;
+
+/** List `Books` */
+export const listBooksQuery = () =>
+  `query ListBooks(
+    $title: String, $genre: String, $description: String, $authorId: Int, $seriesId: Int, $public: Boolean, $free: Boolean
+    ) {
+      listBooks(
+        title: $title,
+        genre: $genre,
+        description: $description,
+        authorId: $authorId,
+        seriesId: $seriesId,
+        public: $public,
+        free: $free
+      ) {
+        ${MFBookFragment}
+      }
+    }`;
+
+/** Get `Book` */
+export const getBookQuery = () =>
+  `query GetBook($id: Int!) {
+    getBookById(id: $id) {
+      ${MFBookFragment}
+      Chapters {
+        ${MFChapterFragment},
+        Scenes { ${MFSceneFragment} }
+      }
+    }
+  }`;
+
+/** List `Chapters` */
+export const listChaptersQuery = () =>
+  `query ListChapters(
+    $id: Int, $authorId: Int, $bookId: Int, $description: String, $title: String
+    ) {
+      listChapters(
+        id: $id,
+        authorId: $authorId,
+        bookId: $bookId,
+        description: $description,
+        title: $title
+      ) {
+        ${MFChapterFragment}
+      }
+    }`;
+
+/** Get `Chapter` */
+export const getChapterQuery = () =>
+  `query GetChapter($id: Int!) {
+    getChapterById(id: $id) {
+      ${MFChapterFragment},
+      Scenes { ${MFSceneFragment}, Links { ${MFContentLinkFragment} } }
+    }
+  }`;
+
+/** List `Scenes` */
+export const listScenesQuery = () =>
+  `query ListScenes(
+    $id: Int, $authorId: Int, $chapterId: Int, $description: String, $title: String  
+    ) {
+      listScenes(
+        id: $id,
+        authorId: $authorId,
+        chapterId: $chapterId,
+        description: $description,
+        title: $title
+      ) {
+        ${MFSceneFragment}
+      }
+    }`;
+
+/** Get `Scene` */
+export const getSceneQuery = () =>
+  `query GetScene($id: Int!) {  
+    getScene(id: $id) {
+      ${MFSceneFragment}
+    }
   }`;
 
 /** List `Characters` graphql query */
@@ -84,6 +194,14 @@ export const listWorldsQuery = () =>
     } 
   }`;
 
+/** Get `World` by Id */
+export const getWorldQuery = () =>
+  `query GetWorld($id: Int!) {
+    getWorld(id: $id) {
+      ${MFWorldFragment}
+    }
+  }`;
+
 /** List `Timelines` graphql query */
 export const listTimelinesQuery = () =>
   `query ListTimelines(
@@ -125,5 +243,31 @@ export const getTimelineQuery = () =>
   `query GetTimeline( $id: Int! ) { 
     getTimelineById( id: $id ) {
       ${MFTimelineFragment}
+    } 
+  }`;
+
+/** Get `ContentLink` by id graphql query */
+export const getContentLinkQuery = () =>
+  `query GetContentLink( $id: Int! ) { 
+    getContentLink( id: $id ) {
+      ${MFContentLinkFragment}
+    } 
+  }`;
+
+/** List `ContentLinks` graphql query */
+export const listContentLinksQuery = () =>
+  `query ListContentLinks(
+    $id: Int, $authorId: Int, $sceneId: Int, $chapterId: Int, $bookId: Int, $seriesId: Int, $text: String
+   ) { 
+    listContentLinks(
+      id: $id, 
+      authorId: $authorId, 
+      sceneId: $sceneId,
+      chapterId: $chapterId,
+      bookId: $bookId,
+      seriesId: $seriesId,
+      text: $text
+      ) {
+      ${MFContentLinkFragment}
     } 
   }`;

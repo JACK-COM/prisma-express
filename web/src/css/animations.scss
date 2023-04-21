@@ -99,6 +99,18 @@
   }
 }
 
+@keyframes scale-up {
+  0% {
+    transform: scale(1);
+    z-index: 9999;
+  }
+
+  100% {
+    transform: scale(1.01);
+    z-index: 9999;
+  }
+}
+
 @keyframes shake {
   0% {
     transform: translate(-10%, 0);
@@ -128,11 +140,11 @@
 
 @keyframes slide-left {
   from {
-    transform: translateX(0);
+    transform: translateX(5%);
   }
 
   to {
-    transform: translateX(10%);
+    transform: translateX(0);
   }
 }
 
@@ -288,14 +300,26 @@
   animation-fill-mode: forwards;
 }
 
-.slide-down-fade-in {
+.slide-in-up {
+  will-change: opacity, transform;
+  @include merge-animations(slide-up, fade-in, 300ms, 300ms);
+}
+
+.slide-in-down {
   will-change: opacity, transform;
   @include merge-animations(slide-down, fade-in, 300ms, 300ms);
 }
 
 .slide-in-right {
   will-change: opacity, transform;
+  animation-fill-mode: forwards;
   @include merge-animations(slide-right, fade-in, 250ms, 250ms);
+}
+
+.slide-in-left {
+  will-change: opacity, transform;
+  animation-fill-mode: forwards;
+  @include merge-animations(slide-left, fade-in, 250ms, 250ms);
 }
 
 .slide-out-right {
@@ -303,9 +327,8 @@
   animation-direction: reverse;
 }
 
-.slide-up-fade-out {
-  @extend .slide-down-fade-in;
-  animation-direction: reverse;
+.slide-out-up {
+  @include merge-animations(slide-up, fade-out, 250ms, 250ms);
 }
 
 .shake {

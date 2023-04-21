@@ -4,12 +4,20 @@ import styled from "styled-components";
 import { noOp } from "utils";
 import { FlexRow } from "./Containers";
 
-const Wrapper = styled(FlexRow)`
-  background-color: ${({ theme }) => theme.colors.accent};
-  border-radius: ${({ theme }) => theme.presets.round};
-  box-shadow: ${({ theme }) => theme.presets.elevate.md};
+const Wrapper = styled(FlexRow)<{ error?: boolean }>`
+  background-color: ${({ theme, error = false }) =>
+    error ? theme.colors.error : theme.colors.accent};
+  border-radius: ${({ theme }) => theme.presets.round.xs};
+  color: ${({ theme, error }) => (error ? "#fff" : theme.colors.primary)};
+  box-shadow: 0 2px 4px #1118;
+  height: minmax(3rem, 80px);
   margin-bottom: ${({ theme }) => theme.sizes.xs};
+  pointer-events: all;
   width: 100%;
+
+  &.error {
+    color: white;
+  }
 
   .material-icons {
     background: transparent;
@@ -35,14 +43,14 @@ const Notification = styled((props: NotificationProps) => {
     if (typeof notification === "string") return notification;
     if ((notification as Alert).msg) return notification?.msg;
     return "";
-
-  }, [])
+  }, []);
 
   return (
-    <Wrapper className={props.className}>
+    <Wrapper error={error} className={props.className} onClick={onClear}>
       <ClearNotification onClear={onClear} />
-      {error && <b className="label">Error:&nbsp;</b>}
-      <span>{msg}</span>
+      <span>
+        {error && <b className="label">Error:&nbsp;</b>} {msg}
+      </span>
     </Wrapper>
   );
 })``;
@@ -53,21 +61,21 @@ export const AutoDismissNotification = styled((props: ADNProps) => {
   const { timeout = 5000, className, notification } = props;
   const [state, setState] = useState<ADNState>({
     timeout: null,
-    class: `${className || ""} slide-in-left`,
+    class: `${className || ""} slide-in-left`
   });
   const clear = () => {
-    if (state.timeout) clearTimeout(state.timeout as NodeJS.Timeout);
-    removeNotification(props.notification as Alert);
+    if (state.timeout) clearTimeout(state.timeout);
+    removeNotification(notification.time);
   };
   const animate = () => {
     clearTimeout(state.timeout as NodeJS.Timeout);
-    setState({ class: `${className || ""} slide-out-left` });
+    setState((o) => ({ ...o, class: `${className || ""} slide-out-right` }));
     setTimeout(clear, 500);
   };
 
   useEffect(() => {
     if (state.timeout !== null) return;
-    setState({ timeout: setTimeout(animate, timeout) });
+    setState((o) => ({ ...o, timeout: setTimeout(animate, timeout) }));
   }, [state.class]);
 
   return (
@@ -75,6 +83,7 @@ export const AutoDismissNotification = styled((props: ADNProps) => {
       onClear={clear}
       className={state.class}
       notification={notification.msg}
+      error={notification.error}
     />
   );
 })``;
@@ -98,4 +107,4 @@ type ADNProps = NotificationBaseProps & {
 type ADNState = {
   timeout: NodeJS.Timeout | null;
   class: string;
-} & any;
+};

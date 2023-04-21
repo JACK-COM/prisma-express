@@ -1,5 +1,12 @@
 import { ComponentPropsWithRef } from "react";
-import styled from "styled-components";
+import { Link } from "react-router-dom";
+import styled, { css } from "styled-components";
+import { lineclamp } from "theme/theme.shared";
+import {
+  EventPolarity,
+  EventPolarityColors,
+  PermissionProps
+} from "utils/types";
 
 type FlexContainerProps = {
   inline?: boolean;
@@ -16,13 +23,22 @@ export const BaseContainer = styled.section``;
 
 /** UI bordered section */
 export const Card = styled(BaseContainer).attrs({ className: "card" })`
-  border: ${({ theme }) => `1px dashed ${theme.colors.semitransparent}`};
+  border: ${({ theme }) => `1px dotted ${theme.colors.semitransparent}`};
   border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
-  padding: 1em;
+  padding: 0 1em 1em;
 
   @media screen and (max-width: 768px) {
     padding: 0.4em;
   }
+`;
+export const CardTitle = styled.h4`
+  border-bottom: 1px solid ${({ theme }) => theme.colors.semitransparent};
+  height: 2.5em;
+  line-height: 2.5em;
+`;
+export const CardSubitle = styled.h5`
+  height: 2.1em;
+  line-height: 2.1em;
 `;
 
 /** Page or View description element */
@@ -80,6 +96,91 @@ export const GridContainer = styled.div<{ columns?: string; gap?: string }>`
   grid-gap: ${({ gap = 0 }) => gap};
 `;
 
+export const ItemDescription = styled.div`
+  ${lineclamp(1)};
+  color: ${({ theme }) => theme.colors.primary};
+  font-size: smaller;
+  grid-column: 2 / -1;
+  grid-row: 2;
+  line-height: ${({ theme }) => theme.sizes.md};
+  margin: 0;
+  opacity: 0.7;
+  padding: 0;
+  text-shadow: none;
+  width: 100%;
+
+  > p {
+    margin: 0;
+  }
+`;
+type NameProps = PermissionProps & { polarity?: EventPolarity };
+export const ItemName = styled.b.attrs({
+  role: "button",
+  tabIndex: -1
+})<NameProps>`
+  color: ${({ polarity }) => EventPolarityColors(polarity)};
+  grid-column: 2;
+  grid-row: 1;
+  pointer-events: ${({ permissions }) =>
+    permissions === "Author" ? "fill" : "none"};
+  width: fit-content;
+
+  /* Experimental
+  background: #10191839;
+  border-radius: 4px;
+  padding: 0 0.4rem;
+  /* Experimental */
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.accent};
+  }
+
+  .icon {
+    display: inline-block;
+    padding: ${({ theme }) => theme.sizes.xs};
+    font-size: smaller;
+    cursor: pointer;
+  }
+`;
+
+// Shared list item styles
+const sharedListItemStyles = css`
+  color: initial;
+  column-gap: ${({ theme }) => theme.sizes.sm};
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 24px 10fr max-content;
+  padding: ${({ theme }) => theme.sizes.xs};
+  text-shadow: ${({ theme }) => theme.presets.elevate.xxs} #001125ec;
+  width: 100%;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.semitransparent};
+    text-shadow: none;
+  }
+`;
+// Shared ListItem grid container
+export const ItemGridContainer = styled(GridContainer)<PermissionProps>`
+  ${sharedListItemStyles}
+  justify-content: space-between;
+
+  .list-item {
+    padding-right: 0;
+  }
+`;
+// Shared ListItem link container
+export const ItemLinkContainer = styled(Link).attrs({
+  className: "list-item"
+})<PermissionProps>`
+  ${sharedListItemStyles}
+
+  .delete {
+    align-self: center;
+    padding: ${({ theme }) => theme.sizes.xs};
+    grid-row: 1/3;
+  }
+`;
+
 type PCProps = FlexContainerProps & { minHeight?: string };
 export const PageContainer = styled(FlexColumn)<PCProps>`
   height: fit-content;
@@ -89,6 +190,7 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
   max-width: 1280px;
   min-height: ${({ minHeight = "70vh" }) => minHeight};
   text-align: left;
+  width: 100%;
 
   > hr {
     background-color: ${({ theme }) => theme.colors.primary};
@@ -98,12 +200,13 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
     opacity: 0.6;
   }
 
+  /* Content max-width 1280px above display resolution of 1200px */
   @media screen and (min-width: 1200px) {
     max-width: 1280px;
   }
 
   @media screen and (max-width: 1200px) {
-    max-width: 90vmin;
+    /* max-width: 90vmin; */
   }
 
   @media screen and (max-width: 768px) {
@@ -178,9 +281,8 @@ export const MatIcon = ({ icon, ...props }: MatIconProps) => (
 
 export const GridItem = styled(GridContainer)`
   background-color: inherit;
-  border: 1px solid #232325;
+  border-top: 1px solid ${({ theme }) => theme.colors.semitransparent};
   grid-template-columns: ${({ columns = "auto 4.8rem" }) => columns};
-  margin-bottom: 1rem;
 
   &:last-of-type {
     margin: 0;

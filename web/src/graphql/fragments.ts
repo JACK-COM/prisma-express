@@ -2,7 +2,7 @@
 
 /** graphql `User` fragment */
 export const MFUserFragment = `
-    id, displayName, email, 
+    id, displayName, email, firstName, lastName, 
 `;
 
 /** graphql `Character` fragment */
@@ -44,4 +44,32 @@ export const MFTimelineFragment = `
     id, name, authorId, worldId, 
     World { ${MFWorldFragment} },
     TimelineEvents { ${MFTimelineEventFragment} }
+`;
+
+/** graphql `Scene` fragment */
+export const MFSceneFragment = `
+    id, order, title, description, text, authorId, chapterId, characterId, eventContextId, timelineId
+`;
+
+/** graphql `Chapter` fragment */
+export const MFChapterFragment = `
+    id, order, title, description, authorId, bookId
+`;
+
+/** graphql `Book` fragment */
+export const MFBookFragment = `
+    id, title, description, order, genre, authorId, seriesId, public, free,
+`;
+
+/** graphql `Series` fragment */
+export const MFSeriesFragment = `
+    id, name, description, authorId, worldId,
+    Books {
+      ${MFBookFragment}
+    }
+`;
+
+/** graphql `ContentLink` fragment */
+export const MFContentLinkFragment = `
+    id, text, authorId, originId, seriesId, bookId, chapterId, sceneId
 `;

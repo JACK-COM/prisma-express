@@ -9,10 +9,18 @@ enum Authenticator {
   other
 }
 
+"""The status of a Chapter"""
+enum ChapterStatus {
+  Archived
+  Draft
+  Published
+}
+
 """The general climate of a setting."""
 enum Climate {
   Polar
   Temperate
+  Unspecified
   Warm
 }
 
@@ -43,47 +51,122 @@ enum GroupType {
   Trade
 }
 
+"""An abbreviated `MFUser` model"""
+type MFAuthor {
+  Books: [MFBook]
+  Series: [MFSeries]
+  Timelines: [MFTimeline]
+  Worlds: [MFWorld]
+  displayName: String!
+  email: String!
+  firstName: String
+  id: Int!
+  lastName: String
+  role: UserRole
+}
+
 """A collection of story `Chapters`"""
 type MFBook {
-  Author: MFUser
-  Chapters: [MFChapter]!
+  Author: MFAuthor
+  Chapters: [MFChapter]
+  Series: MFSeries
 
   """Book Author/owner"""
   authorId: Int
-  created: CsDateTime!
+
+  """Item created"""
+  created: CsDateTime
   description: String!
+
+  """Book is free to read"""
+  free: Boolean!
   genre: String!
   id: Int!
-  lastSeen: CsDateTime!
+
+  """Book order in series"""
   order: Int
 
-  """Book series (e.g. 'Foundation Trilogy')"""
+  """Book is publicly visible"""
+  public: Boolean!
+
+  """Item published for public consumption"""
+  publishDate: CsDateTime
+
+  """Book series parent id"""
+  seriesId: Int
+  title: String!
+
+  """Item updated"""
+  updated: CsDateTime
+}
+
+input MFBookUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+  chapters: [MFChapterUpsertInput!]
+  description: String!
+  free: Boolean = false
+  genre: String!
+
+  """Book ID"""
+  id: Int
+
+  """Sequence in series (if part of one"""
+  order: Int
+  public: Boolean = false
+
+  """Parent Series"""
   seriesId: Int
   title: String!
 }
 
 """A collection of Story `Scenes`"""
 type MFChapter {
-  Author: MFUser
-  Book: MFBook
-  Scenes: [MFScene]!
+  Author: MFAuthor
+  Links: [MFSceneContentLink]
+  Scenes: [MFScene]
 
   """Author owner"""
   authorId: Int
 
   """Chapter's Book id"""
   bookId: Int
-  created: CsDateTime!
-  description: String!
+
+  """Item created"""
+  created: CsDateTime
+  description: String
   id: Int!
-  lastSeen: CsDateTime!
-  name: String!
   order: Int!
+
+  """Status"""
+  status: ChapterStatus
+  title: String!
+
+  """Item updated"""
+  updated: CsDateTime
+}
+
+input MFChapterUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+
+  """Parent Book"""
+  bookId: Int!
+  description: String
+
+  """Chapter ID"""
+  id: Int
+
+  """Sequence in book (if part of one"""
+  order: Int
+  scenes: [MFSceneUpsertInput!]
+  title: String!
 }
 
 """A significant actor in a `World`"""
 type MFCharacter {
   CharacterRelationship: [MFCharacterRelationship]
+  World: MFWorld
 
   """Author owner"""
   authorId: Int
@@ -133,6 +216,22 @@ input MFCharacterUpsertInput {
 
   """World ID"""
   worldId: Int!
+}
+
+input MFContentLinkUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+  bookId: Int!
+  chapterId: Int
+
+  """ContentLink ID"""
+  id: Int
+
+  """Link's scene of origin"""
+  originId: Int!
+  sceneId: Int
+  seriesId: Int
+  text: String! = "Mystery Link"
 }
 
 """
@@ -186,6 +285,20 @@ input MFEventUpsertInput {
   worldId: Int!
 }
 
+input MFGroupUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+  description: String!
+
+  """Group ID"""
+  id: Int
+  name: String!
+  type: GroupType!
+
+  """Parent world ID"""
+  worldId: Int!
+}
+
 """A fixed, recurring setting in a World. """
 type MFLocation {
   Characters: [MFCharacter]
@@ -196,12 +309,15 @@ type MFLocation {
 
   """Event Author"""
   authorId: Int
-  climate: Climate!
+  climate: Climate
   description: String!
-  fauna: Richness!
-  flora: Richness!
+  fauna: Richness
+  flora: Richness
   id: Int!
   name: String!
+
+  """Parent Location"""
+  parentLocationId: Int
 
   """Event target `World`"""
   worldId: Int!
@@ -223,25 +339,10 @@ input MFLocationUpsertInput {
   worldId: Int!
 }
 
-"""A single paragraph in a story. """
-type MFParagraph {
-  """Paragraph Author"""
-  authorId: Int
-
-  """Paragraph target `Character`"""
-  characterId: Int
-  id: Int!
-  order: Int!
-
-  """Paragraph parent `Scene`"""
-  sceneId: Int
-  text: String!
-}
-
 """A collection of `Characters` (e.g. profession or religion)"""
 type MFPopulationGroup {
-  Character: [MFCharacter]!
-  Event: [MFEvent]!
+  Character: [MFCharacter]
+  Event: [MFEvent]
 
   """Group Author"""
   authorId: Int
@@ -276,9 +377,9 @@ input MFRelationshipUpsertInput {
   targetId: Int!
 }
 
-"""A collecton of Story `Paragraphs`"""
+"""A chunk of story in a chapter`"""
 type MFScene {
-  Paragraphs: [MFParagraph]!
+  Links: [MFSceneContentLink]
 
   """Scene Author"""
   authorId: Int
@@ -288,38 +389,108 @@ type MFScene {
 
   """Scene target `Character`"""
   characterId: Int
-  description: String!
+
+  """Item created"""
+  created: CsDateTime
+  description: String
 
   """Main `Event` affecting `Scene`"""
   eventContextId: Int
   id: Int!
-
-  """Scene `Location` (setting)"""
-  locationId: Int!
-  name: String!
   order: Int!
+  text: String
 
-  """Context `Event` Timeline (optional)"""
+  """`Event` Context Timeline (optional)"""
   timelineId: Int
+  title: String!
+
+  """Item updated"""
+  updated: CsDateTime
+}
+
+"""A link to a piece of content"""
+type MFSceneContentLink {
+  authorId: Int
+  bookId: Int!
+  chapterId: Int
+  id: Int!
+  originId: Int!
+  sceneId: Int
+  seriesId: Int
+  text: String!
+}
+
+input MFSceneUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+
+  """Parent Chapter"""
+  chapterId: Int!
+
+  """Scene primary character"""
+  characterId: Int
+  description: String
+
+  """Scene event context"""
+  eventContextId: Int
+
+  """Scene ID"""
+  id: Int
+
+  """Sequence in chapter (if part of one"""
+  order: Int!
+  text: String!
+
+  """Scene event timeline"""
+  timelineId: Int
+  title: String!
 }
 
 """A collection of `Books` (e.g. a trilogy)"""
 type MFSeries {
-  Author: MFUser
+  Author: MFAuthor
   Books: [MFBook]!
 
   """Book Author/owner"""
   authorId: Int
+
+  """Item created"""
+  created: CsDateTime
   description: String!
+
+  """Series is free to read"""
+  free: Boolean!
   genre: String!
   id: Int!
-  order: Int
+
+  """Series is publicly visible"""
+  public: Boolean!
+
+  """Item published for public consumption"""
+  publishDate: CsDateTime
+  title: String!
+
+  """Item updated"""
+  updated: CsDateTime
+}
+
+input MFSeriesUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+  books: [MFBookUpsertInput!]
+  description: String!
+  free: Boolean = false
+  genre: String!
+
+  """Series ID"""
+  id: Int
+  public: Boolean = false
   title: String!
 }
 
 """A collection of Story `Scenes`"""
 type MFTimeline {
-  Author: MFUser
+  Author: MFAuthor
   Scenes: [MFScene]
   TimelineEvents: [MFTimelineEvent]
   World: MFWorld
@@ -382,13 +553,28 @@ input MFTimelineUpsertInput {
 
 """An Application user"""
 type MFUser {
+  Books: [MFBook]
+  Characters: [MFCharacter]
+  Series: [MFSeries]
+  Timelines: [MFTimeline]
+  Worlds: [MFWorld]
   authSource: Authenticator!
   created: CsDateTime!
   displayName: String!
   email: String!
+  firstName: String
   id: Int!
+  lastName: String
   lastSeen: CsDateTime!
   role: UserRole!
+}
+
+input MFUserUpsertInput {
+  displayName: String
+  email: String
+  firstName: String
+  lastName: String
+  password: String
 }
 
 """A collection of `Locations`"""
@@ -422,12 +608,17 @@ input MFWorldUpsertInput {
 }
 
 type Mutation {
+  deleteBook(id: Int!): MFBook
+  deleteChapter(id: Int!): MFChapter
   deleteCharacter(id: Int!): MFCharacter
+  deleteContentLink(id: Int!): MFSceneContentLink
 
   """Delete an `Event`"""
   deleteEvent(id: Int!): MFEvent
   deleteLocation(id: Int!): MFLocation
   deleteRelationship(id: Int!): MFCharacterRelationship
+  deleteScene(id: Int!): MFScene
+  deleteSeries(id: Int!): MFSeries
 
   """Delete a `Timeline` and all its events"""
   deleteTimeline(id: Int!): MFTimeline
@@ -435,10 +626,24 @@ type Mutation {
   """Delete a `TimelineEvent`"""
   deleteTimelineEvent(id: Int!): MFTimelineEvent
   deleteWorld(id: Int!): MFWorld
+  publishBook(id: Int!): MFBook
+  publishSeries(id: Int!): MFSeries
+
+  """Update user info"""
+  updateUser(data: MFUserUpsertInput!, id: Int!): MFAuthor
+  upsertBook(
+    """The data to create a new book"""
+    data: MFBookUpsertInput!
+  ): MFBook
+  upsertChapter(
+    """The data to create a new chapter"""
+    data: MFChapterUpsertInput!
+  ): MFChapter
   upsertCharacter(
     """The data to create a new character"""
     data: MFCharacterUpsertInput!
   ): MFCharacter
+  upsertContentLinks(data: [MFContentLinkUpsertInput!]): [MFSceneContentLink]
 
   """Create or update one or more `Events`"""
   upsertEvents(data: [MFEventUpsertInput]!): [MFEvent]
@@ -450,6 +655,14 @@ type Mutation {
     """The data to create a new character relationship"""
     data: [MFRelationshipUpsertInput!]!
   ): [MFCharacterRelationship]
+  upsertScene(
+    """The data to create a new scene"""
+    data: MFSceneUpsertInput!
+  ): MFScene
+  upsertSeries(
+    """The data to create a new series"""
+    data: MFSeriesUpsertInput!
+  ): MFSeries
 
   """Create a new `Timeline` along with its events"""
   upsertTimeline(data: MFTimelineUpsertInput!): MFTimeline
@@ -463,18 +676,27 @@ type Mutation {
 }
 
 type Query {
+  getBookById(id: Int!): MFBook
+  getChapterById(id: Int!): MFChapter
   getCharacterById(id: Int!): MFCharacter
+  getContentLink(id: Int!): MFSceneContentLink
   getEventById(id: Int!): MFEvent
   getLocationById(id: Int!): MFLocation
   getRelationshipById(id: Int!): MFCharacterRelationship
+  getSceneById(id: Int!): MFScene
+  getSeriesById(id: Int!): MFSeries
   getTimelineById(id: Int!): MFTimeline
+  getWorld(id: Int!): MFWorld
   getWorldById(id: Int!): MFWorld
-  listAuthorTimelines(authorId: Int!): [MFTimeline]
+  listBookPublications(authorId: Int, description: String, freeOnly: Boolean = false, genre: String, seriesId: Int, title: String): [MFBook]
+  listBooks(authorId: Int, description: String, free: Boolean = false, genre: String, public: Boolean = false, seriesId: Int, title: String): [MFBook]
+  listChapters(authorId: Int, bookId: Int!, description: String, id: [Int!], title: String): [MFChapter]
 
   """
   List/filter multiple `Characters`. Author can view their own characters, a reader can view public characters
   """
   listCharacters(authorId: Int, description: String, id: Int, name: String, worldId: Int): [MFCharacter]
+  listContentLinks(authorId: Int, bookId: Int, chapterId: Int, sceneId: Int, seriesId: Int, text: String): [MFSceneContentLink]
 
   """
   List/filter multiple `Locations`. Author can view their own locations, a reader can view public locations
@@ -483,6 +705,9 @@ type Query {
 
   """List/filter multiple `Character Relationships`."""
   listRelationships(characterId: Int, id: Int, relationship: String, targetId: Int): [MFCharacterRelationship]
+  listScenes(authorId: Int, chapterId: Int!, description: String, id: [Int!], text: String, title: String): [MFScene]
+  listSeries(authorId: Int, description: String, freeOnly: Boolean, genre: String, publicOnly: Boolean, title: String): [MFSeries]
+  listSeriesPublications(authorId: Int, description: String, genre: String, title: String): [MFSeries]
   listTimelineEvents(timelineId: Int!): [MFTimelineEvent]
   listTimelines(authorId: Int, name: String, worldId: Int): [MFTimeline]
   listWorldEvents(authorId: Int, characterId: Int, description: String, groupId: Int, locationId: Int, name: String, polarity: EventPolarity, target: EventTarget, worldId: Int): [MFEvent]
@@ -499,11 +724,14 @@ enum Richness {
   Adequate
   Barren
   Sparse
+  Unspecified
 }
 
 """A type of application user"""
 enum UserRole {
+  Admin
   Author
+  Moderator
   Reader
 }
 

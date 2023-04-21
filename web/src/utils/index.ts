@@ -1,3 +1,7 @@
+/**
+ * @module Utils
+ * @description Export all utility functions and constants from here
+ */
 import { APP_VERSION, APP_VERSION_KEY } from "./constants";
 import { UserRole, APIData } from "./types";
 
@@ -13,6 +17,7 @@ export async function checkVersionChanged() {
 
 /** Merge two arrays of `APIData` data, preferring the second */
 export function mergeLists<T extends APIData<any>>(a: T[], b: T[]): T[] {
+  if (!a.length) return [...b];
   const next = [...a];
   b.forEach((item: any) => {
     const x = next.findIndex((l: any) => l.id === item.id);
@@ -47,7 +52,17 @@ export function requireAuthor(
  * Stop propagation and prevent default on a mouse event
  * @param e React mouse event
  */
-export function suppressEvent(e: React.MouseEvent) {
+export function suppressEvent(e: React.MouseEvent | React.FormEvent) {
   e.preventDefault();
   e.stopPropagation();
+  if (e.nativeEvent) e.nativeEvent.stopImmediatePropagation();
+}
+
+/** Shortens string to `XXXX...XXXX`; padding determined by optional `pad` parameter */
+export function truncateString(str?: string | null, pad = 6): string {
+  if (!str) return "";
+  if (str.length <= pad) return str;
+  const { length } = str;
+  const start = str.substring(0, pad);
+  return `${start}...${str.substring(length - pad, length)}`;
 }

@@ -8,24 +8,26 @@ export const MFUser = objectType({
     t.nonNull.int("id");
     t.nonNull.string("email");
     t.nonNull.string("displayName");
+    t.string("firstName");
+    t.string("lastName");
     t.nonNull.field("authSource", { type: "Authenticator" });
     t.nonNull.field("role", { type: "UserRole" });
     t.nonNull.field("created", { type: "CsDateTime" });
     t.nonNull.field("lastSeen", { type: "CsDateTime" });
 
-    // List properties 
-    // t.list.field("Books", { type: "MFBook" });
+    // List properties
+    t.list.field("Series", { type: "MFSeries" });
+    t.list.field("Books", { type: "MFBook" });
+    t.list.field("Characters", { type: "MFCharacter" });
+    t.list.field("Timelines", { type: "MFTimeline" });
+    t.list.field("Worlds", { type: "MFWorld" });
+
     // t.list.field("Chapters", { type: "MFChapter" });
-    // t.list.field("Characters", { type: "MFCharacter" });
     // t.list.field("Events", { type: "MFEvent" });
     // t.list.field("Groups", { type: "MFGroup" });
     // t.list.field("Locations", { type: "MFLocation" });
-    // t.list.field("Paragraphs", { type: "MFParagraph" });
     // t.list.field("Scenes", { type: "MFScene" });
 
-    // t.list.field("Series", { type: "MFSeries" });
-    // t.list.field("Timelines", { type: "MFTimeline" });
     // t.list.field("TimelineEvents", { type: "MFTimelineEvent" });
-    // t.list.field("Worlds", { type: "MFWorld" });
   }
 });

@@ -193,6 +193,7 @@ export type Chapter = {
   title: string;
   description: string;
   Scenes: APIData<Scene>[];
+  Links: APIData<ContentLink>[];
 } & AuthorRelation &
   BookRelation;
 
@@ -214,6 +215,17 @@ export type CharacterRelationship = {
   relationship: string;
 } & CharacterRelation &
   AuthorRelation;
+
+/** A `ContentLink` allows an author to link to a book scene */
+export type ContentLink = {
+  bookId: number;
+  text: string;
+  originId: number;
+  seriesId?: number;
+  chapterId?: number;
+  sceneId?: number;
+  authorId?: number;
+};
 
 /** `Event` (`WorldEvent` in UI) is a significant `World` occurrence */
 export type WorldEvent = {
@@ -262,6 +274,7 @@ export type Scene = {
   Chapter?: APIData<Chapter>;
   eventContextId?: number;
   EventContext: APIData<TimelineEvent>;
+  Links: APIData<ContentLink>[]; // ( references ContentLink  )
 } & AuthorRelation &
   CharacterRelation &
   LocationRelation &

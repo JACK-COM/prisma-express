@@ -7,7 +7,6 @@ import {
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import {
-  GlobalLibrary,
   clearGlobalModal,
   removeNotification,
   updateAsError,
@@ -58,7 +57,7 @@ export default function ManageSceneModal(props: ManageSceneModalProps) {
 
     // Notify
     if (resp) {
-      updateChaptersState([resp])
+      updateChaptersState([resp]);
       // GlobalLibrary.multiple({ focusedScene, chapters, scenes });
       onClose();
     } else err("Did not create scene: please check your entries.");

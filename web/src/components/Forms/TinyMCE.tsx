@@ -82,6 +82,7 @@ function prepInitOpts(opts: TinyMCEProps) {
     value: "",
     onChange: noOp,
     height: 500,
+    autosave_restore_when_empty: true,
     toolbar:
       "preview restoredraft | undo redo | blocks | " +
       "removeformat | bold italic forecolor | alignleft aligncenter " +

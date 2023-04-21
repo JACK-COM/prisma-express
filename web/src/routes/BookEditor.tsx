@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Card, CardTitle } from "components/Common/Containers";
+import { Card, CardTitle, GridContainer } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths, insertId } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { APIData, Chapter, Scene } from "utils/types";
+import { APIData, Chapter, Scene, UserRole } from "utils/types";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
 import {
   GlobalLibrary,
@@ -22,6 +22,8 @@ import ModalDrawer from "components/Modals/ModalDrawer";
 import TinyMCE from "components/Forms/TinyMCE";
 import { useGlobalWindow } from "hooks/GlobalWindow";
 import { upsertScene } from "graphql/requests/books.graphql";
+import { ChaptersIcon } from "components/ComponentIcons";
+import { useGlobalUser } from "hooks/GlobalUser";
 
 const { Library } = Paths;
 const Ellipsis = styled.span`
@@ -37,11 +39,19 @@ const EditorTitle = styled(CardTitle)`
   grid-template-columns: max-content auto;
   gap: ${({ theme }) => theme.sizes.sm};
 `;
+const SpanGrid = styled.span`
+  align-items: stretch;
+  display: grid;
+  grid-template-columns: 32px auto;
+  > .material-icons {
+    height: 100%;
+    padding: ${({ theme }) => `${theme.sizes.xs} ${theme.sizes.xxs}`} 0;
+    padding-left: ${({ theme }) => theme.sizes.xs};
+  }
+`;
 
 /** ROUTE: List of worlds */
 const BooksEditorRoute = () => {
-  const { height } = useGlobalWindow();
-  const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const {
     chapters = [],
     focusedBook,
@@ -53,22 +63,24 @@ const BooksEditorRoute = () => {
     "focusedScene",
     "focusedBook"
   ]);
+  const { height } = useGlobalWindow();
+  const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
+  const { id: userId } = useGlobalUser(["id"]);
   const { bookId } = useParams<{ bookId: string }>();
   const previewUrl = useMemo(
     () => (bookId ? insertId(Paths.Library.BookPreview.path, bookId) : "#"),
     [bookId]
   );
   const [draft, updateDraft] = useState(focusedScene?.text || "");
-  const [pageTitle, chapterTitle, sceneName] = useMemo(
-    () => [
+  const [pageTitle, chapterTitle, sceneName, role] = useMemo(() => {
+    const { title: chTitle, order: chOrder } = focusedChapter || {};
+    return [
       focusedBook?.title || Library.BookEditor.text,
-      focusedChapter
-        ? `${focusedChapter.order}. ${focusedChapter.title}`
-        : "No chapter selected",
-      focusedScene?.title || ""
-    ],
-    [focusedBook, focusedChapter, focusedScene, active]
-  );
+      focusedChapter ? `${chOrder}. ${chTitle}` : "No chapter selected",
+      focusedScene?.title || "",
+      (focusedBook?.authorId === userId ? "Author" : "Reader") as UserRole
+    ];
+  }, [focusedBook, focusedChapter, focusedScene, active]);
   const pageSubtitle = useMemo(
     () => `${chapterTitle}${sceneName ? ` - ${sceneName}` : ""}`,
     [chapterTitle, sceneName]
@@ -83,15 +95,9 @@ const BooksEditorRoute = () => {
     clearGlobalModal();
     clearGlobalBooksState();
   };
-  const focusChapter = async (chapter: APIData<Chapter>) => {
-    if (!chapter.Scenes?.length) {
-      const { focusedScene: scene } = await loadChapter(chapter.id);
-      if (scene) updateDraft(scene.text);
-    } else {
-      const scenes = chapter.Scenes;
-      setGlobalChapter(chapter);
-      updateDraft(scenes[0].text);
-    }
+  const focusChapter = async (ch: APIData<Chapter>) => {
+    const { focusedScene } = await loadChapter(ch.id);
+    updateDraft(focusedScene?.text || "");
     clearGlobalModal();
   };
   const focusScene = async (scene: APIData<Scene>) => {
@@ -122,7 +128,12 @@ const BooksEditorRoute = () => {
 
   return (
     <PageLayout
-      title={pageTitle}
+      title={
+        <SpanGrid>
+          <ChaptersIcon permissions={role} />
+          {pageTitle}
+        </SpanGrid>
+      }
       breadcrumbs={[Library.Index, Library.BookEditor]}
       id="books-list"
       description={
@@ -134,10 +145,10 @@ const BooksEditorRoute = () => {
       <EditorTitle>
         <ButtonWithIcon
           type="button"
-          icon="segment"
+          icon="add_link"
           text=""
           variant="transparent"
-          onClick={() => setGlobalModal(MODAL.SELECT_CHAPTER)}
+          onClick={() => setGlobalModal(MODAL.LINK_SCENE)}
         />
         <Ellipsis>{pageSubtitle}</Ellipsis>
       </EditorTitle>

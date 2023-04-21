@@ -32,6 +32,8 @@ export interface DBContext {
   Characters: PrismaClient["character"];
   /** `Character Relationships` table */
   CharacterRelationships: PrismaClient["characterRelationship"];
+  /** `Content Link` table */
+  ContentLinks: PrismaClient["sceneContentLink"];
   /** `Events` table */
   Events: PrismaClient["event"];
   /** `Library` table */
@@ -66,6 +68,7 @@ export const context: DBContext = {
   Chapters: db.chapter,
   Characters: db.character,
   CharacterRelationships: db.characterRelationship,
+  ContentLinks: db.sceneContentLink,
   Events: db.event,
   Libraries: db.library,
   Locations: db.location,

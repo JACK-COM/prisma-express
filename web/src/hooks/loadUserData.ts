@@ -91,6 +91,7 @@ export async function loadChapter(chapterId: number, skipUpdates = false) {
 
   const updates = updateChaptersState([focusedChapter], true);
   updates.focusedChapter = focusedChapter;
+  updates.focusedScene = focusedChapter.Scenes[0] || null;
   if (!skipUpdates) GlobalLibrary.multiple(updates);
   return updates;
 }
@@ -118,8 +119,7 @@ export async function loadBook(bookId: number) {
     focusedScene
   };
   if (chapters.length) {
-    // If user has chapters, load the most-recent one
-    const last = chapters[chapters.length - 1];
+    const last = chapters[0];
     const { focusedChapter } = await loadChapter(last.id, true);
     allUpdates.focusedChapter = focusedChapter;
     allUpdates.focusedScene = focusedChapter?.Scenes[0] || null;

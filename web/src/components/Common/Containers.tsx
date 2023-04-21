@@ -36,6 +36,10 @@ export const CardTitle = styled.h4`
   height: 2.5em;
   line-height: 2.5em;
 `;
+export const CardSubitle = styled.h5`
+  height: 2.1em;
+  line-height: 2.1em;
+`;
 
 /** Page or View description element */
 export const Description = styled.p<{ lines?: number }>`

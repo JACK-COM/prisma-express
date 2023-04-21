@@ -2,19 +2,27 @@ import { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import {
   Card,
+  CardSubitle,
   CardTitle,
   Description,
-  GridContainer
+  GridContainer,
+  ItemGridContainer
 } from "components/Common/Containers";
 import { Paths } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
-import { GlobalLibrary, setGlobalChapter, setGlobalScene } from "state";
+import {
+  GlobalLibrary,
+  setGlobalChapter,
+  setGlobalScene,
+  updateAsError
+} from "state";
 import PageLayout from "components/Common/PageLayout";
 import ChaptersList from "components/List.Chapters";
 import { useParams } from "react-router";
-import { loadBook } from "hooks/loadUserData";
-import { APIData, Chapter } from "utils/types";
+import { loadBook, loadChapter } from "hooks/loadUserData";
+import { APIData, Chapter, ContentLink } from "utils/types";
+import { TallIcon } from "components/ComponentIcons";
 
 const { Library } = Paths;
 const PreviewGrid = styled(GridContainer)`
@@ -35,11 +43,11 @@ const BookPreviewRoute = () => {
   const { bookId } = useParams<{ bookId: string }>();
   const [pageTitle, sectionTitle, sectionText] = useMemo(() => {
     const title = focusedBook?.title || Library.BookPreview.text;
-    if (focusedChapter) {
+    if (focusedChapter && focusedScene) {
       const txt = focusedScene
         ? focusedScene.text || "No text in scene"
         : "No scene selected";
-      const { order, title: cTitle } = focusedChapter as Chapter;
+      const { order, title: cTitle } = focusedChapter;
       return [title, `${order}. ${cTitle}`, txt];
     }
 
@@ -50,6 +58,20 @@ const BookPreviewRoute = () => {
   };
   const loadComponentData = async () => {
     if (bookId) await loadBook(Number(bookId));
+  };
+  const goToLink = async (link: APIData<ContentLink>) => {
+    if (!link.chapterId) return updateAsError("No chapter ID in link");
+    if (link.bookId !== focusedBook?.id) {
+      return updateAsError("Book ID mismatch");
+    }
+
+    const updates = await loadChapter(link.chapterId, true);
+    const { focusedChapter } = updates;
+    if (link.sceneId) {
+      const scene = focusedChapter?.Scenes.find((s) => s.id === link.sceneId);
+      if (scene) updates.focusedScene = scene;
+    }
+    GlobalLibrary.multiple(updates);
   };
 
   useEffect(() => {
@@ -85,9 +107,28 @@ const BookPreviewRoute = () => {
         {/* Overview/Summary */}
         <section>
           <Card>
-            <CardTitle>{sectionTitle}</CardTitle>
+            <CardTitle style={{ display: "grid", gridTemplateColumns: "auto" }}>
+              <span>{sectionTitle}</span>
+            </CardTitle>
+            {focusedScene && <CardSubitle>{focusedScene.title}</CardSubitle>}
             <section dangerouslySetInnerHTML={{ __html: sectionText }} />
           </Card>
+
+          <hr />
+
+          {/* Scene ContentLinks */}
+          {focusedScene?.Links &&
+            focusedScene?.Links.map((link) => (
+              <ItemGridContainer
+                className="accent--text"
+                onClick={() => goToLink(link)}
+                permissions="Reader"
+                key={link.id}
+              >
+                <TallIcon permissions="Reader" icon="link" />
+                <b>{link.text}</b>
+              </ItemGridContainer>
+            ))}
         </section>
 
         {/* Chapters */}
@@ -95,7 +136,7 @@ const BookPreviewRoute = () => {
           title="Chapters"
           emptyText="There are no chapters in this book."
           chapters={chapters}
-          onSelectChapter={setGlobalChapter}
+          onSelectChapter={(ch) => loadChapter(ch.id)}
           onSelectScene={setGlobalScene}
         />
       </PreviewGrid>

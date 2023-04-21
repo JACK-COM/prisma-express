@@ -7,13 +7,15 @@ import {
   Chapter,
   Scene,
   Series,
-  ArrayKeys
+  ArrayKeys,
+  ContentLink
 } from "utils/types";
 
 /* Convenience */
 type APIPurchase = APIData<LibraryPurchase>;
 type APIBook = APIData<Book>;
 type APIChapter = APIData<Chapter>;
+type APIContentLinks = APIData<ContentLink>;
 type APIScene = APIData<Scene>;
 type APISeries = APIData<Series>;
 /* Convenience */
@@ -38,7 +40,9 @@ export const GlobalLibrary = createState({
   /** All `Library Purchases` */
   library: [] as APIPurchase[],
   /** All `Chapters` in focused book */
-  chapters: [] as APIChapter[]
+  chapters: [] as APIChapter[],
+  /** All `ContentLinks` for focused chapter */
+  contentLinks: [] as APIContentLinks[]
 });
 
 export type GlobalLibraryInstance = ReturnType<typeof GlobalLibrary.getState>;
@@ -128,17 +132,17 @@ export function updateChaptersState(chaps: APIChapter[], skipUpdate = false) {
   // re-focus chapter and scene if they exist
   const newChapters = additional.chapters;
   const { focusedChapter, focusedScene } = GlobalLibrary.getState();
-  if (focusedChapter) {
-    const newChapter =
-      newChapters.find(({ id }) => id === focusedChapter.id) || focusedChapter;
-    additional.focusedChapter = newChapter;
+
+  if (focusedScene?.id) {
+    const chapter = newChapters.find(({ id }) => id === focusedScene.chapterId);
+    const scene = chapter?.Scenes.find(({ id }) => id === focusedScene.id);
+    additional.focusedChapter = chapter || null;
+    additional.focusedScene = scene || null;
+  } else if (focusedChapter?.id) {
+    const chapter = newChapters.find(({ id }) => id === focusedChapter.id);
+    additional.focusedChapter = chapter || null;
+    additional.focusedScene = null;
   }
-  const newScenes = additional.focusedChapter?.Scenes || [];
-  const newScene = newScenes[0] || null;
-  if (focusedScene) {
-    additional.focusedScene =
-      newScenes.find(({ id }) => id === focusedScene?.id) || newScene;
-  } else additional.focusedScene = newScene;
 
   if (!skipUpdate) GlobalLibrary.multiple(additional);
   return additional;

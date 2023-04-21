@@ -17,5 +17,8 @@ export const MFScene = objectType({
     t.int("timelineId", { description: "`Event` Context Timeline (optional)" });
     t.field("created", { type: "CsDateTime", description: "Item created" });
     t.field("updated", { type: "CsDateTime", description: "Item updated" });
+
+    // lists
+    t.list.field("Links", { type: "MFSceneContentLink" });
   }
 });

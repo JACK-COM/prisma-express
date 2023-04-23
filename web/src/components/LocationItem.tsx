@@ -7,33 +7,51 @@ import {
   MatIcon
 } from "components/Common/Containers";
 import { TallIcon } from "./ComponentIcons";
+import ListView from "./Common/ListView";
+import styled from "styled-components";
+import { useMemo } from "react";
+import { GlobalUser } from "state";
 
 type LocationItemProps = {
   world: APIData<World>;
   location: APIData<Location>;
+  childLocations?: APIData<Location>[];
   onEdit?: (w: APIData<Location>) => void;
   onSelect?: (w: APIData<Location>) => void;
   permissions?: UserRole;
 };
 
+const LocationContainer = styled(ItemGridContainer)`
+  .child-locations {
+    grid-column: 1 / -1;
+    grid-row: 4 / 6;
+  }
+`;
+
 const LocationItem = ({
   world,
   location,
+  childLocations = [],
   onSelect = noOp,
-  onEdit = noOp,
-  permissions = "Reader"
+  onEdit = noOp
 }: LocationItemProps) => {
   const { public: isPublic } = world;
-  const isAuthor = permissions === "Author";
+  const { id: authorId } = GlobalUser.getState();
+  const isAuthor = location.authorId === authorId;
+  const permissions: UserRole = isAuthor ? "Author" : "Reader";
   const iconClass = isPublic ? "icon success--text" : "icon error--text";
   const title = isPublic ? "Public Location" : "Private Location";
   const edit = requireAuthor(() => onEdit(location), permissions);
   const select = requireAuthor(() => onSelect(location), permissions);
+  const icon = useMemo(() => {
+    if (!isAuthor) return "lock";
+    return location.parentLocationId ? "pin_drop" : "map";
+  }, [location]);
 
   return (
-    <ItemGridContainer onClick={select} permissions={permissions}>
+    <LocationContainer onClick={select} permissions={permissions}>
       <TallIcon
-        icon={isAuthor ? "pin_drop" : "lock"}
+        icon={icon}
         permissions={permissions}
         className={iconClass}
         title={title}
@@ -44,9 +62,26 @@ const LocationItem = ({
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </ItemName>
       <ItemDescription
-        dangerouslySetInnerHTML={locationDescription(location)}
+        dangerouslySetInnerHTML={locationDescription(location, childLocations)}
       />
-    </ItemGridContainer>
+
+      {/* Child Locations */}
+      {childLocations.length > 0 && (
+        <ListView
+          className="child-locations"
+          data={childLocations}
+          itemText={(l) => (
+            <LocationItem
+              world={world}
+              location={l}
+              onEdit={onEdit}
+              onSelect={onSelect}
+              permissions={permissions}
+            />
+          )}
+        />
+      )}
+    </LocationContainer>
   );
 };
 
@@ -55,8 +90,12 @@ export default LocationItem;
 /* HELPER */
 
 /** Describe a location by its qualities */
-function locationDescription(location: Location) {
-  const toHTML = (str: string) => ({ __html: str });
+function locationDescription(location: Location, childLocations: Location[]) {
+  const children = childLocations.length;
+  const childCount = children
+    ? ` (${children} ${children === 1 ? "place" : "places"})`
+    : "";
+  const toHTML = (str: string) => ({ __html: `${childCount} ${str}` });
   if (location.description !== "No description.")
     return toHTML(location.description);
 

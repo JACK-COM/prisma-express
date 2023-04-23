@@ -2,6 +2,7 @@
  * @file worlds.graphql.ts
  * @description GraphQL requests relating to `Worlds` and `Locations`.
  */
+import sortby from "lodash.sortby";
 import fetchGQL from "graphql/fetch-gql";
 import {
   deleteWorldMutation,
@@ -11,7 +12,8 @@ import {
 import {
   getWorldQuery,
   listWorldsQuery,
-  listLocationsQuery
+  listLocationsQuery,
+  getLocationQuery
 } from "graphql/queries";
 import { APIData, Location, World } from "utils/types";
 
@@ -19,14 +21,20 @@ import { APIData, Location, World } from "utils/types";
 export type CreateWorldData = {
   id?: number;
   authorId?: number;
-} & Pick<World, "public" | "name" | "description" | "type">;
+} & Pick<World, "public" | "name" | "parentWorldId" | "description" | "type">;
 
 /** Data required to create a location */
 export type CreateLocationData = {
   id?: number;
 } & Pick<
   Location,
-  "name" | "description" | "climate" | "flora" | "fauna" | "worldId"
+  | "name"
+  | "description"
+  | "climate"
+  | "parentLocationId"
+  | "flora"
+  | "fauna"
+  | "worldId"
 >;
 
 // Fetch a single `World` by ID
@@ -47,7 +55,8 @@ export async function upsertWorld(raw: Partial<CreateWorldData>) {
     description: raw.description,
     public: raw.public,
     type: raw.type,
-    authorId: raw.authorId
+    authorId: raw.authorId,
+    parentWorldId: raw.parentWorldId || undefined
   };
   const newWorld = await fetchGQL<APIData<World> | null>({
     query: upsertWorldMutation(),
@@ -71,10 +80,20 @@ export async function deleteWorld(worldId: number) {
   return respWorld;
 }
 
+// Fetch a single `Location` by ID
+export async function getLocation(locationId: number) {
+  const locations = await fetchGQL<APIData<Location>[]>({
+    query: getLocationQuery(),
+    variables: { id: locationId },
+    onResolve: ({ listLocations: list }) => list,
+    fallbackResponse: []
+  });
+
+  return locations[0];
+}
+
 // Use fetchGQL to create a `Location` on the server
-export async function createOrUpdateLocation(
-  data: Partial<CreateLocationData>
-) {
+export async function upsertLocation(data: Partial<CreateLocationData>) {
   const newLocation = await fetchGQL<APIData<Location> | null>({
     query: upsertLocationMutation(),
     variables: { data },
@@ -91,14 +110,24 @@ type WorldFilters = Pick<
   "id" | "public" | "name" | "description" | "type" | "authorId"
 >;
 export async function listWorlds(filters: Partial<WorldFilters> = {}) {
-  const newWorld = await fetchGQL<APIData<World>[]>({
+  const unsortedWorlds = await fetchGQL<APIData<World>[]>({
     query: listWorldsQuery(),
     variables: { ...filters },
     onResolve: ({ listWorlds: list }) => list,
     fallbackResponse: []
   });
 
-  return newWorld;
+  if (!unsortedWorlds?.length) return [];
+  if (!filters.authorId) return unsortedWorlds;
+  const userWorlds: APIData<World>[] = [];
+  const publicWorlds: APIData<World>[] = [];
+
+  unsortedWorlds.forEach((world) => {
+    if (world.authorId === filters.authorId) userWorlds.push(world);
+    else publicWorlds.push(world);
+  });
+
+  return [...sortby(userWorlds, ["public", "name"]), ...publicWorlds];
 }
 
 // Use fetchGQL to list all `Locations` on a world (with optional filters)

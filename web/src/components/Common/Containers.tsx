@@ -13,6 +13,8 @@ type FlexContainerProps = {
   padded?: boolean;
 };
 
+export const Accent = styled.span.attrs({ className: "accent--text" })``;
+
 export const ExLink = styled.a.attrs({
   target: "_blank",
   rel: "noopener noreferrer"

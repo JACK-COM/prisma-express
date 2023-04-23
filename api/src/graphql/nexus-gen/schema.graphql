@@ -302,10 +302,11 @@ input MFGroupUpsertInput {
 """A fixed, recurring setting in a World. """
 type MFLocation {
   Characters: [MFCharacter]
+  ChildLocations: [MFLocation]
   Events: [MFEvent]
   Groups: [MFPopulationGroup]
-  Scenes: [MFScene]
-  World: [MFWorld]
+  ParentLocation: MFLocation
+  World: MFWorld
 
   """Event Author"""
   authorId: Int
@@ -316,7 +317,7 @@ type MFLocation {
   id: Int!
   name: String!
 
-  """Parent Location"""
+  """Parent Location id (optional)"""
   parentLocationId: Int
 
   """Event target `World`"""
@@ -334,6 +335,9 @@ input MFLocationUpsertInput {
   """Location ID"""
   id: Int
   name: String!
+
+  """Parent location (optional)"""
+  parentLocationId: Int
 
   """Parent world ID"""
   worldId: Int!
@@ -589,6 +593,9 @@ type MFWorld {
   description: String!
   id: Int!
   name: String!
+
+  """Optional world parent"""
+  parentWorldId: Int
   public: Boolean!
   type: WorldType!
 }
@@ -601,6 +608,9 @@ input MFWorldUpsertInput {
   """World ID"""
   id: Int
   name: String!
+
+  """Parent world (optional)"""
+  parentWorldId: Int
 
   """Is this world public?"""
   public: Boolean = false

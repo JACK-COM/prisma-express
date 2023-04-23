@@ -1,6 +1,6 @@
 import { ChangeEvent } from "react";
 import { noOp } from "../utils";
-import { World, WorldType } from "../utils/types";
+import { WorldType } from "../utils/types";
 import {
   Form,
   FormRow,
@@ -11,10 +11,11 @@ import {
   RadioInput,
   RadioLabel,
   Select,
-  Textarea,
   TinyMCE
 } from "components/Forms/Form";
 import { CreateWorldData } from "graphql/requests/worlds.graphql";
+import { Accent } from "./Common/Containers";
+import { GlobalWorld } from "state";
 
 export type CreateWorldProps = {
   data?: Partial<CreateWorldData>;
@@ -27,10 +28,14 @@ const worldTypes = [WorldType.Universe, WorldType.Realm, WorldType.Other];
 /** Create or edit a `World` */
 const CreateWorldForm = (props: CreateWorldProps) => {
   const { data, onChange = noOp } = props;
+  const { worlds } = GlobalWorld.getState();
   const updatePublic = (e: boolean) => onChange({ ...data, public: e });
   const updateType = (type: WorldType) => onChange({ ...data, type });
   const updateDescription = (description: string) => {
     onChange({ ...data, description });
+  };
+  const updateParent = (pwid: string) => {
+    onChange({ ...data, parentWorldId: Number(pwid) });
   };
   const updateTitle = (e: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...data, name: e.target.value });
@@ -48,61 +53,84 @@ const CreateWorldForm = (props: CreateWorldProps) => {
       </Hint>
 
       {/* Name */}
-      <Label direction="column">
-        <span className="label required">World Name</span>
-        <Input
-          placeholder="The Plains of Omarai"
-          type="text"
-          value={data?.name || ""}
-          onChange={updateTitle}
-        />
-      </Label>
+      <FormRow>
+        <Label direction="column">
+          <span className="label required">
+            World <span className="accent--text">Name</span>
+          </span>
+          <Input
+            placeholder="The Plains of Omarai"
+            type="text"
+            value={data?.name || ""}
+            onChange={updateTitle}
+          />
+        </Label>
+
+        {/* Parent World */}
+        <Label direction="column">
+          <span className="label">
+            Is it in another <Accent>World</Accent>?
+          </span>
+          <Select
+            data={worlds}
+            value={data?.parentWorldId || ""}
+            itemText={(d) => d.name}
+            itemValue={(d) => d.id}
+            placeholder="Select Parent World (optional):"
+            onChange={updateParent}
+          />
+        </Label>
+      </FormRow>
       <Hint>Enter a name for your world.</Hint>
 
-      {/* Public/Private */}
-      <Label direction="column">
-        <span className="label">Is this world public?</span>
-        <Hint>
-          Select <b>Public</b> if you would like other users to see and build on
-          this idea.
-        </Hint>
+      <FormRow>
+        {/* World Type */}
+        <Label direction="column">
+          <span className="label required">
+            What <Accent>type</Accent> of World is it?
+          </span>
+          <Select
+            data={worldTypes}
+            value={data?.type || ""}
+            itemText={(d) => d.valueOf()}
+            itemValue={(d) => d}
+            placeholder="Select a World Type:"
+            onChange={updateType}
+          />
+        </Label>
 
-        <FormRow>
-          <RadioLabel>
-            <span>Public</span>
-            <RadioInput
-              checked={data?.public || false}
-              name="isPublic"
-              onChange={() => updatePublic(true)}
-            />
-          </RadioLabel>
-          <RadioLabel>
-            <span>Private</span>
-            <RadioInput
-              checked={!data?.public}
-              name="isPublic"
-              onChange={() => updatePublic(false)}
-            />
-          </RadioLabel>
-        </FormRow>
-      </Label>
+        {/* Public/Private */}
+        <Label direction="column">
+          <span className="label">
+            Is this world <Accent>public</Accent>?
+          </span>
 
-      {/* Type */}
-      <Label direction="column">
-        <span className="label required">What type of World is it?</span>
-        <Select
-          data={worldTypes}
-          value={data?.type || ""}
-          itemText={(d) => d.valueOf()}
-          itemValue={(d) => d}
-          placeholder="Select a World Type:"
-          onChange={updateType}
-        />
-      </Label>
+          <FormRow>
+            <RadioLabel>
+              <span>Public</span>
+              <RadioInput
+                checked={data?.public || false}
+                name="isPublic"
+                onChange={() => updatePublic(true)}
+              />
+            </RadioLabel>
+            <RadioLabel>
+              <span>Private</span>
+              <RadioInput
+                checked={!data?.public}
+                name="isPublic"
+                onChange={() => updatePublic(false)}
+              />
+            </RadioLabel>
+          </FormRow>
+        </Label>
+      </FormRow>
       <Hint>
-        Select <b>Realm</b> if e.g. you've got a mystical or transdimensional
-        space.
+        Select <b>Realm</b> if you are creating a mystical or transdimensional
+        space. You can set the world <b>Public</b> if you would like other users
+        to add locations and characters to it.
       </Hint>
+      <hr />
 
       {/* Description */}
       <Label direction="column">

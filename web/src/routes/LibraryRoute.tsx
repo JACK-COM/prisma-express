@@ -24,6 +24,12 @@ const LibraryRoute = () => {
         path={trimParent(Library.BookPreview.path, "library")}
         element={<BookPreviewRoute />}
       />
+
+      <Route
+        // Book deep-link (to chapter/scene)
+        path={trimParent(Library.BookDeepLink.path, "library")}
+        element={<BookPreviewRoute />}
+      />
     </Routes>
   );
 };

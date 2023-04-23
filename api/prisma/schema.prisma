@@ -234,6 +234,11 @@ model Location {
   authorId         Int?
   parentLocationId Int? // ( references Location | nullable )
   worldId          Int // ( references World )
+  northOf          Int? // ( references Location | nullable )
+  southOf          Int? // ( references Location | nullable )
+  eastOf           Int? // ( references Location | nullable )
+  westOf           Int? // ( references Location | nullable )
+  near             Int? // ( references Location | nullable )
   climate          Climate?          @default(Unspecified)
   fauna            Richness?         @default(Unspecified)
   flora            Richness?         @default(Unspecified)
@@ -327,18 +332,19 @@ model TimelineEvent {
 
 // A world is a super-set of locations
 model World {
-  id          Int               @id @default(autoincrement())
-  public      Boolean           @default(true)
-  name        String
-  description String
-  type        WorldType         @default(Universe)
-  authorId    Int?
-  Locations   Location[]
-  Timelines   Timeline[]
-  Events      Event[]
-  Groups      PopulationGroup[]
-  Characters  Character[]
-  Author      User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  id            Int               @id @default(autoincrement())
+  public        Boolean           @default(true)
+  name          String
+  description   String
+  type          WorldType         @default(Universe)
+  authorId      Int?
+  parentWorldId Int? // ( references World | nullable )
+  Locations     Location[]
+  Timelines     Timeline[]
+  Events        Event[]
+  Groups        PopulationGroup[]
+  Characters    Character[]
+  Author        User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
 }
 
 // A Library associates a User with one or more Books

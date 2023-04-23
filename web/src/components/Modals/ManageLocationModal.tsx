@@ -1,6 +1,6 @@
 import {
   CreateLocationData,
-  createOrUpdateLocation
+  upsertLocation
 } from "graphql/requests/worlds.graphql";
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
@@ -50,7 +50,7 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
     setError("");
 
     // Notify
-    const resp = await createOrUpdateLocation(formData);
+    const resp = await upsertLocation(formData);
     if (typeof resp === "string") return setError(resp);
 
     updateLocations([resp as APIData<Location>]);

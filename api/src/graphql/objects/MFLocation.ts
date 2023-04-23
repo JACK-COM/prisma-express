@@ -13,12 +13,29 @@ export const MFLocation = objectType({
     t.field("fauna", { type: "Richness" });
     t.field("flora", { type: "Richness" });
     t.int("authorId", { description: "Event Author" });
+    t.int("parentLocationId", { description: "Parent Location id (optional)" });
     t.nonNull.int("worldId", { description: "Event target `World`" });
-    // List properties: uncomment if we want to auto-expose these fields
+
+    // Relationships
+    t.field("World", { type: "MFWorld" });
+    t.field("ParentLocation", {
+      type: "MFLocation",
+      resolve: ({ parentLocationId }, _args, { Locations }) =>
+        parentLocationId
+          ? Locations.findUnique({ where: { id: parentLocationId } })
+          : null
+    });
+
+    // List properties
     t.list.field("Characters", { type: "MFCharacter" });
     t.list.field("Events", { type: "MFEvent" });
     t.list.field("Groups", { type: "MFPopulationGroup" });
-    t.list.field("Scenes", { type: "MFScene" });
-    t.list.field("World", { type: "MFWorld" });
+    t.list.field("ChildLocations", {
+      type: "MFLocation",
+      resolve: ({ parentLocationId }, _args, { Locations }) =>
+        parentLocationId
+          ? Locations.findMany({ where: { parentLocationId } })
+          : []
+    });
   }
 });

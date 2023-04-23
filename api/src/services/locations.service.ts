@@ -12,6 +12,7 @@ type SearchLocationInput = Pick<
   UpsertLocationInput,
   | "name"
   | "description"
+  | "parentLocationId"
   | "authorId"
   | "climate"
   | "flora"

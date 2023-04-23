@@ -11,6 +11,7 @@ export const MFWorld = objectType({
     t.nonNull.string("description");
     t.nonNull.field("type", { type: "WorldType" });
     t.int("authorId", { description: "Book Author/owner" });
+    t.int("parentWorldId", { description: "Optional world parent" });
 
     // List properties 
     t.list.field("Locations", { type: "MFLocation" });

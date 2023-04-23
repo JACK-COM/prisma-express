@@ -18,6 +18,7 @@ export const MFWorldUpsertInput = inputObjectType({
     t.nonNull.string("description");
     t.nonNull.field("type", { type: "WorldType" });
     t.int("authorId", { description: "Item Author/owner" });
+    t.int("parentWorldId", { description: "Parent world (optional)" });
   }
 });
 
@@ -62,6 +63,7 @@ export const MFLocationUpsertInput = inputObjectType({
     t.field("fauna", { type: "Richness" });
     t.nonNull.int("worldId", { description: "Parent world ID" });
     t.int("authorId", { description: "Item Author/owner" });
+    t.int("parentLocationId", { description: "Parent location (optional)" });
   }
 });
 

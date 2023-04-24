@@ -103,9 +103,17 @@ const WorldLocationsListRoute = () => {
                 variant="outlined"
                 onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
               />
+              <hr />
               <AddItemButton
                 icon="manage_history"
                 text="Add World Event"
+                variant="outlined"
+                onClick={() => setGlobalModal(MODAL.MANAGE_WORLD_EVENTS)}
+              />
+              <hr />
+              <AddItemButton
+                icon="timeline"
+                text="View Timelines"
                 variant="outlined"
                 onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
               />

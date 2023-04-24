@@ -32,10 +32,8 @@ export const MFLocation = objectType({
     t.list.field("Groups", { type: "MFPopulationGroup" });
     t.list.field("ChildLocations", {
       type: "MFLocation",
-      resolve: ({ parentLocationId }, _args, { Locations }) =>
-        parentLocationId
-          ? Locations.findMany({ where: { parentLocationId } })
-          : []
+      resolve: ({ id: parentLocationId }, _args, { Locations }) =>
+        Locations.findMany({ where: { parentLocationId } })
     });
   }
 });

@@ -137,7 +137,7 @@ const WorldLocationsList = (props: WorldLocationsListProps) => {
           <ManageWorldEventsModal
             // World Events
             data={focusedWorld.Events}
-            open={active === MODAL.MANAGE_TIMELINE}
+            open={active === MODAL.MANAGE_WORLD_EVENTS}
           />
 
           {/* Characters */}

@@ -4,7 +4,8 @@ import {
   ItemGridContainer,
   ItemDescription,
   ItemName,
-  MatIcon
+  MatIcon,
+  Accent
 } from "components/Common/Containers";
 import { TallIcon } from "./ComponentIcons";
 import ListView from "./Common/ListView";
@@ -47,6 +48,10 @@ const LocationItem = ({
     if (!isAuthor) return "lock";
     return location.parentLocationId ? "pin_drop" : "map";
   }, [location]);
+  const children = childLocations.length;
+  const childCount = children
+    ? ` (+${children} ${children === 1 ? "location" : "locations"})`
+    : "";
 
   return (
     <LocationContainer onClick={select} permissions={permissions}>
@@ -59,10 +64,11 @@ const LocationItem = ({
 
       <ItemName permissions={permissions} onClick={edit}>
         {location.name}
+        {childCount && <Accent>{childCount}</Accent>}
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </ItemName>
       <ItemDescription
-        dangerouslySetInnerHTML={locationDescription(location, childLocations)}
+        dangerouslySetInnerHTML={locationDescription(location)}
       />
 
       {/* Child Locations */}
@@ -90,12 +96,8 @@ export default LocationItem;
 /* HELPER */
 
 /** Describe a location by its qualities */
-function locationDescription(location: Location, childLocations: Location[]) {
-  const children = childLocations.length;
-  const childCount = children
-    ? ` (${children} ${children === 1 ? "place" : "places"})`
-    : "";
-  const toHTML = (str: string) => ({ __html: `${childCount} ${str}` });
+function locationDescription(location: Location) {
+  const toHTML = (str: string) => ({ __html: str });
   if (location.description !== "No description.")
     return toHTML(location.description);
 

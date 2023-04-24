@@ -35,18 +35,21 @@ export async function upsertLocation(newLocation: UpsertLocationInput) {
 export async function findAllLocation(
   filters: Partial<LocationByIdInput & SearchLocationInput>
 ) {
-  const OR: Prisma.LocationFindManyArgs["where"] = {};
-  if (filters.authorId) OR.authorId = filters.authorId;
-  if (filters.id) OR.id = filters.id;
-  if (filters.name) OR.name = { contains: filters.name };
-  if (filters.description) OR.description = { contains: filters.description };
-  const locations =
-    Object.keys(OR).length > 0
-      ? await Locations.findMany({
-          where: { AND: { worldId: filters.worldId, OR } }
-        })
-      : await Locations.findMany({ where: { worldId: filters.worldId } });
+  const where: Prisma.LocationFindManyArgs["where"] = {
+    worldId: filters.worldId
+  };
+  where.AND = [{ parentLocationId: filters.parentLocationId || null }];
+  where.OR = [];
+  // const OR: Prisma.LocationFindManyArgs["where"] = {};
+  if (filters.authorId) where.OR.push({ authorId: filters.authorId });
+  if (filters.id) where.OR.push({ id: filters.id });
+  if (filters.name) where.OR.push({ name: { contains: filters.name } });
+  if (filters.description)
+    where.OR.push({ description: { contains: filters.description } });
 
+  if (!where.OR.length) delete where.OR;
+
+  const locations = await Locations.findMany({ where });
   return locations;
 }
 

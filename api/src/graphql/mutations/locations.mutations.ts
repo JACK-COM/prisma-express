@@ -48,6 +48,27 @@ export const upsertLocationMutation = mutationField("upsertLocation", {
       throw new Error("You do not own this location");
     }
 
+    if (data.id && data.parentLocationId) {
+      const child = await LocationsService.findAllLocation({
+        parentLocationId: data.id
+      });
+      if (child.length > 0)
+        throw new Error("Found children of nested location");
+    } else if (data.parentLocationId) {
+      // prevent circular or highly-nested parentLocationId
+      if (data.parentLocationId === data.id) {
+        throw new Error("Location cannot be its own parent");
+      }
+
+      const parentLocation = await LocationsService.getLocation({
+        id: data.parentLocationId
+      });
+      if (!parentLocation) throw new Error("Parent location not found");
+      if (parentLocation.parentLocationId) {
+        throw new Error("Location cannot be nested more than one level deep");
+      }
+    }
+
     // append authorId and data
     return LocationsService.upsertLocation({
       ...data,

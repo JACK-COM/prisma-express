@@ -21,11 +21,11 @@ const Control = styled(Link)<{ image: string }>`
   background: ${({ image }) => `url(${image}) no-repeat bottom center / cover`};
   color: white;
   font-size: 1.6rem;
-  font-weight: 600;
+  font-weight: 500;
   height: 88vh;
   overflow: hidden;
   place-content: center;
-  text-shadow: 0 0 0.3rem #111b;
+  text-shadow: 0 2px 4px #111b;
 
   &:hover {
     animation: scale-up 150ms ease-in;
@@ -56,7 +56,7 @@ const Home = () => {
   return (
     <Container
       id="app-dashboard"
-      title="MythosForge"
+      title="Home"
       description="A forge of myths and legends"
       breadcrumbs={[]}
     >

@@ -1,3 +1,15 @@
+resource "random_string" "jwt_secret" {
+  length  = 25
+  special = false
+  upper   = true
+}
+
+resource "random_string" "encrypt_secret" {
+  length  = 25
+  special = false
+  upper   = true
+}
+
 resource "aws_security_group" "mf-api-sg" {
   name        = "mf-api"
   description = "Mythos Forge API Security Group"
@@ -35,22 +47,47 @@ resource "aws_instance" "mf-api-instance" {
   ami                    = var.resource_settings.api.ami_id
   instance_type          = var.resource_settings.api.instance_type
   subnet_id              = var.subnet_id_1
-  key_name               = var.mf_ec2
   vpc_security_group_ids = [aws_security_group.mf-api-sg.id]
-  depends_on             = [aws_security_group.mf-api-sg]
+  depends_on             = [aws_security_group.mf-api-sg, aws_db_instance.mf_database]
+
+
+  connection {
+    type        = "ssh"
+    host        = aws_instance.mf-api-instance.public_ip
+    user        = "ubuntu"
+    private_key = file("~/.ssh/MF_Main.cer")
+    insecure    = true
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo chown o+w mythosforge/",
+      "sudo apt-get update -y",
+      "sudo npm install -g http-server"
+    ]
+  }
 
   provisioner "file" {
-    source      = "../api"
-    destination = "/home/ec2-user"
+    source      = "../api/lib/"
+    destination = "/home/ubuntu/mythosforge/"
+  }
 
-    connection {
-      type        = "ssh"
-      host        = aws_instance.mf-api-instance.public_ip
-      user        = "ec2-user"
-      private_key = file("~/.ssh/mf_api")
-      insecure    = true
-    }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo npm install pm2@latest -g",
+      "cd /home/ubuntu/mythosforge/",
+      "sudo touch .env",
+      "sudo chmod u+w .env",
+      "sudo echo 'PORT=4001' >> .env",
+      "sudo echo 'DB_URL=postgres://${var.db_username}:${var.db_password}@${aws_db_instance.mf_database.address}' >> .env",
+      "sudo echo 'JWT_SEC=${random_string.jwt_secret.result}' >> .env",
+      "sudo echo 'ENCRYPT=${random_string.encrypt_secret.result}' >> .env",
+      "sudo echo 'GOOGLE_CLIENT_ID=${var.GOOGLE_CLIENT_ID}' >> .env",
+      "sudo echo 'GOOGLE_CLIENT_SK=${var.GOOGLE_CLIENT_SK}' >> .env",
+      "sudo npm install",
+      "sudo npm run prisma-sync",
+      "sudo pm2 start server.js --name mythosforge-api",
+    ]
   }
 }
-
 

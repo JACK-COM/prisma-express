@@ -20,9 +20,6 @@ const THEME: GlobalTheme = {
     width: 100%;
   }
   
-  /* @media (prefers-color-scheme: dark) {
-  } */
-
   html {
     height: minmax(100vh, auto);
   }
@@ -31,7 +28,7 @@ const THEME: GlobalTheme = {
     background-color: ${({ theme: t }: ThemeProps<AppTheme>) =>
       t.colors.bgColor};
     color: ${({ theme }) => theme.colors.primary};
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: ${({ theme }) => theme.presets.fonts.body};
     height: 100%;
     margin: 0;
 

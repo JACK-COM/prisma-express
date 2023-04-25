@@ -121,6 +121,7 @@ export const ItemName = styled.b.attrs({
   tabIndex: -1
 })<NameProps>`
   color: ${({ polarity }) => EventPolarityColors(polarity)};
+  font-family: ${({ theme }) => theme.presets.fonts.heading};
   grid-column: 2;
   grid-row: 1;
   pointer-events: ${({ permissions }) =>

@@ -15,6 +15,7 @@ const Location = styled.span`
   ${({ theme }) => theme.mixins.ellipsis};
   align-self: center;
   font-size: small;
+  font-family: ${({ theme }) => theme.presets.fonts.heading};
   grid-row: 1 / span 2;
   padding-right: 0.5rem;
   text-transform: uppercase;

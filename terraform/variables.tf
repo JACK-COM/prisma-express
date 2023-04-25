@@ -18,24 +18,26 @@ variable "resource_settings" {
     "web_app" = {
       count         = 1          // the number of EC2 instances
       instance_type = "t2.micro" // the EC2 instance
-      ami_id = "ami-04d693ea042f5c1f8" // the AMI ID
+      ami_id = "ami-0661baf9111044522" // the AMI ID
     }
 
     "api" = {
       count         = 1          // the number of EC2 instances
       instance_type = "t2.micro" // the EC2 instance
-      ami_id = "ami-04d693ea042f5c1f8" // the AMI ID
+      ami_id = "ami-0661baf9111044522" // the AMI ID
     }
   }
 }
 
 variable "subnet_id_1" {
   description = "subnet id 1"
+  default = "subnet-0de6dc771b9484008"
   type        = string
 }
 
 variable "subnet_id_2" {
   description = "subnet id 2"
+  default = "subnet-0f1c947166152770c"
   type        = string
 }
 
@@ -48,19 +50,29 @@ variable "ssh_key" {
 variable "db_username" {
   description = "Database master user"
   type        = string
-  sensitive   = true
+  sensitive   = false
 }
 
-// This variable contains the database master password
-// We will be storing this in a secrets file
 variable "db_password" {
   description = "Database master user password"
   type        = string
-  sensitive   = true
+  sensitive   = false
 }
 
 variable "db_port"{
     description = "Database port"
     type        = number
     default     = 5432
+}
+
+variable "GOOGLE_CLIENT_ID" {
+  description = "Google Client ID"
+  type        = string
+  sensitive   = false
+}
+
+variable "GOOGLE_CLIENT_SK" {
+  description = "Google Client Secret Key"
+  type        = string
+  sensitive   = false
 }

@@ -23,13 +23,9 @@ terraform-plan: tf-init
 	cd ./terraform && terraform plan -auto-approve -var-file="$(VARS)"
 
 terraform-deploy: tf-init
+	cp ./api/package.json ./api/lib/
+	cp -rf ./api/prisma ./api/lib/
 	cd ./terraform && terraform apply -auto-approve -var-file="$(VARS)"
 
 terraform-destroy:
 	cd ./terraform && terraform destroy -var-file="$(VARS)"
-tf-init:
-	cd ./terraform && terraform init
-
-# Not sure if this is needed but I merged in anyway
-terraform-push:
-	cd ./terraform && terraform plan -var-file="$(VARS)" && terraform apply -var-file="$(VARS)"

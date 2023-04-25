@@ -31,7 +31,7 @@ const presets = {
   },
 
   fonts: {
-    heading: "'Ubuntu', sans-serif",
+    heading: "'Ubuntu', sans-serif; font-weight: bold",
     body: "'Source Sans 3', sans-serif",
   }
 };

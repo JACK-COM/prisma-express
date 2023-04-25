@@ -1,4 +1,4 @@
-import { join } from "path";
+import { dirname, join } from "path";
 import { makeSchema } from "nexus";
 // Types
 import * as Objects from "./objects/index";
@@ -16,13 +16,13 @@ export const schema = makeSchema({
 
   // Directory where nexus-generated files go
   outputs: {
-    typegen: join(process.cwd(), "nexus-gen", "nexus-typegen.ts"),
-    schema: join(process.cwd(), "nexus-gen", "schema.graphql")
+    typegen: join(dirname(__filename), "nexus-gen", "nexus-typegen.ts"),
+    schema: join(dirname(__filename), "nexus-gen", "schema.graphql")
   },
 
   // Context file source
   contextType: {
     export: "DBContext",
-    module: join(process.cwd(), "context.ts")
+    module: join(dirname(__filename), "context.ts")
   }
 });

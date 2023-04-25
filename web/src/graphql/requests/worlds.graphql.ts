@@ -150,3 +150,28 @@ export async function listLocations(
 
   return newLocation;
 }
+
+// Prune location data for API
+export function pruneLocationForAPI(data: Partial<CreateLocationData>) {
+  const {
+    id,
+    name,
+    description,
+    climate,
+    parentLocationId,
+    flora,
+    fauna,
+    worldId
+  } = data;
+
+  return {
+    id,
+    name,
+    description,
+    climate,
+    parentLocationId,
+    flora,
+    fauna,
+    worldId
+  };
+}

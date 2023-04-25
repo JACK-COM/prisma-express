@@ -36,7 +36,7 @@ export function addNotification(
   persist = false,
   additional = {}
 ) {
-  if (!notificationsActive()) return null;
+  if (!notificationsActive()) return -1;
   const note = (msg as Alert).time
     ? (msg as Alert)
     : createAlert(msg as string, persist);
@@ -47,7 +47,7 @@ export function addNotification(
 }
 
 export function resetNotifications(msg?: string, persist = false) {
-  if (!notificationsActive()) return null;
+  if (!notificationsActive()) return -1;
   const updates = [];
   let msgId = null;
   if (msg) {
@@ -70,10 +70,11 @@ export function removeNotification(msgID: Alert["time"]) {
   Notifications.all(updates);
 }
 
-export function updateAsError(msg: string, id?: number | null) {
-  if (!msg || !notificationsActive()) return id || null;
+export function updateAsError(msg: string, id: number = -1) {
+  if (!msg || !notificationsActive()) return id || -1;
   const { all: notifications } = Notifications.getState();
-  const msgIndex = notifications.findIndex(({ time }) => time === id);
+  const msgIndex =
+    id >= 0 ? notifications.findIndex(({ time }) => time === id) : -1;
   const newAlert = createAlert(msg, true);
   const updates = [...notifications];
   newAlert.error = true;

@@ -43,12 +43,13 @@ $xtiny: 0.05rem;
 }
 
 @mixin app-font {
-  font-family: "Ubuntu", sans-serif;
+  font-family: "Source Sans 3", sans-serif;
   letter-spacing: 0.04rem;
 }
 
 @mixin heading-font() {
-  font-family: 'Ubuntu Condensed', sans-serif;
+  font-family: 'Ubuntu', sans-serif;
+  font-weight: bold;
 }
 
 @mixin h1 {
@@ -84,4 +85,3 @@ $xtiny: 0.05rem;
   line-height: $font-size;
   margin: 0;
 }
-

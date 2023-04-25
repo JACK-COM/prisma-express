@@ -33,7 +33,6 @@ type PassportUser = {
 
 export default passport;
 
-// const MemoryStore = require("memorystore")(session);
 const clientID = process.env.GOOGLE_CLIENT_ID;
 const clientSecret = process.env.GOOGLE_CLIENT_SK;
 const PORT = process.env.PORT;

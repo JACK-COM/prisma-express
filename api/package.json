@@ -9,7 +9,7 @@
     "clean": "rm -rf ./lib",
     "reflect": "NODE_ENV='production' ts-node-dev -r tsconfig-paths/register --transpile-only ./src/graphql",
     "build:pre": "npm run clean && npm run reflect",
-    "build": "npm run build:pre && NODE_ENV='production' tsc",
+    "build": "npm run build:pre && NODE_ENV=production tsc",
     "prisma-sync": "prisma db push && npx prisma generate",
     "db-migrate": "npx prisma migrate dev",
     "db-deploy": "dotenv -e .env.production prisma migrate deploy"
@@ -27,7 +27,7 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "crypto-js": "^4.1.1",
-    "dotenv": "^10.0.0",
+    "dotenv": "^16.0.3",
     "express": "^4.17.1",
     "express-rate-limit": "^6.4.0",
     "express-session": "^1.17.3",

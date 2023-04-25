@@ -44,10 +44,14 @@ export const upsertLocationMutation = mutationField("upsertLocation", {
     }
 
     // require ownership
-    if (data.id && data.authorId !== user.id) {
-      throw new Error("You do not own this location");
+    if (data.id) {
+      const location = await LocationsService.getLocation({ id: data.id });
+      if (!location) throw new Error("Location not found");
+      if (location.authorId !== user.id)
+        throw new Error("You do not own this location");
     }
 
+    // Restrict location nesting
     if (data.id && data.parentLocationId) {
       const child = await LocationsService.findAllLocation({
         parentLocationId: data.id
@@ -72,7 +76,7 @@ export const upsertLocationMutation = mutationField("upsertLocation", {
     // append authorId and data
     return LocationsService.upsertLocation({
       ...data,
-      authorId: user.id,
+      authorId: data.authorId || user.id,
       climate: data.climate || undefined,
       fauna: data.fauna || undefined,
       flora: data.flora || undefined,

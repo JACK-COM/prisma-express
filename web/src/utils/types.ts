@@ -247,6 +247,11 @@ export type Location = {
   fauna: Richness;
   flora: Richness;
   parentLocationId?: number;
+  westOf?: number;
+  eastOf?: number;
+  northOf?: number;
+  southOf?: number;
+  near?: number;
   Characters: Character[];
   Events: Event[];
   Groups: PopulationGroup[];

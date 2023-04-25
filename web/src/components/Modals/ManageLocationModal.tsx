@@ -1,10 +1,11 @@
 import {
   CreateLocationData,
+  pruneLocationForAPI,
   upsertLocation
 } from "graphql/requests/worlds.graphql";
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
-import { clearGlobalModal } from "state";
+import { clearGlobalModal, removeNotification, updateAsError } from "state";
 import { APIData, Climate, Location } from "utils/types";
 import { Richness } from "utils/types";
 import { useGlobalWorld } from "hooks/GlobalWorld";
@@ -24,11 +25,22 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
   const { data, open, onClose = clearGlobalModal, worldId } = props;
   const { updateLocations } = useGlobalWorld(["worldLocations"]);
   const [error, setError] = useState("");
+  const [notificationId, setNotificationId] = useState<number>(-1);
   const [formData, setFormData] = useState<Partial<CreateLocationData>>({
     climate: Climate.Temperate,
     flora: Richness.Adequate,
     fauna: Richness.Adequate
   });
+  const onError = (err: string) => {
+    setError(err);
+    setNotificationId(updateAsError(err, notificationId));
+  };
+  const clearError = () => {
+    setError("");
+    if (notificationId === -1) return;
+    removeNotification(notificationId)
+    setNotificationId(-1);
+  };
   const resetForm = () =>
     setFormData({
       climate: Climate.Temperate,
@@ -37,9 +49,9 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
     });
   const submit = async () => {
     // Validate
-    if (!formData.name) return setError("Name is required.");
+    if (!formData.name) return onError("Name is required.");
     if (formData.name.length < 2)
-      return setError("Name must be at least 2 characters.");
+      return onError("Name must be at least 2 characters.");
 
     // Create
     if (!formData.climate) formData.climate = Climate.Temperate;
@@ -47,11 +59,11 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
     if (!formData.fauna) formData.fauna = Richness.Adequate;
     if (!formData.description) formData.description = "No description.";
     formData.worldId = worldId;
-    setError("");
+    clearError();
 
     // Notify
-    const resp = await upsertLocation(formData);
-    if (typeof resp === "string") return setError(resp);
+    const resp = await upsertLocation(pruneLocationForAPI(formData));
+    if (typeof resp === "string") return onError(resp);
 
     updateLocations([resp as APIData<Location>]);
     resetForm();

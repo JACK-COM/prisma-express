@@ -7,8 +7,7 @@ import { ErrorMessage } from "components/Common/Containers";
 import CreateWorldEventsForm from "components/Form.CreateWorldEvents";
 import { useEffect, useState } from "react";
 import { useGlobalWorld } from "hooks/GlobalWorld";
-import { APIData } from "utils/types";
-import { clearGlobalModal } from "state";
+import { clearGlobalModal, updateAsError } from "state";
 import { mergeLists } from "utils";
 
 /** Modal props */
@@ -41,9 +40,14 @@ export default function ManageWorldEventsModal(
   const { data = [], open, onClose = clearGlobalModal } = props;
   const { updateEvents } = useGlobalWorld(["events"]);
   const [error, setError] = useState("");
+  const [notificationId, setNotificationId] = useState(-1);
   const [formData, setFormData] = useState<Partial<CreateEventData>[]>(
     data?.length ? condenseFormData(data) : emptyForm()
   );
+  const onErr = (err: string) => {
+    setError(err);
+    setNotificationId(updateAsError(err, notificationId));
+  };
   const resetForm = () => setFormData(emptyForm());
   const submit = async () => {
     // validate
@@ -54,7 +58,7 @@ export default function ManageWorldEventsModal(
         return "Event name must be at least 4 characters.";
       return acc;
     }, "");
-    setError(errorMessage);
+    onErr(errorMessage);
     if (errorMessage.length > 0) return;
 
     // Create & notify

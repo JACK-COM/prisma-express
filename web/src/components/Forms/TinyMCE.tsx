@@ -1,6 +1,5 @@
 import { Editor } from "@tinymce/tinymce-react";
 import { useGlobalTheme } from "hooks/GlobalTheme";
-import { useGlobalWindow } from "hooks/GlobalWindow";
 import { AppTheme } from "shared";
 import { noOp } from "utils";
 
@@ -17,6 +16,7 @@ type TinyMCEInit = {
 };
 
 type TinyMCEProps = {
+  inline?: boolean;
   disabled?: boolean;
   value?: string;
   onChange?: (content: string, editor?: any) => void;
@@ -50,14 +50,9 @@ type EditorCommand = {
 };
 /** Custom internal wrapper for TinyMCE editor */
 export const TinyMCE = (props: TinyMCEProps) => {
-  const { isMobile } = useGlobalWindow();
   const { theme, activeTheme } = useGlobalTheme();
   const { triggerSave = noOp, onChange = noOp, ...otherProps } = props;
-  const { disabled, value, ...initOpts } = makeInitOpts(
-    isMobile,
-    theme,
-    otherProps
-  );
+  const { disabled, value, ...initOpts } = makeInitOpts(theme, otherProps);
 
   return (
     <Editor
@@ -88,13 +83,13 @@ function prepInitOpts(opts: TinyMCEProps) {
       "removeformat | bold italic forecolor | alignleft aligncenter " +
       "alignright alignjustify | bullist numlist outdent indent | " +
       "image | help",
+    inline: false, // this will enable the "skinless" appearance
     // override
     ...opts
   };
 }
 
 function makeInitOpts(
-  isMobile: boolean,
   theme: AppTheme,
   opts: TinyMCEProps
 ): TinyMCEInit & ReturnType<typeof prepInitOpts> {

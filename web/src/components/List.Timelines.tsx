@@ -51,7 +51,7 @@ const TimelinesList = (props: TimelinesListProps) => {
   return (
     <>
       <Card>
-        <CardTitle>{authenticated ? "Your" : "Public"} Timelines</CardTitle>
+        <CardTitle>Timelines</CardTitle>
 
         {/* Empty List message */}
         {!timelines.length && (

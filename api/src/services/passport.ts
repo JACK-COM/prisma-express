@@ -43,6 +43,8 @@ const toCtxUser = (u: User): CtxUser => ({
   email: u.email,
   role: u.role,
   displayName: u.displayName,
+  firstName: u.firstName,
+  lastName: u.lastName,
   lastSeen: DateTime.now().toJSDate()
 });
 

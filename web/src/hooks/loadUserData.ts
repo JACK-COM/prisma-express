@@ -144,16 +144,14 @@ export async function loadBook(
 export async function loadTimelines(opts: HOOK__LoadWorldOpts) {
   const params = makeAPIParams(opts);
   const { timelineId } = params;
-  const { timelines: current, focusedTimeline: focused } =
-    GlobalWorld.getState();
-  const timelines = await listOrLoad(current, () => listTimelines(params));
+  const { focusedTimeline: focused } = GlobalWorld.getState();
+  const timelines = await listTimelines(params); // listOrLoad(current, () => listTimelines(params));
   let focusedTimeline: APIData<Timeline> | null = null;
   if (timelineId)
-    focusedTimeline = timelines.find((t: any) => t.id === timelineId) || null;
+    focusedTimeline = timelines.find((t) => t.id === timelineId) || null;
   else if (focused)
-    focusedTimeline = timelines.find((t: any) => t.id === timelineId) || null;
-  const focusedWorld = focusedTimeline?.World || null;
-  GlobalWorld.multiple({ timelines, focusedTimeline, focusedWorld });
+    focusedTimeline = timelines.find((t) => t.id === timelineId) || null;
+  GlobalWorld.multiple({ timelines, focusedTimeline });
 }
 
 /** Load initial character data */

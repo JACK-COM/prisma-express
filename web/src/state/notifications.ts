@@ -74,13 +74,15 @@ export function updateAsError(msg: string, id: number = -1) {
   if (!msg || !notificationsActive()) return id || -1;
   const { all: notifications } = Notifications.getState();
   const msgIndex =
-    id >= 0 ? notifications.findIndex(({ time }) => time === id) : -1;
+    id >= 0
+      ? notifications.findIndex(({ time }) => time === id)
+      : notifications.length;
   const newAlert = createAlert(msg, true);
   const updates = [...notifications];
   newAlert.error = true;
   newAlert.persistent = false;
   if (id) newAlert.time = id as number;
-  if (msgIndex === -1) updates.push(newAlert);
+  if (msgIndex === notifications.length) updates.push(newAlert);
   else updates.splice(msgIndex, 1, newAlert);
 
   Notifications.all(updates);

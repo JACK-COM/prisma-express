@@ -17,6 +17,8 @@ import { WorldPublicIcon } from "components/ComponentIcons";
 import { loadWorld } from "hooks/loadUserData";
 import WorldLocationsList from "../components/List.WorldLocations";
 import PageLayout from "components/Common/PageLayout";
+import TimelinesList from "components/List.Timelines";
+import { loadTimelines } from "hooks/loadUserData";
 
 const { Worlds: WorldPaths } = Paths;
 const AddItemButton = styled(ButtonWithIcon)`
@@ -34,13 +36,28 @@ const WorldLocationsListRoute = () => {
   const { id: userId } = useGlobalUser(["id"]);
   const { clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const {
-    focusedWorld,
-    focusedLocation,
-    worldLocations = [],
     clearGlobalWorld,
-    setGlobalLocation
-  } = useGlobalWorld(["focusedWorld", "focusedLocation", "worldLocations"]);
+    setGlobalLocation,
+    focusedLocation,
+    focusedWorld,
+    focusedTimeline,
+    timelines = [],
+    worldLocations = []
+  } = useGlobalWorld([
+    "focusedWorld",
+    "focusedLocation",
+    "focusedTimeline",
+    "timelines",
+    "worldLocations"
+  ]);
   const { worldId } = useParams<{ worldId: string }>();
+  const worldTimelines = useMemo(
+    () =>
+      Boolean(worldId) && timelines.length > 0
+        ? timelines.filter(({ worldId: wid }) => wid === Number(worldId))
+        : [],
+    [timelines]
+  );
   const [place, isPublic, publicClass, isAuthor, role] = useMemo(() => {
     const author = focusedWorld?.authorId === userId;
     const isPub = focusedWorld?.public;
@@ -58,13 +75,19 @@ const WorldLocationsListRoute = () => {
     clearGlobalModal();
     setGlobalLocation(null);
   };
+  const loadComponentData = async () => {
+    await Promise.all([
+      loadWorld({ worldId: Number(worldId) }),
+      loadTimelines({ worldId: Number(worldId) })
+    ]);
+  };
   const clearComponentData = () => {
     clearModalData();
     clearGlobalWorld();
   };
 
   useEffect(() => {
-    loadWorld({ worldId: Number(worldId) });
+    loadComponentData();
     return clearComponentData;
   }, []);
 
@@ -93,33 +116,42 @@ const WorldLocationsListRoute = () => {
           worldLocations={worldLocations}
         />
 
-        {(isAuthor || isPublic) && (
-          <Card>
-            <CardTitle>World Actions</CardTitle>
-            <GridContainer columns="1fr" style={{ marginBottom: "1.5rem" }}>
-              <AddItemButton
-                icon="face"
-                text="Add a Character"
-                variant="outlined"
-                onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
-              />
-              <hr />
-              <AddItemButton
-                icon="manage_history"
-                text="Add World Event"
-                variant="outlined"
-                onClick={() => setGlobalModal(MODAL.MANAGE_WORLD_EVENTS)}
-              />
-              <hr />
-              <AddItemButton
-                icon="timeline"
-                text="View Timelines"
-                variant="outlined"
-                onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
-              />
-            </GridContainer>
-          </Card>
-        )}
+        <div>
+          {(isAuthor || isPublic) && (
+            <Card>
+              <CardTitle>World Actions</CardTitle>
+              <GridContainer columns="1fr" style={{ marginBottom: "1.5rem" }}>
+                <AddItemButton
+                  icon="face"
+                  text="Add a Character"
+                  variant="outlined"
+                  onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
+                />
+                <hr />
+                <AddItemButton
+                  icon="manage_history"
+                  text="Add World Event"
+                  variant="outlined"
+                  onClick={() => setGlobalModal(MODAL.MANAGE_WORLD_EVENTS)}
+                />
+                <hr />
+                <AddItemButton
+                  icon="timeline"
+                  text="Add Timeline"
+                  variant="outlined"
+                  onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
+                />
+              </GridContainer>
+            </Card>
+          )}
+
+          <hr />
+
+          <TimelinesList
+            timelines={worldTimelines}
+            focusedTimeline={focusedTimeline}
+          />
+        </div>
       </PageGrid>
     </PageLayout>
   );

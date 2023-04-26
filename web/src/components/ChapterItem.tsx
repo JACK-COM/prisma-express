@@ -37,6 +37,7 @@ type ChapterItemProps = {
 };
 
 const ItemContainer = styled(ItemGridContainer)`
+
   &.active {
     border: 1px solid ${({ theme }) => theme.colors.accent};
     border-radius: ${({ theme }) => theme.sizes.sm};
@@ -93,10 +94,14 @@ const ChapterItem = ({
     suppressEvent(e);
     setShowScenes(!showScenes);
   };
-  const newScene = requireAuthor(() => {
-    GlobalLibrary.focusedScene(null);
-    setGlobalModal(MODAL.MANAGE_SCENE);
-  }, permissions, true);
+  const newScene = requireAuthor(
+    () => {
+      GlobalLibrary.focusedScene(null);
+      setGlobalModal(MODAL.MANAGE_SCENE);
+    },
+    permissions,
+    true
+  );
 
   const owner = chapter.authorId === userId;
   const icon = showScenes ? "expand_more" : "segment";

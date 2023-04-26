@@ -1,8 +1,6 @@
-import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { APIData, UserRole, Timeline, PermissionProps } from "utils/types";
+import { APIData, UserRole, Timeline } from "utils/types";
 import { requireAuthor, noOp } from "utils";
-import { lineclamp } from "theme/theme.shared";
 import {
   ItemDescription,
   ItemName,
@@ -17,7 +15,7 @@ import { TimelineItemEventIcon } from "./TimelineItem.EventIcon";
 const TimelineWorld = styled(Hint)`
   ${({ theme }) => theme.mixins.lineclamp(1)};
   align-self: center;
-  font-size: small;
+  font-size: 0.72rem;
   grid-column: 3;
   grid-row: 1/3;
   text-align: right;

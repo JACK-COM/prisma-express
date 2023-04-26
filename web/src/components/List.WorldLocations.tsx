@@ -81,7 +81,7 @@ const WorldLocationsList = (props: WorldLocationsListProps) => {
   return (
     <>
       <Card>
-        <CardTitle>All Locations</CardTitle>
+        <CardTitle>Locations</CardTitle>
         {/* List */}
         {!worldLocations.length && (
           <EmptyText>

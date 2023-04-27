@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Card, CardTitle, GridContainer } from "components/Common/Containers";
+import { Card, CardTitle } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths, insertId } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
@@ -10,7 +10,6 @@ import {
   GlobalLibrary,
   addNotification,
   clearGlobalBooksState,
-  setGlobalChapter,
   setGlobalScene,
   updateAsError
 } from "state";

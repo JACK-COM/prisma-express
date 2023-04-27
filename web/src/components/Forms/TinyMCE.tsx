@@ -1,10 +1,26 @@
+import {
+  Grammarly,
+  GrammarlyEditorPlugin,
+  GrammarlyEditorPluginProps
+} from "@grammarly/editor-sdk-react";
 import { Editor } from "@tinymce/tinymce-react";
 import { useGlobalTheme } from "hooks/GlobalTheme";
 import { AppTheme } from "shared";
 import { noOp } from "utils";
 
-const editorKey = import.meta.env.VITE_TINYMCE_KEY;
+const TINY_KEY = import.meta.env.VITE_TINYMCE_KEY;
+const GMLY_KEY = import.meta.env.VITE_GRMLY_KEY;
 const production = import.meta.env.PROD;
+type GrammarlyConfigProps = GrammarlyEditorPluginProps["config"];
+const grammarlyConfig: GrammarlyConfigProps = {
+  documentDialect: "british",
+  autocomplete: "on",
+  documentDomain: "creative",
+  introText: "Click here to begin writing!"
+  // debug: true,
+  // enabled: true,
+  // showDebuggingLog: true,
+};
 
 type TinyMCEInit = {
   content_style?: string;
@@ -55,16 +71,20 @@ export const TinyMCE = (props: TinyMCEProps) => {
   const { disabled, value, ...initOpts } = makeInitOpts(theme, otherProps);
 
   return (
-    <Editor
-      apiKey={production ? editorKey : undefined}
-      tinymceScriptSrc={production ? undefined : `/tinymce/tinymce.min.js`}
-      key={activeTheme}
-      disabled={disabled}
-      value={value}
-      init={{ ...initOpts, autosave_interval: "10s" }}
-      onEditorChange={onChange}
-      onBlur={triggerSave}
-    />
+    // <Grammarly clientId={GMLY_KEY}>
+    <GrammarlyEditorPlugin clientId={GMLY_KEY} config={grammarlyConfig}>
+      <Editor
+        apiKey={production ? TINY_KEY : undefined}
+        tinymceScriptSrc={production ? undefined : `/tinymce/tinymce.min.js`}
+        key={activeTheme}
+        disabled={disabled}
+        value={value || grammarlyConfig.introText}
+        init={{ ...initOpts, autosave_interval: "10s" }}
+        onEditorChange={onChange}
+        onBlur={triggerSave}
+      />
+    </GrammarlyEditorPlugin>
+    //  </Grammarly>
   );
 };
 

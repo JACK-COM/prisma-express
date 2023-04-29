@@ -1,6 +1,7 @@
 import { AppRouteDef } from "routes";
 import { PageContainer, PageDescription, PageTitle } from "./Containers";
 import Breadcrumbs from "./Breadcrumbs";
+import styled from "styled-components";
 
 type PageLayoutProps = {
   title: string | React.ReactNode;
@@ -10,19 +11,25 @@ type PageLayoutProps = {
   children?: React.ReactNode;
 };
 
+const PageHeader = styled.header`
+  ${PageDescription} {
+    margin-bottom: 0.75rem;
+  }
+`
+
 // Default Layout for app pages
 const PageLayout = (props: PageLayoutProps) => {
   const { title, id, breadcrumbs, description, children } = props;
   return (
     // Header
     <PageContainer>
-      <header>
+      <PageHeader>
         {breadcrumbs && <Breadcrumbs data={breadcrumbs} />}
         <PageTitle>{title}</PageTitle>
         {description && (
           <PageDescription dangerouslySetInnerHTML={{ __html: description }} />
         )}
-      </header>
+      </PageHeader>
 
       {/* Page content */}
       {children}

@@ -9,6 +9,8 @@ import { schema } from "./graphql/index";
 import { context } from "./graphql/context";
 import logger from "./logger";
 import { configurePassport } from "./services/passport";
+import { generateDocx } from "./services/document.service";
+import { createReadStream, writeFileSync } from "fs";
 
 const { PORT = 4001, UIPORT = 3000 } = process.env;
 const env = process.env.NODE_ENV || "development";
@@ -42,6 +44,37 @@ async function main() {
   });
   await apolloServer.start();
   apolloServer.applyMiddleware({ app, cors: { credentials: true, origin } });
+
+  app.use("/download/book/:bookId", async (req, res) => {
+    // ensure authenticated user
+    // if (!req.user) return res.status(401).send({ message: "Unauthorized" });
+    // get book id from params
+    const { bookId } = req.params;
+    const returnError = () =>
+      res.status(500).send({ message: "Error generating document" });
+    try {
+      const download = await generateDocx(Number(bookId));
+      if (!download.data) returnError();
+
+      // write temp file
+      writeFileSync(download.name, download.data);
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=${download.name}`
+      );
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      );
+
+      const stream = createReadStream(download.name);
+      stream.pipe(res);
+      // return rmSync(download.name); // remove temp file
+    } catch (error) {
+      console.log({ error });
+      returnError();
+    }
+  });
 
   // LISTEN TO APP
   app.listen(PORT, async () => {

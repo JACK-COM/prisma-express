@@ -31,7 +31,7 @@ const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
 
 function App() {
   const { theme } = useGlobalTheme();
-  const { active, MODAL, clearGlobalModal } = useGlobalModal();
+  const { active, MODAL } = useGlobalModal();
   const checkLoggedIn = async () => {
     const user = await loadUser();
     await loadUserData({ userId: user?.id });

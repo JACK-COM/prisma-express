@@ -7,3 +7,4 @@ terraform/.terraform/providers/registry.terraform.io/hashicorp/template/2.2.0/da
 terraform/secrets.tfvars
 
 NOTES.md
+*.DS_Store

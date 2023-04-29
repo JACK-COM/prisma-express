@@ -1,5 +1,4 @@
 import {
-  Grammarly,
   GrammarlyEditorPlugin,
   GrammarlyEditorPluginProps
 } from "@grammarly/editor-sdk-react";
@@ -71,7 +70,6 @@ export const TinyMCE = (props: TinyMCEProps) => {
   const { disabled, value, ...initOpts } = makeInitOpts(theme, otherProps);
 
   return (
-    // <Grammarly clientId={GMLY_KEY}>
     <GrammarlyEditorPlugin clientId={GMLY_KEY} config={grammarlyConfig}>
       <Editor
         apiKey={production ? TINY_KEY : undefined}
@@ -84,7 +82,6 @@ export const TinyMCE = (props: TinyMCEProps) => {
         onBlur={triggerSave}
       />
     </GrammarlyEditorPlugin>
-    //  </Grammarly>
   );
 };
 

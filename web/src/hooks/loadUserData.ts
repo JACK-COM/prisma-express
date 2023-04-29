@@ -13,10 +13,11 @@ import {
   listWorldEvents
 } from "graphql/requests/timelines.graphql";
 import { getBook, getChapter, listBooks } from "graphql/requests/books.graphql";
-import { AUTH_ROUTE } from "utils";
+import { AUTH_ROUTE, DL_BOOK_ROUTE } from "utils";
 import { listCharacters } from "graphql/requests/characters.graphql";
 import { APIData, Book, Chapter, Scene, Timeline, World } from "utils/types";
 import { MicroUser } from "graphql/requests/users.graphql";
+import { insertId } from "routes";
 
 // Additonal instructions for focusing data in the global state
 type HOOK__LoadWorldOpts = {
@@ -60,6 +61,25 @@ export async function loadUser() {
   );
   GlobalUser.multiple({ ...user, authenticated: Boolean(user) });
   return user;
+}
+
+// download a book and all its chapters as a docx file
+export function downloadBookURL(bookId: number) {
+  const fOpts: RequestInit = { method: "post", credentials: "include" };
+  return insertId(DL_BOOK_ROUTE, bookId);
+  // const apiURL = insertId(DL_BOOK_ROUTE, bookId);
+  // /* const { data, name } =  */ await fetch(apiURL, fOpts).then((r) =>
+  // r.json()
+  // );
+  /* const blob = new Blob([data], {
+    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+  window.URL.revokeObjectURL(url); */
 }
 
 /** Load and focus a single world */

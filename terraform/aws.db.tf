@@ -1,5 +1,5 @@
-resource "aws_security_group" "db_security_group" {
-   name        = "db security group"
+resource "aws_security_group" "db_security_group_main" {
+   name        = "db security group main"
   description = "PostgreSQL security group"
   vpc_id      = "${data.aws_vpc.default.id}"
 
@@ -21,6 +21,6 @@ resource "aws_db_instance" "mf_database" {
   db_name             = var.resource_settings.database.db_name
   username            = var.db_username
   password            = var.db_password
-  vpc_security_group_ids = [aws_security_group.db_security_group.id]
+  vpc_security_group_ids = [aws_security_group.db_security_group_main.id]
   skip_final_snapshot = var.resource_settings.database.skip_final_snapshot
 }

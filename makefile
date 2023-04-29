@@ -28,4 +28,4 @@ terraform-deploy: tf-init
 	cd ./terraform && terraform apply -auto-approve -var-file="$(VARS)"
 
 terraform-destroy:
-	cd ./terraform && terraform destroy -var-file="$(VARS)"
+	cd ./terraform && terraform destroy -auto-approve -var-file="$(VARS)"

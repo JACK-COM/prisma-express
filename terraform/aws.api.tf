@@ -61,9 +61,11 @@ resource "aws_instance" "mf-api-instance" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo chown o+w mythosforge/",
+      #!/bin/bash
+      "sudo chown -R ubuntu:ubuntu /home/ubuntu/mythosforge/",
       "sudo apt-get update -y",
-      "sudo npm install -g http-server"
+      "sudo npm install -g http-server",
+      "sudo npm install pm2@latest -g"
     ]
   }
 
@@ -72,22 +74,23 @@ resource "aws_instance" "mf-api-instance" {
     destination = "/home/ubuntu/mythosforge/"
   }
 
+  provisioner "file" {
+    source      = "../api/.env"
+    destination = "/home/ubuntu/mythosforge/.env"
+  }
+
   provisioner "remote-exec" {
     inline = [
-      "sudo npm install pm2@latest -g",
-      "cd /home/ubuntu/mythosforge/",
-      "sudo touch .env",
-      "sudo chmod u+w .env",
-      "sudo echo 'PORT=4001' >> .env",
-      "sudo echo 'DB_URL=postgres://${var.db_username}:${var.db_password}@${aws_db_instance.mf_database.address}' >> .env",
-      "sudo echo 'JWT_SEC=${random_string.jwt_secret.result}' >> .env",
-      "sudo echo 'ENCRYPT=${random_string.encrypt_secret.result}' >> .env",
-      "sudo echo 'GOOGLE_CLIENT_ID=${var.GOOGLE_CLIENT_ID}' >> .env",
-      "sudo echo 'GOOGLE_CLIENT_SK=${var.GOOGLE_CLIENT_SK}' >> .env",
+      "cd /home/ubuntu/mythosforge",
+      "sed -i 's/'DB_URL=postgres://intoppoc:testpass@localhost:5432/mythosforge'/'DB_URL=postgres://${var.db_username}:${var.db_password}@${aws_db_instance.mf_database.address}',/g' '.env'",
       "sudo npm install",
       "sudo npm run prisma-sync",
-      "sudo pm2 start server.js --name mythosforge-api",
+      "sudo pm2 start server.js --name mythosforge-api"
     ]
+  }
+
+  tags = {
+    Name = "mf-api-instance"
   }
 }
 

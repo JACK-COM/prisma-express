@@ -13,7 +13,7 @@ import {
   listWorldEvents
 } from "graphql/requests/timelines.graphql";
 import { getBook, getChapter, listBooks } from "graphql/requests/books.graphql";
-import { AUTH_ROUTE, DL_BOOK_ROUTE } from "utils";
+import { API_AUTH_ROUTE, API_DL_BOOK_ROUTE, API_PROMPT } from "utils";
 import { listCharacters } from "graphql/requests/characters.graphql";
 import { APIData, Book, Chapter, Scene, Timeline, World } from "utils/types";
 import { MicroUser } from "graphql/requests/users.graphql";
@@ -56,7 +56,7 @@ export async function loadUserData(opts = defaultLoadOpts) {
 export async function loadUser() {
   type UserResp = { user: MicroUser } | { user: null };
   const fOpts: RequestInit = { method: "post", credentials: "include" };
-  const { user }: UserResp = await fetch(AUTH_ROUTE, fOpts).then((r) =>
+  const { user }: UserResp = await fetch(API_AUTH_ROUTE, fOpts).then((r) =>
     r.json()
   );
   GlobalUser.multiple({ ...user, authenticated: Boolean(user) });
@@ -65,21 +65,13 @@ export async function loadUser() {
 
 // download a book and all its chapters as a docx file
 export function downloadBookURL(bookId: number) {
-  const fOpts: RequestInit = { method: "post", credentials: "include" };
-  return insertId(DL_BOOK_ROUTE, bookId);
-  // const apiURL = insertId(DL_BOOK_ROUTE, bookId);
-  // /* const { data, name } =  */ await fetch(apiURL, fOpts).then((r) =>
-  // r.json()
-  // );
-  /* const blob = new Blob([data], {
-    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  a.click();
-  window.URL.revokeObjectURL(url); */
+  return insertId(API_DL_BOOK_ROUTE, bookId);
+}
+
+// Generate a writing prompt from the API
+export async function getWritingPrompt() {
+  const { prompt } = await fetch(API_PROMPT).then((r) => r.json());
+  return prompt;
 }
 
 /** Load and focus a single world */

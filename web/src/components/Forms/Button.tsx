@@ -71,7 +71,7 @@ type WithIconProps = {
   /** Name of Material Icon to apply (e.g. `account_circle`) */
   icon: string;
   /** Link or Button text */
-  text: string | JSX.Element;
+  text?: string | JSX.Element;
 };
 type LinkWithIconProps = Pick<
   ComponentPropsWithRef<"a">,
@@ -86,7 +86,7 @@ type LinkWithIconProps = Pick<
 
 /** An anchor tag with button stylings and an inline icon */
 export const LinkWithIcon = (props: LinkWithIconProps) => {
-  const { icon, text, external, href = "", variant, ...linkProps } = props;
+  const { icon, text = "", external, href = "", variant, ...linkProps } = props;
 
   return external ? (
     <ButtonLink target="_blank" href={href} variant={variant} {...linkProps}>
@@ -109,8 +109,7 @@ export const ButtonWithIcon = (props: ButtonWithIconProps) => {
   return (
     <Button {...buttonProps}>
       <MatIcon icon={icon} />
-      &nbsp;
-      {text}
+      {text && ` ${text}`}
     </Button>
   );
 };

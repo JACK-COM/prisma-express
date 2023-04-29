@@ -8,6 +8,8 @@ import {
   SectionType,
   TextRun
 } from "docx";
+import { Readable } from "stream";
+import { Request } from "express";
 
 const { Books } = context;
 // const BOOK_TEMPLATE = path.join(__dirname, "./documents/book-template-easyx.docx");
@@ -64,12 +66,12 @@ export async function generateDocx(id: Book["id"]): Promise<DocxData> {
     description: book.description || `A book by ${authorName}`,
     styles: {
       default: {
-        heading1: { run: { font: "Calibri" }, paragraph },
-        heading2: { run: { font: "Calibri" }, paragraph },
-        heading3: { run: { font: "Calibri" }, paragraph },
-        heading4: { run: { font: "Calibri" }, paragraph },
-        heading5: { run: { font: "Calibri" }, paragraph },
-        heading6: { run: { font: "Calibri" }, paragraph }
+        heading1: { run: { font: "Helvetica" }, paragraph },
+        heading2: { run: { font: "Helvetica" }, paragraph },
+        heading3: { run: { font: "Helvetica" }, paragraph },
+        heading4: { run: { font: "Helvetica" }, paragraph },
+        heading5: { run: { font: "Helvetica" }, paragraph },
+        heading6: { run: { font: "Helvetica" }, paragraph }
       }
     },
     sections: [
@@ -122,6 +124,41 @@ export async function generateDocx(id: Book["id"]): Promise<DocxData> {
   });
   const fileBuf = await Packer.toBuffer(docxFile);
   return { data: fileBuf, name: `${book.title}.docx` };
+}
+// Download request type
+type DLReq = Request<{ bookId: string }, any, any, any, Record<string, any>>;
+/** Express route handler for downloading a book */
+export async function downloadBookHandler(req: DLReq, res: any) {
+  // ensure authenticated user
+  // if (!req.user) return res.status(401).send({ message: "Unauthorized" });
+
+  // get book id from params
+  const { bookId } = req.params;
+  const returnError = () =>
+    res.status(500).send({ message: "Error generating document" });
+  try {
+    const download = await generateDocx(Number(bookId));
+    if (!download.data) returnError();
+
+    // set headers
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${download.name}`
+    );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
+
+    // create read stream and pipe to response
+    const readStream = new Readable();
+    readStream.push(download.data);
+    readStream.push(null);
+    readStream.pipe(res);
+  } catch (error) {
+    console.log({ error });
+    returnError();
+  }
 }
 
 /** Split a body of text by a specific tag, and remove the tag from the resulting list */

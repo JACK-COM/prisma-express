@@ -15,7 +15,7 @@ const PageHeader = styled.header`
   ${PageDescription} {
     margin-bottom: 0.75rem;
   }
-`
+`;
 
 // Default Layout for app pages
 const PageLayout = (props: PageLayoutProps) => {
@@ -24,12 +24,12 @@ const PageLayout = (props: PageLayoutProps) => {
     // Header
     <PageContainer>
       <PageHeader>
-        {breadcrumbs && <Breadcrumbs data={breadcrumbs} />}
         <PageTitle>{title}</PageTitle>
         {description && (
           <PageDescription dangerouslySetInnerHTML={{ __html: description }} />
         )}
       </PageHeader>
+      {breadcrumbs && Boolean(false) && <Breadcrumbs data={breadcrumbs} />}
 
       {/* Page content */}
       {children}

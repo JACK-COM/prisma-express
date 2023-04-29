@@ -101,8 +101,6 @@ const BookPreviewRoute = () => {
   };
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const download = () => focusedBook && window.open(downloadBookURL(focusedBook?.id), "_blank");
-
   // Handle content links: this will attach event listeners to every `<a>` tag in the rendered content
   // with that contains `/link/` in the `href` attribute. When clicked, the link will be parsed and the
   // attach event listener will call `goToLink` with the parsed data.
@@ -168,10 +166,6 @@ const BookPreviewRoute = () => {
       id="books-list"
       description="Book Preview"
     >
-      <Button variant="outlined" onClick={download}>
-        Download Book
-      </Button>
-
       <PreviewGrid columns="4fr 1.5fr" gap="0.6rem">
         {/* Overview/Summary */}
         <Content>

@@ -8,7 +8,7 @@ import {
 import { ThemeProvider } from "styled-components";
 import THEME from "./theme/index";
 import { GlobalUser } from "./state";
-import { AUTH_ROUTE } from "./utils";
+import { API_AUTH_ROUTE } from "./utils";
 import AppHeader from "components/AppHeader";
 import { useGlobalTheme } from "hooks/GlobalTheme";
 import { loadUser, loadUserData } from "hooks/loadUserData";

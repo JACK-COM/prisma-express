@@ -85,6 +85,15 @@ const WorldLocationsListRoute = () => {
     clearModalData();
     clearGlobalWorld();
   };
+  const worldIcon = useMemo(
+    () =>
+      focusedWorld ? (
+        <WorldPublicIcon data={focusedWorld} permissions={role} />
+      ) : (
+        <></>
+      ),
+    [focusedWorld]
+  );
 
   useEffect(() => {
     loadComponentData();
@@ -97,18 +106,11 @@ const WorldLocationsListRoute = () => {
       breadcrumbs={[WorldPaths.Index, WorldPaths.Locations]}
       title={
         <>
-          {focusedWorld && (
-            <WorldPublicIcon data={focusedWorld} permissions={role} />
-          )}
-          {place}
+          {worldIcon} {place}
         </>
       }
+      description={`(<b class="${publicClass}">${worldPublic}</b>) All <b>unique story settings</b> in <b>${worldName}</b>`}
     >
-      <PageDescription>
-        (<b className={publicClass}>{worldPublic}</b>) All{" "}
-        <b>unique story settings</b> in <b>{worldName}</b>
-      </PageDescription>
-
       <PageGrid gap="0.6rem">
         <WorldLocationsList
           focusedWorld={focusedWorld}

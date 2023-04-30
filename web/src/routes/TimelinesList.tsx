@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { Paths } from "routes";
-import { useGlobalModal } from "hooks/GlobalModal";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import PageLayout from "components/Common/PageLayout";
@@ -12,16 +11,13 @@ const { Timelines: TimelinePaths } = Paths;
 /** @route List of timelines */
 const TimelinesListRoute = () => {
   const { id: userId } = useGlobalUser(["id", "authenticated"]);
-  const { clearGlobalModal } = useGlobalModal();
   const { focusedTimeline, timelines = [] } = useGlobalWorld([
     "focusedTimeline",
     "timelines"
   ]);
-  const clearComponentData = () => clearGlobalModal();
 
   useEffect(() => {
     loadTimelines({ userId });
-    return () => clearComponentData();
   }, []);
 
   return (

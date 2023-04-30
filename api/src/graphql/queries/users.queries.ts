@@ -8,10 +8,10 @@ import * as UsersService from "../../services/users.service";
 
 /** Get authenticated user */
 export const getAuthUser = queryField("getAuthUser", {
-  type: "MFUser",
+  type: "MFAuthor",
   description: "Get the currently authenticated user",
   resolve: async (_, _args, { user }) => {
     if (!user) return null;
-    return await UsersService.getUser({ id: user.id });
+    return await UsersService.getUser(user.id);
   }
 });

@@ -3,16 +3,17 @@
 import {
   MFUserFragment,
   MFWorldFragment,
-  MFCharacterFragment,
-  MFLocationFragment,
-  MFRelationshipFragment,
-  MFTimelineFragment,
-  MFTimelineEventFragment,
-  MFEventFragment,
   MFBookFragment,
   MFChapterFragment,
+  MFCharacterFragment,
+  MFContentLinkFragment,
+  MFEventFragment,
+  MFLocationFragment,
+  MFRelationshipFragment,
   MFSceneFragment,
-  MFSeriesFragment
+  MFSeriesFragment,
+  MFTimelineEventFragment,
+  MFTimelineFragment
 } from "./fragments";
 
 /** Create new `User` */
@@ -213,5 +214,29 @@ export const publishBookMutation = () => `
 mutation PublishBook($id: Int!) {
   publishBook(id: $id) {
     ${MFBookFragment}
+  }
+}`;
+
+/** Alter a user */
+export const upsertUserMutation = () => `
+mutation UpdateUser($data: MFUserUpsertInput!, $id: Int!) {
+  updateUser(id: $id, data: $data) {
+    ${MFUserFragment}
+  }
+}`;
+
+/** Create multiple `ContentLinks` */
+export const upsertContentLinksMutation = () => `
+mutation UpsertContentLinks($data: [MFContentLinkUpsertInput!]) {
+  upsertContentLinks(data: $data) {
+    ${MFContentLinkFragment}
+  }
+}`;
+
+/** Delete a `ContentLink` */
+export const deleteContentLinkMutation = () => `
+mutation DeleteContentLink($id: Int!) {
+  deleteContentLink(id: $id) {
+    ${MFContentLinkFragment}
   }
 }`;

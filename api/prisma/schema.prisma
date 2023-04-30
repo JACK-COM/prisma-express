@@ -20,6 +20,7 @@ enum Climate {
   Warm
   Temperate
   Polar
+  Unspecified
 }
 
 // The status of a Chapter
@@ -59,10 +60,13 @@ enum Richness {
   Adequate
   Sparse
   Barren
+  Unspecified
 }
 
 // A type of application user
 enum UserRole {
+  Admin
+  Moderator
   Author
   Reader
 }
@@ -81,6 +85,8 @@ model User {
   id                    Int                     @id @default(autoincrement())
   email                 String                  @unique @db.VarChar(255)
   displayName           String
+  firstName             String?
+  lastName              String?
   authSource            Authenticator // Authenticator (facebook, google, twitter, other)
   password              String?                 @db.VarChar(255) // Account password
   role                  UserRole
@@ -125,19 +131,20 @@ model Book {
 
 // A Chapter is a collection of one or more Scenes. 
 model Chapter {
-  id          Int           @id @default(autoincrement())
+  id          Int                @id @default(autoincrement())
   order       Int
   title       String
   description String
   authorId    Int? // ( references User )
   bookId      Int
-  created     DateTime      @default(now()) // Item created
-  lastUpdated DateTime      @default(now()) // Item updated
-  status      ChapterStatus @default(Draft)
+  created     DateTime           @default(now()) // Item created
+  lastUpdated DateTime           @default(now()) // Item updated
+  status      ChapterStatus      @default(Draft)
   Scenes      Scene[]
-  Author      User?         @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  Book        Book          @relation(fields: [bookId], references: [id], onDelete: Cascade)
   Notes       Notes[]
+  Links       SceneContentLink[]
+  Author      User?              @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Book        Book               @relation(fields: [bookId], references: [id], onDelete: Cascade)
 }
 
 // A Character is a significant actor in a World or other location.
@@ -169,6 +176,36 @@ model CharacterRelationship {
   Author       User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
 }
 
+// Collaborations track content-specific contributions from multiple users.
+model Collaboration {
+  id             Int  @id @default(autoincrement())
+  authorId       Int // ( references User )
+  collaboratorId Int // ( references User )
+  seriesId       Int? // ( references Series | nullable )
+  bookId         Int // ( references Book | nullable )
+  chapterId      Int? // ( references Chapter | nullable )
+  sceneId        Int? // ( references Scene | nullable )
+}
+
+// A SceneContentLink is a direct link to a piece of content (e.g. a chapter or scene) 
+model SceneContentLink {
+  id          Int      @id @default(autoincrement())
+  text        String
+  originId    Int // ( references Scene )
+  seriesId    Int? // ( references Series | nullable )
+  bookId      Int // ( references Book | nullable )
+  chapterId   Int? // ( references Chapter | nullable )
+  sceneId     Int? // ( references Scene | nullable )
+  authorId    Int? // ( references User )
+  characterId Int? // ( references Character)
+  locationId  Int? // ( references Location)
+  worldId     Int? // ( references World)
+  created     DateTime @default(now()) // Item created
+  lastUpdated DateTime @default(now()) // Item updated
+  Chapter     Chapter? @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  Scene       Scene    @relation(fields: [originId], references: [id], onDelete: Cascade)
+}
+
 // An Event is a significant occurrence in a World or other location that acts as a story catalyst. It may affect a World, a Location, or one or more Characters.
 model Event {
   id            Int              @id @default(autoincrement())
@@ -189,21 +226,27 @@ model Event {
   World         World            @relation(fields: [worldId], references: [id], onDelete: Cascade)
 }
 
-// A Location is typically a place on a world, but can also be a subregion or setting in another location (e.g. a city on a planet; a region in a city; a house in a city region).
+// A Location is a fixed setting, or a subregion of one (e.g. a city on a planet; a house in a city region).
 model Location {
-  id          Int               @id @default(autoincrement())
-  name        String
-  description String
-  authorId    Int?
-  worldId     Int // ( references World )
-  climate     Climate           @default(Temperate)
-  fauna       Richness          @default(Adequate)
-  flora       Richness          @default(Adequate)
-  Characters  Character[]
-  Events      Event[]
-  Groups      PopulationGroup[]
-  Author      User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  World       World             @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  id               Int               @id @default(autoincrement())
+  name             String
+  description      String
+  authorId         Int?
+  parentLocationId Int? // ( references Location | nullable )
+  worldId          Int // ( references World )
+  northOf          Int? // ( references Location | nullable )
+  southOf          Int? // ( references Location | nullable )
+  eastOf           Int? // ( references Location | nullable )
+  westOf           Int? // ( references Location | nullable )
+  near             Int? // ( references Location | nullable )
+  climate          Climate?          @default(Unspecified)
+  fauna            Richness?         @default(Unspecified)
+  flora            Richness?         @default(Unspecified)
+  Characters       Character[]
+  Events           Event[]
+  Groups           PopulationGroup[]
+  Author           User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  World            World             @relation(fields: [worldId], references: [id], onDelete: Cascade)
 }
 
 // A Group is a collection of Characters in a World or other location.
@@ -224,24 +267,25 @@ model PopulationGroup {
 
 // A Scene is a collection of paragraphs where one or more Characters interact with (each other or a) distinct setting within a Location. A Scene happens in the context of a Story Chapter.
 model Scene {
-  id             Int            @id @default(autoincrement())
+  id             Int                @id @default(autoincrement())
   order          Int
   title          String
   description    String?
-  text           String         @db.Text()
+  text           String             @db.Text()
   authorId       Int? // ( references User )
   chapterId      Int // ( references Chapter | nullable )
   characterId    Int?
   eventContextId Int? // ( references TimelineEvent | nullable )
   timelineId     Int? // ( references Timeline | nullable )
-  created        DateTime       @default(now()) // Item created
-  lastUpdated    DateTime       @default(now()) // Item updated
-  Author         User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  Chapter        Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  Character      Character?     @relation(fields: [characterId], references: [id])
-  EventContext   TimelineEvent? @relation(fields: [eventContextId], references: [id], onDelete: SetNull)
-  Timeline       Timeline?      @relation(fields: [timelineId], references: [id], onDelete: SetNull)
+  created        DateTime           @default(now()) // Item created
+  lastUpdated    DateTime           @default(now()) // Item updated
   Notes          Notes[]
+  Links          SceneContentLink[]
+  Author         User?              @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Chapter        Chapter            @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  Character      Character?         @relation(fields: [characterId], references: [id])
+  EventContext   TimelineEvent?     @relation(fields: [eventContextId], references: [id], onDelete: SetNull)
+  Timeline       Timeline?          @relation(fields: [timelineId], references: [id], onDelete: SetNull)
 }
 
 // A Series is a collection of two or more Books. 
@@ -288,18 +332,19 @@ model TimelineEvent {
 
 // A world is a super-set of locations
 model World {
-  id          Int               @id @default(autoincrement())
-  public      Boolean           @default(true)
-  name        String
-  description String
-  type        WorldType         @default(Universe)
-  authorId    Int?
-  Locations   Location[]
-  Timelines   Timeline[]
-  Events      Event[]
-  Groups      PopulationGroup[]
-  Characters  Character[]
-  Author      User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  id            Int               @id @default(autoincrement())
+  public        Boolean           @default(true)
+  name          String
+  description   String
+  type          WorldType         @default(Universe)
+  authorId      Int?
+  parentWorldId Int? // ( references World | nullable )
+  Locations     Location[]
+  Timelines     Timeline[]
+  Events        Event[]
+  Groups        PopulationGroup[]
+  Characters    Character[]
+  Author        User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
 }
 
 // A Library associates a User with one or more Books

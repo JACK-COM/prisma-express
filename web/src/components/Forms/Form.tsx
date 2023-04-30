@@ -55,12 +55,13 @@ export const Textarea = styled.textarea`
   ${sharedInputStyles};
   height: 120px;
 `;
-export const Label = styled.label<{ direction?: "row" | "column" }>`
-  align-items: ${({ direction }) =>
+type LabelProps = { direction?: "row" | "column"; columns?: string };
+export const Label = styled.label<LabelProps>`
+  align-items: ${({ direction = "row" }) =>
     direction === "row" ? "center" : undefined};
   display: grid;
-  grid-template-columns: ${({ direction }) =>
-    direction === "column" ? "auto" : "max-content auto"};
+  grid-template-columns: ${({ direction = "row", columns }) =>
+    columns || (direction === "column" ? "auto" : "max-content auto")};
 
   .label {
     color: ${({ theme }) => theme.colors.secondary};

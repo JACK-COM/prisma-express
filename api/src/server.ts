@@ -9,6 +9,8 @@ import { schema } from "./graphql/index";
 import { context } from "./graphql/context";
 import logger from "./logger";
 import { configurePassport } from "./services/passport";
+import { downloadBookHandler } from "./services/document.service";
+import { generateWritingPromptHandler } from "./services/openai.service";
 
 const { PORT = 4001, UIPORT = 3000 } = process.env;
 const env = process.env.NODE_ENV || "development";
@@ -42,6 +44,9 @@ async function main() {
   });
   await apolloServer.start();
   apolloServer.applyMiddleware({ app, cors: { credentials: true, origin } });
+
+  app.use("/books/:bookId/download/", downloadBookHandler);
+  app.use("/books/writing-prompt", generateWritingPromptHandler);
 
   // LISTEN TO APP
   app.listen(PORT, async () => {

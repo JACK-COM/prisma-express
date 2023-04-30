@@ -6,10 +6,11 @@ import { Prisma, User } from "@prisma/client";
 import { DateTime } from "luxon";
 import { context } from "../graphql/context";
 
-type UpsertUserInput =
+export type UpsertUserInput =
   | Prisma.UserUpsertArgs["create"] & Prisma.UserUpsertArgs["update"];
-type SearchUserInput = Pick<User, "email">;
-type UserByIdInput = Pick<User, "id">;
+type SearchUserInput = Partial<
+  Pick<User, "displayName" | "firstName" | "lastName" | "email">
+>;
 const { Users } = context;
 
 /** create `User` record */
@@ -17,8 +18,8 @@ export async function upsertUser(user: UpsertUserInput) {
   const today = DateTime.now().toISO();
   const data: UpsertUserInput = {
     ...user,
-    role: user.role || "Author",
-    created: today,
+    role: user.role || "Reader",
+    created: user.created || today,
     lastSeen: today
   };
 
@@ -27,13 +28,19 @@ export async function upsertUser(user: UpsertUserInput) {
     : Users.create({ data });
 }
 
-/** find all `User` records matching params */
-export async function findAllUser(where: SearchUserInput) {
+/** find ALL `User` records matching params */
+export async function findAllUser(filters: SearchUserInput) {
+  const where = constructeWhereInput(filters);
   return Users.findMany({ where });
 }
 
-/** find one `User` record matching params */
-export async function getUser(where: UserByIdInput | SearchUserInput) {
+/** find FIRST `User` records matching params */
+export async function findFirstUser(where: SearchUserInput & { id?: number }) {
+  return Users.findUnique({ where });
+}
+
+/** find ONE `User` record matching params (returns more stuff) */
+export async function getExpandedUser(where: SearchUserInput) {
   return Users.findUnique({
     where,
     include: {
@@ -46,22 +53,29 @@ export async function getUser(where: UserByIdInput | SearchUserInput) {
   });
 }
 
-/** update one `User` record matching params */
-export async function updateUser(where: UserByIdInput | SearchUserInput) {
-  const user = await Users.findUnique({ where });
-  if (!user) return null;
-
-  const lastSeen = DateTime.now().toISO();
-  return Users.update({ data: { ...user, lastSeen }, where });
+/** find one `User` record matching params */
+export async function getUser(id: User["id"]) {
+  return findFirstUser({ id });
 }
+
+/** delete `User` record matching params */
+export async function deleteUser(id: number) {
+  return Users.delete({ where: { id } });
+}
+
+// ROLES AND AUTHORIZATION
 
 /** Require user `id` to match or exceed role `role` */
 export async function requireRole(
-  id: UserByIdInput["id"],
+  id: User["id"],
   requiredRole: User["role"] = "Author"
 ) {
-  const { role: userRole } = (await getUser({ id })) || { role: "Reader" };
-  return isAuthorized(userRole, requiredRole);
+  const where: Prisma.UserWhereUniqueInput = { id };
+  const include: Prisma.UserSelect = { role: true };
+  const args = { where, include };
+  const fallback: { role: User["role"] } = { role: "Reader" };
+  const { role } = (await Users.findFirst(args)) || fallback;
+  return isAuthorized(role, requiredRole);
 }
 
 const roleRanks: User["role"][] = ["Reader", "Author"];
@@ -71,10 +85,15 @@ export function isAuthorized(role: User["role"], ref: User["role"] = "Author") {
   return roleRanks.indexOf(role || "Reader") >= roleRanks.indexOf(ref);
 }
 
-/** delete `User` record matching params */
-export async function deleteUser(where: UserByIdInput) {
-  const exists = await getUser(where);
-  if (!exists) return null;
-  await Users.delete({ where });
-  return exists;
+// HELPERS
+
+function constructeWhereInput(filters: SearchUserInput) {
+  const where: Prisma.UserWhereInput & Prisma.UserWhereUniqueInput = {};
+  if (filters.email) where.email = filters.email;
+
+  where.OR = [];
+  if (filters.displayName) where.OR.push({ displayName: filters.displayName });
+  if (filters.firstName) where.OR.push({ firstName: filters.firstName });
+  if (filters.lastName) where.OR.push({ lastName: filters.lastName });
+  return where;
 }

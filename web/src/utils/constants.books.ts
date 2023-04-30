@@ -5,28 +5,29 @@
 
 // Genres
 const FICTION = [
-  "Fiction",
   "Action",
-  "Drama",
+  "Adventure",
   "Children's",
-  "Classical",
   "Christian",
-  "Young Adult",
+  "Classical",
+  "Comedy/Humor",
+  "Drama",
+  "Erotica",
   "Fable",
   "Fairy Tale",
   "Fantasy",
   "Fiction",
+  "Fiction",
   "Folklore",
   "Historical Fiction",
   "Horror",
-  "Thriller",
-  "Comedy/Humor",
-  "Romance",
-  "Erotica",
   "LGBTQ+",
   "Mystery",
   "Poetry",
+  "Romance",
   "Sci-Fi",
+  "Thriller",
+  "Young Adult",
   "Other"
 ];
 const NONFICTION = [

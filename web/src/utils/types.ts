@@ -1,6 +1,6 @@
 export type ContentStatus = "live" | "draft" | "hidden";
 export type ReporterType = "experiencer" | "observer" | "researcher";
-export type UserRole = "Author" | "Reader";
+export type UserRole = "Admin" | "Moderator" | "Author" | "Reader";
 export type NullableString = string | null;
 
 /** Saved data from server. Use when an id is expected on an object */
@@ -19,7 +19,8 @@ export enum Authenticator {
 export enum Climate {
   Warm = "Warm",
   Temperate = "Temperate",
-  Polar = "Polar"
+  Polar = "Polar",
+  Unspecified = "Unspecified"
 }
 
 /** The type of significant Event that occurs in a World */
@@ -100,7 +101,8 @@ export enum Richness {
   Abundant = "Abundant",
   Adequate = "Adequate",
   Sparse = "Sparse",
-  Barren = "Barren"
+  Barren = "Barren",
+  Unspecified = "Unspecified"
 }
 
 /** The type of World (super-set of locations)  */
@@ -191,6 +193,7 @@ export type Chapter = {
   title: string;
   description: string;
   Scenes: APIData<Scene>[];
+  Links: APIData<ContentLink>[];
 } & AuthorRelation &
   BookRelation;
 
@@ -213,6 +216,17 @@ export type CharacterRelationship = {
 } & CharacterRelation &
   AuthorRelation;
 
+/** A `ContentLink` allows an author to link to a book scene */
+export type ContentLink = {
+  bookId: number;
+  text: string;
+  originId: number;
+  seriesId?: number;
+  chapterId?: number;
+  sceneId?: number;
+  authorId?: number;
+};
+
 /** `Event` (`WorldEvent` in UI) is a significant `World` occurrence */
 export type WorldEvent = {
   name: string;
@@ -232,6 +246,12 @@ export type Location = {
   climate: Climate;
   fauna: Richness;
   flora: Richness;
+  parentLocationId?: number;
+  westOf?: number;
+  eastOf?: number;
+  northOf?: number;
+  southOf?: number;
+  near?: number;
   Characters: Character[];
   Events: Event[];
   Groups: PopulationGroup[];
@@ -259,6 +279,7 @@ export type Scene = {
   Chapter?: APIData<Chapter>;
   eventContextId?: number;
   EventContext: APIData<TimelineEvent>;
+  Links: APIData<ContentLink>[]; // ( references ContentLink  )
 } & AuthorRelation &
   CharacterRelation &
   LocationRelation &
@@ -296,6 +317,7 @@ export type World = {
   name: string;
   description: string;
   type: WorldType;
+  parentWorldId?: number;
   Locations: APIData<Location>[];
   Timelines: APIData<Timeline>[];
   Events: APIData<WorldEvent>[];

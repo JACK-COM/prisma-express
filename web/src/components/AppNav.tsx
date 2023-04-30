@@ -1,14 +1,13 @@
 import styled from "styled-components";
-import { Paths } from "routes/index";
-import ListView from "components/Common/ListView";
+import { AppRouteDef, Paths } from "routes/index";
 import { FlexColumn, MatIcon } from "components/Common/Containers";
-import { ButtonLink, RoundButton, StyledLink } from "components/Forms/Button";
+import { ButtonLink, RoundButton } from "components/Forms/Button";
 import ThemeSelector from "./ThemeSelector";
 import AppAuth from "./AppAuth";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useMatch } from "react-router-dom";
 import ModalDrawer from "./Modals/ModalDrawer";
 import { useGlobalWindow } from "hooks/GlobalWindow";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Menu = styled.nav`
   align-items: center;
@@ -25,11 +24,15 @@ const Menu = styled.nav`
 
 const FloatingButtons = styled.div`
   position: fixed;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-column-gap: 0.4rem;
   top: 0.5rem;
   right: 0.5rem;
   z-index: 999;
 
   @media screen and (max-width: 768px) {
+    grid-template-columns: repeat(4, 1fr);
     position: relative;
     top: auto;
     right: auto;
@@ -40,10 +43,15 @@ const routes = [Paths.Library, Paths.Characters, Paths.Worlds, Paths.Timelines];
 
 const AppNav = () => {
   const searchPath = Paths.Search.Index.path;
+  const location = useLocation();
   const { isMobile } = useGlobalWindow();
   const [open, setOpen] = useState(false);
   const closeDrawer = () => setOpen(false);
   const toggleDrawer = () => (isMobile ? setOpen(!open) : closeDrawer());
+
+  useEffect(() => {
+    closeDrawer();
+  }, [location]);
 
   return (
     <>
@@ -100,22 +108,33 @@ const MenuLinksContainer = styled(FlexColumn)`
 `;
 
 const NavLink = styled(Link)`
-  color: white;
+  color: #fff;
   text-shadow: ${({ theme }) => theme.presets.elevate.xs} #000;
+  font-size: 0.9rem;
   height: 2.5rem;
   line-height: 2.5rem;
+  padding: 0 0.6rem;
 
-  &:hover {
-    color: ${({ theme }) => theme.colors.accent};
+  &:hover,
+  &.active {
+    background-color: ${({ theme }) => theme.colors.accent}2c;
+    text-shadow: none;
+  }
+
+  &.active:hover {
+    color: initial;
   }
 `;
 
 function MenuLinks() {
+  const active = ({ path }: AppRouteDef) => useMatch(path) !== null;
+  const cn = (r: AppRouteDef) => (active(r) ? "active" : "");
+
   return (
     <MenuLinksContainer className="menu--links">
-      <h6 className="primary--text">Menu</h6>
+      <h6 className="primary--text">NAVIGATION</h6>
       {routes.map((r) => (
-        <NavLink key={r.Index.path} to={r.Index.path}>
+        <NavLink key={r.Index.path} className={cn(r.Index)} to={r.Index.path}>
           {r.Index.text}
         </NavLink>
       ))}

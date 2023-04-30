@@ -2,11 +2,11 @@ import { Authenticator, User } from "@prisma/client";
 import { Express } from "express";
 import { DateTime } from "luxon";
 import cookieParser from "cookie-parser";
-import session, { CookieOptions, SessionOptions } from "express-session";
+import session from "cookie-session";
 import passport from "passport";
 import GoogleStrategy from "passport-google-oidc";
 import { CtxUser } from "../graphql/context";
-import { getUser, upsertUser } from "../services/users.service";
+import { findFirstUser, upsertUser } from "../services/users.service";
 import configureAuthRoutes from "../routes/auth.router";
 
 type PassportUser = {
@@ -33,7 +33,6 @@ type PassportUser = {
 
 export default passport;
 
-// const MemoryStore = require("memorystore")(session);
 const clientID = process.env.GOOGLE_CLIENT_ID;
 const clientSecret = process.env.GOOGLE_CLIENT_SK;
 const PORT = process.env.PORT;
@@ -43,6 +42,9 @@ const toCtxUser = (u: User): CtxUser => ({
   id: u.id,
   email: u.email,
   role: u.role,
+  displayName: u.displayName,
+  firstName: u.firstName,
+  lastName: u.lastName,
   lastSeen: DateTime.now().toJSDate()
 });
 
@@ -50,8 +52,8 @@ export function configurePassport(app: Express) {
   const secret = process.env.JWT_SEC;
   if (!secret) throw new Error("env JWT_SEC not set: run generate-keys");
   const secure = process.env.NODE_ENV === "production";
-  const sessionCookie: CookieOptions = { maxAge, httpOnly: true, secure };
-  const sessionOpts: SessionOptions = {
+  const sessionCookie = { maxAge, httpOnly: true, secure };
+  const sessionOpts = {
     cookie: sessionCookie,
     secret,
     resave: true,
@@ -60,6 +62,21 @@ export function configurePassport(app: Express) {
 
   app.use(cookieParser(secret));
   app.use(session(sessionOpts));
+  // register regenerate & save after the cookieSession middleware initialization
+  // See: https://github.com/jaredhanson/passport/issues/904#issuecomment-1307558283
+  app.use(function (req, _res, next) {
+    if (req.session && !req.session.regenerate) {
+      req.session.regenerate = ((cb: any) => {
+        cb();
+      }) as any;
+    }
+    if (req.session && !req.session.save) {
+      req.session.save = ((cb: any) => {
+        cb();
+      }) as any;
+    }
+    next();
+  });
   app.use(passport.initialize());
   app.use(passport.session());
 
@@ -104,10 +121,10 @@ async function verify(
   // Retrieve or create user
   const [{ value: email }] = profile.emails;
   const internalUser =
-    (await getUser({ email })) ||
+    (await findFirstUser({ email })) ||
     (await upsertUser({
       email,
-      role: 'Author',
+      role: "Author",
       displayName: email,
       authSource: getAuthIssuer(issuer)
     }));

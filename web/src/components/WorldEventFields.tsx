@@ -21,6 +21,7 @@ import {
 } from "utils/types";
 import styled from "styled-components";
 import { MatIcon } from "./Common/Containers";
+import { GlobalUser } from "state";
 
 export type WorldEventFieldProps = {
   data: Partial<CreateEventData>;
@@ -57,6 +58,8 @@ export function WorldEventFormFields(props: WorldEventFieldProps) {
     () => worlds.find((w) => w.id === data.worldId) || null,
     [data.worldId, worlds]
   );
+  const { id: userId } = GlobalUser.getState()
+  // const owner = data.
   const [showDesc, setShowDesc] = useState(false);
   const updateName = (e: ChangeEvent<HTMLInputElement>, i: number) => {
     onChanged({ ...data, name: e.target.value }, i);

@@ -1,58 +1,96 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import Breadcrumbs from "components/Common/Breadcrumbs";
 import {
   Card,
   CardTitle,
-  PageContainer,
-  PageDescription,
-  PageTitle
+  GridContainer,
+  MatIcon
 } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
-import { Paths } from "routes";
-import ManageBookModal from "components/Modals/ManageBookModal";
-import ListView from "components/Common/ListView";
-import BookItem from "components/BookItem";
+import { Paths, insertId } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { APIData, Book, Chapter, Scene } from "utils/types";
-import { useGlobalUser } from "hooks/GlobalUser";
-import { SharedButtonProps } from "components/Forms/Button.Helpers";
+import { APIData, Chapter, Scene, UserRole } from "utils/types";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
 import {
   GlobalLibrary,
+  MODAL,
   addNotification,
   clearGlobalBooksState,
-  updateAsError
+  setGlobalModal,
+  setGlobalScene,
+  updateAsError,
+  updateNotification
 } from "state";
 import PageLayout from "components/Common/PageLayout";
 import ChaptersList from "components/List.Chapters";
-import { useNavigate, useParams } from "react-router";
-import { loadBook, loadChapter } from "hooks/loadUserData";
+import { useParams } from "react-router";
+import {
+  downloadBookURL,
+  getWritingPrompt,
+  loadBook,
+  loadChapter
+} from "hooks/loadUserData";
 import ModalDrawer from "components/Modals/ModalDrawer";
 import TinyMCE from "components/Forms/TinyMCE";
 import { useGlobalWindow } from "hooks/GlobalWindow";
-import { noOp, suppressEvent } from "utils";
-import { Form } from "components/Forms/Form";
 import { upsertScene } from "graphql/requests/books.graphql";
+import { ChaptersIcon } from "components/ComponentIcons";
+import { useGlobalUser } from "hooks/GlobalUser";
 
 const { Library } = Paths;
-const AddWorldButton = styled(ButtonWithIcon)`
-  align-self: end;
+const Ellipsis = styled.span`
+  ${({ theme }) => theme.mixins.ellipsis};
+  font-style: italic;
+  opacity: 0.6;
 `;
-const EditorForm = styled(Form)`
-  margin-top: 0;
-  max-width: unset;
+const Clickable = styled.span`
+  color: ${({ theme }) => theme.colors.accent};
+  cursor: pointer;
+  font-weight: bold;
 `;
-const EditorTitle = styled(CardTitle)`
+const EditorToolbar = styled(GridContainer)`
+  align-items: center;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.semitransparent};
+  border-top: 1px solid ${({ theme }) => theme.colors.semitransparent};
+  gap: ${({ theme }) => theme.sizes.xs};
+  > button {
+    padding: ${({ theme }) => theme.sizes.sm} 0;
+    width: 32px;
+  }
+  > .spacer {
+    display: inline-block;
+    width: 1px;
+    height: 32px;
+    background-color: ${({ theme }) => theme.colors.semitransparent};
+    right: 0;
+  }
+  .material-icons {
+    font-size: ${({ theme }) => theme.sizes.md};
+  }
+`;
+const SpanGrid = styled.span`
+  align-items: center;
   display: grid;
-  grid-template-columns: max-content auto;
-  gap: ${({ theme }) => theme.sizes.sm};
+  grid-column-gap: ${({ theme }) => theme.sizes.xs};
+  grid-template-columns: 32px max-content 32px;
 `;
+
+const getAndShowPrompt = async () => {
+  const notificationId = addNotification("Generating writing prompt...", true);
+  const prompt = await getWritingPrompt();
+  updateNotification(prompt, notificationId, true);
+};
+
+// Instance of Editor Toolbar
+const TOOLBAR_BUTTONS = (dlUrl: string) => [
+  { icon: "segment", onClick: () => setGlobalModal(MODAL.SELECT_CHAPTER) },
+  { icon: "download", onClick: () => window.open(dlUrl, "_self") },
+  { icon: "tips_and_updates", onClick: getAndShowPrompt },
+  { icon: "add_link", onClick: () => setGlobalModal(MODAL.LINK_SCENE) }
+];
 
 /** ROUTE: List of worlds */
 const BooksEditorRoute = () => {
-  const { height } = useGlobalWindow();
-  const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const {
     chapters = [],
     focusedBook,
@@ -64,23 +102,27 @@ const BooksEditorRoute = () => {
     "focusedScene",
     "focusedBook"
   ]);
+  const { height } = useGlobalWindow();
+  const { active, clearGlobalModal } = useGlobalModal();
+  const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
   const { bookId } = useParams<{ bookId: string }>();
   const [draft, updateDraft] = useState(focusedScene?.text || "");
-  const [pageTitle, chapterTitle, sceneName, chapterSelectOpen] = useMemo(
-    () => [
+  const [previewUrl, downloadUrl] = useMemo(() => {
+    if (!bookId) return ["#", "#"];
+    return [
+      insertId(Paths.Library.BookPreview.path, bookId),
+      downloadBookURL(Number(bookId))
+    ];
+  }, [bookId]);
+  const [pageTitle, chapterTitle, sceneName, role] = useMemo(() => {
+    const { title: chTitle, order: chOrder } = focusedChapter || {};
+    return [
       focusedBook?.title || Library.BookEditor.text,
-      focusedChapter
-        ? `${focusedChapter.order + 1}. ${focusedChapter.title}`
-        : "No chapter selected",
+      focusedChapter ? `${chOrder}. ${chTitle}` : "No chapter selected",
       focusedScene?.title || "",
-      !focusedChapter || active === MODAL.SELECT_CHAPTER
-    ],
-    [focusedBook, focusedChapter, focusedScene, active]
-  );
-  const pageSubtitle = useMemo(
-    () => `${chapterTitle}${sceneName ? ` - ${sceneName}` : ""}`,
-    [chapterTitle, sceneName]
-  );
+      (focusedBook?.authorId === userId ? "Author" : "Reader") as UserRole
+    ];
+  }, [focusedBook, focusedChapter, focusedScene, active]);
   const loadComponentData = async () => {
     if (bookId) {
       const { focusedScene: scene } = await loadBook(Number(bookId));
@@ -91,17 +133,17 @@ const BooksEditorRoute = () => {
     clearGlobalModal();
     clearGlobalBooksState();
   };
-  const focusChapter = async (chapter: APIData<Chapter>) => {
-    const { focusedScene: scene } = await loadChapter(chapter.id);
-    if (scene) updateDraft(scene.text);
+  const focusChapter = async (ch: APIData<Chapter>) => {
+    const { focusedScene } = await loadChapter(ch.id);
+    updateDraft(focusedScene?.text || "");
     clearGlobalModal();
   };
   const focusScene = async (scene: APIData<Scene>) => {
-    GlobalLibrary.focusedScene(scene);
+    setGlobalScene(scene);
     updateDraft(scene.text);
     clearGlobalModal();
   };
-  const updateScene = (content: string) => {
+  const updateText = (content: string) => {
     if (!focusedScene) return;
     updateDraft(content);
   };
@@ -111,10 +153,11 @@ const BooksEditorRoute = () => {
     const resp = await upsertScene({ ...focusedScene, text: draft });
     if (typeof resp === "string") updateAsError(resp, notificationId);
     else if (resp && focusedChapter) {
-      const chapterUpdates = await loadChapter(focusedChapter?.id, true);
-      GlobalLibrary.multiple({ ...chapterUpdates, focusedScene: resp });
+      const newScene = resp.Scenes.find(({ id }) => id === focusedScene.id);
+      GlobalLibrary.multiple({ focusedChapter: resp, focusedScene: newScene });
     }
   };
+  const editorToolbarBtns = TOOLBAR_BUTTONS(downloadUrl);
 
   useEffect(() => {
     updateDraft(focusedScene?.text || "");
@@ -124,42 +167,69 @@ const BooksEditorRoute = () => {
 
   return (
     <PageLayout
-      title={pageTitle}
-      breadcrumbs={[Library.Index]}
+      title={
+        <SpanGrid>
+          <MatIcon className="success--text" icon="edit_document" />
+          <span>{pageTitle}</span>
+        </SpanGrid>
+      }
+      breadcrumbs={[Library.Index, Library.BookEditor]}
       id="books-list"
-      description={`Create or edit your <b>work</b> here.`}
+      description={
+        focusedChapter
+          ? `<b class="accent--text">${chapterTitle}</b> ${
+              sceneName ? `<em class="accent--text">- ${sceneName}</em>` : ""
+            } - <a href="${previewUrl}"><b>Preview</b></a>`
+          : `Manage your <b>book contents</b> here.`
+      }
     >
-      {focusedScene && (
-        <>
-          <EditorTitle>
+      <EditorToolbar
+        columns={`repeat(${editorToolbarBtns.length * 2 + 2}, max-content)`}
+      >
+        {editorToolbarBtns.map(({ icon, onClick }, i) => (
+          <Fragment key={i}>
             <ButtonWithIcon
+              disabled={!authenticated || role !== "Author"}
               type="button"
-              icon="segment"
+              icon={icon}
               text=""
               variant="transparent"
-              onClick={() => setGlobalModal(MODAL.SELECT_CHAPTER)}
+              onClick={onClick}
             />
-            {pageSubtitle}
-          </EditorTitle>
-          <TinyMCE
-            height={height * 0.78}
-            value={draft}
-            onChange={updateScene}
-            triggerSave={saveScene}
-          />
-        </>
+            {i < editorToolbarBtns.length - 1 && <hr className="spacer" />}
+          </Fragment>
+        ))}
+        <hr className="spacer" />
+        <Ellipsis>More toolbar buttons here</Ellipsis>
+      </EditorToolbar>
+
+      {focusedScene ? (
+        <TinyMCE
+          height={height * 0.78}
+          value={draft}
+          inline
+          onChange={updateText}
+          triggerSave={saveScene}
+        />
+      ) : (
+        <Card>
+          <Clickable onClick={() => setGlobalModal(MODAL.SELECT_CHAPTER)}>
+            {chapters.length ? "Select" : "Create"}
+          </Clickable>
+          &nbsp; a <b>chapter</b> to start writing!
+        </Card>
       )}
 
       <ModalDrawer
         title={`${pageTitle} - Chapters`}
         openTowards="right"
-        open={chapterSelectOpen}
+        open={active === MODAL.SELECT_CHAPTER}
         onClose={clearGlobalModal}
       >
         <ChaptersList
-          showTitle
           chapters={chapters}
           focusedChapter={focusedChapter}
+          focusedScene={focusedScene}
           onSelectChapter={focusChapter}
           onSelectScene={focusScene}
         />

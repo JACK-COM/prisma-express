@@ -15,6 +15,10 @@ export const Paths = {
     Index: {
       path: "/dashboard",
       text: "Dashboard"
+    },
+    Settings: {
+      path: "/dashboard/settings",
+      text: "User Settings"
     }
   },
 
@@ -23,7 +27,11 @@ export const Paths = {
       path: "/library",
       text: "Book Library"
     },
-    BookViewer: {
+    BookDeepLink: {
+      path: "/library/books/:bookId/link/:chapterOrder/:sceneOrder",
+      text: "View Book"
+    },
+    BookPreview: {
       path: "/library/books/:bookId/view",
       text: "View Book"
     },

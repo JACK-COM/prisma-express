@@ -13,6 +13,8 @@ type FlexContainerProps = {
   padded?: boolean;
 };
 
+export const Accent = styled.span.attrs({ className: "accent--text" })``;
+
 export const ExLink = styled.a.attrs({
   target: "_blank",
   rel: "noopener noreferrer"
@@ -23,18 +25,22 @@ export const BaseContainer = styled.section``;
 
 /** UI bordered section */
 export const Card = styled(BaseContainer).attrs({ className: "card" })`
-  border: ${({ theme }) => `1px dashed ${theme.colors.semitransparent}`};
+  border: ${({ theme }) => `1px dotted ${theme.colors.semitransparent}`};
   border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
-  padding: 1em;
+  padding: 0 1em 1em;
 
   @media screen and (max-width: 768px) {
     padding: 0.4em;
   }
 `;
-export const CardTitle = styled.h3.attrs({ className: "h4" })`
+export const CardTitle = styled.h4`
   border-bottom: 1px solid ${({ theme }) => theme.colors.semitransparent};
   height: 2.5em;
   line-height: 2.5em;
+`;
+export const CardSubitle = styled.h5`
+  height: 2.1em;
+  line-height: 2.1em;
 `;
 
 /** Page or View description element */
@@ -94,6 +100,7 @@ export const GridContainer = styled.div<{ columns?: string; gap?: string }>`
 
 export const ItemDescription = styled.div`
   ${lineclamp(1)};
+  color: ${({ theme }) => theme.colors.primary};
   font-size: smaller;
   grid-column: 2 / -1;
   grid-row: 2;
@@ -101,6 +108,7 @@ export const ItemDescription = styled.div`
   margin: 0;
   opacity: 0.7;
   padding: 0;
+  text-shadow: none;
   width: 100%;
 
   > p {
@@ -112,12 +120,20 @@ export const ItemName = styled.b.attrs({
   role: "button",
   tabIndex: -1
 })<NameProps>`
+  ${({ theme }) => theme.mixins.ellipsis};
   color: ${({ polarity }) => EventPolarityColors(polarity)};
+  font-family: ${({ theme }) => theme.presets.fonts.heading};
   grid-column: 2;
   grid-row: 1;
   pointer-events: ${({ permissions }) =>
     permissions === "Author" ? "fill" : "none"};
   width: fit-content;
+
+  /* Experimental
+  background: #10191839;
+  border-radius: 4px;
+  padding: 0 0.4rem;
+  /* Experimental */
 
   &:hover {
     color: ${({ theme }) => theme.colors.accent};
@@ -137,17 +153,21 @@ const sharedListItemStyles = css`
   column-gap: ${({ theme }) => theme.sizes.sm};
   cursor: pointer;
   display: grid;
-  grid-template-columns: 24px 10fr max-content;
+  grid-template-columns: 24px 10fr 3fr;
+  /* grid-template-columns: 24px 10fr max-content; */
   padding: ${({ theme }) => theme.sizes.xs};
+  text-shadow: ${({ theme }) => theme.presets.elevate.xxs} #001125ec;
   width: 100%;
 
   &:hover {
     background-color: ${({ theme }) => theme.colors.semitransparent};
+    text-shadow: none;
   }
 `;
 // Shared ListItem grid container
 export const ItemGridContainer = styled(GridContainer)<PermissionProps>`
   ${sharedListItemStyles}
+  grid-template-columns: 24px 10fr max-content;
   justify-content: space-between;
 
   .list-item {
@@ -267,9 +287,8 @@ export const MatIcon = ({ icon, ...props }: MatIconProps) => (
 
 export const GridItem = styled(GridContainer)`
   background-color: inherit;
-  border: 1px solid #232325;
+  border-top: 1px solid ${({ theme }) => theme.colors.semitransparent};
   grid-template-columns: ${({ columns = "auto 4.8rem" }) => columns};
-  margin-bottom: 1rem;
 
   &:last-of-type {
     margin: 0;

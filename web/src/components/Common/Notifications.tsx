@@ -43,7 +43,7 @@ const Notification = styled((props: NotificationProps) => {
     if (typeof notification === "string") return notification;
     if ((notification as Alert).msg) return notification?.msg;
     return "";
-  }, []);
+  }, [notification]);
 
   return (
     <Wrapper error={error} className={props.className} onClick={onClear}>
@@ -58,7 +58,12 @@ const Notification = styled((props: NotificationProps) => {
 export default Notification;
 
 export const AutoDismissNotification = styled((props: ADNProps) => {
-  const { timeout = 5000, className, notification } = props;
+  const { className, notification } = props;
+  const timeout = useMemo(
+    () => (notification.persistent ? 30000 : props.timeout || 8000),
+    [props.timeout]
+  );
+
   const [state, setState] = useState<ADNState>({
     timeout: null,
     class: `${className || ""} slide-in-left`

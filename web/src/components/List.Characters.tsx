@@ -4,13 +4,22 @@ import { useGlobalCharacter } from "hooks/GlobalCharacter";
 import styled from "styled-components";
 import { Card, CardTitle } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
-import { listRelationships } from "graphql/requests/characters.graphql";
+import {
+  deleteCharacter,
+  listRelationships
+} from "graphql/requests/characters.graphql";
 import CreateCharacterModal from "components/Modals/ManageCharacterModal";
 import ListView from "components/Common/ListView";
 import CharacterItem from "components/CharacterItem";
 import { APIData, Character, CharacterRelationship } from "utils/types";
 import CreateRelationshipsModal from "components/Modals/ManageRelationshipsModal";
-import { GlobalCharacter } from "state";
+import {
+  GlobalCharacter,
+  addNotification,
+  removeCharacterFromState,
+  updateAsError,
+  updateNotification
+} from "state";
 import { SharedButtonProps } from "components/Forms/Button.Helpers";
 
 const AddCharacterButton = styled(ButtonWithIcon)`
@@ -33,9 +42,7 @@ type CharactersListProps = {
 const CharactersList = (props: CharactersListProps) => {
   const { characters = [], relationships = [], focusedCharacter } = props;
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal([
-    "active"
-  ]);
+  const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const { clearGlobalCharacter } = useGlobalCharacter([]);
   const clearComponentData = () => {
     clearGlobalModal();
@@ -46,6 +53,15 @@ const CharactersList = (props: CharactersListProps) => {
     GlobalCharacter.multiple({ relationships, focusedCharacter: char });
     setGlobalModal(MODAL.MANAGE_RELATIONSHIPS);
   };
+  const onDeleteCharacter = async (char: APIData<Character>["id"]) => {
+    const noteId = addNotification("Deleting Character...", true);
+    const res = await deleteCharacter(char);
+    if (typeof res === "string") updateAsError(res, noteId);
+    else if (res) {
+      updateNotification("Character Deleted", noteId, false);
+      removeCharacterFromState(char);
+    }
+  };
   const onEditCharacter = (char: APIData<Character>) => {
     GlobalCharacter.focusedCharacter(char);
     setGlobalModal(MODAL.MANAGE_CHARACTER);
@@ -54,7 +70,7 @@ const CharactersList = (props: CharactersListProps) => {
     <AddCharacterButton
       size="lg"
       icon="face_2"
-      text="Create New Character"
+      text="Add New Character"
       variant={variant}
       onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
     />
@@ -88,6 +104,7 @@ const CharactersList = (props: CharactersListProps) => {
               onEdit={onEditCharacter}
               onRelationships={onCharacterRelationships}
               onSelect={onCharacterRelationships}
+              onRemove={onDeleteCharacter}
             />
           )}
         />
@@ -97,20 +114,18 @@ const CharactersList = (props: CharactersListProps) => {
       </Card>
 
       {/* Modals */}
-      {focusedCharacter && (
-        <>
-          <CreateCharacterModal
-            data={focusedCharacter}
-            open={active === MODAL.MANAGE_CHARACTER}
-            onClose={clearComponentData}
-          />
+      <CreateCharacterModal
+        data={focusedCharacter}
+        open={active === MODAL.MANAGE_CHARACTER}
+        onClose={clearComponentData}
+      />
 
-          <CreateRelationshipsModal
-            data={relationships}
-            open={active === MODAL.MANAGE_RELATIONSHIPS}
-            onClose={clearComponentData}
-          />
-        </>
+      {focusedCharacter && (
+        <CreateRelationshipsModal
+          data={relationships}
+          open={active === MODAL.MANAGE_RELATIONSHIPS}
+          onClose={clearComponentData}
+        />
       )}
     </>
   );

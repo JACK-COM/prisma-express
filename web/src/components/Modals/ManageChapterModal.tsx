@@ -4,7 +4,7 @@ import {
   pruneChapterForAPI,
   upsertChapter
 } from "graphql/requests/books.graphql";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Modal from "./Modal";
 import {
   GlobalLibrary,
@@ -29,8 +29,10 @@ export default function ManageChapterModal(props: ManageChapterModalProps) {
     "focusedChapter",
     "focusedBook"
   ]);
+  const order = useMemo(() => (book?.Chapters || []).length + 1, [book]);
   const emptyForm = (): Partial<UpsertChapterData> => ({
-    bookId: book?.id
+    bookId: book?.id,
+    order
   });
   const [formData, setFormData] = useState(data || emptyForm());
   const [notificationId, setNotificationId] = useState<number | null>(null);
@@ -45,7 +47,7 @@ export default function ManageChapterModal(props: ManageChapterModalProps) {
 
     // Create
     if (!formData.title) formData.title = "Untitled Chapter";
-    if (!formData.order) formData.order = 0;
+    if (!formData.order) formData.order = order;
     if (!formData.description) formData.description = "";
     formData.bookId = book?.id;
     const resp = await upsertChapter(pruneChapterForAPI(formData));
@@ -53,9 +55,9 @@ export default function ManageChapterModal(props: ManageChapterModalProps) {
 
     // Notify
     if (resp) {
-      const chapters = updateChaptersState([resp], true);
-      const focusedChapter = chapters[0];
-      GlobalLibrary.multiple({ focusedChapter, chapters });
+      const updates = updateChaptersState([resp]);
+      const focusedChapter = updates.chapters.find(c => c.id === resp.id);
+      GlobalLibrary.multiple({ ...updates, focusedChapter });
       onClose();
     } else err("Did not create chapter: please check your entries.");
   };

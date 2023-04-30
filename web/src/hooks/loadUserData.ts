@@ -3,18 +3,21 @@ import {
   GlobalWorld,
   GlobalLibrary,
   GlobalUser,
-  MicroUser,
   GlobalCharacter,
-  getByIdFromWorldState
+  getByIdFromWorldState,
+  updateChaptersState,
+  GlobalLibraryInstance
 } from "state";
 import {
   listTimelines,
   listWorldEvents
 } from "graphql/requests/timelines.graphql";
 import { getBook, getChapter, listBooks } from "graphql/requests/books.graphql";
-import { AUTH_ROUTE } from "utils";
+import { API_AUTH_ROUTE, API_DL_BOOK_ROUTE, API_PROMPT } from "utils";
 import { listCharacters } from "graphql/requests/characters.graphql";
 import { APIData, Book, Chapter, Scene, Timeline, World } from "utils/types";
+import { MicroUser } from "graphql/requests/users.graphql";
+import { insertId } from "routes";
 
 // Additonal instructions for focusing data in the global state
 type HOOK__LoadWorldOpts = {
@@ -53,11 +56,22 @@ export async function loadUserData(opts = defaultLoadOpts) {
 export async function loadUser() {
   type UserResp = { user: MicroUser } | { user: null };
   const fOpts: RequestInit = { method: "post", credentials: "include" };
-  const { user }: UserResp = await fetch(AUTH_ROUTE, fOpts).then((r) =>
+  const { user }: UserResp = await fetch(API_AUTH_ROUTE, fOpts).then((r) =>
     r.json()
   );
   GlobalUser.multiple({ ...user, authenticated: Boolean(user) });
   return user;
+}
+
+// download a book and all its chapters as a docx file
+export function downloadBookURL(bookId: number) {
+  return insertId(API_DL_BOOK_ROUTE, bookId);
+}
+
+// Generate a writing prompt from the API
+export async function getWritingPrompt() {
+  const { prompt } = await fetch(API_PROMPT).then((r) => r.json());
+  return prompt;
 }
 
 /** Load and focus a single world */
@@ -77,51 +91,64 @@ export async function loadWorld(opts: HOOK__LoadWorldOpts) {
 }
 
 /** Load and focus a single chapter */
-export async function loadChapter(chapterId: number, skipUpdates = false) {
-  if (!chapterId)
-    return { focusedChapter: null, focusedScene: null, scenes: [] };
+type ChapterUpdates = Pick<
+  GlobalLibraryInstance,
+  "focusedChapter" | "focusedScene" | "chapters"
+>;
+export async function loadChapter(
+  chapterId: number,
+  skipUpdates = false
+): Promise<ChapterUpdates> {
+  const noresponse: ChapterUpdates = {
+    focusedChapter: null,
+    focusedScene: null,
+    chapters: []
+  };
+  if (!chapterId) return noresponse;
 
   const focusedChapter = await getChapter(chapterId);
-  const scenes = (focusedChapter || { Scenes: [] }).Scenes;
-  // Get most recent scene
-  const focusedScene = scenes[0] || null;
-  const updates = { focusedChapter, focusedScene, scenes };
+  if (!focusedChapter) return noresponse;
+
+  const updates = updateChaptersState([focusedChapter], true) as ChapterUpdates;
+  updates.focusedChapter = focusedChapter;
+  updates.focusedScene = focusedChapter.Scenes[0] || null;
   if (!skipUpdates) GlobalLibrary.multiple(updates);
   return updates;
 }
 
 /** Load and focus a single book */
-export async function loadBook(bookId: number) {
+type BookUpdates = ChapterUpdates & Pick<GlobalLibraryInstance, "focusedBook">;
+export async function loadBook(
+  bookId: number,
+  skipUpdates = false
+): Promise<BookUpdates> {
   const lib = GlobalLibrary.getState();
   if (!bookId)
     return {
       focusedBook: lib.focusedBook,
       chapters: lib.chapters,
       focusedChapter: lib.focusedChapter,
-      scenes: lib.scenes,
       focusedScene: lib.focusedScene
     };
 
   const focusedBook = await getBook(bookId);
   const { Chapters: chapters = [] } = focusedBook || {};
   let focusedChapter: APIData<Chapter> | null = chapters[0] || null;
-  let scenes = focusedChapter?.Scenes || [];
+  const scenes = focusedChapter?.Scenes || [];
   let focusedScene: APIData<Scene> | null = scenes[0] || null;
-  const allUpdates = {
+  const allUpdates: BookUpdates = {
     focusedBook,
     chapters,
     focusedChapter,
-    scenes,
     focusedScene
   };
   if (chapters.length) {
-    // If user has chapters, load the most-recent one
-    const updates = await loadChapter(chapters[chapters.length - 1].id, true);
-    GlobalLibrary.multiple({ ...allUpdates, ...updates });
-    return { ...allUpdates, ...updates };
+    const { focusedChapter } = await loadChapter(chapters[0].id, true);
+    allUpdates.focusedChapter = focusedChapter;
+    allUpdates.focusedScene = focusedChapter?.Scenes[0] || null;
   }
 
-  GlobalLibrary.multiple(allUpdates);
+  if (!skipUpdates) GlobalLibrary.multiple(allUpdates);
   return allUpdates;
 }
 
@@ -129,16 +156,14 @@ export async function loadBook(bookId: number) {
 export async function loadTimelines(opts: HOOK__LoadWorldOpts) {
   const params = makeAPIParams(opts);
   const { timelineId } = params;
-  const { timelines: current, focusedTimeline: focused } =
-    GlobalWorld.getState();
-  const timelines = await listOrLoad(current, () => listTimelines(params));
+  const { focusedTimeline: focused } = GlobalWorld.getState();
+  const timelines = await listTimelines(params); // listOrLoad(current, () => listTimelines(params));
   let focusedTimeline: APIData<Timeline> | null = null;
   if (timelineId)
-    focusedTimeline = timelines.find((t: any) => t.id === timelineId) || null;
+    focusedTimeline = timelines.find((t) => t.id === timelineId) || null;
   else if (focused)
-    focusedTimeline = timelines.find((t: any) => t.id === timelineId) || null;
-  const focusedWorld = focusedTimeline?.World || null;
-  GlobalWorld.multiple({ timelines, focusedTimeline, focusedWorld });
+    focusedTimeline = timelines.find((t) => t.id === timelineId) || null;
+  GlobalWorld.multiple({ timelines, focusedTimeline });
 }
 
 /** Load initial character data */

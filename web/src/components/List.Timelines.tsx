@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import styled from "styled-components";
 import { Card, CardTitle } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
@@ -12,7 +11,6 @@ import { useGlobalUser } from "hooks/GlobalUser";
 import { useNavigate } from "react-router";
 import { GlobalWorld } from "state";
 import { SharedButtonProps } from "components/Forms/Button.Helpers";
-import { loadTimelines } from "hooks/loadUserData";
 
 const { Timelines: TimelinePaths } = Paths;
 const AddTimelineButton = styled(ButtonWithIcon)`
@@ -36,13 +34,9 @@ const TimelinesList = (props: TimelinesListProps) => {
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const navigate = useNavigate();
-  const clearComponentData = () => clearGlobalModal();
   const onEditTimeline = (timeline: APIData<Timeline>) => {
     GlobalWorld.focusedTimeline(timeline);
     setGlobalModal(MODAL.MANAGE_TIMELINE);
-  };
-  const onSelectTimeline = (timeline: APIData<Timeline>) => {
-    navigate(insertId(TimelinePaths.Events.path, timeline.id));
   };
   const controls = (variant: SharedButtonProps["variant"] = "outlined") => (
     <AddTimelineButton
@@ -54,15 +48,10 @@ const TimelinesList = (props: TimelinesListProps) => {
     />
   );
 
-  useEffect(() => {
-    loadTimelines({ userId });
-    return () => clearComponentData();
-  }, []);
-
   return (
     <>
       <Card>
-        <CardTitle>{authenticated ? "Your" : "Public"} Timelines</CardTitle>
+        <CardTitle>Timelines</CardTitle>
 
         {/* Empty List message */}
         {!timelines.length && (
@@ -82,7 +71,6 @@ const TimelinesList = (props: TimelinesListProps) => {
             <TimelineItem
               timeline={timeline}
               onEdit={onEditTimeline}
-              onSelect={onSelectTimeline}
               permissions={timeline.authorId === userId ? "Author" : "Reader"}
             />
           )}
@@ -96,7 +84,7 @@ const TimelinesList = (props: TimelinesListProps) => {
       <CreateTimelineModal
         data={focusedTimeline}
         open={active === MODAL.MANAGE_TIMELINE}
-        onClose={clearComponentData}
+        onClose={clearGlobalModal}
       />
     </>
   );

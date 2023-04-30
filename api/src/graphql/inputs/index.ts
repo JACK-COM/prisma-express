@@ -18,6 +18,7 @@ export const MFWorldUpsertInput = inputObjectType({
     t.nonNull.string("description");
     t.nonNull.field("type", { type: "WorldType" });
     t.int("authorId", { description: "Item Author/owner" });
+    t.int("parentWorldId", { description: "Parent world (optional)" });
   }
 });
 
@@ -62,6 +63,7 @@ export const MFLocationUpsertInput = inputObjectType({
     t.field("fauna", { type: "Richness" });
     t.nonNull.int("worldId", { description: "Parent world ID" });
     t.int("authorId", { description: "Item Author/owner" });
+    t.int("parentLocationId", { description: "Parent location (optional)" });
   }
 });
 
@@ -183,5 +185,32 @@ export const MFSceneUpsertInput = inputObjectType({
     t.int("characterId", { description: "Scene primary character" });
     t.int("eventContextId", { description: "Scene event context" });
     t.int("timelineId", { description: "Scene event timeline" });
+  }
+});
+
+/** User upsert input fields */
+export const MFUserUpsertInput = inputObjectType({
+  name: "MFUserUpsertInput",
+  definition(t) {
+    t.string("email");
+    t.string("password");
+    t.string("displayName");
+    t.string("firstName");
+    t.string("lastName");
+  }
+});
+
+/** Input fields for creating a `ContentLink` */
+export const MFContentLinkUpsertInput = inputObjectType({
+  name: "MFContentLinkUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "ContentLink ID" });
+    t.nonNull.string("text", { default: "Mystery Link" });
+    t.nonNull.int("originId", { description: "Link's scene of origin" });
+    t.int("seriesId");
+    t.nonNull.int("bookId", { default: undefined });
+    t.int("chapterId");
+    t.int("sceneId");
+    t.int("authorId", { description: "Item Author/owner" });
   }
 });

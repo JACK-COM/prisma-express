@@ -1,6 +1,6 @@
 /**
  * @file Books.Queries
- * @description GraphQL queries relating to `Series`, `Books`, `Chapters`, and `Scenes`.
+ * @description GraphQL queries relating to `Series` and `Books`.
  */
 
 import {
@@ -13,10 +13,9 @@ import {
   booleanArg
 } from "nexus";
 import * as BooksService from "../../services/books.service";
-import * as ChaptersService from "../../services/chapters.service";
 import * as SeriesService from "../../services/series.service";
-import * as ScenesService from "../../services/scenes.service";
 import { checkLibrary } from "../../services/libraries.service";
+import { DateTime } from "luxon";
 
 /**
  * Get a single `Book` by ID
@@ -37,69 +36,26 @@ export const getBookById = queryField("getBookById", {
    * @throws Error if book not found or book is private and user is not the author
    */
   resolve: async (_, { id }, { user }) => {
-    const book = await BooksService.getBookById(id);
-    const isAuthor = book?.authorId === user?.id;
+    const [book, inLibrary] = await Promise.all([
+      BooksService.getBookById(id),
+      checkLibrary({ bookId: id, userId: user?.id })
+    ]);
     // require public book or author
-    return !book || !isAuthor ? null : book;
-  }
-});
+    if (!book || (user && book.authorId === user?.id)) return book;
 
-/**
- * Get a single `Chapter` by ID
- * @param id Chapter ID
- * @returns `MFChapter` object from service; `null` if not found or not authorized
- * @throws Error if chapter not found or chapter is private and user is not the author
- */
-export const getChapterById = queryField("getChapterById", {
-  type: "MFChapter",
-  args: { id: nonNull(intArg()) },
-
-  /**
-   * Query resolver
-   * @param _ Source object (ignored in mutations/queries)
-   * @param args Args (everything defined in `args` property above)
-   * @param _ctx `DBContext` from `src/context.ts`.
-   * @returns `MFChapter` object from service
-   * @throws Error if chapter not found or chapter is private and user is not the author
-   */
-  resolve: async (_, { id }, { user, Books }) => {
-    const chapter = await ChaptersService.getChapterById(id);
-    if (!chapter) return chapter;
-
-    // require public chapter or author
-    const isAuthor = chapter.authorId === user?.id;
-    if (!user || !isAuthor) {
-      const book = await Books.findUnique({ where: { id: chapter.bookId } });
-      if (!book || !book.public) return null;
+    // allow scenes if published or in library
+    if (book.publishDate || book.public) {
+      const isPublished = book.publishDate
+        ? DateTime.now() > DateTime.fromJSDate(book.publishDate)
+        : false;
+      const allowScenes = book.public && (isPublished || inLibrary);
+      if (allowScenes) return book;
+      const Chapters = book.Chapters.map((c) => ({ ...c, Scenes: [] }));
+      return { ...book, Chapters };
     }
 
-    return chapter;
-  }
-});
-
-/**
- * Get a single `Scene` by ID
- * @param id Scene ID
- * @returns `MFScene` object from service; `null` if not found or not authorized
- * @throws Error if scene not found or scene is private and user is not the author
- */
-export const getSceneById = queryField("getSceneById", {
-  type: "MFScene",
-  args: { id: nonNull(intArg()) },
-
-  /**
-   * Query resolver
-   * @param _ Source object (ignored in mutations/queries)
-   * @param args Args (everything defined in `args` property above)
-   * @param _ctx `DBContext` from `src/context.ts`.
-   * @returns `MFScene` object from service
-   * @throws Error if scene not found or scene is private and user is not the author
-   */
-  resolve: async (_, { id }, { user }) => {
-    const scene = await ScenesService.getSceneById(id);
-    const isAuthor = scene?.authorId === user?.id;
-    // require public scene or author
-    return !scene || !isAuthor ? null : scene;
+    // remove scenes
+    return null;
   }
 });
 
@@ -160,7 +116,7 @@ export const listBooks = queryField("listBooks", {
    * @throws Error if book not found or book is private and user is not the author
    */
   resolve: async (_, args, { user }) => {
-    const { authorId,  } = args;
+    const { authorId } = args;
     const books = await BooksService.findAllBooks({
       title: args.title || undefined,
       genre: args.genre || undefined,
@@ -172,7 +128,7 @@ export const listBooks = queryField("listBooks", {
     });
 
     // filter out private books if user is not the author
-    return books
+    return books;
   }
 });
 
@@ -221,128 +177,6 @@ export const listSeriesPublications = queryField("listSeriesPublications", {
       public: true,
       description: args.description || undefined
     });
-  }
-});
-
-/**
- * List `Chapters` by search criteria. Restricted to specific books
- * @param bookId Book ID to search for
- * @param name Title of chapter to search for
- * @param description Description of chapter to search for
- * @param publicOnly Only return public chapters
- * @returns List of `MFChapter` objects from service
- * @throws Error if chapter not found or chapter is private and user is not the author
- */
-export const listChapters = queryField("listChapters", {
-  type: list("MFChapter"),
-  args: {
-    id: list(nonNull(intArg())),
-    bookId: nonNull(intArg()),
-    authorId: intArg(),
-    title: stringArg(),
-    description: stringArg()
-  },
-
-  /**
-   * Query resolver
-   * @param _ Source object (ignored in mutations/queries)
-   * @param args Args (everything defined in `args` property above)
-   * @param _ctx `DBContext` from `src/context.ts`.
-   * @returns List of `MFChapter` objects from service
-   * @throws Error if chapter not found or chapter is private and user is not the author or book is private
-   */
-  resolve: async (_, args, { user, Books }) => {
-    const { bookId, title } = args;
-    const userId = user?.id;
-    const book = await Books.findUnique({ where: { id: bookId } });
-    if (!book) return [];
-    const isAuthor = userId === book.authorId;
-    if (book.public) {
-      // check if book is free or user has purchased it
-      if (!book.free) {
-        const library = await checkLibrary({ userId, bookId });
-        if (!library) return [];
-      }
-    } else if (!isAuthor) return [];
-
-    const chapters = await ChaptersService.findAllChapters({
-      id: args.id || undefined,
-      bookId,
-      title: title || undefined,
-      authorId: args.authorId || undefined,
-      description: args.description || undefined
-    });
-
-    // filter out private chapters if user is not the author
-    return chapters;
-  }
-});
-
-/**
- * List `Scenes` by search criteria. Restricted to specific chapters
- * @param chapterId Chapter ID to search for
- * @param name Title of scene to search for
- * @param description Description of scene to search for
- * @param authorId Only return scenes by this author
- * @param text Text to search for in scene
- * @param id List of scene ids to search for
- * @returns List of `MFScene` objects from service
- * @throws Error if scene not found or scene is private and user is not the author or chapter is private
- */
-export const listScenes = queryField("listScenes", {
-  type: list("MFScene"),
-  args: {
-    id: list(nonNull(intArg())),
-    chapterId: nonNull(intArg()),
-    authorId: intArg(),
-    title: stringArg(),
-    description: stringArg(),
-    text: stringArg()
-  },
-
-  /**
-   * Query resolver
-   * @param _ Source object (ignored in mutations/queries)
-   * @param args Args (everything defined in `args` property above)
-   * @param _ctx `DBContext` from `src/context.ts`.
-   * @returns List of `MFScene` objects from service
-   * @throws Error if scene not found or scene is private and user is not the author or chapter is private
-   */
-  resolve: async (_, args, { user, Chapters }) => {
-    const { chapterId, title } = args;
-    const userId = user?.id;
-    const chapter = await Chapters.findUnique({
-      where: { id: chapterId },
-      include: { Book: { select: { public: true, free: true } } }
-    });
-    if (!chapter) return [];
-
-    // fetch scenes from db
-    const scenes = () =>
-      ScenesService.findAllScenes({
-        id: args.id || undefined,
-        chapterId,
-        title: title || undefined,
-        authorId: args.authorId || undefined,
-        description: args.description || undefined,
-        text: args.text || undefined
-      });
-
-    // Return scene if user is the author, or nothing if
-    // the book is still private
-    if (userId === chapter.authorId) return scenes();
-    else if (!chapter.Book.public) return [];
-
-    // Book is public, so check if it's free
-    if (chapter.Book.free) return scenes();
-
-    // Book is not free, so check if user has purchased it
-    const bookId = chapter.bookId;
-    const library = await checkLibrary({ userId, bookId });
-    if (library) return scenes();
-
-    // Book is not free and user has not purchased it
-    return [];
   }
 });
 

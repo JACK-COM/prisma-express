@@ -1,76 +1,14 @@
-import Button, { WideButton } from "components/Forms/Button";
-import { MouseEventHandler, useMemo } from "react";
-import styled, { css } from "styled-components";
+import { RoundButton, WideButton } from "components/Forms/Button";
+import { MouseEventHandler, useEffect, useMemo } from "react";
 import { noOp } from "utils";
-import { FlexColumn, GridContainer, MatIcon } from "../Common/Containers";
+import { MatIcon } from "../Common/Containers";
 import useEscapeKeyListener from "hooks/GlobalEscapeKeyEvent";
-
-const ModalContainer = styled(FlexColumn)`
-  height: 100vh;
-  left: 0;
-  place-content: center;
-  position: fixed;
-  top: 0;
-  width: 100vw;
-  z-index: 999;
-
-  &::before {
-    background: #00000099;
-    content: "";
-    height: 100%;
-    position: absolute;
-    width: 100%;
-    z-index: 0;
-  }
-`;
-/** Shared width of content */
-const contentWidthBoundary = css`
-  width: 100vw;
-  min-width: 300px;
-`;
-const ModalControls = styled(GridContainer)`
-  ${contentWidthBoundary}
-  background-color: ${({ theme }) => theme.colors.bgColor};
-  bottom: -10px;
-  border: 1px solid ${({ theme }) => theme.colors.semitransparent};
-  margin-top: -1px;
-  position: sticky;
-  padding: 0.4rem;
-
-  > button {
-    font-weight: bolder;
-    margin: 0;
-  }
-`;
-const ModalTitle = styled(GridContainer).attrs({
-  columns: "auto min-content"
-})`
-  ${contentWidthBoundary}
-  background: ${({ theme }) => theme.colors.bgColor};
-  z-index: 1;
-
-  .title {
-    align-self: end;
-    flex-grow: 1;
-    line-height: 2.6rem;
-    margin: 0.8rem 0;
-    padding-left: 0.4rem;
-    text-align: left;
-  }
-`;
-type ContentProps = { centered?: boolean };
-const ModalContents = styled(FlexColumn).attrs({ padded: true })<ContentProps>`
-  ${contentWidthBoundary}
-  background: ${({ theme }) => theme.colors.bgColor};
-  border-radius: ${({ theme }) => theme.presets.round.default};
-  border: 1px solid ${({ theme }) => theme.colors.semitransparent};
-  color: ${({ theme }) => theme.colors.primary};
-  height: 80vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  place-content: ${({ centered = false }) => (centered ? "center" : "start")};
-  z-index: inherit;
-`;
+import {
+  ModalContainer,
+  ModalContents,
+  ModalControls,
+  ModalTitle
+} from "./Modal.Components";
 
 type ModalProps = {
   title?: string;
@@ -105,7 +43,19 @@ const Modal = (p: ModalProps) => {
   };
 
   // close modal on ESC key press
-  useEscapeKeyListener(onClose);
+  useEffect(() => {
+    if (!open) return noOp;
+    // Trigger handler on ESC keypress
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [open]);
 
   if (!open) return <></>;
 
@@ -113,9 +63,9 @@ const Modal = (p: ModalProps) => {
     <ModalContainer className={rootClass} onClick={onBGClick}>
       <ModalTitle>
         {title && <h1 className="title h4">{title}</h1>}
-        <Button variant="transparent" onClick={onClose}>
+        <RoundButton variant="transparent" onClick={onClose}>
           <MatIcon icon="close" />
-        </Button>
+        </RoundButton>
       </ModalTitle>
 
       <ModalContents centered={centerContent} className={contentEntryClass}>

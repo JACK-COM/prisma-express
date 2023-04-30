@@ -21,15 +21,17 @@ const Control = styled(Link)<{ image: string }>`
   background: ${({ image }) => `url(${image}) no-repeat bottom center / cover`};
   color: white;
   font-size: 1.6rem;
-  font-weight: 600;
+  font-weight: 500;
   height: 88vh;
   overflow: hidden;
   place-content: center;
-  text-shadow: 0 0 0.3rem #111b;
+  text-shadow: 0 2px 4px #111b;
+
   &:hover {
     animation: scale-up 150ms ease-in;
     animation-fill-mode: forwards;
     box-shadow: 0 0 0.5rem 0.1rem ${({ theme }) => theme.colors.accent};
+    filter: blur(0);
   }
 
   @media screen and (max-width: 768px) {
@@ -43,7 +45,7 @@ const SECTIONS = [
   { auth: false, data: Paths.Worlds, src: worlds }, // "Worlds & settings",
   { auth: true, data: Paths.Timelines, src: timelines } // "Events & Timelines",
 ];
-const Dashboard = () => {
+const Home = () => {
   const { width } = useGlobalWindow();
   const [gridColumns, gridGap] = useMemo(() => {
     if (width > 1024) return [4, "0"];
@@ -54,8 +56,9 @@ const Dashboard = () => {
   return (
     <Container
       id="app-dashboard"
-      title="MythosForge"
+      title="Home"
       description="A forge of myths and legends"
+      breadcrumbs={[]}
     >
       <Controls columns={`repeat(${gridColumns},1fr)`} gap={gridGap}>
         {SECTIONS.map(({ data, src }) => (
@@ -64,7 +67,12 @@ const Dashboard = () => {
             key={data.Index.text}
             to={data.Index.path}
             title={data.Index.text}
-            children={data.Index.text}
+            children={
+              <>
+                <span className="bg" />
+                {data.Index.text}
+              </>
+            }
             image={src}
           />
         ))}
@@ -73,4 +81,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Home;

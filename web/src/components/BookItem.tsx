@@ -12,6 +12,7 @@ import { requireAuthor } from "utils";
 import { deleteBook } from "graphql/requests/books.graphql";
 import { GlobalUser, removeBookFromState, updateAsError } from "state";
 import styled from "styled-components";
+import { useNavigate } from "react-router";
 
 type WorldItemProps = {
   book: APIData<Book>;
@@ -40,16 +41,20 @@ const BookItem = ({
   permissions = "Reader"
 }: WorldItemProps) => {
   const { id: userId } = GlobalUser.getState();
-  const url =
-    permissions === "Reader"
-      ? insertId(Paths.Library.BookViewer.path, book.id)
-      : insertId(Paths.Library.BookEditor.path, book.id);
+  const previewUrl = insertId(Paths.Library.BookPreview.path, book.id);
+  const editUrl = insertId(Paths.Library.BookEditor.path, book.id);
+  const url = permissions === "Author" ? editUrl : previewUrl;
   const edit = requireAuthor(() => onEdit(book), permissions);
+  const navigate = useNavigate();
+  const goToPreview = requireAuthor(
+    () => navigate(previewUrl),
+    permissions,
+    true
+  );
   const remove = requireAuthor(async () => {
     const res = await deleteBook(book.id);
-    if (typeof res === "string") {
-      updateAsError(res);
-    } else if (res) removeBookFromState(book.id);
+    if (typeof res === "string") updateAsError(res);
+    else if (res) removeBookFromState(book.id);
   }, permissions);
   const select: React.MouseEventHandler = (e) => {
     if (!onSelect) return;
@@ -62,7 +67,12 @@ const BookItem = ({
 
   return (
     <ItemLinkContainer to={url} onClick={select} permissions={permissions}>
-      <TallIcon icon={icon} className={iconColor} permissions={permissions} />
+      <TallIcon
+        icon={icon}
+        className={iconColor}
+        permissions={permissions}
+        onClick={goToPreview}
+      />
 
       <ItemName permissions={permissions} onClick={edit}>
         {book.title}

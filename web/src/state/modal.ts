@@ -2,14 +2,17 @@ import createState from "@jackcom/raphsducks";
 
 export enum MODAL {
   NONE = "None",
+  LINK_SCENE = "Link Scene",
   MANAGE_BOOK = "Manage Book",
   MANAGE_CHAPTER = "Manage Chapter",
   MANAGE_CHARACTER = "Manage Character",
   MANAGE_LOCATION = "Manage Location",
   MANAGE_RELATIONSHIPS = "Manage Relationships",
+  MANAGE_SCENE = "Manage Scene",
   MANAGE_TIMELINE = "Manage Timeline",
   MANAGE_TIMELINE_EVENTS = "Manage Timeline Events",
   MANAGE_WORLD = "Manage World",
+  MANAGE_WORLD_EVENTS = "Manage World Events",
   SELECT_CHAPTER = "Select Chapter"
 }
 

@@ -2,7 +2,13 @@ import styled, { css } from "styled-components";
 import { MatIcon, MatIconProps } from "components/Common/Containers";
 import { APIData, PermissionProps, UserRole, World } from "utils/types";
 import { upsertWorld, deleteWorld } from "graphql/requests/worlds.graphql";
-import { updateWorlds, removeWorld } from "state";
+import {
+  updateWorlds,
+  removeWorld,
+  updateAsError,
+  setGlobalModal,
+  MODAL
+} from "state";
 import { requireAuthor, noOp, suppressEvent } from "utils";
 
 /** Generic Icon component Props */
@@ -123,7 +129,7 @@ export const DeleteWorldIcon = (props: WorldIconProps & ItemIconProps) => {
   const onDelete = requireAuthor(
     async () => {
       const resp = await deleteWorld(world.id);
-      if (typeof resp === "string") return console.log(resp);
+      if (typeof resp === "string") return updateAsError(resp);
       if (resp) removeWorld(world.id);
     },
     permissions,
@@ -142,5 +148,29 @@ export const DeleteWorldIcon = (props: WorldIconProps & ItemIconProps) => {
     />
   ) : (
     <></>
+  );
+};
+
+/** Permissioned Icon for toggling book chapters modal */
+type ChaptersIconProps = Pick<ItemIconProps, "permissions">;
+export const ChaptersIcon = (props: ChaptersIconProps) => {
+  const { permissions = "Reader", ...rest } = props;
+  const iconClass = permissions === "Author" ? "success--text" : "grey--text";
+  const onToggle = requireAuthor(
+    () => setGlobalModal(MODAL.SELECT_CHAPTER),
+    permissions,
+    true
+  );
+
+  return (
+    <TallIcon
+      {...rest}
+      style={{ padding: "0.6rem 0", textAlign: "center" }}
+      icon="segments"
+      className={`icon ${iconClass}`}
+      onClick={onToggle}
+      permissions={permissions}
+      title="Book Chapters"
+    />
   );
 };

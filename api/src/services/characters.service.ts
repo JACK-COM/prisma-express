@@ -29,7 +29,8 @@ export async function upsertCharacter(newCharacter: UpsertCharacterInput) {
 export async function findAllPublicCharacter() {
   return Characters.findMany({
     where: { World: { public: true } },
-    include: { World: true }
+    include: { World: true },
+    orderBy: { World: { name: "asc" } }
   });
 }
 
@@ -57,20 +58,16 @@ export async function findAllCharacter(filters: SearchCharacterInput) {
   if (groupId) where.OR.push({ groupId });
   if (!where.OR.length) delete where.OR;
 
-  return Characters.findMany({ where, include: { World: true } });
+  return Characters.findMany({
+    where,
+    include: { World: true },
+    orderBy: { World: { name: "asc" } }
+  });
 }
 
 /** find one character record matching params */
 export async function getCharacter(where: CharacterByIdInput) {
   return Characters.findUnique({ where, include: { World: true } });
-}
-
-/** update one character record matching params */
-export async function updateCharacter(
-  where: CharacterByIdInput,
-  data: UpsertCharacterInput
-) {
-  return Characters.update({ data, where, include: { World: true } });
 }
 
 /** delete a character */

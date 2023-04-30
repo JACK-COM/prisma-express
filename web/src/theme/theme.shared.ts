@@ -28,7 +28,25 @@ const presets = {
     md: `16px`,
     sm: `8px`,
     xs: `4px`
+  },
+
+  fonts: {
+    // heading: "'Ubuntu', sans-serif",
+    // body: "'Source Sans 3', sans-serif",
+    heading: "'Source Sans 3', sans-serif",
+    body: "'Ubuntu', sans-serif",
   }
+};
+
+/** CSS mixins */
+const mixins = {
+  ellipsis: `
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+  `,
+  lineclamp
 };
 
 /**
@@ -44,22 +62,13 @@ const shared = {
     bgGradient: "linear-gradient(180deg, #282c34 0%, #101918 100%)",
     success: "#2ca258"
   },
-  presets
+  presets,
+  mixins
 };
 
 export default shared;
 
 /* Shared CSS Helpers */
-
-/** apply ellipsis rule (limit displayed text length with ellipsis) */
-export function ellipsis() {
-  return `
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 100%;
-  `;
-}
 
 /** apply line-clamp rule (limit number of displayed lines with ellipsis) */
 export function lineclamp(lines: number) {

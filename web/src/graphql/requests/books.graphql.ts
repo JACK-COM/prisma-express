@@ -46,7 +46,8 @@ export type UpsertChapterData = ItemId & {
 
 /** Data required to create a scene */
 export type UpsertSceneData =
-  | ItemId & Pick<
+  | ItemId &
+      Pick<
         Scene,
         | "order"
         | "title"
@@ -197,16 +198,29 @@ export async function upsertChapter(
 }
 
 /** Create/update a scene with fetchGQL */
-export async function upsertScene(
-  data: UpsertSceneData
-): Promise<APIData<Scene>> {
-  return fetchGQL<APIData<Scene>>({
+export async function upsertScene(data: UpsertSceneData) {
+  const res = await fetchGQL<APIData<Scene>>({
     query: upsertSceneMutation(),
-    variables: { data },
+    variables: { data: pruneSceneForAPI(data) },
     onResolve(x, errors) {
       return errors || x.upsertScene;
     },
     fallbackResponse: undefined
+  });
+
+  if (typeof res === "string" || !res) return res;
+  return getChapter(data.chapterId);
+}
+
+/** Fetch a single scene */
+export async function getScene(id: number): Promise<APIData<Scene> | null> {
+  return fetchGQL<APIData<Scene> | null>({
+    query: getSceneQuery(),
+    variables: { id },
+    onResolve(x, errors) {
+      return errors || x.getSceneById;
+    },
+    fallbackResponse: null
   });
 }
 
@@ -273,8 +287,10 @@ export async function deleteChapter(id: number): Promise<APIData<Chapter>> {
 }
 
 /** Delete a scene with fetchGQL */
-export async function deleteScene(id: number): Promise<APIData<Scene>> {
-  return fetchGQL<APIData<Scene>>({
+export async function deleteScene(
+  id: number
+): Promise<APIData<Chapter> | null> {
+  const res = await fetchGQL<APIData<Scene>>({
     query: deleteSceneMutation(),
     variables: { id },
     onResolve(x, errors) {
@@ -282,6 +298,9 @@ export async function deleteScene(id: number): Promise<APIData<Scene>> {
     },
     fallbackResponse: undefined
   });
+
+  if (typeof res === "string" || !res) return res;
+  return getChapter(res.chapterId);
 }
 
 /** Delete a series with fetchGQL */
@@ -331,14 +350,15 @@ export function pruneChapterForAPI(raw: Partial<UpsertChapterData>) {
   return data;
 }
 
-
 /** Format `Scene` data for API */
-export function pruneSceneForAPI(raw: UpsertSceneData) {
+export function pruneSceneForAPI(
+  raw: Partial<UpsertSceneData> & { chapterId: number }
+) {
   const order = raw.order || 0;
   const data: UpsertSceneData = {
     order,
     title: raw.title || `Scene ${order + 1}`,
-    chapterId: raw.chapterId,
+    chapterId: raw.chapterId || 1,
     description: raw.description || "No description",
     text: raw.text || ""
   };

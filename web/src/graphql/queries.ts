@@ -9,6 +9,7 @@ import {
   MFBookFragment,
   MFChapterFragment,
   MFCharacterFragment,
+  MFContentLinkFragment,
   MFEventFragment,
   MFLocationFragment,
   MFRelationshipFragment,
@@ -41,6 +42,15 @@ export const listLocationsQuery = () =>
       name: $name) {
       ${MFLocationFragment}
     } 
+  }`;
+
+/** Get `Location` graphql query */
+export const getLocationQuery = () =>
+  `query GetLocation($id: Int!) {
+    getLocationById(id: $id) {
+      ${MFLocationFragment},
+      Children { ${MFLocationFragment} },
+    }
   }`;
 
 /** List `Series` */
@@ -120,7 +130,7 @@ export const getChapterQuery = () =>
   `query GetChapter($id: Int!) {
     getChapterById(id: $id) {
       ${MFChapterFragment},
-      Scenes { ${MFSceneFragment} }
+      Scenes { ${MFSceneFragment}, Links { ${MFContentLinkFragment} } }
     }
   }`;
 
@@ -242,5 +252,31 @@ export const getTimelineQuery = () =>
   `query GetTimeline( $id: Int! ) { 
     getTimelineById( id: $id ) {
       ${MFTimelineFragment}
+    } 
+  }`;
+
+/** Get `ContentLink` by id graphql query */
+export const getContentLinkQuery = () =>
+  `query GetContentLink( $id: Int! ) { 
+    getContentLink( id: $id ) {
+      ${MFContentLinkFragment}
+    } 
+  }`;
+
+/** List `ContentLinks` graphql query */
+export const listContentLinksQuery = () =>
+  `query ListContentLinks(
+    $id: Int, $authorId: Int, $sceneId: Int, $chapterId: Int, $bookId: Int, $seriesId: Int, $text: String
+   ) { 
+    listContentLinks(
+      id: $id, 
+      authorId: $authorId, 
+      sceneId: $sceneId,
+      chapterId: $chapterId,
+      bookId: $bookId,
+      seriesId: $seriesId,
+      text: $text
+      ) {
+      ${MFContentLinkFragment}
     } 
   }`;

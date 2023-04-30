@@ -1,30 +1,42 @@
+import {
+  GrammarlyEditorPlugin,
+  GrammarlyEditorPluginProps
+} from "@grammarly/editor-sdk-react";
 import { Editor } from "@tinymce/tinymce-react";
 import { useGlobalTheme } from "hooks/GlobalTheme";
-import { useGlobalWindow } from "hooks/GlobalWindow";
 import { AppTheme } from "shared";
 import { noOp } from "utils";
 
-const editorKey = import.meta.env.VITE_TINYMCE_KEY;
+const TINY_KEY = import.meta.env.VITE_TINYMCE_KEY;
+const GMLY_KEY = import.meta.env.VITE_GRMLY_KEY;
 const production = import.meta.env.PROD;
+type GrammarlyConfigProps = GrammarlyEditorPluginProps["config"];
+const grammarlyConfig: GrammarlyConfigProps = {
+  documentDialect: "british",
+  autocomplete: "on",
+  documentDomain: "creative",
+  introText: "Click here to begin writing!"
+  // debug: true,
+  // enabled: true,
+  // showDebuggingLog: true,
+};
 
 type TinyMCEInit = {
+  content_style?: string;
   height?: number;
   menubar?: boolean;
   plugins?: string | string[];
-  toolbar?: string | string[] | boolean;
   skin?: string;
-  content_style?: string;
+  toolbar?: string | string[] | boolean;
 };
 
 type TinyMCEProps = {
-  height?: number;
+  inline?: boolean;
   disabled?: boolean;
-  menubar?: boolean;
-  toolbar?: string;
   value?: string;
   onChange?: (content: string, editor?: any) => void;
   triggerSave?: () => void;
-};
+} & Pick<TinyMCEInit, "height" | "menubar" | "toolbar">;
 
 const plugins = [
   "advlist",
@@ -53,26 +65,23 @@ type EditorCommand = {
 };
 /** Custom internal wrapper for TinyMCE editor */
 export const TinyMCE = (props: TinyMCEProps) => {
-  const { isMobile } = useGlobalWindow();
   const { theme, activeTheme } = useGlobalTheme();
   const { triggerSave = noOp, onChange = noOp, ...otherProps } = props;
-  const { disabled, value, ...initOpts } = makeInitOpts(
-    isMobile,
-    theme,
-    otherProps
-  );
+  const { disabled, value, ...initOpts } = makeInitOpts(theme, otherProps);
 
   return (
-    <Editor
-      apiKey={production ? editorKey : undefined}
-      tinymceScriptSrc={production ? undefined : `/tinymce/tinymce.min.js`}
-      key={activeTheme}
-      disabled={disabled}
-      value={value}
-      init={{ ...initOpts, autosave_interval: "10s" }}
-      onEditorChange={onChange}
-      onBlur={triggerSave}
-    />
+    <GrammarlyEditorPlugin clientId={GMLY_KEY} config={grammarlyConfig}>
+      <Editor
+        apiKey={production ? TINY_KEY : undefined}
+        tinymceScriptSrc={production ? undefined : `/tinymce/tinymce.min.js`}
+        key={activeTheme}
+        disabled={disabled}
+        value={value || grammarlyConfig.introText}
+        init={{ ...initOpts, autosave_interval: "10s" }}
+        onEditorChange={onChange}
+        onBlur={triggerSave}
+      />
+    </GrammarlyEditorPlugin>
   );
 };
 
@@ -85,29 +94,30 @@ function prepInitOpts(opts: TinyMCEProps) {
     value: "",
     onChange: noOp,
     height: 500,
+    autosave_restore_when_empty: true,
     toolbar:
       "preview restoredraft | undo redo | blocks | " +
       "removeformat | bold italic forecolor | alignleft aligncenter " +
       "alignright alignjustify | bullist numlist outdent indent | " +
       "image | help",
+    inline: false, // this will enable the "skinless" appearance
     // override
     ...opts
   };
 }
 
 function makeInitOpts(
-  isMobile: boolean,
   theme: AppTheme,
   opts: TinyMCEProps
 ): TinyMCEInit & ReturnType<typeof prepInitOpts> {
   return {
-    menubar: !isMobile,
+    menubar: false,
     // Editor styles
     content_style: `body { 
         background: ${theme.colors.bgColor}; 
         color: ${theme.colors.secondary};
         font-family:Helvetica,Arial,sans-serif; 
-        font-size:16px 
+        font-size:16px;
       }
       `,
     plugins,

@@ -2,7 +2,7 @@ import { Authenticator, User } from "@prisma/client";
 import { Express } from "express";
 import { DateTime } from "luxon";
 import cookieParser from "cookie-parser";
-import session, { CookieOptions, SessionOptions } from "express-session";
+import session from "cookie-session";
 import passport from "passport";
 import GoogleStrategy from "passport-google-oidc";
 import { CtxUser } from "../graphql/context";
@@ -52,8 +52,8 @@ export function configurePassport(app: Express) {
   const secret = process.env.JWT_SEC;
   if (!secret) throw new Error("env JWT_SEC not set: run generate-keys");
   const secure = process.env.NODE_ENV === "production";
-  const sessionCookie: CookieOptions = { maxAge, httpOnly: true, secure };
-  const sessionOpts: SessionOptions = {
+  const sessionCookie = { maxAge, httpOnly: true, secure };
+  const sessionOpts = {
     cookie: sessionCookie,
     secret,
     resave: true,
@@ -62,6 +62,21 @@ export function configurePassport(app: Express) {
 
   app.use(cookieParser(secret));
   app.use(session(sessionOpts));
+  // register regenerate & save after the cookieSession middleware initialization
+  // See: https://github.com/jaredhanson/passport/issues/904#issuecomment-1307558283
+  app.use(function (req, _res, next) {
+    if (req.session && !req.session.regenerate) {
+      req.session.regenerate = ((cb: any) => {
+        cb();
+      }) as any;
+    }
+    if (req.session && !req.session.save) {
+      req.session.save = ((cb: any) => {
+        cb();
+      }) as any;
+    }
+    next();
+  });
   app.use(passport.initialize());
   app.use(passport.session());
 

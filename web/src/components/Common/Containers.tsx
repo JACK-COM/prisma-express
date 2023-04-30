@@ -13,6 +13,8 @@ type FlexContainerProps = {
   padded?: boolean;
 };
 
+export const Accent = styled.span.attrs({ className: "accent--text" })``;
+
 export const ExLink = styled.a.attrs({
   target: "_blank",
   rel: "noopener noreferrer"
@@ -118,7 +120,9 @@ export const ItemName = styled.b.attrs({
   role: "button",
   tabIndex: -1
 })<NameProps>`
+  ${({ theme }) => theme.mixins.ellipsis};
   color: ${({ polarity }) => EventPolarityColors(polarity)};
+  font-family: ${({ theme }) => theme.presets.fonts.heading};
   grid-column: 2;
   grid-row: 1;
   pointer-events: ${({ permissions }) =>
@@ -149,7 +153,8 @@ const sharedListItemStyles = css`
   column-gap: ${({ theme }) => theme.sizes.sm};
   cursor: pointer;
   display: grid;
-  grid-template-columns: 24px 10fr max-content;
+  grid-template-columns: 24px 10fr 3fr;
+  /* grid-template-columns: 24px 10fr max-content; */
   padding: ${({ theme }) => theme.sizes.xs};
   text-shadow: ${({ theme }) => theme.presets.elevate.xxs} #001125ec;
   width: 100%;
@@ -162,6 +167,7 @@ const sharedListItemStyles = css`
 // Shared ListItem grid container
 export const ItemGridContainer = styled(GridContainer)<PermissionProps>`
   ${sharedListItemStyles}
+  grid-template-columns: 24px 10fr max-content;
   justify-content: space-between;
 
   .list-item {

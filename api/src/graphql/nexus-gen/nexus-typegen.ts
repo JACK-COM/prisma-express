@@ -97,6 +97,7 @@ export interface NexusGenInputs {
     flora?: NexusGenEnums['Richness'] | null; // Richness
     id?: number | null; // Int
     name: string; // String!
+    parentLocationId?: number | null; // Int
     worldId: number; // Int!
   }
   MFRelationshipUpsertInput: { // input type
@@ -154,6 +155,7 @@ export interface NexusGenInputs {
     description: string; // String!
     id?: number | null; // Int
     name: string; // String!
+    parentWorldId?: number | null; // Int
     public?: boolean | null; // Boolean
     type: NexusGenEnums['WorldType']; // WorldType!
   }
@@ -259,8 +261,7 @@ export interface NexusGenObjects {
     Characters?: Array<NexusGenRootTypes['MFCharacter'] | null> | null; // [MFCharacter]
     Events?: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     Groups?: Array<NexusGenRootTypes['MFPopulationGroup'] | null> | null; // [MFPopulationGroup]
-    Scenes?: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
-    World?: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
+    World?: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId?: number | null; // Int
     climate?: NexusGenEnums['Climate'] | null; // Climate
     description: string; // String!
@@ -365,6 +366,7 @@ export interface NexusGenObjects {
     description: string; // String!
     id: number; // Int!
     name: string; // String!
+    parentWorldId?: number | null; // Int
     public: boolean; // Boolean!
     type: NexusGenEnums['WorldType']; // WorldType!
   }
@@ -459,10 +461,11 @@ export interface NexusGenFieldTypes {
   }
   MFLocation: { // field return type
     Characters: Array<NexusGenRootTypes['MFCharacter'] | null> | null; // [MFCharacter]
+    ChildLocations: Array<NexusGenRootTypes['MFLocation'] | null> | null; // [MFLocation]
     Events: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     Groups: Array<NexusGenRootTypes['MFPopulationGroup'] | null> | null; // [MFPopulationGroup]
-    Scenes: Array<NexusGenRootTypes['MFScene'] | null> | null; // [MFScene]
-    World: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
+    ParentLocation: NexusGenRootTypes['MFLocation'] | null; // MFLocation
+    World: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId: number | null; // Int
     climate: NexusGenEnums['Climate'] | null; // Climate
     description: string; // String!
@@ -567,6 +570,7 @@ export interface NexusGenFieldTypes {
     description: string; // String!
     id: number; // Int!
     name: string; // String!
+    parentWorldId: number | null; // Int
     public: boolean; // Boolean!
     type: NexusGenEnums['WorldType']; // WorldType!
   }
@@ -706,9 +710,10 @@ export interface NexusGenFieldTypeNames {
   }
   MFLocation: { // field return type name
     Characters: 'MFCharacter'
+    ChildLocations: 'MFLocation'
     Events: 'MFEvent'
     Groups: 'MFPopulationGroup'
-    Scenes: 'MFScene'
+    ParentLocation: 'MFLocation'
     World: 'MFWorld'
     authorId: 'Int'
     climate: 'Climate'
@@ -814,6 +819,7 @@ export interface NexusGenFieldTypeNames {
     description: 'String'
     id: 'Int'
     name: 'String'
+    parentWorldId: 'Int'
     public: 'Boolean'
     type: 'WorldType'
   }

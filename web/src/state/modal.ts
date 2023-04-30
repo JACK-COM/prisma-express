@@ -12,6 +12,7 @@ export enum MODAL {
   MANAGE_TIMELINE = "Manage Timeline",
   MANAGE_TIMELINE_EVENTS = "Manage Timeline Events",
   MANAGE_WORLD = "Manage World",
+  MANAGE_WORLD_EVENTS = "Manage World Events",
   SELECT_CHAPTER = "Select Chapter"
 }
 

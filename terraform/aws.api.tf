@@ -1,3 +1,15 @@
+resource "random_string" "jwt_secret" {
+  length  = 25
+  special = false
+  upper   = true
+}
+
+resource "random_string" "encrypt_secret" {
+  length  = 25
+  special = false
+  upper   = true
+}
+
 resource "aws_security_group" "mf-api-sg" {
   name        = "mf-api"
   description = "Mythos Forge API Security Group"
@@ -11,7 +23,7 @@ resource "aws_security_group" "mf-api-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  // To Allow Port 80 Transport
+  // To Allow Port 443 Transport
   ingress {
     from_port   = 80
     protocol    = "tcp"
@@ -35,22 +47,52 @@ resource "aws_instance" "mf-api-instance" {
   ami                    = var.resource_settings.api.ami_id
   instance_type          = var.resource_settings.api.instance_type
   subnet_id              = var.subnet_id_1
-  key_name               = var.mf_ec2
   vpc_security_group_ids = [aws_security_group.mf-api-sg.id]
-  depends_on             = [aws_security_group.mf-api-sg]
+  depends_on             = [aws_security_group.mf-api-sg, aws_db_instance.mf_database]
+
+  connection {
+    type        = "ssh"
+    host        = aws_instance.mf-api-instance.public_ip
+    user        = "ubuntu"
+    private_key = file("~/.ssh/MF_Main.cer")
+    insecure    = true
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      #!/bin/bash
+      "sudo chown -R ubuntu:ubuntu /home/ubuntu/mythosforge/",
+      "sudo apt-get update -y",
+      "sudo npm install pm2@latest -g"
+    ]
+  }
 
   provisioner "file" {
-    source      = "../api"
-    destination = "/home/ec2-user"
+    source      = "../api/lib/"
+    destination = "/home/ubuntu/mythosforge/"
+  }
 
-    connection {
-      type        = "ssh"
-      host        = aws_instance.mf-api-instance.public_ip
-      user        = "ec2-user"
-      private_key = file("~/.ssh/mf_api")
-      insecure    = true
-    }
+  provisioner "file" {
+    source      = "../api/.env"
+    destination = "/home/ubuntu/mythosforge/.env"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "cd /home/ubuntu/mythosforge",
+      "echo \"DB_URL=postgres://${var.db_username}:${var.db_password}@${aws_db_instance.mf_database.address}\" >> .env",
+      "sudo npm install",
+      "sudo npm run prisma-sync",
+      "sudo pm2 start /home/ubuntu/mythosforge/server.js --name mythosforge-api",
+      "sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 4001",
+      "sudo ufw allow 4001",
+      "sudo ufw allow ssh",
+      "sudo yes | sudo ufw enable"
+    ]
+  }
+
+  tags = {
+    Name = "mf-api-instance"
   }
 }
-
 

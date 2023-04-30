@@ -32,7 +32,7 @@ const FloatingButtons = styled.div`
   z-index: 999;
 
   @media screen and (max-width: 768px) {
-  grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     position: relative;
     top: auto;
     right: auto;
@@ -110,6 +110,7 @@ const MenuLinksContainer = styled(FlexColumn)`
 const NavLink = styled(Link)`
   color: #fff;
   text-shadow: ${({ theme }) => theme.presets.elevate.xs} #000;
+  font-size: 0.9rem;
   height: 2.5rem;
   line-height: 2.5rem;
   padding: 0 0.6rem;
@@ -131,7 +132,7 @@ function MenuLinks() {
 
   return (
     <MenuLinksContainer className="menu--links">
-      <h6 className="primary--text">Menu</h6>
+      <h6 className="primary--text">NAVIGATION</h6>
       {routes.map((r) => (
         <NavLink key={r.Index.path} className={cn(r.Index)} to={r.Index.path}>
           {r.Index.text}

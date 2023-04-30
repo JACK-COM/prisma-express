@@ -27,6 +27,10 @@ export const Paths = {
       path: "/library",
       text: "Book Library"
     },
+    BookDeepLink: {
+      path: "/library/books/:bookId/link/:chapterOrder/:sceneOrder",
+      text: "View Book"
+    },
     BookPreview: {
       path: "/library/books/:bookId/view",
       text: "View Book"

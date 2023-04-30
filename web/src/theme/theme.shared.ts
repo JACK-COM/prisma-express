@@ -28,6 +28,13 @@ const presets = {
     md: `16px`,
     sm: `8px`,
     xs: `4px`
+  },
+
+  fonts: {
+    // heading: "'Ubuntu', sans-serif",
+    // body: "'Source Sans 3', sans-serif",
+    heading: "'Source Sans 3', sans-serif",
+    body: "'Ubuntu', sans-serif",
   }
 };
 

@@ -25,7 +25,10 @@ type ItemID = { id?: number };
 /** Data required to create/update an `Event` */
 export type CreateEventData = ItemID &
   Partial<Pick<WorldEvent, "name" | "characterId" | "locationId" | "groupId">> &
-  Pick<WorldEvent, "name" | "polarity" | "target" | "worldId" | "description">;
+  Pick<
+    WorldEvent,
+    "name" | "polarity" | "target" | "authorId" | "worldId" | "description"
+  >;
 
 /** Data required to create/update a `Timeline` */
 export type CreateTimelineData = ItemID &

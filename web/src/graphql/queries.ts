@@ -44,6 +44,15 @@ export const listLocationsQuery = () =>
     } 
   }`;
 
+/** Get `Location` graphql query */
+export const getLocationQuery = () =>
+  `query GetLocation($id: Int!) {
+    getLocationById(id: $id) {
+      ${MFLocationFragment},
+      Children { ${MFLocationFragment} },
+    }
+  }`;
+
 /** List `Series` */
 export const listSeriesQuery = () =>
   `query ListSeries(

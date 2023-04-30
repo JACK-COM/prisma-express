@@ -4,36 +4,59 @@ import {
   ItemGridContainer,
   ItemDescription,
   ItemName,
-  MatIcon
+  MatIcon,
+  Accent
 } from "components/Common/Containers";
 import { TallIcon } from "./ComponentIcons";
+import ListView from "./Common/ListView";
+import styled from "styled-components";
+import { useMemo } from "react";
+import { GlobalUser } from "state";
 
 type LocationItemProps = {
   world: APIData<World>;
   location: APIData<Location>;
+  childLocations?: APIData<Location>[];
   onEdit?: (w: APIData<Location>) => void;
   onSelect?: (w: APIData<Location>) => void;
   permissions?: UserRole;
 };
 
+const LocationContainer = styled(ItemGridContainer)`
+  .child-locations {
+    grid-column: 1 / -1;
+    grid-row: 4 / 6;
+  }
+`;
+
 const LocationItem = ({
   world,
   location,
+  childLocations = [],
   onSelect = noOp,
-  onEdit = noOp,
-  permissions = "Reader"
+  onEdit = noOp
 }: LocationItemProps) => {
   const { public: isPublic } = world;
-  const isAuthor = permissions === "Author";
+  const { id: authorId } = GlobalUser.getState();
+  const isAuthor = location.authorId === authorId;
+  const permissions: UserRole = isAuthor ? "Author" : "Reader";
   const iconClass = isPublic ? "icon success--text" : "icon error--text";
   const title = isPublic ? "Public Location" : "Private Location";
   const edit = requireAuthor(() => onEdit(location), permissions);
   const select = requireAuthor(() => onSelect(location), permissions);
+  const icon = useMemo(() => {
+    if (!isAuthor) return "lock";
+    return location.parentLocationId ? "pin_drop" : "map";
+  }, [location]);
+  const children = childLocations.length;
+  const childCount = children
+    ? ` (+${children} ${children === 1 ? "location" : "locations"})`
+    : "";
 
   return (
-    <ItemGridContainer onClick={select} permissions={permissions}>
+    <LocationContainer onClick={select} permissions={permissions}>
       <TallIcon
-        icon={isAuthor ? "pin_drop" : "lock"}
+        icon={icon}
         permissions={permissions}
         className={iconClass}
         title={title}
@@ -41,12 +64,30 @@ const LocationItem = ({
 
       <ItemName permissions={permissions} onClick={edit}>
         {location.name}
+        {childCount && <Accent>{childCount}</Accent>}
         {permissions === "Author" && <MatIcon className="icon" icon="edit" />}
       </ItemName>
       <ItemDescription
         dangerouslySetInnerHTML={locationDescription(location)}
       />
-    </ItemGridContainer>
+
+      {/* Child Locations */}
+      {childLocations.length > 0 && (
+        <ListView
+          className="child-locations"
+          data={childLocations}
+          itemText={(l) => (
+            <LocationItem
+              world={world}
+              location={l}
+              onEdit={onEdit}
+              onSelect={onSelect}
+              permissions={permissions}
+            />
+          )}
+        />
+      )}
+    </LocationContainer>
   );
 };
 

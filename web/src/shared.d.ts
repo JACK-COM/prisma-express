@@ -30,6 +30,10 @@ export type AppTheme = ThemeProps<{
   };
 
   presets: {
+    fonts: {
+      heading: string;
+      body: string;
+    };
     elevate: DefaultSizes;
     round: DefaultSizes;
   };

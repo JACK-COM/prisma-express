@@ -246,7 +246,12 @@ export type Location = {
   climate: Climate;
   fauna: Richness;
   flora: Richness;
-  parentLocationId: number;
+  parentLocationId?: number;
+  westOf?: number;
+  eastOf?: number;
+  northOf?: number;
+  southOf?: number;
+  near?: number;
   Characters: Character[];
   Events: Event[];
   Groups: PopulationGroup[];
@@ -312,6 +317,7 @@ export type World = {
   name: string;
   description: string;
   type: WorldType;
+  parentWorldId?: number;
   Locations: APIData<Location>[];
   Timelines: APIData<Timeline>[];
   Events: APIData<WorldEvent>[];

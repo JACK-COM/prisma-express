@@ -8,7 +8,7 @@ import {
 import { ThemeProvider } from "styled-components";
 import THEME from "./theme/index";
 import { GlobalUser } from "./state";
-import { AUTH_ROUTE } from "./utils";
+import { API_AUTH_ROUTE } from "./utils";
 import AppHeader from "components/AppHeader";
 import { useGlobalTheme } from "hooks/GlobalTheme";
 import { loadUser, loadUserData } from "hooks/loadUserData";
@@ -31,7 +31,7 @@ const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
 
 function App() {
   const { theme } = useGlobalTheme();
-  const { active, MODAL, clearGlobalModal } = useGlobalModal();
+  const { active, MODAL } = useGlobalModal();
   const checkLoggedIn = async () => {
     const user = await loadUser();
     await loadUserData({ userId: user?.id });

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import THEME, { GlobalTheme, ThemeInstance, getTheme, setTheme } from "theme";
-import logoLightTheme from "assets/Logo-dark.png";
-import logoDarkTheme from "assets/Logo-white.png";
+import logoLightTheme from "assets/Logo-main-sq.png";
+// import logoLightTheme from "assets/Logo-dark.png";
+import logoDarkTheme from "assets/Logo-main-sq.png";
+// import logoDarkTheme from "assets/Logo-white.png";
 
 /* Listen to theme changes */
 export function useGlobalTheme() {

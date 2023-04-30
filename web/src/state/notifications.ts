@@ -36,7 +36,7 @@ export function addNotification(
   persist = false,
   additional = {}
 ) {
-  if (!notificationsActive()) return null;
+  if (!notificationsActive()) return -1;
   const note = (msg as Alert).time
     ? (msg as Alert)
     : createAlert(msg as string, persist);
@@ -47,7 +47,7 @@ export function addNotification(
 }
 
 export function resetNotifications(msg?: string, persist = false) {
-  if (!notificationsActive()) return null;
+  if (!notificationsActive()) return -1;
   const updates = [];
   let msgId = null;
   if (msg) {
@@ -70,16 +70,19 @@ export function removeNotification(msgID: Alert["time"]) {
   Notifications.all(updates);
 }
 
-export function updateAsError(msg: string, id?: number | null) {
-  if (!msg || !notificationsActive()) return id || null;
+export function updateAsError(msg: string, id: number = -1) {
+  if (!msg || !notificationsActive()) return id || -1;
   const { all: notifications } = Notifications.getState();
-  const msgIndex = notifications.findIndex(({ time }) => time === id);
+  const msgIndex =
+    id >= 0
+      ? notifications.findIndex(({ time }) => time === id)
+      : notifications.length;
   const newAlert = createAlert(msg, true);
   const updates = [...notifications];
   newAlert.error = true;
   newAlert.persistent = false;
   if (id) newAlert.time = id as number;
-  if (msgIndex === -1) updates.push(newAlert);
+  if (msgIndex === notifications.length) updates.push(newAlert);
   else updates.splice(msgIndex, 1, newAlert);
 
   Notifications.all(updates);
@@ -88,17 +91,20 @@ export function updateAsError(msg: string, id?: number | null) {
 
 export function updateNotification(
   msg: string,
-  id?: number | null,
+  id: number | null,
   persist = false
 ) {
   if (!notificationsActive()) return;
   const { all: notifications } = Notifications.getState();
-  const i = notifications.findIndex(({ time }) => time === id);
+  const i =
+    (id || -1) >= 0
+      ? notifications.findIndex(({ time }) => time === id)
+      : notifications.length;
   const newAlert = createAlert(msg, true);
   const updates = [...notifications];
   newAlert.time = id as number;
   newAlert.persistent = persist;
-  if (i === -1) updates.push(newAlert);
+  if (i === null || i === -1) updates.push(newAlert);
   else updates.splice(i, 1, newAlert);
 
   Notifications.all(updates);

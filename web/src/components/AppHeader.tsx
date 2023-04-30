@@ -6,21 +6,23 @@ import { useGlobalTheme } from "hooks/GlobalTheme";
 
 const LogoLink = styled(Link)`
   align-items: center;
-  display: flex;
+  display: grid;
+  filter: contrast(0.1) brightness(5) drop-shadow(0 0px 2px #001125ca);
+  font-weight: 500;
+  grid-gap: 0.3rem;
+  grid-template-columns: 40px max-content;
+  padding: 0.5rem 0;
+  text-transform: uppercase;
   top: 0;
-  margin-top: 0.5rem;
 
   .logo {
     display: block;
-    height: 40px;
     pointer-events: none;
+    font-family: "Ubuntu", sans-serif;
+    font-size: 0.8rem;
     transition: filter 300ms;
     width: auto !important;
     will-change: filter;
-  }
-
-  img {
-    filter: contrast(0.1) brightness(5) drop-shadow(0 0px 2px #001125ca);
   }
 
   &:hover .logo {
@@ -56,7 +58,8 @@ const AppHeader = () => {
   return (
     <HeaderContainer>
       <LogoLink to="/" title="MythosForge | Home">
-        <img src={logoImage} className="logo" alt="App Logo" />
+        <img src={logoImage} height={40} className="logo" alt="App Logo" />
+        <span className="logo">Mythos Forge</span>
       </LogoLink>
 
       {/* Navigation Menu */}

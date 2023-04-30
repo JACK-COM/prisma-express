@@ -39,7 +39,7 @@ export const getLocationById = queryField("getLocationById", {
       if (isAuthor || world?.public) return location;
     }
 
-    throw new Error("Location not found");
+    return null;
   }
 });
 

@@ -15,15 +15,9 @@ variable "resource_settings" {
       skip_final_snapshot = true
     },
 
-    "web_app" = {
-      count         = 1          // the number of EC2 instances
-      instance_type = "t2.micro" // the EC2 instance
-      ami_id = "ami-0661baf9111044522" // the AMI ID
-    }
-
     "api" = {
       count         = 1          // the number of EC2 instances
-      instance_type = "t2.micro" // the EC2 instance
+      instance_type = "t2.small" // the EC2 instance
       ami_id = "ami-0661baf9111044522" // the AMI ID
     }
   }

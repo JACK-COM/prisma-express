@@ -23,7 +23,7 @@ resource "aws_security_group" "mf-api-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  // To Allow Port 80 Transport
+  // To Allow Port 443 Transport
   ingress {
     from_port   = 80
     protocol    = "tcp"
@@ -50,7 +50,6 @@ resource "aws_instance" "mf-api-instance" {
   vpc_security_group_ids = [aws_security_group.mf-api-sg.id]
   depends_on             = [aws_security_group.mf-api-sg, aws_db_instance.mf_database]
 
-
   connection {
     type        = "ssh"
     host        = aws_instance.mf-api-instance.public_ip
@@ -64,7 +63,6 @@ resource "aws_instance" "mf-api-instance" {
       #!/bin/bash
       "sudo chown -R ubuntu:ubuntu /home/ubuntu/mythosforge/",
       "sudo apt-get update -y",
-      "sudo npm install -g http-server",
       "sudo npm install pm2@latest -g"
     ]
   }
@@ -82,10 +80,14 @@ resource "aws_instance" "mf-api-instance" {
   provisioner "remote-exec" {
     inline = [
       "cd /home/ubuntu/mythosforge",
-      "sed -i 's/'DB_URL=postgres://intoppoc:testpass@localhost:5432/mythosforge'/'DB_URL=postgres://${var.db_username}:${var.db_password}@${aws_db_instance.mf_database.address}',/g' '.env'",
+      "echo \"DB_URL=postgres://${var.db_username}:${var.db_password}@${aws_db_instance.mf_database.address}\" >> .env",
       "sudo npm install",
       "sudo npm run prisma-sync",
-      "sudo pm2 start server.js --name mythosforge-api"
+      "sudo pm2 start /home/ubuntu/mythosforge/server.js --name mythosforge-api",
+      "sudo iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 4001",
+      "sudo ufw allow 4001",
+      "sudo ufw allow ssh",
+      "sudo yes | sudo ufw enable"
     ]
   }
 

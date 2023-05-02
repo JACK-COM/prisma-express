@@ -11,9 +11,9 @@ import logger from "./logger";
 import { configurePassport } from "./services/passport";
 import { downloadBookHandler } from "./services/document.service";
 import { generateWritingPromptHandler } from "./services/openai.service";
-
-const { PORT = 4001, UIPORT = 3000 } = process.env;
-const env = process.env.NODE_ENV || "development";
+import { PORT, UIPORT, env } from "./constants";
+import { fileDeleteHandler, fileUploadHandler, listUserFilesHandler } from "./services/aws.service";
+import multer from "multer";
 
 /** Run server */
 async function main() {
@@ -45,8 +45,17 @@ async function main() {
   await apolloServer.start();
   apolloServer.applyMiddleware({ app, cors: { credentials: true, origin } });
 
-  app.use("/books/:bookId/download/", downloadBookHandler);
-  app.use("/books/writing-prompt", generateWritingPromptHandler);
+  // ADDITIONAL NON-GRAPHQL ROUTES
+
+  // Books
+  app.post("/books/:bookId/download/", downloadBookHandler);
+  app.post("/books/writing-prompt", generateWritingPromptHandler);
+
+  // AWS File Uploads
+  app.post("/files/:category/delete", fileDeleteHandler);
+  app.post("/files/:category/list", listUserFilesHandler);
+  const upload = multer();
+  app.post("/files/:category/upload", upload.single("imageFile"), fileUploadHandler);
 
   // LISTEN TO APP
   app.listen(PORT, async () => {

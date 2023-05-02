@@ -16,6 +16,7 @@ export type MicroUser = {
 export type UpsertUserData = {
   email?: string;
   displayName?: string;
+  image?: string;
   firstName?: string;
   lastName?: string;
 };
@@ -31,7 +32,7 @@ export async function upsertUser(id: number, data: UpsertUserData) {
     query: upsertUserMutation(),
     variables: { id, data },
     onResolve(x, errors) {
-      return errors || x.upsertUser;
+      return errors || x.updateUser;
     },
     fallbackResponse: null
   });

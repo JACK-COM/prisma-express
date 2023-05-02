@@ -89,6 +89,7 @@ model User {
   lastName              String?
   authSource            Authenticator // Authenticator (facebook, google, twitter, other)
   password              String?                 @db.VarChar(255) // Account password
+  image                 String?
   role                  UserRole
   created               DateTime                @default(now()) // Account creation date
   lastSeen              DateTime                @default(now()) // Last login date
@@ -115,6 +116,7 @@ model Book {
   title       String
   description String
   genre       String
+  image       String?
   created     DateTime  @default(now()) // Item created
   lastUpdated DateTime  @default(now()) // Item updated
   publishDate DateTime? // Item published for public access
@@ -136,6 +138,7 @@ model Chapter {
   title       String
   description String
   authorId    Int? // ( references User )
+  image       String?
   bookId      Int
   created     DateTime           @default(now()) // Item created
   lastUpdated DateTime           @default(now()) // Item updated
@@ -152,6 +155,7 @@ model Character {
   id                    Int                     @id @default(autoincrement())
   name                  String
   description           String
+  image                 String?
   authorId              Int? // ( references User )
   groupId               Int? // ( references Group | nullable )
   locationId            Int? // ( references Location | nullable )
@@ -231,6 +235,7 @@ model Location {
   id               Int               @id @default(autoincrement())
   name             String
   description      String
+  image            String?
   authorId         Int?
   parentLocationId Int? // ( references Location | nullable )
   worldId          Int // ( references World )
@@ -271,6 +276,7 @@ model Scene {
   order          Int
   title          String
   description    String?
+  image          String?
   text           String             @db.Text()
   authorId       Int? // ( references User )
   chapterId      Int // ( references Chapter | nullable )
@@ -293,6 +299,7 @@ model Series {
   id          Int       @id @default(autoincrement())
   title       String
   description String
+  image       String?
   genre       String
   public      Boolean   @default(false) // ( publicly accessible )
   free        Boolean   @default(false) // ( free to read )
@@ -335,6 +342,7 @@ model World {
   id            Int               @id @default(autoincrement())
   public        Boolean           @default(true)
   name          String
+  image         String?
   description   String
   type          WorldType         @default(Universe)
   authorId      Int?
@@ -366,6 +374,7 @@ model Notes {
   id          Int      @id @default(autoincrement())
   title       String
   description String
+  image       String?
   text        String   @db.Text()
   authorId    Int // ( references User | nullable )
   bookId      Int? // ( references Book | nullable )

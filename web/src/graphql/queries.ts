@@ -280,3 +280,9 @@ export const listContentLinksQuery = () =>
       ${MFContentLinkFragment}
     } 
   }`;
+
+/** Get user */
+export const getUserQuery = () =>
+  `query GetUser {
+    getAuthUser { ${MFUserFragment} }
+  }`;

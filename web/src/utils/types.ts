@@ -161,6 +161,7 @@ export type CreateUserInput = {
 export type User = {
   email: string; //  @unique @db.VarChar(255)
   displayName: string;
+  image?: string;
   created: string; //  @default(now()) // Account creation date
   lastSeen: string; //  @default(now()) // Last login date
   Books?: APIData<Book>[];
@@ -178,6 +179,7 @@ export type User = {
 /** A `Book` is a collection of `Chapters` */
 export type Book = {
   order?: number;
+  image?: string;
   title: string;
   description: string;
   genre: string;
@@ -190,6 +192,7 @@ export type Book = {
 /** A `Chapter` is a collection of `Scenes` */
 export type Chapter = {
   order: number;
+  image?: string;
   title: string;
   description: string;
   Scenes: APIData<Scene>[];
@@ -201,6 +204,7 @@ export type Chapter = {
 export type Character = {
   name: string;
   description: string;
+  image?: string;
   Event: APIData<WorldEvent>[];
   Scene: APIData<Scene>[];
 } & AuthorRelation &
@@ -275,6 +279,7 @@ export type Scene = {
   title: string;
   description: string;
   text: string;
+  image?: string;
   chapterId: number;
   Chapter?: APIData<Chapter>;
   eventContextId?: number;
@@ -292,6 +297,7 @@ export type Series = {
   public: boolean;
   free: boolean;
   genre: string;
+  image?: string;
   Books: APIData<Book>[];
 } & AuthorRelation;
 
@@ -318,6 +324,7 @@ export type World = {
   description: string;
   type: WorldType;
   parentWorldId?: number;
+  image?: string;
   Locations: APIData<Location>[];
   Timelines: APIData<Timeline>[];
   Events: APIData<WorldEvent>[];

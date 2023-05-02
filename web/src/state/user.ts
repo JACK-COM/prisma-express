@@ -1,4 +1,5 @@
 import createState from "@jackcom/raphsducks";
+import { ArrayKeys } from "utils/types";
 import { UserRole, NullableString } from "utils/types";
 
 /**
@@ -16,10 +17,13 @@ export const GlobalUser = createState({
   displayName: null as NullableString,
   firstName: null as NullableString,
   lastName: null as NullableString,
+  profileImage: null as NullableString,
   error: null as NullableString,
   role: "Reader" as UserRole,
-  lastSeen: ""
+  lastSeen: "",
+  image: ""
 });
 
 export type GlobalUserInstance = ReturnType<typeof GlobalUser.getState>;
 export type GlobalUserInstanceKey = keyof GlobalUserInstance;
+export type GlobalUserInstanceListKeys = ArrayKeys<GlobalUserInstance>;

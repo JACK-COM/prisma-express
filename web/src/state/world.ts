@@ -1,5 +1,5 @@
 import createState from "@jackcom/raphsducks";
-import { APIData, Location, Timeline, World, WorldEvent } from "utils/types";
+import { APIData, ArrayKeys, Location, Timeline, World, WorldEvent } from "utils/types";
 
 /* Convenience */
 type APIWorld = APIData<World>;
@@ -116,11 +116,7 @@ export function removeLocation(targetId: number) {
   return removeFromWorldsList(targetId, "worldLocations");
 }
 
-export type GlobalWorldListKey =
-  | "worldLocations"
-  | "events"
-  | "timelines"
-  | "worlds";
+export type GlobalWorldListKey = ArrayKeys<GlobalWorldInstance>
 /**
  * Abstraction to UPDATE a list-key in state
  * @param newItems New worlds

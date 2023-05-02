@@ -8,6 +8,7 @@ export const MFAuthor = objectType({
     t.nonNull.int("id");
     t.nonNull.string("displayName");
     t.nonNull.string("email");
+    t.string("image");
     t.field("role", { type: "UserRole" });
     t.string("firstName");
     t.string("lastName");

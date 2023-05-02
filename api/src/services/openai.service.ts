@@ -5,8 +5,8 @@
 
 import { Request, Response } from "express";
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
+import { OPENAI_KEY } from "../constants";
 
-const OPENAI_KEY = process.env.OPENAI_KEY || "";
 const openaiConfig = new Configuration({ apiKey: OPENAI_KEY });
 const openAiApi = new OpenAIApi(openaiConfig);
 const COMPLETIONS_MODEL = "text-davinci-003";

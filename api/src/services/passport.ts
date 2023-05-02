@@ -8,6 +8,7 @@ import GoogleStrategy from "passport-google-oidc";
 import { CtxUser } from "../graphql/context";
 import { findFirstUser, upsertUser } from "../services/users.service";
 import configureAuthRoutes from "../routes/auth.router";
+import { env } from "../constants";
 
 type PassportUser = {
   // The provider with which the user authenticated (facebook, twitter, etc.).
@@ -42,16 +43,13 @@ const toCtxUser = (u: User): CtxUser => ({
   id: u.id,
   email: u.email,
   role: u.role,
-  displayName: u.displayName,
-  firstName: u.firstName,
-  lastName: u.lastName,
   lastSeen: DateTime.now().toJSDate()
 });
 
 export function configurePassport(app: Express) {
   const secret = process.env.JWT_SEC;
   if (!secret) throw new Error("env JWT_SEC not set: run generate-keys");
-  const secure = process.env.NODE_ENV === "production";
+  const secure = env === "production";
   const sessionCookie = { maxAge, httpOnly: true, secure };
   const sessionOpts = {
     cookie: sessionCookie,

@@ -10,6 +10,7 @@ export const MFUser = objectType({
     t.nonNull.string("displayName");
     t.string("firstName");
     t.string("lastName");
+    t.string("image");
     t.nonNull.field("authSource", { type: "Authenticator" });
     t.nonNull.field("role", { type: "UserRole" });
     t.nonNull.field("created", { type: "CsDateTime" });

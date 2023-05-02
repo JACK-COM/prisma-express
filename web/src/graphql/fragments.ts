@@ -2,7 +2,7 @@
 
 /** graphql `User` fragment */
 export const MFUserFragment = `
-    id, displayName, email, firstName, lastName, 
+    id, displayName, email, firstName, lastName, image
 `;
 
 /** graphql `Character` fragment */

@@ -10,7 +10,7 @@ import {
   updateAsError,
   updateChaptersState
 } from "state";
-import { loadChapter } from "hooks/loadUserData";
+import { loadChapter } from "api/loadUserData";
 import styled from "styled-components";
 
 type SceneItemProps = {

@@ -47,7 +47,6 @@ export const GlobalLibrary = createState({
 
 export type GlobalLibraryInstance = ReturnType<typeof GlobalLibrary.getState>;
 export type GlobalLibraryInstanceKey = keyof GlobalLibraryInstance;
-/** All lists in state */
 export type GlobalLibraryListKey = ArrayKeys<GlobalLibraryInstance>;
 
 //  LIST HELPERS

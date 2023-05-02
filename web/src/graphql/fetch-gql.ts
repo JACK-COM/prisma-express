@@ -1,8 +1,8 @@
+import fetchRaw, { withTimeout } from "./fetch-raw";
+
 type GQLError = { message: string };
 /** Generic typed object */
 type ChildProperty<T> = { [k: string]: T } & { errors?: string };
-
-/** Generic graphql response handler */
 
 /** Generic graphql Fetch options */
 type FetchGQLOpts<T> = {
@@ -32,57 +32,12 @@ export async function fetchGQL<T>(opts: FetchGQLOpts<T>) {
     : JSON.stringify({ query });
   const controller = new AbortController();
   const request = () =>
-    fetch(url, {
-      method: "post",
-      body,
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      signal: controller.signal
-    })
-      .then((res) => res.json())
-      .then((res) =>
-        onResolve(
-          res.data || fallback,
-          res.errors && condenseErrors(res.errors)
-        )
-      )
-      .catch((e) =>
-        onResolve(
-          {} as ChildProperty<T>,
-          e ? condenseErrors(e.errors || e) : "FetchGQL Network Error"
-        )
-      );
+    fetchRaw<{ data: ChildProperty<T> }>({
+      url,
+      additionalOpts: { body },
+      onResolve: (x, errors) => onResolve(x.data || fallback, errors)
+    });
 
   return withTimeout({ request, fallbackResponse: fallback, controller });
 }
 export default fetchGQL;
-
-/** Props for making a cancellable http request */
-type CancelableProps<T> = {
-  request: Promise<any> | (() => Promise<any>);
-  fallbackResponse?: T;
-  timeout?: number;
-  controller: AbortController;
-};
-
-/** Halt a request if it takes longer than `timeout` to resolve */
-export async function withTimeout<T>(opts: CancelableProps<T>): Promise<T> {
-  const { request, fallbackResponse, controller, timeout = 3500 } = opts;
-  return new Promise((resolve) => {
-    const call = typeof request === "function";
-    const cancel = () => {
-      controller.abort();
-      resolve(fallbackResponse as T);
-    };
-    setTimeout(cancel, timeout);
-    return call ? request().then(resolve) : request;
-  });
-}
-
-function condenseErrors(errors?: GQLError[] | Error) {
-  if (!errors) return undefined;
-  if ((errors as Error).message) return (errors as Error).message;
-  if (typeof errors === "string") return errors;
-  const e = (errors as GQLError[]).map(({ message }) => message).join("\n");
-  return e;
-}

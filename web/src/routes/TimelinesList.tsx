@@ -3,7 +3,7 @@ import { Paths } from "routes";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import PageLayout from "components/Common/PageLayout";
-import { loadTimelines } from "hooks/loadUserData";
+import { loadTimelines } from "api/loadUserData";
 import TimelinesList from "components/List.Timelines";
 
 const { Timelines: TimelinePaths } = Paths;

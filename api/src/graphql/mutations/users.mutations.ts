@@ -40,7 +40,8 @@ export const updateUser = mutationField("updateUser", {
       email: data.email || dbUser.email,
       displayName: data.displayName || dbUser.displayName,
       firstName: data.firstName || dbUser.firstName,
-      lastName: data.lastName || dbUser.lastName
+      lastName: data.lastName || dbUser.lastName,
+      image: data.image || dbUser.image
     });
   }
 });

@@ -8,6 +8,7 @@ export const MFChapter = objectType({
     t.nonNull.int("id");
     t.nonNull.int("order");
     t.nonNull.string("title");
+    t.string("image");
     t.string("description");
     t.int("authorId", { description: "Author owner" });
     t.int("bookId", { description: "Chapter's Book id" });

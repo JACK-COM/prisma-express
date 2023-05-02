@@ -10,6 +10,7 @@ export const MFScene = objectType({
     t.nonNull.string("title");
     t.string("description");
     t.string("text");
+    t.string("image");
     t.int("authorId", { description: "Scene Author" });
     t.nonNull.int("chapterId", { description: "Scene parent `Chapter`" });
     t.int("characterId", { description: "Scene target `Character`" });

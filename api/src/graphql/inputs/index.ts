@@ -196,6 +196,7 @@ export const MFUserUpsertInput = inputObjectType({
     t.string("password");
     t.string("displayName");
     t.string("firstName");
+    t.string("image");
     t.string("lastName");
   }
 });

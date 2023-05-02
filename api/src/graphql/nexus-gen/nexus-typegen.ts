@@ -147,6 +147,7 @@ export interface NexusGenInputs {
     displayName?: string | null; // String
     email?: string | null; // String
     firstName?: string | null; // String
+    image?: string | null; // String
     lastName?: string | null; // String
     password?: string | null; // String
   }
@@ -192,6 +193,7 @@ export interface NexusGenObjects {
     email: string; // String!
     firstName?: string | null; // String
     id: number; // Int!
+    image?: string | null; // String
     lastName?: string | null; // String
     role?: NexusGenEnums['UserRole'] | null; // UserRole
   }
@@ -205,6 +207,7 @@ export interface NexusGenObjects {
     free: boolean; // Boolean!
     genre: string; // String!
     id: number; // Int!
+    image?: string | null; // String
     order?: number | null; // Int
     public: boolean; // Boolean!
     publishDate?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
@@ -221,6 +224,7 @@ export interface NexusGenObjects {
     created?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     description?: string | null; // String
     id: number; // Int!
+    image?: string | null; // String
     order: number; // Int!
     status?: NexusGenEnums['ChapterStatus'] | null; // ChapterStatus
     title: string; // String!
@@ -233,6 +237,7 @@ export interface NexusGenObjects {
     description: string; // String!
     groupId?: number | null; // Int
     id: number; // Int!
+    image?: string | null; // String
     locationId?: number | null; // Int
     name: string; // String!
     worldId: number; // Int!
@@ -292,6 +297,7 @@ export interface NexusGenObjects {
     description?: string | null; // String
     eventContextId?: number | null; // Int
     id: number; // Int!
+    image?: string | null; // String
     order: number; // Int!
     text?: string | null; // String
     timelineId?: number | null; // Int
@@ -317,6 +323,7 @@ export interface NexusGenObjects {
     free: boolean; // Boolean!
     genre: string; // String!
     id: number; // Int!
+    image?: string | null; // String
     public: boolean; // Boolean!
     publishDate?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     title: string; // String!
@@ -353,6 +360,7 @@ export interface NexusGenObjects {
     email: string; // String!
     firstName?: string | null; // String
     id: number; // Int!
+    image?: string | null; // String
     lastName?: string | null; // String
     lastSeen: NexusGenScalars['CsDateTime']; // CsDateTime!
     role: NexusGenEnums['UserRole']; // UserRole!
@@ -365,6 +373,7 @@ export interface NexusGenObjects {
     authorId?: number | null; // Int
     description: string; // String!
     id: number; // Int!
+    image?: string | null; // String
     name: string; // String!
     parentWorldId?: number | null; // Int
     public: boolean; // Boolean!
@@ -394,6 +403,7 @@ export interface NexusGenFieldTypes {
     email: string; // String!
     firstName: string | null; // String
     id: number; // Int!
+    image: string | null; // String
     lastName: string | null; // String
     role: NexusGenEnums['UserRole'] | null; // UserRole
   }
@@ -407,6 +417,7 @@ export interface NexusGenFieldTypes {
     free: boolean; // Boolean!
     genre: string; // String!
     id: number; // Int!
+    image: string | null; // String
     order: number | null; // Int
     public: boolean; // Boolean!
     publishDate: NexusGenScalars['CsDateTime'] | null; // CsDateTime
@@ -423,6 +434,7 @@ export interface NexusGenFieldTypes {
     created: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     description: string | null; // String
     id: number; // Int!
+    image: string | null; // String
     order: number; // Int!
     status: NexusGenEnums['ChapterStatus'] | null; // ChapterStatus
     title: string; // String!
@@ -435,6 +447,7 @@ export interface NexusGenFieldTypes {
     description: string; // String!
     groupId: number | null; // Int
     id: number; // Int!
+    image: string | null; // String
     locationId: number | null; // Int
     name: string; // String!
     worldId: number; // Int!
@@ -496,6 +509,7 @@ export interface NexusGenFieldTypes {
     description: string | null; // String
     eventContextId: number | null; // Int
     id: number; // Int!
+    image: string | null; // String
     order: number; // Int!
     text: string | null; // String
     timelineId: number | null; // Int
@@ -521,6 +535,7 @@ export interface NexusGenFieldTypes {
     free: boolean; // Boolean!
     genre: string; // String!
     id: number; // Int!
+    image: string | null; // String
     public: boolean; // Boolean!
     publishDate: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     title: string; // String!
@@ -557,6 +572,7 @@ export interface NexusGenFieldTypes {
     email: string; // String!
     firstName: string | null; // String
     id: number; // Int!
+    image: string | null; // String
     lastName: string | null; // String
     lastSeen: NexusGenScalars['CsDateTime']; // CsDateTime!
     role: NexusGenEnums['UserRole']; // UserRole!
@@ -569,6 +585,7 @@ export interface NexusGenFieldTypes {
     authorId: number | null; // Int
     description: string; // String!
     id: number; // Int!
+    image: string | null; // String
     name: string; // String!
     parentWorldId: number | null; // Int
     public: boolean; // Boolean!
@@ -604,6 +621,8 @@ export interface NexusGenFieldTypes {
     upsertWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
   }
   Query: { // field return type
+    getAuthUser: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
+    getAuthor: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
     getBookById: NexusGenRootTypes['MFBook'] | null; // MFBook
     getChapterById: NexusGenRootTypes['MFChapter'] | null; // MFChapter
     getCharacterById: NexusGenRootTypes['MFCharacter'] | null; // MFCharacter
@@ -643,6 +662,7 @@ export interface NexusGenFieldTypeNames {
     email: 'String'
     firstName: 'String'
     id: 'Int'
+    image: 'String'
     lastName: 'String'
     role: 'UserRole'
   }
@@ -656,6 +676,7 @@ export interface NexusGenFieldTypeNames {
     free: 'Boolean'
     genre: 'String'
     id: 'Int'
+    image: 'String'
     order: 'Int'
     public: 'Boolean'
     publishDate: 'CsDateTime'
@@ -672,6 +693,7 @@ export interface NexusGenFieldTypeNames {
     created: 'CsDateTime'
     description: 'String'
     id: 'Int'
+    image: 'String'
     order: 'Int'
     status: 'ChapterStatus'
     title: 'String'
@@ -684,6 +706,7 @@ export interface NexusGenFieldTypeNames {
     description: 'String'
     groupId: 'Int'
     id: 'Int'
+    image: 'String'
     locationId: 'Int'
     name: 'String'
     worldId: 'Int'
@@ -745,6 +768,7 @@ export interface NexusGenFieldTypeNames {
     description: 'String'
     eventContextId: 'Int'
     id: 'Int'
+    image: 'String'
     order: 'Int'
     text: 'String'
     timelineId: 'Int'
@@ -770,6 +794,7 @@ export interface NexusGenFieldTypeNames {
     free: 'Boolean'
     genre: 'String'
     id: 'Int'
+    image: 'String'
     public: 'Boolean'
     publishDate: 'CsDateTime'
     title: 'String'
@@ -806,6 +831,7 @@ export interface NexusGenFieldTypeNames {
     email: 'String'
     firstName: 'String'
     id: 'Int'
+    image: 'String'
     lastName: 'String'
     lastSeen: 'CsDateTime'
     role: 'UserRole'
@@ -818,6 +844,7 @@ export interface NexusGenFieldTypeNames {
     authorId: 'Int'
     description: 'String'
     id: 'Int'
+    image: 'String'
     name: 'String'
     parentWorldId: 'Int'
     public: 'Boolean'
@@ -853,6 +880,8 @@ export interface NexusGenFieldTypeNames {
     upsertWorld: 'MFWorld'
   }
   Query: { // field return type name
+    getAuthUser: 'MFAuthor'
+    getAuthor: 'MFAuthor'
     getBookById: 'MFBook'
     getChapterById: 'MFChapter'
     getCharacterById: 'MFCharacter'
@@ -969,6 +998,9 @@ export interface NexusGenArgTypes {
     }
   }
   Query: {
+    getAuthor: { // args
+      id: number; // Int!
+    }
     getBookById: { // args
       id: number; // Int!
     }

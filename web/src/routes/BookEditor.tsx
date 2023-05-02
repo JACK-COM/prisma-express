@@ -7,7 +7,7 @@ import {
   MatIcon
 } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
-import { Paths, insertId } from "routes";
+import { Paths, downloadBookURL, insertId } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, Chapter, Scene, UserRole } from "utils/types";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
@@ -25,11 +25,10 @@ import PageLayout from "components/Common/PageLayout";
 import ChaptersList from "components/List.Chapters";
 import { useParams } from "react-router";
 import {
-  downloadBookURL,
   getWritingPrompt,
   loadBook,
   loadChapter
-} from "hooks/loadUserData";
+} from "api/loadUserData";
 import ModalDrawer from "components/Modals/ModalDrawer";
 import TinyMCE from "components/Forms/TinyMCE";
 import { useGlobalWindow } from "hooks/GlobalWindow";

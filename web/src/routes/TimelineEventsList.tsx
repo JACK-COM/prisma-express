@@ -5,7 +5,7 @@ import { useGlobalModal } from "hooks/GlobalModal";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useParams } from "react-router";
 import { GlobalWorld } from "state";
-import { loadTimelines } from "hooks/loadUserData";
+import { loadTimelines } from "api/loadUserData";
 import PageLayout from "components/Common/PageLayout";
 import TimelinesEventsList from "components/List.TimelineEvents";
 

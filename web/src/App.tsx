@@ -11,7 +11,7 @@ import { GlobalUser } from "./state";
 import { API_AUTH_ROUTE } from "./utils";
 import AppHeader from "components/AppHeader";
 import { useGlobalTheme } from "hooks/GlobalTheme";
-import { loadUser, loadUserData } from "hooks/loadUserData";
+import { loadUser, loadUserData } from "api/loadUserData";
 import FullScreenLoader from "components/Common/FullscreenLoader";
 import { Paths, wildcard } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";

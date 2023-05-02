@@ -8,6 +8,7 @@ export const MFCharacter = objectType({
     t.nonNull.int("id");
     t.nonNull.string("name", { description: "Character name" });
     t.nonNull.string("description", { description: "Character description" });
+    t.string("image");
     t.int("authorId", { description: "Author owner" });
     t.int("groupId", { description: "`Group` identifier id (optional)" });
     t.int("locationId", { description: "Character's `Location` id" });

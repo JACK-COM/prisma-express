@@ -1,6 +1,11 @@
 import createState from "@jackcom/raphsducks";
 import { mergeLists } from "utils";
-import { APIData, CharacterRelationship, Character, ArrayKeys } from "utils/types";
+import {
+  APIData,
+  CharacterRelationship,
+  Character,
+  ArrayKeys
+} from "utils/types";
 
 /* Convenience */
 type APICharacter = APIData<Character>;
@@ -23,8 +28,7 @@ export type GlobalCharacterInstance = ReturnType<
   typeof GlobalCharacter.getState
 >;
 export type GlobalCharacterInstanceKey = keyof GlobalCharacterInstance;
-/** All lists in state */
-export type GlobalCharacterListKey = ArrayKeys<GlobalCharacterInstance>
+export type GlobalCharacterListKey = ArrayKeys<GlobalCharacterInstance>;
 
 /**
  * Update list of characters in state

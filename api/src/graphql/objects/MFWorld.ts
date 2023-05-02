@@ -10,6 +10,7 @@ export const MFWorld = objectType({
     t.nonNull.string("name");
     t.nonNull.string("description");
     t.nonNull.field("type", { type: "WorldType" });
+    t.string("image");
     t.int("authorId", { description: "Book Author/owner" });
     t.int("parentWorldId", { description: "Optional world parent" });
 

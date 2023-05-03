@@ -65,7 +65,9 @@ export async function loadUser() {
   return user;
 }
 
-// Generate a writing prompt from the API
+/**
+ * Generate a writing prompt from the API
+ * @todo this should take additional parameters (world, character, etc) */
 export async function getWritingPrompt() {
   const { prompt } = await fetchRaw<{ prompt: string }>({
     url: API_PROMPT,

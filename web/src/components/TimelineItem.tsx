@@ -4,24 +4,13 @@ import { requireAuthor, noOp } from "utils";
 import {
   ItemDescription,
   ItemName,
+  ItemWorldName,
   ItemLinkContainer,
   MatIcon
 } from "components/Common/Containers";
-import { Hint } from "components/Forms/Form";
 import { TallIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
 import { TimelineItemEventIcon } from "./TimelineItem.EventIcon";
-
-const TimelineWorld = styled(Hint)`
-  ${({ theme }) => theme.mixins.lineclamp(1)};
-  align-self: center;
-  font-size: 0.72rem;
-  grid-column: 3;
-  grid-row: 1/3;
-  text-align: right;
-  text-transform: uppercase;
-  width: 100%;
-`;
 
 type TimelineItemProps = {
   timeline: APIData<Timeline>;
@@ -72,7 +61,7 @@ const TimelineItem = ({
           />
         ))}
       </ItemDescription>
-      <TimelineWorld
+      <ItemWorldName
         className={colorClass}
         children={timelineDescription(timeline)}
       />
@@ -87,4 +76,5 @@ export default TimelineItem;
 /** Describe a timeline by its qualities */
 function timelineDescription(timeline: Timeline) {
   if (timeline.World) return timeline.World.name;
+  return "Unknown";
 }

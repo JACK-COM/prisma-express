@@ -4,12 +4,26 @@ import styled from "styled-components";
 type ImageLoaderProps = {
   src?: string;
   icon?: boolean;
+  round?: boolean;
+  fallbackIcon?: string;
 } & ComponentPropsWithRef<"img">;
+
+const Img = styled.img<{ round?: boolean }>`
+  border-radius: ${({ round }) => (round ? "50%" : "0")};
+  flex-shrink: 0;
+`;
 
 /** Default application image loader with some light animation */
 const ImageLoader = styled((props: ImageLoaderProps) => {
-  const { src, icon = false, className = "", ...rest } = props;
-  const cName = `${className} scale-in`.trim();
+  const {
+    src,
+    icon = false,
+    className = "",
+    round = false,
+    fallbackIcon = "image",
+    ...rest
+  } = props;
+  const cName = `scale-in ${className} ${round ? "round" : ""}`.trim();
   const [imgSrc, setSrc] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -39,14 +53,14 @@ const ImageLoader = styled((props: ImageLoaderProps) => {
     img.src = src;
   }, [src]);
 
-  if (!loaded) return <span className="material-icons">image</span>;
+  if (!loaded) return <span className="material-icons">{fallbackIcon}</span>;
   if (err) return <span className="material-icons">close</span>;
   if (loading) return <span className="spinner--before" />;
   if (icon) return <span className="material-icons">check_circle</span>;
 
-  return <img className={cName} src={src} {...rest} alt={rest.alt} />;
-})`
-  flex-shrink: 0;
-`;
+  return (
+    <Img round={round} className={cName} src={src} {...rest} alt={rest.alt} />
+  );
+})``;
 
 export default ImageLoader;

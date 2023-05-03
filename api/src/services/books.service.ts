@@ -131,8 +131,9 @@ export async function checkBookHasContent(book: Book) {
 }
 
 /** Prep data for db insertion */
-export function pruneBookData(book: any, i = 0) {
+export function pruneBookData<T extends BookUpsertInput>(book: T, i = 0) {
   const pruned = {
+    ...book,
     id: book.id || undefined,
     order: book.order || i + 1,
     authorId: book.authorId || undefined,

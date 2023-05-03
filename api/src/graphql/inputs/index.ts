@@ -17,6 +17,7 @@ export const MFWorldUpsertInput = inputObjectType({
     t.nonNull.string("name");
     t.nonNull.string("description");
     t.nonNull.field("type", { type: "WorldType" });
+    t.string("image");
     t.int("authorId", { description: "Item Author/owner" });
     t.int("parentWorldId", { description: "Parent world (optional)" });
   }
@@ -28,6 +29,7 @@ export const MFCharacterUpsertInput = inputObjectType({
   definition(t) {
     t.int("id", { default: undefined, description: "Character ID" });
     t.nonNull.string("name");
+    t.string("image");
     t.string("description", {
       default: "No description",
       description: "Character writing-prompts or bio"
@@ -58,9 +60,14 @@ export const MFLocationUpsertInput = inputObjectType({
     t.int("id", { default: undefined, description: "Location ID" });
     t.nonNull.string("name");
     t.nonNull.string("description");
+    t.string("image");
     t.field("climate", { type: "Climate" });
     t.field("flora", { type: "Richness" });
     t.field("fauna", { type: "Richness" });
+    t.int("northOf", { description: "Location north neighbor" });
+    t.int("southOf", { description: "Location south neighbor" });
+    t.int("eastOf", { description: "Location east neighbor" });
+    t.int("westOf", { description: "Location west neighbor" });
     t.nonNull.int("worldId", { description: "Parent world ID" });
     t.int("authorId", { description: "Item Author/owner" });
     t.int("parentLocationId", { description: "Parent location (optional)" });
@@ -131,6 +138,7 @@ export const MFSeriesUpsertInput = inputObjectType({
     t.nonNull.string("title");
     t.nonNull.string("description");
     t.nonNull.string("genre");
+    t.string("image");
     t.int("authorId", { description: "Item Author/owner" });
     t.boolean("public", { default: false });
     t.boolean("free", { default: false });
@@ -146,6 +154,7 @@ export const MFBookUpsertInput = inputObjectType({
     t.nonNull.string("title");
     t.nonNull.string("description");
     t.nonNull.string("genre");
+    t.string("image");
     t.int("order", { description: "Sequence in series (if part of one" });
     t.int("authorId", { description: "Item Author/owner" });
     t.int("seriesId", { description: "Parent Series" });
@@ -161,6 +170,7 @@ export const MFChapterUpsertInput = inputObjectType({
   definition(t) {
     t.int("id", { default: undefined, description: "Chapter ID" });
     t.nonNull.string("title");
+    t.string("image");
     t.string("description");
     t.int("order", { description: "Sequence in book (if part of one" });
     t.int("authorId", { description: "Item Author/owner" });
@@ -176,6 +186,7 @@ export const MFSceneUpsertInput = inputObjectType({
     t.int("id", { default: undefined, description: "Scene ID" });
     t.nonNull.string("title");
     t.string("description");
+    t.string("image");
     t.nonNull.string("text");
     t.nonNull.int("order", {
       description: "Sequence in chapter (if part of one"

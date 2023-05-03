@@ -14,20 +14,45 @@ import PageLayout from "components/Common/PageLayout";
 const Container = styled(PageLayout)``;
 const Controls = styled(GridContainer)`
   align-self: stretch;
+  grid-column-gap: ${({ gap }) => gap};
   height: 100%;
   padding: 1rem 0;
 `;
 const Control = styled(Link)<{ image: string }>`
-  background: ${({ image }) => `url(${image}) no-repeat bottom center / cover`};
+  border-radius: 8px;
   color: white;
+  border: ${({ theme }) => `${theme.sizes.sm} solid ${theme.colors.semitransparent}`};
   font-size: 1.6rem;
-  font-weight: 500;
-  height: 88vh;
+  height: 50vh;
   overflow: hidden;
   place-content: center;
-  text-shadow: 0 2px 4px #111b;
+  position: relative;
 
-  &:hover {
+  > * {
+    width: 100%;
+  }
+
+  .bg {
+    background: ${({ image }) =>
+      `url(${image}) no-repeat bottom center / cover`};
+    display: block;
+    filter: blur(0.07rem);
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    z-index: 1;
+  }
+
+  .text {
+    align-self: flex-end;
+    background-color: ${({ theme }) => theme.colors.bgColor}aa;
+    font-weight: 300;
+    padding: 0 0.3rem;
+    z-index: 2;
+  }
+
+  &:hover .bg {
     animation: scale-up 150ms ease-in;
     animation-fill-mode: forwards;
     box-shadow: 0 0 0.5rem 0.1rem ${({ theme }) => theme.colors.accent};
@@ -48,7 +73,7 @@ const SECTIONS = [
 const Home = () => {
   const { width } = useGlobalWindow();
   const [gridColumns, gridGap] = useMemo(() => {
-    if (width > 1024) return [4, "0"];
+    if (width > 1024) return [4, "1.2rem"];
     if (width > 400) return [2, "0"];
     return [1, "0"];
   }, [width]);
@@ -70,7 +95,7 @@ const Home = () => {
             children={
               <>
                 <span className="bg" />
-                {data.Index.text}
+                <span className="text">{data.Index.text}</span>
               </>
             }
             image={src}

@@ -117,11 +117,11 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
       {/* Description */}
       <Label direction="column">
         <span className="label">Short Description</span>
-        <TinyMCE
+        <Textarea
           disabled={role === "Reader"}
-          height={300}
+          rows={300}
           value={data.description || ""}
-          onChange={updateDescription}
+          onChange={e => updateDescription(e.target.value)}
         />
       </Label>
       <Hint>Describe your character as a series of short writing-prompts.</Hint>

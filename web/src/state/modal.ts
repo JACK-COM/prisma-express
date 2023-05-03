@@ -3,6 +3,7 @@ import createState from "@jackcom/raphsducks";
 export enum MODAL {
   NONE = "None",
   LINK_SCENE = "Link Scene",
+  CONFIRM_DELETE_BOOK = "Confirm Delete Book",
   MANAGE_BOOK = "Manage Book",
   MANAGE_CHAPTER = "Manage Chapter",
   MANAGE_CHARACTER = "Manage Character",
@@ -17,23 +18,23 @@ export enum MODAL {
 }
 
 /** Modals */
-export const Modal = createState({
+export const GlobalModal = createState({
   active: MODAL.NONE,
   previous: [] as MODAL[]
 });
 
-export type ModalStore = ReturnType<typeof Modal.getState>;
+export type ModalStore = ReturnType<typeof GlobalModal.getState>;
 export type ModalStoreKey = keyof ModalStore;
 
 export function clearGlobalModal() {
-  const { previous: old } = Modal.getState();
+  const { previous: old } = GlobalModal.getState();
   const previous = [...old];
   const active = previous.pop() || MODAL.NONE;
-  Modal.multiple({ active, previous });
+  GlobalModal.multiple({ active, previous });
 }
 
 export function setGlobalModal(active: MODAL) {
-  const { previous: old, active: last } = Modal.getState();
+  const { previous: old, active: last } = GlobalModal.getState();
   const previous = [...old, last];
-  Modal.multiple({ active, previous });
+  GlobalModal.multiple({ active, previous });
 }

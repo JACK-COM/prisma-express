@@ -129,12 +129,6 @@ export const ItemName = styled.b.attrs({
     permissions === "Author" ? "fill" : "none"};
   width: fit-content;
 
-  /* Experimental
-  background: #10191839;
-  border-radius: 4px;
-  padding: 0 0.4rem;
-  /* Experimental */
-
   &:hover {
     color: ${({ theme }) => theme.colors.accent};
   }
@@ -154,7 +148,6 @@ const sharedListItemStyles = css`
   cursor: pointer;
   display: grid;
   grid-template-columns: 24px 10fr 3fr;
-  /* grid-template-columns: 24px 10fr max-content; */
   padding: ${({ theme }) => theme.sizes.xs};
   text-shadow: ${({ theme }) => theme.presets.elevate.xxs} #001125ec;
   width: 100%;
@@ -185,6 +178,19 @@ export const ItemLinkContainer = styled(Link).attrs({
     padding: ${({ theme }) => theme.sizes.xs};
     grid-row: 1/3;
   }
+`;
+// Shared ListItem World name
+export const ItemWorldName = styled(ItemDescription)<{ public?: boolean }>`
+  ${({ theme }) => theme.mixins.lineclamp(1)};
+  align-self: center;
+  color: ${({ theme, public: isPublic }) =>
+    isPublic ? theme.colors.success : theme.colors.grey};
+  font-size: 0.72rem;
+  grid-column: 3;
+  grid-row: 1/3;
+  text-align: right;
+  text-transform: uppercase;
+  width: 100%;
 `;
 
 type PCProps = FlexContainerProps & { minHeight?: string };
@@ -220,9 +226,15 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
   }
 `;
 
-export const PageTitle = styled.h1.attrs({ className: "h3" })`
+const pageTitleStyles = css`
   margin-bottom: 0;
   margin-top: 0.25rem;
+`;
+export const PageTitle = styled.h1.attrs({ className: "h3" })`
+  ${pageTitleStyles}
+`;
+export const PageTitleVariable = styled.h1`
+  ${pageTitleStyles}
 `;
 
 export const PageDescription = styled.div`
@@ -276,12 +288,21 @@ export const Section = styled(FlexColumn)`
 
 const Icon = styled.span``;
 export type MatIconProps = { icon: string } & ComponentPropsWithRef<"span">;
-export const MatIcon = ({ icon, ...props }: MatIconProps) => (
+export const MatIcon = ({
+  icon,
+  className = "",
+  title = "",
+  onClick,
+  style,
+  ...rest
+}: MatIconProps) => (
   <Icon
-    className={`material-icons ${props.className || ""}`.trim()}
-    title={props.title || ""}
-    onClick={props.onClick}
+    className={`material-icons ${className}`.trim()}
+    title={title}
+    onClick={onClick}
     children={icon}
+    style={style}
+    {...{ rest }}
   />
 );
 

@@ -36,6 +36,7 @@ export interface NexusGenInputs {
     free?: boolean | null; // Boolean
     genre: string; // String!
     id?: number | null; // Int
+    image?: string | null; // String
     order?: number | null; // Int
     public?: boolean | null; // Boolean
     seriesId?: number | null; // Int
@@ -46,6 +47,7 @@ export interface NexusGenInputs {
     bookId: number; // Int!
     description?: string | null; // String
     id?: number | null; // Int
+    image?: string | null; // String
     order?: number | null; // Int
     scenes?: NexusGenInputs['MFSceneUpsertInput'][] | null; // [MFSceneUpsertInput!]
     title: string; // String!
@@ -55,6 +57,7 @@ export interface NexusGenInputs {
     description: string | null; // String
     groupId?: number | null; // Int
     id?: number | null; // Int
+    image?: string | null; // String
     locationId?: number | null; // Int
     name: string; // String!
     worldId: number; // Int!
@@ -93,11 +96,16 @@ export interface NexusGenInputs {
     authorId?: number | null; // Int
     climate?: NexusGenEnums['Climate'] | null; // Climate
     description: string; // String!
+    eastOf?: number | null; // Int
     fauna?: NexusGenEnums['Richness'] | null; // Richness
     flora?: NexusGenEnums['Richness'] | null; // Richness
     id?: number | null; // Int
+    image?: string | null; // String
     name: string; // String!
+    northOf?: number | null; // Int
     parentLocationId?: number | null; // Int
+    southOf?: number | null; // Int
+    westOf?: number | null; // Int
     worldId: number; // Int!
   }
   MFRelationshipUpsertInput: { // input type
@@ -114,6 +122,7 @@ export interface NexusGenInputs {
     description?: string | null; // String
     eventContextId?: number | null; // Int
     id?: number | null; // Int
+    image?: string | null; // String
     order: number; // Int!
     text: string; // String!
     timelineId?: number | null; // Int
@@ -126,6 +135,7 @@ export interface NexusGenInputs {
     free?: boolean | null; // Boolean
     genre: string; // String!
     id?: number | null; // Int
+    image?: string | null; // String
     public?: boolean | null; // Boolean
     title: string; // String!
   }
@@ -155,6 +165,7 @@ export interface NexusGenInputs {
     authorId?: number | null; // Int
     description: string; // String!
     id?: number | null; // Int
+    image?: string | null; // String
     name: string; // String!
     parentWorldId?: number | null; // Int
     public?: boolean | null; // Boolean

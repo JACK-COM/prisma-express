@@ -1,3 +1,46 @@
+import { ThemeProps } from "styled-components";
+
+/** Size labels */
+export type DefaultSizes = {
+  xxs?: string;
+  xs?: string;
+  sm: string;
+  default?: string;
+  md: string;
+  lg: string;
+  xlg: string;
+  xxlg?: string;
+};
+
+/** Customized `styled-components` app theme */
+export type AppTheme = ThemeProps<{
+  sizes: DefaultSizes;
+
+  colors: {
+    accent: string;
+    bgColor: string;
+    bgGradient?: string;
+    bgGradientDir?: (direction?: string) => string;
+    semitransparent: string;
+    grey: string;
+    error: string;
+    errorDark: string;
+    primary: string;
+    secondary: string;
+    success: string;
+    warning: string;
+  };
+
+  presets: {
+    fonts: {
+      heading: string;
+      body: string;
+    };
+    elevate: DefaultSizes;
+    round: DefaultSizes;
+  };
+}>["theme"];
+
 /** Global Size presets */
 const sizes = {
   xxs: "0.125rem",
@@ -34,7 +77,7 @@ const presets = {
     // heading: "'Ubuntu', sans-serif",
     // body: "'Source Sans 3', sans-serif",
     heading: "'Source Sans 3', sans-serif",
-    body: "'Ubuntu', sans-serif",
+    body: "'Ubuntu', sans-serif"
   }
 };
 
@@ -60,7 +103,8 @@ const shared = {
   sizes,
   colors: {
     bgGradient: "linear-gradient(180deg, #282c34 0%, #101918 100%)",
-    success: "#2ca258"
+    success: "#2ca258",
+    grey: "#9c9c9c"
   },
   presets,
   mixins

@@ -23,12 +23,13 @@ const Menu = styled.nav`
 `;
 
 const FloatingButtons = styled.div`
-  position: fixed;
+  align-items: center;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   grid-column-gap: 0.4rem;
-  top: 0.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  position: fixed;
   right: 0.5rem;
+  top: 0.5rem;
   z-index: 999;
 
   @media screen and (max-width: 768px) {
@@ -42,7 +43,6 @@ const FloatingButtons = styled.div`
 const routes = [Paths.Library, Paths.Characters, Paths.Worlds, Paths.Timelines];
 
 const AppNav = () => {
-  const searchPath = Paths.Search.Index.path;
   const location = useLocation();
   const { isMobile } = useGlobalWindow();
   const [open, setOpen] = useState(false);
@@ -55,12 +55,12 @@ const AppNav = () => {
 
   return (
     <>
-      <Menu className="app-menu">
+      <Menu id="app-menu" className="app-menu">
         <FloatingButtons>
           {/* Navigation Links */}
-          <ButtonLink variant="transparent" round href={searchPath}>
+          <RoundButton variant="transparent" size="lg">
             <MatIcon icon="search" />
-          </ButtonLink>
+          </RoundButton>
 
           {/* Light/Dark Theme */}
           <ThemeSelector />
@@ -69,7 +69,7 @@ const AppNav = () => {
           <AppAuth />
 
           {isMobile && (
-            <RoundButton variant="transparent">
+            <RoundButton size="lg" variant="transparent">
               <MatIcon icon="menu" onClick={toggleDrawer} />
             </RoundButton>
           )}

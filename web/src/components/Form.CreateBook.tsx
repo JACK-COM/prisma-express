@@ -1,5 +1,5 @@
-import { ChangeEvent } from "react";
-import { GENRES, noOp } from "../utils";
+import { ChangeEvent, useState } from "react";
+import { noOp } from "../utils";
 import {
   Form,
   FormRow,
@@ -9,7 +9,6 @@ import {
   Legend,
   RadioInput,
   RadioLabel,
-  Select,
   TinyMCE
 } from "components/Forms/Form";
 import { UpsertBookData } from "graphql/requests/books.graphql";
@@ -18,18 +17,24 @@ import WorkCategory from "./Form.WorkCategory";
 export type CreateBookProps = {
   data?: Partial<UpsertBookData>;
   onChange?: (data: Partial<UpsertBookData>) => void;
+  onCoverImage?: (data: File | undefined) => void;
 };
 
 /** Create or edit a `Book` */
 const CreateBookForm = (props: CreateBookProps) => {
-  const { data, onChange = noOp } = props;
-  const updatePublic = (e: boolean) => onChange({ ...data, public: e || false });
+  const { data, onChange = noOp, onCoverImage = noOp } = props;
+  const updatePublic = (e: boolean) =>
+    onChange({ ...data, public: e || false });
   const updateFree = (free: boolean) => onChange({ ...data, free });
   const updateDescription = (description: string) => {
     onChange({ ...data, description });
   };
   const updateTitle = (e: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...data, title: e.target.value });
+  };
+  const updateImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [file] = e.target.files || [];
+    if (file) onCoverImage(file);
   };
 
   return (
@@ -49,15 +54,26 @@ const CreateBookForm = (props: CreateBookProps) => {
       </Hint>
 
       {/* Name */}
-      <Label direction="column">
-        <span className="label required">Book Title</span>
-        <Input
-          placeholder="Omarai: Rise of the Reborn"
-          type="text"
-          value={data?.title || ""}
-          onChange={updateTitle}
-        />
-      </Label>
+      <FormRow columns="repeat(2, 1fr)">
+        <Label direction="column">
+          <span className="label required">Book Title</span>
+          <Input
+            placeholder="Omarai: Rise of the Reborn"
+            type="text"
+            value={data?.title || ""}
+            onChange={updateTitle}
+          />
+        </Label>
+        <Label direction="column">
+          <span className="label">Cover Image</span>
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={updateImage}
+            style={{ padding: "0 0.5rem" }}
+          />
+        </Label>
+      </FormRow>
       <Hint>Enter your exciting (or working) title here.</Hint>
       <hr />
 

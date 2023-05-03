@@ -10,9 +10,9 @@ import { GridItemTitle } from "components/Common/Containers";
 import { truncateString } from "utils";
 import { TallIcon } from "./ComponentIcons";
 import useElemBlur from "hooks/GlobalElemBlur";
-import useEscapeKeyListener from "hooks/GlobalEscapeKeyEvent";
 import { Link } from "react-router-dom";
 import { Paths } from "routes";
+import ImageLoader from "./Common/ImageLoader";
 
 const Container = styled.aside`
   display: inline-flex;
@@ -66,15 +66,16 @@ export const LOGOUT_URL = `${API}/logout/google?`;
 const AppAuth = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { email, displayName, authenticated } = useGlobalUser([
+  const { email, displayName, image, authenticated } = useGlobalUser([
     "email",
     "displayName",
+    "image",
     "authenticated"
   ]);
   const [submenu, showSubmenu] = useState(false);
   const [authUrl, authTitle, authClass] = useMemo(() => {
     const url = email ? LOGOUT_URL : LOGIN_URL;
-    return email ? [url, `Log out ${email}`, "error"] : [url, "Log in"];
+    return email ? [url, `Log out ${email}`, "accent"] : [url, "Log in"];
   }, [email]);
 
   // Toggle submenu
@@ -135,9 +136,19 @@ const AppAuth = () => {
         className={authClass}
         onClick={onAuth}
         title={authTitle}
+        size="lg"
         variant={authenticated ? undefined : "transparent"}
       >
-        <MatIcon icon={displayName ? "account_circle" : "login"} />
+        {displayName ? (
+          <ImageLoader
+            round
+            src={image}
+            fallbackIcon="account_circle"
+            width={32}
+          />
+        ) : (
+          <MatIcon icon={"login"} />
+        )}
       </RoundButton>
 
       {/* submenu */}

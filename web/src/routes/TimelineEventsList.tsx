@@ -5,7 +5,7 @@ import { useGlobalModal } from "hooks/GlobalModal";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useParams } from "react-router";
 import { GlobalWorld } from "state";
-import { loadTimelines } from "hooks/loadUserData";
+import { loadTimelines } from "api/loadUserData";
 import PageLayout from "components/Common/PageLayout";
 import TimelinesEventsList from "components/List.TimelineEvents";
 
@@ -40,11 +40,12 @@ const TimelinesEventsListRoute = () => {
   }, []);
 
   return (
-    <PageLayout id="timelines-list" title={timelineName} breadcrumbs={crumbs}>
-      <PageDescription>
-        A <b>Timeline</b> in <b className="accent--text">{worldName}</b>.
-      </PageDescription>
-
+    <PageLayout
+      id="timelines-list"
+      title={timelineName}
+      breadcrumbs={crumbs}
+      description={`A <b>Timeline</b> in <b className="accent--text">${worldName}</b>`}
+    >
       <TimelinesEventsList focusedTimeline={focusedTimeline} />
     </PageLayout>
   );

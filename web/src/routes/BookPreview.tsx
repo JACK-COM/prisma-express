@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import {
   Card,
@@ -14,11 +14,16 @@ import { GlobalLibrary, setGlobalScene, updateAsError } from "state";
 import PageLayout from "components/Common/PageLayout";
 import ChaptersList from "components/List.Chapters";
 import { useParams } from "react-router";
-import { downloadBookURL, loadBook, loadChapter } from "hooks/loadUserData";
+import { loadBook, loadChapter } from "api/loadUserData";
 import { APIData, ContentLink } from "utils/types";
 import { TallIcon } from "components/ComponentIcons";
 import { noOp } from "utils";
-import Button from "components/Forms/Button";
+import {
+  ButtonWithIcon,
+  LinkWithIcon,
+  RoundButton
+} from "components/Forms/Button";
+import { useGlobalUser } from "hooks/GlobalUser";
 
 const { Library } = Paths;
 const PreviewGrid = styled(GridContainer)`
@@ -36,6 +41,11 @@ const Content = styled.section`
     border-radius: ${({ theme }) => theme.presets.round.sm};
   }
 `;
+const PreviewTitle = styled(CardTitle)`
+  align-items: center;
+  display: grid;
+  grid-template-columns: auto max-content;
+`;
 
 /** Route parameters that enable linking to scenes/chapters */
 type RouteParams = {
@@ -46,6 +56,7 @@ type RouteParams = {
 
 /** @route Preview a `Book` */
 const BookPreviewRoute = () => {
+  const { id: userId } = useGlobalUser();
   const {
     focusedBook,
     focusedChapter,
@@ -57,11 +68,12 @@ const BookPreviewRoute = () => {
     "focusedScene",
     "chapters"
   ]);
-  const { bookId } = useParams<RouteParams>();
+  const { bookId = "" } = useParams<RouteParams>();
   const PreviewPath = {
     ...Library.BookPreview,
-    path: insertId(Library.BookPreview.path, bookId || "")
+    path: insertId(Library.BookPreview.path, bookId)
   };
+  const editUrl = insertId(Library.BookEditor.path, bookId);
   const [pageTitle, sectionTitle, sectionText] = useMemo(() => {
     const title = focusedBook?.title || PreviewPath.text;
     if (focusedChapter && focusedScene) {
@@ -74,12 +86,18 @@ const BookPreviewRoute = () => {
 
     return [title, "Overview", focusedBook?.description || "No book selected"];
   }, [focusedBook, focusedChapter, focusedScene]);
+  const isAuthor = useMemo(
+    () => focusedBook?.authorId === userId,
+    [focusedBook]
+  );
+  const [error, setError] = useState("");
   const clearComponentData = () => {
     GlobalLibrary.focusedBook(null);
   };
   const loadComponentData = async () => {
     if (!bookId || isNaN(Number(bookId))) return;
-    await loadBook(Number(bookId));
+    const result = await loadBook(Number(bookId));
+    if (result.focusedBook === null) setError(`Book not found!`);
   };
   type InternalLink = Pick<
     APIData<ContentLink>,
@@ -151,9 +169,11 @@ const BookPreviewRoute = () => {
         description="Book Preview"
       >
         <Card>
+          <PreviewTitle>
+            {error ? "Error loading book" : "Fetching book"}
+          </PreviewTitle>
           <Description>
-            Loading Book Preview... If this takes too long, please refresh the
-            page.
+            {error || `If this takes too long, please refresh the page.`}
           </Description>
         </Card>
       </PageLayout>
@@ -170,9 +190,12 @@ const BookPreviewRoute = () => {
         {/* Overview/Summary */}
         <Content>
           <Card>
-            <CardTitle style={{ display: "grid", gridTemplateColumns: "auto" }}>
+            <PreviewTitle>
               <span>{sectionTitle}</span>
-            </CardTitle>
+              {isAuthor && (
+                <LinkWithIcon icon="edit" variant="transparent" href={editUrl} />
+              )}
+            </PreviewTitle>
             {/* Content */}
             {focusedScene && <CardSubitle>{focusedScene.title}</CardSubitle>}
             <section

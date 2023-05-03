@@ -11,3 +11,4 @@ export * from "./content-links.queries";
 export * from "./worlds.queries";
 export * from "./locations.queries";
 export * from "./timelines.queries";
+export * from "./users.queries";

@@ -1,3 +1,4 @@
+import { API_DL_BOOK_ROUTE } from "utils";
 /** All app routes for maximum convenience */
 export const Paths = {
   Search: {
@@ -92,9 +93,18 @@ export interface AppRouteDef {
   render?: (p?: any) => JSX.Element;
 }
 
+export function downloadBookURL(bookId: number) {
+  return insertId(API_DL_BOOK_ROUTE, bookId);
+}
+
 // Replace id wildcard with actual id
 export function insertId(path: string, id: string | number) {
   return path.replace(/:\b(\w*Id)/, id.toString());
+}
+
+// Replace category wildcard with actual value
+export function insertCategory(path: string, category: string) {
+  return path.replace(/:\b(\w*category)/, category);
 }
 
 /**

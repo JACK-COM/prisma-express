@@ -3,7 +3,7 @@ import { useGlobalUser } from "hooks/GlobalUser";
 import { useGlobalCharacter } from "hooks/GlobalCharacter";
 import { Paths } from "routes";
 import PageLayout from "components/Common/PageLayout";
-import { loadCharacters } from "hooks/loadUserData";
+import { loadCharacters } from "api/loadUserData";
 import CharactersList from "components/List.Characters";
 
 /** @Route All characters */

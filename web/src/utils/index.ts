@@ -32,6 +32,7 @@ export function mergeLists<T extends APIData<any>>(a: T[], b: T[]): T[] {
  * Require a mouse-event handler to be called by `Authors` only
  * @param fn Mouse event handler or other function
  * @param permissions Current user's `role`
+ * @param preventDefault Call `.preventDefault()` on the event unless this is explicitly `false`
  * @returns Function if user is author; undefined if not
  */
 export function requireAuthor(

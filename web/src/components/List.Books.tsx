@@ -1,15 +1,14 @@
-import { useEffect } from "react";
 import styled from "styled-components";
 import { Card, CardTitle } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
 import { Paths } from "routes";
 import ListView from "components/Common/ListView";
-import BookItem from "components/BookItem";
+import BookItem, { CreateBookItem } from "components/BookItem";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, Book, Series } from "utils/types";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { SharedButtonProps } from "components/Forms/Button.Helpers";
-import { GlobalLibrary, clearGlobalBooksState } from "state";
+import { GlobalLibrary } from "state";
 
 const { Library } = Paths;
 const AddWorldButton = styled(ButtonWithIcon)`
@@ -29,29 +28,23 @@ type BooksListProps = {
 };
 /** @component List of worlds */
 const BooksList = (props: BooksListProps) => {
-  const { focusedBook, books = [], series = [] } = props;
+  const { books = [] } = props;
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
   const { setGlobalModal, MODAL } = useGlobalModal();
   const onEditBook = (book: APIData<Book>) => {
     GlobalLibrary.focusedBook(book);
     setGlobalModal(MODAL.MANAGE_BOOK);
   };
-  const controls = (variant: SharedButtonProps["variant"] = "outlined") =>
+  const controls = () =>
     authenticated ? (
-      <AddWorldButton
-        icon="book"
-        size="lg"
-        text="Create New Book"
-        variant={variant}
-        onClick={() => setGlobalModal(MODAL.MANAGE_BOOK)}
-      />
+      <CreateBookItem onClick={() => setGlobalModal(MODAL.MANAGE_BOOK)} />
     ) : (
       <></>
     );
 
   return (
     <Card>
-      <CardTitle>{authenticated ? "Your" : "Public"} Books</CardTitle>
+      <CardTitle>Books and Series</CardTitle>
 
       {/* Empty List message */}
       {!books.length && (
@@ -62,12 +55,12 @@ const BooksList = (props: BooksListProps) => {
         </EmptyText>
       )}
 
-      {/* Add new (button - top) */}
-      {authenticated && books.length > 5 && controls("transparent")}
-
       {/* List */}
       <List
+        grid
         data={books}
+        // Add new (button - top)
+        dummyFirstItem={controls()}
         itemText={(book: APIData<Book>) => (
           <BookItem
             book={book}
@@ -75,10 +68,9 @@ const BooksList = (props: BooksListProps) => {
             permissions={book.authorId === userId ? "Author" : "Reader"}
           />
         )}
+        // Add new (button - bottom)
+        dummyLastItem={books.length > 5 && controls()}
       />
-
-      {/* Add new (button - bottom) */}
-      {authenticated && controls()}
     </Card>
   );
 };

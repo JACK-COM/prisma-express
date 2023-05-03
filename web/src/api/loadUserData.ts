@@ -13,11 +13,13 @@ import {
   listWorldEvents
 } from "graphql/requests/timelines.graphql";
 import { getBook, getChapter, listBooks } from "graphql/requests/books.graphql";
-import { API_AUTH_ROUTE, API_DL_BOOK_ROUTE, API_PROMPT } from "utils";
+import { API_AUTH_ROUTE, API_FILE_UPLOAD_ROUTE, API_PROMPT } from "utils";
 import { listCharacters } from "graphql/requests/characters.graphql";
 import { APIData, Book, Chapter, Scene, Timeline, World } from "utils/types";
 import { MicroUser } from "graphql/requests/users.graphql";
-import { insertId } from "routes";
+import { insertCategory, insertId } from "routes";
+import fetchRaw from "../graphql/fetch-raw";
+import { fetchGQL, getUserQuery } from "graphql";
 
 // Additonal instructions for focusing data in the global state
 type HOOK__LoadWorldOpts = {
@@ -54,23 +56,23 @@ export async function loadUserData(opts = defaultLoadOpts) {
 
 /** Load user */
 export async function loadUser() {
-  type UserResp = { user: MicroUser } | { user: null };
-  const fOpts: RequestInit = { method: "post", credentials: "include" };
-  const { user }: UserResp = await fetch(API_AUTH_ROUTE, fOpts).then((r) =>
-    r.json()
-  );
+  const user = await fetchGQL<MicroUser | null>({
+    query: getUserQuery(),
+    fallbackResponse: null,
+    onResolve: (x, errors) => errors || x.getAuthUser
+  });
   GlobalUser.multiple({ ...user, authenticated: Boolean(user) });
   return user;
 }
 
-// download a book and all its chapters as a docx file
-export function downloadBookURL(bookId: number) {
-  return insertId(API_DL_BOOK_ROUTE, bookId);
-}
-
-// Generate a writing prompt from the API
+/**
+ * Generate a writing prompt from the API
+ * @todo this should take additional parameters (world, character, etc) */
 export async function getWritingPrompt() {
-  const { prompt } = await fetch(API_PROMPT).then((r) => r.json());
+  const { prompt } = await fetchRaw<{ prompt: string }>({
+    url: API_PROMPT,
+    onResolve: (x) => x
+  });
   return prompt;
 }
 
@@ -176,6 +178,33 @@ export async function loadCharacters(opts: HOOK__LoadWorldOpts) {
   const focusedCharacter =
     focused && characters.find((c) => c.id === focused.id);
   GlobalCharacter.multiple({ characters, focusedCharacter });
+}
+
+/** File Upload category */
+export type FileUploadCategory =
+  | "users"
+  | "characters"
+  | "books" /* | "worlds" | "chapters" | "scenes" */;
+
+/** Send a file to AWS via the server */
+export async function uploadFileToServer(
+  file: File,
+  category: FileUploadCategory
+) {
+  const url = insertCategory(API_FILE_UPLOAD_ROUTE, category);
+  const formData = new FormData();
+  formData.append("category", category);
+  formData.append("fileName", file.name);
+  formData.append("imageFile", file);
+  const contentType = "multipart/form-data";
+  const res = await fetchRaw<{ fileURL: string }>({
+    url,
+    contentType,
+    additionalOpts: { body: formData },
+    onResolve: (res, errors) => errors || res
+  });
+
+  return res;
 }
 
 type APIParams = {

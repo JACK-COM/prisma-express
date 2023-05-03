@@ -5,11 +5,13 @@ import {
   ItemDescription,
   ItemGridContainer,
   ItemName,
+  ItemWorldName,
   MatIcon
 } from "components/Common/Containers";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { TallIcon } from "./ComponentIcons";
+import Tooltip from "./Tooltip";
 
 const Location = styled.span`
   ${({ theme }) => theme.mixins.ellipsis};
@@ -49,18 +51,21 @@ const CharacterItem = ({
   onRelationships = noOp,
   permissions = "Reader"
 }: CharacterItemProps) => {
-  const { id, role } = useGlobalUser(["id", "role"]);
+  const { id } = useGlobalUser(["id"]);
   const { getWorld } = useGlobalWorld();
   const world = character.worldId ? getWorld(character.worldId) : null;
   const isOwner = character.authorId === id;
   const isPub = world?.public;
   const pubClass = !world ? "gray" : isPub ? "success--text" : "error--text";
-  const deleteCharacter = requireAuthor(() => onRemove(character.id), role);
-  const select = requireAuthor(() => onSelect(character), role);
-  const editCharacter = requireAuthor(() => onEdit(character), role);
+  const deleteCharacter = requireAuthor(
+    () => onRemove(character.id),
+    permissions
+  );
+  const select = () => onSelect(character);
+  const editCharacter = requireAuthor(() => onEdit(character), permissions);
   const editRelationships = requireAuthor(
     () => onRelationships(character),
-    role
+    permissions
   );
 
   return (
@@ -72,17 +77,19 @@ const CharacterItem = ({
         onClick={editCharacter}
       />
 
-      <ItemName permissions={permissions} onClick={editCharacter}>
-        {character.name}
-        {isOwner && <MatIcon className="icon" icon="edit" />}
-      </ItemName>
+      <Tooltip text={characterDescription(character)}>
+        <ItemName permissions={permissions} onClick={editCharacter}>
+          {character.name}
+          {isOwner && <MatIcon className="icon" icon="edit" />}
+        </ItemName>
+      </Tooltip>
 
       <ItemDescription
-        dangerouslySetInnerHTML={characterDescription(character)}
+      // dangerouslySetInnerHTML={characterDescription(character)}
       />
 
       {character.worldId && (
-        <Location className={pubClass} children={world?.name || ""} />
+        <ItemWorldName public={world?.public} children={world?.name || ""} />
       )}
 
       {isOwner && (
@@ -108,5 +115,6 @@ function characterDescription(character: Character) {
     character.description !== "No description."
       ? character.description
       : "A mysterious character";
-  return { __html: d };
+  // return { __html: d };
+  return d;
 }

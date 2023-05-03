@@ -12,6 +12,7 @@ export const MFBook = objectType({
     t.nonNull.string("genre");
     t.nonNull.boolean("public", { description: "Book is publicly visible" });
     t.nonNull.boolean("free", { description: "Book is free to read" });
+    t.string("image");
     t.int("authorId", { description: "Book Author/owner" });
     t.int("seriesId", { description: "Book series parent id" });
     t.field("created", { type: "CsDateTime", description: "Item created" });

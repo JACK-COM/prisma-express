@@ -14,11 +14,11 @@ import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useParams } from "react-router";
 import { WorldPublicIcon } from "components/ComponentIcons";
-import { loadWorld } from "hooks/loadUserData";
+import { loadWorld } from "api/loadUserData";
 import WorldLocationsList from "../components/List.WorldLocations";
 import PageLayout from "components/Common/PageLayout";
 import TimelinesList from "components/List.Timelines";
-import { loadTimelines } from "hooks/loadUserData";
+import { loadTimelines } from "api/loadUserData";
 
 const { Worlds: WorldPaths } = Paths;
 const AddItemButton = styled(ButtonWithIcon)`

@@ -13,7 +13,7 @@ import ManageTimelineEventsModal from "components/Modals/ManageTimelineEventsMod
 import ListView from "components/Common/ListView";
 import TimelineEventItem from "components/TimelineEventItem";
 import { deleteTimelineEvent } from "graphql/requests/timelines.graphql";
-import { loadTimelines } from "hooks/loadUserData";
+import { loadTimelines } from "api/loadUserData";
 import { APIData, Timeline, UserRole, World } from "utils/types";
 
 const { Timelines: TimelinePaths } = Paths;

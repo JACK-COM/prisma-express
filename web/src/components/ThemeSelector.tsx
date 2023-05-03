@@ -14,6 +14,7 @@ const ThemeSelector = () => {
 
   return (
     <RoundButton
+      size="lg"
       variant="transparent"
       onClick={() => setTheme(nextTheme)}
       title={`Switch to ${nextTheme} mode`}

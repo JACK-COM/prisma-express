@@ -2,7 +2,7 @@
 
 /** graphql `User` fragment */
 export const MFUserFragment = `
-    id, displayName, email, firstName, lastName, 
+    id, displayName, email, firstName, lastName, image
 `;
 
 /** graphql `Character` fragment */
@@ -59,7 +59,7 @@ export const MFChapterFragment = `
 
 /** graphql `Book` fragment */
 export const MFBookFragment = `
-    id, title, description, order, genre, authorId, seriesId, public, free,
+    id, title, description, order, genre, authorId, seriesId, public, image, free,
 `;
 
 /** graphql `Series` fragment */

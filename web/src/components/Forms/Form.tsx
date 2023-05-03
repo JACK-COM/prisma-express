@@ -38,6 +38,10 @@ export const Fieldset = styled.fieldset`
   margin-bottom: ${({ theme }) => theme.sizes.md};
   width: calc(100% - 2px) !important;
 
+  label {
+    padding-bottom: ${({ theme }) => theme.sizes.sm};
+  }
+
   &:last-of-type {
     margin-bottom: 0;
   }

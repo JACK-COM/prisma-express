@@ -4,7 +4,7 @@ import {
 } from "@grammarly/editor-sdk-react";
 import { Editor } from "@tinymce/tinymce-react";
 import { useGlobalTheme } from "hooks/GlobalTheme";
-import { AppTheme } from "shared";
+import { AppTheme } from "theme/theme.shared";
 import { noOp } from "utils";
 
 const TINY_KEY = import.meta.env.VITE_TINYMCE_KEY;
@@ -24,6 +24,7 @@ const grammarlyConfig: GrammarlyConfigProps = {
 type TinyMCEInit = {
   content_style?: string;
   height?: number;
+  autosave?: boolean;
   menubar?: boolean;
   plugins?: string | string[];
   skin?: string;
@@ -36,11 +37,10 @@ type TinyMCEProps = {
   value?: string;
   onChange?: (content: string, editor?: any) => void;
   triggerSave?: () => void;
-} & Pick<TinyMCEInit, "height" | "menubar" | "toolbar">;
+} & Pick<TinyMCEInit, "height" | "autosave" | "menubar" | "toolbar">;
 
-const plugins = [
+const defaultPlugins = [
   "advlist",
-  "autosave",
   "anchor",
   "autolink",
   "code",
@@ -49,7 +49,6 @@ const plugins = [
   "image",
   "link",
   "lists",
-  "preview",
   "searchreplace",
   "table",
   "visualblocks",
@@ -66,7 +65,12 @@ type EditorCommand = {
 /** Custom internal wrapper for TinyMCE editor */
 export const TinyMCE = (props: TinyMCEProps) => {
   const { theme, activeTheme } = useGlobalTheme();
-  const { triggerSave = noOp, onChange = noOp, ...otherProps } = props;
+  const {
+    triggerSave = noOp,
+    onChange = noOp,
+    autosave,
+    ...otherProps
+  } = props;
   const { disabled, value, ...initOpts } = makeInitOpts(theme, otherProps);
 
   return (
@@ -79,7 +83,7 @@ export const TinyMCE = (props: TinyMCEProps) => {
         value={value || grammarlyConfig.introText}
         init={{ ...initOpts, autosave_interval: "10s" }}
         onEditorChange={onChange}
-        onBlur={triggerSave}
+        onBlur={autosave ? triggerSave : undefined}
       />
     </GrammarlyEditorPlugin>
   );
@@ -110,17 +114,17 @@ function makeInitOpts(
   theme: AppTheme,
   opts: TinyMCEProps
 ): TinyMCEInit & ReturnType<typeof prepInitOpts> {
+  const plugs = [...defaultPlugins];
+  if (opts.autosave) plugs.push("autosave");
+
   return {
     menubar: false,
     // Editor styles
     content_style: `body { 
-        background: ${theme.colors.bgColor}; 
-        color: ${theme.colors.secondary};
-        font-family:Helvetica,Arial,sans-serif; 
-        font-size:16px;
-      }
-      `,
-    plugins,
+      color: ${theme.colors.secondary};
+      font-size: 16px;
+    }`,
+    plugins: plugs,
     skin: "oxide-dark",
     ...prepInitOpts(opts)
   };

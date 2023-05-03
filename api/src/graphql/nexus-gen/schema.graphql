@@ -61,6 +61,7 @@ type MFAuthor {
   email: String!
   firstName: String
   id: Int!
+  image: String
   lastName: String
   role: UserRole
 }
@@ -82,6 +83,7 @@ type MFBook {
   free: Boolean!
   genre: String!
   id: Int!
+  image: String
 
   """Book order in series"""
   order: Int
@@ -110,6 +112,7 @@ input MFBookUpsertInput {
 
   """Book ID"""
   id: Int
+  image: String
 
   """Sequence in series (if part of one"""
   order: Int
@@ -136,6 +139,7 @@ type MFChapter {
   created: CsDateTime
   description: String
   id: Int!
+  image: String
   order: Int!
 
   """Status"""
@@ -156,6 +160,7 @@ input MFChapterUpsertInput {
 
   """Chapter ID"""
   id: Int
+  image: String
 
   """Sequence in book (if part of one"""
   order: Int
@@ -177,6 +182,7 @@ type MFCharacter {
   """`Group` identifier id (optional)"""
   groupId: Int
   id: Int!
+  image: String
 
   """Character's `Location` id"""
   locationId: Int
@@ -209,6 +215,7 @@ input MFCharacterUpsertInput {
 
   """Character ID"""
   id: Int
+  image: String
 
   """Character location (OPTIONAL)"""
   locationId: Int
@@ -329,15 +336,28 @@ input MFLocationUpsertInput {
   authorId: Int
   climate: Climate
   description: String!
+
+  """Location east neighbor"""
+  eastOf: Int
   fauna: Richness
   flora: Richness
 
   """Location ID"""
   id: Int
+  image: String
   name: String!
+
+  """Location north neighbor"""
+  northOf: Int
 
   """Parent location (optional)"""
   parentLocationId: Int
+
+  """Location south neighbor"""
+  southOf: Int
+
+  """Location west neighbor"""
+  westOf: Int
 
   """Parent world ID"""
   worldId: Int!
@@ -401,6 +421,7 @@ type MFScene {
   """Main `Event` affecting `Scene`"""
   eventContextId: Int
   id: Int!
+  image: String
   order: Int!
   text: String
 
@@ -440,6 +461,7 @@ input MFSceneUpsertInput {
 
   """Scene ID"""
   id: Int
+  image: String
 
   """Sequence in chapter (if part of one"""
   order: Int!
@@ -466,6 +488,7 @@ type MFSeries {
   free: Boolean!
   genre: String!
   id: Int!
+  image: String
 
   """Series is publicly visible"""
   public: Boolean!
@@ -488,6 +511,7 @@ input MFSeriesUpsertInput {
 
   """Series ID"""
   id: Int
+  image: String
   public: Boolean = false
   title: String!
 }
@@ -568,6 +592,7 @@ type MFUser {
   email: String!
   firstName: String
   id: Int!
+  image: String
   lastName: String
   lastSeen: CsDateTime!
   role: UserRole!
@@ -577,6 +602,7 @@ input MFUserUpsertInput {
   displayName: String
   email: String
   firstName: String
+  image: String
   lastName: String
   password: String
 }
@@ -592,6 +618,7 @@ type MFWorld {
   authorId: Int
   description: String!
   id: Int!
+  image: String
   name: String!
 
   """Optional world parent"""
@@ -607,6 +634,7 @@ input MFWorldUpsertInput {
 
   """World ID"""
   id: Int
+  image: String
   name: String!
 
   """Parent world (optional)"""
@@ -686,6 +714,11 @@ type Mutation {
 }
 
 type Query {
+  """Get the currently authenticated user"""
+  getAuthUser: MFAuthor
+
+  """Get an author by id"""
+  getAuthor(id: Int!): MFAuthor
   getBookById(id: Int!): MFBook
   getChapterById(id: Int!): MFChapter
   getCharacterById(id: Int!): MFCharacter

@@ -6,7 +6,7 @@ import { FlexRow } from "./Containers";
 
 const Wrapper = styled(FlexRow)<{ error?: boolean }>`
   background-color: ${({ theme, error = false }) =>
-    error ? theme.colors.error : theme.colors.accent};
+    error ? theme.colors.error : theme.colors.success};
   border-radius: ${({ theme }) => theme.presets.round.xs};
   color: ${({ theme, error }) => (error ? "#fff" : theme.colors.primary)};
   box-shadow: 0 2px 4px #1118;

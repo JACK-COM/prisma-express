@@ -30,12 +30,13 @@ const LogoLink = styled(Link)`
       drop-shadow(0 2px 3px #001125ca);
   }
 `;
-const HeaderContainer = styled(GridContainer)`
+const Container = styled(GridContainer)`
   align-items: start;
-  background-color: ${({ theme }) => theme.colors.secondary};
+  background: ${({ theme }) => theme.colors.bgGradientDir('180deg')};
   color: ${({ theme }) => theme.colors.primary};
   grid-template-columns: max-content;
   grid-template-rows: max-content auto;
+  grid-row: 1 / span 2;
   justify-content: start;
   overflow-y: hidden;
   padding: 0 0.5rem;
@@ -45,6 +46,7 @@ const HeaderContainer = styled(GridContainer)`
 
   @media screen and (max-width: 768px) {
     align-items: center;
+    grid-row: auto;
     grid-template-columns: repeat(2, max-content);
     height: fit-content;
     justify-content: space-between;
@@ -56,7 +58,7 @@ const AppHeader = () => {
   const { logoImage } = useGlobalTheme();
 
   return (
-    <HeaderContainer>
+    <Container id="app-header">
       <LogoLink to="/" title="MythosForge | Home">
         <img src={logoImage} height={40} className="logo" alt="App Logo" />
         <span className="logo">Mythos Forge</span>
@@ -64,7 +66,7 @@ const AppHeader = () => {
 
       {/* Navigation Menu */}
       <AppNav />
-    </HeaderContainer>
+    </Container>
   );
 };
 

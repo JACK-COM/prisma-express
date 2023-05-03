@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   MODAL,
-  Modal,
+  GlobalModal,
   ModalStore,
   clearGlobalModal,
   setGlobalModal
@@ -11,12 +11,12 @@ type HookState = Omit<Partial<ModalStore>, "active"> & { active: MODAL };
 
 /** Reusable subscription to `Modal` state  */
 export function useGlobalModal() {
-  const gState = Modal.getState();
+  const gState = GlobalModal.getState();
   const [state, setState] = useState<HookState>(gState);
   const onModal = (s: Partial<ModalStore>) =>
     setState((prev) => ({ ...prev, ...s }));
 
-  useEffect(() => Modal.subscribe(onModal), []);
+  useEffect(() => GlobalModal.subscribe(onModal), []);
 
   return {
     ...state,

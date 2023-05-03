@@ -2,7 +2,7 @@ import createState from "@jackcom/raphsducks";
 import { ThemeProps, createGlobalStyle } from "styled-components";
 import DARK_THEME from "./theme.dark";
 import LIGHT_THEME from "./theme.light";
-import { AppTheme } from "shared";
+import { AppTheme } from "./theme.shared";
 
 export type UIThemeType = "Dark" | "Light";
 export type GlobalTheme = Record<UIThemeType, AppTheme> & {
@@ -34,6 +34,7 @@ const THEME: GlobalTheme = {
 
     *:not(code) { 
       box-sizing: border-box;
+      position: relative;
     }
 
     .accent { 
@@ -58,7 +59,7 @@ const THEME: GlobalTheme = {
       display: flex;
     }
     .grey {
-      background-color: #9c9c9c;
+      background-color: ${({ theme }) => theme.colors.grey};
     }
     .primary { 
       background-color: ${({ theme }) => theme.colors.primary}; 
@@ -118,17 +119,18 @@ const THEME: GlobalTheme = {
     display: inline-block;
     font-family: monospace; 
     padding: ${({ theme }) => `0 ${theme.sizes.xxs}`};
+    position: relative;
   }
 
   /* Main App container */
   .App {
     display: grid;
     grid-template-columns: 160px auto;
+    grid-template-rows: max-content;
     min-height: 100vh;
 
     @media screen and (max-width: 768px) {
-      grid-template-columns: 1fr;
-      grid-template-rows: max-content;
+      display: block;
     }
   }
 
@@ -141,7 +143,13 @@ const THEME: GlobalTheme = {
 
   .flex {
     align-items: center;
-    display: flex !important;
+    &,
+    &--column {
+      display: flex !important;
+    }
+    &--column {
+      flex-direction: column;
+    }
   } 
 
   .inline-flex {

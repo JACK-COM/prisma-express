@@ -164,6 +164,7 @@ export type User = {
   image?: string;
   created: string; //  @default(now()) // Account creation date
   lastSeen: string; //  @default(now()) // Last login date
+  role: UserRole;
   Books?: APIData<Book>[];
   Chapters?: APIData<Chapter>[];
   Characters?: APIData<Character>[];

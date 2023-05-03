@@ -48,7 +48,7 @@ async function main() {
   // ADDITIONAL NON-GRAPHQL ROUTES
 
   // Books
-  app.post("/books/:bookId/download/", downloadBookHandler);
+  app.get("/books/:bookId/download/", downloadBookHandler);
   app.post("/books/writing-prompt", generateWritingPromptHandler);
 
   // AWS File Uploads

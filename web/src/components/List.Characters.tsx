@@ -79,9 +79,7 @@ const CharactersList = (props: CharactersListProps) => {
   return (
     <>
       <Card>
-        <CardTitle className="h4">
-          {authenticated ? "Your" : "Public"} Characters
-        </CardTitle>
+        <CardTitle className="h4">Characters</CardTitle>
 
         {/* Empty List message */}
         {!characters.length && (

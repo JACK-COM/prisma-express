@@ -31,7 +31,8 @@ const ModalDrawer = (p: ModalDrawerProps) => {
     open,
     openTowards: openFrom = "left",
     confirmText = "",
-    cancelText = ""
+    cancelText = "",
+    style
   } = p;
   const rootClass = "modal-root--default";
   const contentEntryClass = `slide-in-${openFrom}`;
@@ -61,7 +62,7 @@ const ModalDrawer = (p: ModalDrawerProps) => {
   if (!open) return <></>;
 
   return (
-    <DrawerContainer className={rootClass} onClick={onBGClick}>
+    <DrawerContainer style={style} className={rootClass} onClick={onBGClick}>
       <ModalDrawerTitle>
         {title && <h1 className="title h4">{title}</h1>}
         <RoundButton variant="transparent" onClick={onClose}>

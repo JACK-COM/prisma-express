@@ -22,7 +22,8 @@ const defaultButtonCSS = css`
   display: inline-flex;
   font-family: "Roboto", sans-serif;
   font-weight: 500;
-  font-size: 0.8rem;
+  font-size: ${UI.fontSize};
+  height: ${UI.height};
   margin: 0;
   padding: ${UI.padding};
   place-content: center;
@@ -59,12 +60,15 @@ export default Button;
 export const ButtonLink = styled.a<UI.SharedButtonProps>`
   ${defaultButtonCSS}
   color: inherit;
+  height: ${(props) => (props.round ? UI.width(props) : "auto")};
   padding: ${({ theme }) => theme.sizes.xs};
+  width: ${(props) => (props.round ? UI.width(props) : "auto")};
 `;
 /** `<Link>` component with app button styles (and some props) */
 export const StyledLink = styled(Link)<UI.SharedButtonProps>`
   ${defaultButtonCSS}
   height: ${UI.width};
+  width: ${(props) => (props.round ? UI.width(props) : "auto")};
   text-shadow: ${UI.textShadow} !important;
 `;
 type WithIconProps = {
@@ -109,19 +113,19 @@ export const ButtonWithIcon = (props: ButtonWithIconProps) => {
   return (
     <Button {...buttonProps}>
       <MatIcon icon={icon} />
-      {text && ` ${text}`}
+      {text && <span className="text">{text}</span>}
     </Button>
   );
 };
 
 /** A circular button */
 export const RoundButton = styled(ButtonBase).attrs({
-  round: true,
-  size: "lg"
+  round: true
 })`
   padding: ${({ theme }) => theme.sizes.sm};
-  height: ${UI.width};
-  width: ${UI.width};
+  > * {
+    font-size: ${UI.fontSize};
+  }
 `;
 
 /** A transparent button (no background color) */

@@ -126,11 +126,9 @@ const UserSettings = () => {
           <Fieldset>
             <Legend>Profile Image</Legend>
             <Label columns="2fr 5fr">
-              {profileImg && (
-                <span className="label">
-                  <ProfileImage width={120} src={profileImg} />
-                </span>
-              )}
+              <span className="label">
+                <ProfileImage width={120} src={profileImg} />
+              </span>
               <Input
                 type="file"
                 accept="image/*"

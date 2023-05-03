@@ -36,7 +36,14 @@ export type UpsertBookData = ItemId & {
   chapters?: UpsertChapterData[];
 } & Pick<
     Book,
-    "public" | "free" | "order" | "title" | "description" | "genre" | "seriesId"
+    | "public"
+    | "free"
+    | "order"
+    | "image"
+    | "title"
+    | "description"
+    | "genre"
+    | "seriesId"
   >;
 
 /** Data required to create a chapter */
@@ -327,7 +334,8 @@ export function pruneBookForAPI(raw: Partial<UpsertBookData>) {
     description: raw.description || "No description",
     genre: raw.genre || "No Genre",
     public: raw.public || false,
-    free: raw.free || false
+    free: raw.free || false,
+    image: raw.image || undefined
   };
   if (raw.id) data.id = raw.id;
   if (raw.order) data.order = raw.order;

@@ -40,11 +40,12 @@ const TimelinesEventsListRoute = () => {
   }, []);
 
   return (
-    <PageLayout id="timelines-list" title={timelineName} breadcrumbs={crumbs}>
-      <PageDescription>
-        A <b>Timeline</b> in <b className="accent--text">{worldName}</b>.
-      </PageDescription>
-
+    <PageLayout
+      id="timelines-list"
+      title={timelineName}
+      breadcrumbs={crumbs}
+      description={`A <b>Timeline</b> in <b className="accent--text">${worldName}</b>`}
+    >
       <TimelinesEventsList focusedTimeline={focusedTimeline} />
     </PageLayout>
   );

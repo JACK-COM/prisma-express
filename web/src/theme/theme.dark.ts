@@ -1,5 +1,4 @@
-import { AppTheme } from "shared";
-import shared from "./theme.shared";
+import shared, { AppTheme } from "./theme.shared";
 
 /**
  * Define the colors for your application's `dark` theme here.
@@ -17,6 +16,8 @@ const DARK_THEME: AppTheme = {
     accent: "#87c0cb", // --sky-blue: #87c0cbff;
     bgColor: "#101918", // --eerie-black: #101918ff;
     bgGradient: "linear-gradient(45deg, #2b312fff, #154b54ff)",
+    bgGradientDir: (dir = "45deg") =>
+      `linear-gradient(${dir}, #2b312fff, #154b54ff)`,
     semitransparent: "#6d7c7d60",
     error: "#EF476F", // --barn-red: #77100aff;
     errorDark: "#380703", // --black-bean: #380703ff;

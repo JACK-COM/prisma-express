@@ -1,13 +1,7 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { FocusEventHandler, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import {
-  Card,
-  CardTitle,
-  GridContainer,
-  MatIcon
-} from "components/Common/Containers";
-import { ButtonWithIcon } from "components/Forms/Button";
-import { Paths, downloadBookURL, insertId } from "routes";
+import { Card, MatIcon } from "components/Common/Containers";
+import { Paths } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, Chapter, Scene, UserRole } from "utils/types";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
@@ -24,48 +18,19 @@ import {
 import PageLayout from "components/Common/PageLayout";
 import ChaptersList from "components/List.Chapters";
 import { useParams } from "react-router";
-import {
-  getWritingPrompt,
-  loadBook,
-  loadChapter
-} from "api/loadUserData";
+import { loadBook, loadChapter } from "api/loadUserData";
 import ModalDrawer from "components/Modals/ModalDrawer";
 import TinyMCE from "components/Forms/TinyMCE";
 import { useGlobalWindow } from "hooks/GlobalWindow";
-import { upsertScene } from "graphql/requests/books.graphql";
-import { ChaptersIcon } from "components/ComponentIcons";
+import { upsertBook, upsertScene } from "graphql/requests/books.graphql";
 import { useGlobalUser } from "hooks/GlobalUser";
+import EditorToolbar from "components/EditorToolbar";
 
 const { Library } = Paths;
-const Ellipsis = styled.span`
-  ${({ theme }) => theme.mixins.ellipsis};
-  font-style: italic;
-  opacity: 0.6;
-`;
 const Clickable = styled.span`
   color: ${({ theme }) => theme.colors.accent};
   cursor: pointer;
   font-weight: bold;
-`;
-const EditorToolbar = styled(GridContainer)`
-  align-items: center;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.semitransparent};
-  border-top: 1px solid ${({ theme }) => theme.colors.semitransparent};
-  gap: ${({ theme }) => theme.sizes.xs};
-  > button {
-    padding: ${({ theme }) => theme.sizes.sm} 0;
-    width: 32px;
-  }
-  > .spacer {
-    display: inline-block;
-    width: 1px;
-    height: 32px;
-    background-color: ${({ theme }) => theme.colors.semitransparent};
-    right: 0;
-  }
-  .material-icons {
-    font-size: ${({ theme }) => theme.sizes.md};
-  }
 `;
 const SpanGrid = styled.span`
   align-items: center;
@@ -73,20 +38,6 @@ const SpanGrid = styled.span`
   grid-column-gap: ${({ theme }) => theme.sizes.xs};
   grid-template-columns: 32px max-content 32px;
 `;
-
-const getAndShowPrompt = async () => {
-  const notificationId = addNotification("Generating writing prompt...", true);
-  const prompt = await getWritingPrompt();
-  updateNotification(prompt, notificationId, true);
-};
-
-// Instance of Editor Toolbar
-const TOOLBAR_BUTTONS = (dlUrl: string) => [
-  { icon: "segment", onClick: () => setGlobalModal(MODAL.SELECT_CHAPTER) },
-  { icon: "download", onClick: () => window.open(dlUrl, "_self") },
-  { icon: "tips_and_updates", onClick: getAndShowPrompt },
-  { icon: "add_link", onClick: () => setGlobalModal(MODAL.LINK_SCENE) }
-];
 
 /** ROUTE: List of worlds */
 const BooksEditorRoute = () => {
@@ -103,16 +54,9 @@ const BooksEditorRoute = () => {
   ]);
   const { height } = useGlobalWindow();
   const { active, clearGlobalModal } = useGlobalModal();
-  const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
+  const { id: userId } = useGlobalUser(["id", "authenticated"]);
   const { bookId } = useParams<{ bookId: string }>();
   const [draft, updateDraft] = useState(focusedScene?.text || "");
-  const [previewUrl, downloadUrl] = useMemo(() => {
-    if (!bookId) return ["#", "#"];
-    return [
-      insertId(Paths.Library.BookPreview.path, bookId),
-      downloadBookURL(Number(bookId))
-    ];
-  }, [bookId]);
   const [pageTitle, chapterTitle, sceneName, role] = useMemo(() => {
     const { title: chTitle, order: chOrder } = focusedChapter || {};
     return [
@@ -122,6 +66,11 @@ const BooksEditorRoute = () => {
       (focusedBook?.authorId === userId ? "Author" : "Reader") as UserRole
     ];
   }, [focusedBook, focusedChapter, focusedScene, active]);
+  const pageDescription = useMemo(() => {
+    if (!focusedChapter) return "Manage your <b>book contents</b> here.";
+    const sceneTitle = sceneName ? `<em class="accent--text">- ${sceneName}</em>` : ""
+    return `<b class="accent--text">${chapterTitle}</b> ${sceneTitle}`.trim()
+  }, [focusedChapter, chapterTitle, sceneName]);
   const loadComponentData = async () => {
     if (bookId) {
       const { focusedScene: scene } = await loadBook(Number(bookId));
@@ -154,9 +103,32 @@ const BooksEditorRoute = () => {
     else if (resp && focusedChapter) {
       const newScene = resp.Scenes.find(({ id }) => id === focusedScene.id);
       GlobalLibrary.multiple({ focusedChapter: resp, focusedScene: newScene });
+      updateNotification("Chapter saved!", notificationId);
     }
   };
-  const editorToolbarBtns = TOOLBAR_BUTTONS(downloadUrl);
+  const onEditTitle: FocusEventHandler<HTMLSpanElement> = async (e) => {
+    const newTitle = e.target.innerText;
+    if (newTitle === focusedBook?.title) return;
+    const notificationId = addNotification("Updating book title ...", true);
+    const resp = await upsertBook({
+      id: focusedBook?.id,
+      title: newTitle,
+      description: focusedBook?.description || "No description",
+      free: focusedBook?.free || false,
+      public: focusedBook?.public || false,
+      genre: focusedBook?.genre || "Other"
+    });
+    if (typeof resp === "string") updateAsError(resp, notificationId);
+    else if (resp) {
+      const { books } = GlobalLibrary.getState();
+      const newBooks = books.map((b) => (b.id === resp.id ? resp : b));
+      GlobalLibrary.multiple({ focusedBook: resp, books: newBooks });
+      updateNotification("Book title updated!", notificationId);
+    }
+  };
+
+  const [editorAutosave, setEditorAutosave] = useState(true);
+  const toggleAutoSave = () => setEditorAutosave(!editorAutosave);
 
   useEffect(() => {
     updateDraft(focusedScene?.text || "");
@@ -169,38 +141,28 @@ const BooksEditorRoute = () => {
       title={
         <SpanGrid>
           <MatIcon className="success--text" icon="edit_document" />
-          <span>{pageTitle}</span>
+          <span
+            // Editable title
+            onBlur={onEditTitle}
+            contentEditable
+            suppressContentEditableWarning
+          >
+            {pageTitle}
+          </span>
         </SpanGrid>
       }
       breadcrumbs={[Library.Index, Library.BookEditor]}
       id="books-list"
-      description={
-        focusedChapter
-          ? `<b class="accent--text">${chapterTitle}</b> ${
-              sceneName ? `<em class="accent--text">- ${sceneName}</em>` : ""
-            } - <a href="${previewUrl}"><b>Preview</b></a>`
-          : `Manage your <b>book contents</b> here.`
-      }
+      description={pageDescription}
     >
       <EditorToolbar
-        columns={`repeat(${editorToolbarBtns.length * 2 + 2}, max-content)`}
-      >
-        {editorToolbarBtns.map(({ icon, onClick }, i) => (
-          <Fragment key={i}>
-            <ButtonWithIcon
-              disabled={!authenticated || role !== "Author"}
-              type="button"
-              icon={icon}
-              text=""
-              variant="transparent"
-              onClick={onClick}
-            />
-            {i < editorToolbarBtns.length - 1 && <hr className="spacer" />}
-          </Fragment>
-        ))}
-        <hr className="spacer" />
-        <Ellipsis>More toolbar buttons here</Ellipsis>
-      </EditorToolbar>
+        style={{ marginTop: -9 }}
+        bookId={Number(bookId)}
+        role={role}
+        handleSave={saveScene}
+        saveOnBlur={editorAutosave}
+        toggleAutoSave={toggleAutoSave}
+      />
 
       {focusedScene ? (
         <TinyMCE

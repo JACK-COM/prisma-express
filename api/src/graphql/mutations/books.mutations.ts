@@ -42,11 +42,14 @@ export const upsertBookMutation = mutationField("upsertBook", {
     }
 
     // Create book
-    const newBook = await BooksService.upsertBook({
-      ...BooksService.pruneBookData(data),
-      id: data.id || undefined,
-      authorId: data.authorId || user.id
-    });
+    const newBook = await BooksService.upsertBook(
+      BooksService.pruneBookData({
+        ...data,
+        id: data.id || undefined,
+        public: data.public || false,
+        free: data.free || false
+      })
+    );
 
     // create new chapters
     const { chapters = [] } = data;

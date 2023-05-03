@@ -112,6 +112,7 @@ input MFBookUpsertInput {
 
   """Book ID"""
   id: Int
+  image: String
 
   """Sequence in series (if part of one"""
   order: Int
@@ -159,6 +160,7 @@ input MFChapterUpsertInput {
 
   """Chapter ID"""
   id: Int
+  image: String
 
   """Sequence in book (if part of one"""
   order: Int
@@ -213,6 +215,7 @@ input MFCharacterUpsertInput {
 
   """Character ID"""
   id: Int
+  image: String
 
   """Character location (OPTIONAL)"""
   locationId: Int
@@ -333,15 +336,28 @@ input MFLocationUpsertInput {
   authorId: Int
   climate: Climate
   description: String!
+
+  """Location east neighbor"""
+  eastOf: Int
   fauna: Richness
   flora: Richness
 
   """Location ID"""
   id: Int
+  image: String
   name: String!
+
+  """Location north neighbor"""
+  northOf: Int
 
   """Parent location (optional)"""
   parentLocationId: Int
+
+  """Location south neighbor"""
+  southOf: Int
+
+  """Location west neighbor"""
+  westOf: Int
 
   """Parent world ID"""
   worldId: Int!
@@ -445,6 +461,7 @@ input MFSceneUpsertInput {
 
   """Scene ID"""
   id: Int
+  image: String
 
   """Sequence in chapter (if part of one"""
   order: Int!
@@ -494,6 +511,7 @@ input MFSeriesUpsertInput {
 
   """Series ID"""
   id: Int
+  image: String
   public: Boolean = false
   title: String!
 }
@@ -616,6 +634,7 @@ input MFWorldUpsertInput {
 
   """World ID"""
   id: Int
+  image: String
   name: String!
 
   """Parent world (optional)"""

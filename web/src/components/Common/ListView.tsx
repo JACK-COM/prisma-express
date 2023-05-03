@@ -2,15 +2,6 @@ import React, { ReactNode, ReactText } from "react";
 import styled, { css } from "styled-components";
 import { noOp, suppressEvent } from "../../utils/index";
 
-export type ListViewProps<T> = {
-  data: T[];
-  ordered?: boolean;
-  row?: boolean;
-  rounded?: boolean;
-  itemText: (d: T, i?: number) => ReactText | ReactNode;
-  onItemClick?: (d: T) => any | void;
-} & React.ComponentPropsWithRef<"ul" | "ol">;
-
 const sharedListStyles = css<{ row?: boolean }>`
   display: flex;
   flex-direction: ${({ row }) => (row ? "row" : "column")};
@@ -30,6 +21,21 @@ const UnorderedList = styled.ul<{ row?: boolean }>`
     padding: 0;
   }
 `;
+/** Grid-style list container */
+const GridList = styled(UnorderedList)`
+  align-content: center;
+  align-items: center;
+  display: grid;
+  grid-auto-rows: minmax(100px, auto);
+  grid-gap: ${({ theme }) => theme.sizes.sm};
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  justify-content: center;
+  justify-items: center;
+  margin: 0 auto;
+  max-width: 100%;
+  padding: ${({ theme }) => theme.sizes.sm};
+  width: 100%;
+`;
 /** Single item in a `ListView` */
 const ListViewItem = styled.li`
   align-items: center;
@@ -37,7 +43,7 @@ const ListViewItem = styled.li`
   display: flex;
   flex-shrink: 0;
   text-align: left;
-  overflow: hidden;
+  /* overflow: hidden; */
 
   &:last-of-type {
     border: 0;
@@ -61,6 +67,17 @@ const ListViewItem = styled.li`
   }
 `;
 
+export type ListViewProps<T> = {
+  data: T[];
+  ordered?: boolean;
+  row?: boolean;
+  grid?: boolean;
+  rounded?: boolean;
+  dummyFirstItem?: ReactNode;
+  dummyLastItem?: ReactNode;
+  itemText: (d: T, i?: number) => ReactNode;
+  onItemClick?: (d: T) => any | void;
+} & React.ComponentPropsWithRef<"ul" | "ol">;
 /**
  * `ListView` for displaying a or horizontal list of items
  * @returns {JSX.Element} `ListView` with ordered or unordered items
@@ -71,11 +88,14 @@ const ListView = styled((props: ListViewProps<any>): JSX.Element => {
     itemText,
     onItemClick = noOp,
     rounded = true,
+    grid = false,
+    dummyFirstItem,
+    dummyLastItem,
     ordered,
     row,
     ...rest
   } = props;
-  const Wrapper: any = ordered ? OrderedList : UnorderedList;
+  const Wrapper: any = grid ? GridList : ordered ? OrderedList : UnorderedList;
   const itemClassname = rounded ? "rounded" : "";
   const itemClicked = (item: any) => (e: React.MouseEvent) => {
     suppressEvent(e);
@@ -84,6 +104,10 @@ const ListView = styled((props: ListViewProps<any>): JSX.Element => {
 
   return (
     <Wrapper row={row} {...rest}>
+      {dummyFirstItem && (
+        <ListViewItem className={itemClassname}>{dummyFirstItem}</ListViewItem>
+      )}
+
       {data.map((item: any, i: number) => (
         <ListViewItem
           key={i}
@@ -93,6 +117,10 @@ const ListView = styled((props: ListViewProps<any>): JSX.Element => {
           {itemText(item, i)}
         </ListViewItem>
       ))}
+
+      {dummyLastItem && (
+        <ListViewItem className={itemClassname}>{dummyLastItem}</ListViewItem>
+      )}
     </Wrapper>
   );
 })``;

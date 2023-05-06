@@ -50,7 +50,7 @@ export const getBookById = queryField("getBookById", {
         : false;
       const allowScenes = book.public && (isPublished || inLibrary);
       if (allowScenes) return book;
-      const Chapters = book.Chapters.map((c) => ({ ...c, Scenes: [] }));
+      const Chapters = book.Chapters?.map((c) => ({ ...c, Scenes: [] })) || [];
       return { ...book, Chapters };
     }
 

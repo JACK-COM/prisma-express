@@ -84,7 +84,6 @@ type MFAuthor {
 type MFBook {
   Author: MFAuthor
   Chapters: [MFChapter]
-  Series: MFSeries
 
   """Book Author/owner"""
   authorId: Int

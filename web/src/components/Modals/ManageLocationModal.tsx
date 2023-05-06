@@ -84,7 +84,7 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
       confirmText={data?.id ? "Update" : "Create"}
       onConfirm={submit}
     >
-      {open && <CreateLocationForm onChange={setFormData} />}
+      {open &&  <CreateLocationForm onChange={setFormData} />}
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </Modal>
   );

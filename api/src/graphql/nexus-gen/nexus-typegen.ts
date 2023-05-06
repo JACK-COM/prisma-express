@@ -213,7 +213,6 @@ export interface NexusGenObjects {
   MFBook: { // root type
     Author?: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
     Chapters?: Array<NexusGenRootTypes['MFChapter'] | null> | null; // [MFChapter]
-    Series?: NexusGenRootTypes['MFSeries'] | null; // MFSeries
     authorId?: number | null; // Int
     created?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     description: string; // String!
@@ -424,7 +423,6 @@ export interface NexusGenFieldTypes {
   MFBook: { // field return type
     Author: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
     Chapters: Array<NexusGenRootTypes['MFChapter'] | null> | null; // [MFChapter]
-    Series: NexusGenRootTypes['MFSeries'] | null; // MFSeries
     authorId: number | null; // Int
     created: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     description: string; // String!
@@ -684,7 +682,6 @@ export interface NexusGenFieldTypeNames {
   MFBook: { // field return type name
     Author: 'MFAuthor'
     Chapters: 'MFChapter'
-    Series: 'MFSeries'
     authorId: 'Int'
     created: 'CsDateTime'
     description: 'String'

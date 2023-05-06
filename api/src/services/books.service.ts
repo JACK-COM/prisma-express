@@ -23,7 +23,6 @@ type SearchBookInput = Partial<
 
 const { Books, Chapters, Scenes } = context;
 const BookContents: Prisma.BookInclude = {
-  _count: { select: { Chapters: true } },
   Author: true,
   Chapters: { orderBy: { order: "asc" } }
 };

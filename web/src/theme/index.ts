@@ -37,6 +37,10 @@ const THEME: GlobalTheme = {
       position: relative;
     }
 
+    .hide {
+      display: none;
+    }
+
     .accent { 
       background-color: ${({ theme }) => theme.colors.accent}; 
     }

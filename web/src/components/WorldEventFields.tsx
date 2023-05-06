@@ -58,7 +58,7 @@ export function WorldEventFormFields(props: WorldEventFieldProps) {
     () => worlds.find((w) => w.id === data.worldId) || null,
     [data.worldId, worlds]
   );
-  const { id: userId } = GlobalUser.getState()
+  const { id: userId } = GlobalUser.getState();
   // const owner = data.
   const [showDesc, setShowDesc] = useState(false);
   const updateName = (e: ChangeEvent<HTMLInputElement>, i: number) => {
@@ -135,10 +135,10 @@ export function WorldEventFormFields(props: WorldEventFieldProps) {
           <MatIcon icon={`visibility${showDesc ? "" : "_off"}`} />
         </span>
         <div className={showDesc ? "expand--vertical" : "collapse--vertical"}>
-          <TinyMCE
-            height={300}
+          <Textarea
+            rows={300}
             value={data?.description || ""}
-            onChange={(x) => updateDescription(x, i)}
+            onChange={({ target }) => updateDescription(target.value, i)}
           />
         </div>
         <Hint>Describe the event in detail, or with prompts.</Hint>

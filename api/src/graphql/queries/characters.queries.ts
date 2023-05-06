@@ -93,16 +93,20 @@ export const listCharacters = queryField("listCharacters", {
    */
   resolve: async (_, args, { user }) => {
     const { authorId, worldId, description, name } = args;
-
-    // return only public characters or author
-    if (!user) return CharactersService.findAllPublicCharacter();
-    return CharactersService.findAllCharacter({
+    const filters = {
       id: args.id || undefined,
-      authorId: authorId || user.id,
       description: description || undefined,
       worldId: worldId || undefined,
       name: name || undefined
-    });
+    };
+
+    // return only public characters or author
+    return user
+      ? CharactersService.findAllCharacter({
+          ...filters,
+          authorId: authorId || user.id
+        })
+      : CharactersService.findAllPublicCharacter(filters);
   }
 });
 
@@ -133,11 +137,8 @@ export const listCharacterRelationships = queryField("listRelationships", {
    * database directly, or to access the authenticated `user` if the request has one.
    * @returns `MFCharacterRelationship` list from service
    */
-  resolve: async (_, args, { user }) => {
+  resolve: async (_, args, _ctx) => {
     const { characterId, targetId, relationship } = args;
-
-    // return only public relationships or author
-    if (!user) return [];
     const relationships =
       await RelationshipsService.findAllCharacterRelationship({
         id: args.id || undefined,

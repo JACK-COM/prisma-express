@@ -51,6 +51,20 @@ enum GroupType {
   Trade
 }
 
+"""A type of Location"""
+enum LocationType {
+  Building
+  City
+  Continent
+  Country
+  Other
+  Region
+  Ruins
+  Settlement
+  Town
+  Village
+}
+
 """An abbreviated `MFUser` model"""
 type MFAuthor {
   Books: [MFBook]
@@ -70,7 +84,6 @@ type MFAuthor {
 type MFBook {
   Author: MFAuthor
   Chapters: [MFChapter]
-  Series: MFSeries
 
   """Book Author/owner"""
   authorId: Int
@@ -326,6 +339,7 @@ type MFLocation {
 
   """Parent Location id (optional)"""
   parentLocationId: Int
+  type: LocationType!
 
   """Event target `World`"""
   worldId: Int!
@@ -355,6 +369,7 @@ input MFLocationUpsertInput {
 
   """Location south neighbor"""
   southOf: Int
+  type: LocationType!
 
   """Location west neighbor"""
   westOf: Int
@@ -781,6 +796,7 @@ enum UserRole {
 """A type of World (super-set of locations) """
 enum WorldType {
   Other
+  Planet
   Realm
   Universe
 }

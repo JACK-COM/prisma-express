@@ -71,9 +71,24 @@ enum UserRole {
   Reader
 }
 
+// A type of Location
+enum LocationType {
+  Continent
+  Country
+  City
+  Town
+  Village
+  Region
+  Settlement
+  Building
+  Ruins
+  Other
+}
+
 // A type of World (super-set of locations) 
 enum WorldType {
   Universe
+  Planet
   Realm
   Other
 }
@@ -217,6 +232,7 @@ model Event {
   description   String
   target        EventTarget      @default(World)
   polarity      EventPolarity    @default(Neutral) // ( references Event Polarity )
+  duration      Int?             @default(0) // ( duration in years )
   authorId      Int? // ( references User )
   characterId   Int? // ( references Character | nullable )
   groupId       Int? // ( references Group | nullable )
@@ -237,7 +253,9 @@ model Location {
   description      String
   image            String?
   authorId         Int?
+  private          Boolean?          @default(false)
   parentLocationId Int? // ( references Location | nullable )
+  type             LocationType      @default(Other)
   worldId          Int // ( references World )
   northOf          Int? // ( references Location | nullable )
   southOf          Int? // ( references Location | nullable )

@@ -44,19 +44,18 @@ export async function upsertSeries(newSeries: UpsertSeriesInput) {
 
 /** find all series records matching params */
 export async function findAllSeries(filters: SearchSeriesInput) {
-  const where: Prisma.SeriesWhereInput = {};
-  if (filters.id) where.id = filters.id;
-  if (filters.title) where.title = { contains: filters.title };
-  if (filters.description)
-    where.description = { contains: filters.description };
-  if (filters.genre) where.genre = { contains: filters.genre };
-  if (filters.authorId) where.authorId = filters.authorId;
-
+  const where: Prisma.SeriesWhereInput = buildWhereInput(filters);
   return Series.findMany({ where, include: { Books: true } });
 }
 
 /** find all published `Series` records matching params */
 export async function findAllPublishedSeries(filters: SearchSeriesInput) {
+  const where: Prisma.SeriesWhereInput = buildWhereInput(filters);
+  where.publishDate = { lte: DateTime.now().toISO() };
+  return Series.findMany({ where, include: { Books: true } });
+}
+
+function buildWhereInput(filters: SearchSeriesInput) {
   const where: Prisma.SeriesWhereInput = {};
   if (filters.id) where.id = filters.id;
   if (filters.title) where.title = { contains: filters.title };
@@ -64,9 +63,7 @@ export async function findAllPublishedSeries(filters: SearchSeriesInput) {
     where.description = { contains: filters.description };
   if (filters.genre) where.genre = { contains: filters.genre };
   if (filters.authorId) where.authorId = filters.authorId;
-  where.publishDate = { lte: DateTime.now().toISO() };
-
-  return Series.findMany({ where, include: { Books: true } });
+  return where;
 }
 
 /** find one series record matching params */

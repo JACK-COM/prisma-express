@@ -15,9 +15,9 @@ const DARK_THEME: AppTheme = {
 
     accent: "#87c0cb", // --sky-blue: #87c0cbff;
     bgColor: "#101918", // --eerie-black: #101918ff;
-    bgGradient: "linear-gradient(45deg, #2b312fff, #154b54ff)",
+    bgGradient: "linear-gradient(45deg, #154b54ff, #0d241dff)",
     bgGradientDir: (dir = "45deg") =>
-      `linear-gradient(${dir}, #2b312fff, #154b54ff)`,
+      `linear-gradient(${dir}, #154b54ff, #0d241dff)`,
     semitransparent: "#6d7c7d60",
     error: "#EF476F", // --barn-red: #77100aff;
     errorDark: "#380703", // --black-bean: #380703ff;

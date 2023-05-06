@@ -22,6 +22,10 @@ type SearchBookInput = Partial<
 > & { id?: Book["id"][]; published?: boolean };
 
 const { Books, Chapters, Scenes } = context;
+const BookContents: Prisma.BookInclude = {
+  Author: true,
+  Chapters: { orderBy: { order: "asc" } }
+};
 
 /** create or update `Book` record */
 export async function upsertBook(book: BookUpsertInput) {
@@ -42,6 +46,11 @@ export async function upsertBooks(books: BookUpsertInput[]) {
 
 /** find all `Book` records matching params */
 export async function findAllBooks(filters: SearchBookInput) {
+  const where: Prisma.BookWhereInput = findAllWhereInput(filters);
+  return Books.findMany({ where, include: BookContents });
+}
+
+function findAllWhereInput(filters: SearchBookInput) {
   const where: Prisma.BookWhereInput = { public: filters.public };
   where.OR = [];
   if (filters.id) where.id = { in: filters.id };
@@ -64,11 +73,7 @@ export async function findAllBooks(filters: SearchBookInput) {
     where.OR = [];
     where.OR.push({ genre: { contains: filters.genre } });
   }
-
-  return Books.findMany({
-    where,
-    include: { Author: true, Chapters: { orderBy: { order: "asc" } } }
-  });
+  return where;
 }
 
 /** find all published `Book` records matching params */
@@ -86,21 +91,12 @@ export async function findAllPublishedBooks(filters: SearchBookInput) {
     where.OR.push({ genre: { contains: filters.genre } });
   }
 
-  return Books.findMany({
-    where,
-    include: { Author: true, Chapters: { orderBy: { order: "asc" } } }
-  });
+  return Books.findMany({ where, include: BookContents });
 }
 
 /** find one `Book` record matching params */
 export async function getBookById(id: Book["id"]) {
-  return Books.findUnique({
-    where: { id },
-    include: {
-      Author: true,
-      Chapters: { include: { Scenes: true }, orderBy: { order: "asc" } }
-    }
-  });
+  return Books.findUnique({ where: { id }, include: BookContents });
 }
 
 /** delete one `Book` record matching params */

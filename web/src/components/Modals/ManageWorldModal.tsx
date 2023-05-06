@@ -1,13 +1,15 @@
+import { useState } from "react";
 import CreateWorldForm from "components/Form.CreateWorld";
-import {
-  CreateWorldData,
-  upsertWorld
-} from "graphql/requests/worlds.graphql";
-import { useEffect, useState } from "react";
+import { CreateWorldData, upsertWorld } from "graphql/requests/worlds.graphql";
 import Modal from "./Modal";
-import { clearGlobalModal, updateWorlds } from "state";
+import {
+  addNotification,
+  clearGlobalModal,
+  updateAsError,
+  updateNotification,
+  updateWorlds
+} from "state";
 import { ErrorMessage } from "components/Common/Containers";
-import { WorldType } from "utils/types";
 
 /** Modal props */
 type ManageWorldModalProps = {
@@ -18,7 +20,6 @@ type ManageWorldModalProps = {
 
 // Empty/default form data
 const emptyForm = (): Partial<CreateWorldData> => ({
-  type: WorldType.Universe,
   public: false
 });
 
@@ -26,7 +27,11 @@ const emptyForm = (): Partial<CreateWorldData> => ({
 export default function ManageWorldModal(props: ManageWorldModalProps) {
   const { data, open, onClose = clearGlobalModal } = props;
   const [formData, setFormData] = useState(emptyForm());
-  const [error, setError] = useState("");
+  const [error, setLocalError] = useState("");
+  const setError = (e: string, noteId?: number) => {
+    setLocalError(e);
+    updateAsError(e, noteId);
+  };
   const submit = async () => {
     // Validate
     if (!formData.name) return setError("Name is required.");
@@ -38,25 +43,17 @@ export default function ManageWorldModal(props: ManageWorldModalProps) {
     if (!formData.description) formData.description = "No description.";
     formData.public = formData.public || false;
     setError("");
+    const noteId = addNotification("Saving world...");
     const resp = await upsertWorld(formData);
     if (typeof resp === "string") return setError(resp);
 
     // Notify
     if (resp) {
+      updateNotification("World updated!", noteId);
       updateWorlds([resp]);
       onClose();
-    } else setError("Did not create world: please check your entries.");
+    } else setError("Did not save world: please check your entries.");
   };
-
-  useEffect(() => {
-    if (data) setFormData({ ...data, ...formData });
-    else if (data === null) setFormData(emptyForm());
-
-    return () => {
-      setFormData(emptyForm());
-      setError("");
-    };
-  }, [data]);
 
   return (
     <Modal
@@ -67,7 +64,7 @@ export default function ManageWorldModal(props: ManageWorldModalProps) {
       confirmText={data?.id ? "Update" : "Create"}
       onConfirm={submit}
     >
-      <CreateWorldForm data={formData} onChange={setFormData} />
+      <CreateWorldForm onChange={setFormData} />
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </Modal>
   );

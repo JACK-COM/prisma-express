@@ -17,13 +17,16 @@ export const MFBook = objectType({
     t.int("seriesId", { description: "Book series parent id" });
     t.field("created", { type: "CsDateTime", description: "Item created" });
     t.field("updated", { type: "CsDateTime", description: "Item updated" });
-    t.field("publishDate", { type: "CsDateTime", description: "Item published for public consumption" });
+    t.field("publishDate", {
+      type: "CsDateTime",
+      description: "Item published for public consumption"
+    });
 
     // List properties
     t.list.field("Chapters", { type: "MFChapter" });
 
     // relationships
     t.field("Author", { type: "MFAuthor" });
-    t.field("Series", { type: "MFSeries" });
+    // t.field("Series", { type: "MFSeries" });
   }
 });

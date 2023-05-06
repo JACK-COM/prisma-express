@@ -13,24 +13,16 @@ import { useGlobalUser } from "hooks/GlobalUser";
 import { TallIcon } from "./ComponentIcons";
 import Tooltip from "./Tooltip";
 
-const Location = styled.span`
-  ${({ theme }) => theme.mixins.ellipsis};
-  align-self: center;
-  font-size: small;
-  font-family: ${({ theme }) => theme.presets.fonts.heading};
-  grid-row: 1 / span 2;
-  padding-right: 0.5rem;
-  text-transform: uppercase;
-
-  @media screen and (max-width: 424px) {
-    display: none;
-  }
-`;
 const Relationships = styled(TallIcon).attrs({ icon: "groups" })`
   animation-delay: 200ms;
+  grid-column: initial;
+  grid-row: initial;
 `;
 const DeleteIcon = styled(TallIcon).attrs({ icon: "delete" })`
   animation-delay: 400ms;
+  grid-column: initial;
+  grid-row: initial;
+  order: 99;
 `;
 
 type CharacterItemProps = {
@@ -69,7 +61,11 @@ const CharacterItem = ({
   );
 
   return (
-    <ItemGridContainer onClick={select} permissions={permissions}>
+    <ItemGridContainer
+      columns="24px 10fr 1fr repeat(2, max-content)"
+      onClick={select}
+      permissions={permissions}
+    >
       <TallIcon
         icon={isOwner ? "face" : "lock"}
         className={pubClass}
@@ -83,10 +79,6 @@ const CharacterItem = ({
           {isOwner && <MatIcon className="icon" icon="edit" />}
         </ItemName>
       </Tooltip>
-
-      <ItemDescription
-      // dangerouslySetInnerHTML={characterDescription(character)}
-      />
 
       {character.worldId && (
         <ItemWorldName public={world?.public} children={world?.name || ""} />

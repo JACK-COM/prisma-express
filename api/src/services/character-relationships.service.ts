@@ -15,6 +15,7 @@ type SearchCharacterRelationshipInput =
 type CharacterRelationshipByIdInput = Pick<CharacterRelationship, "id">;
 
 const { CharacterRelationships } = context;
+const CharacterSrc: Prisma.CharacterRelationshipInclude = { Character: true };
 
 /** create `Character-Relationship` record */
 export async function upsertCharacterRelationships(
@@ -43,20 +44,14 @@ export async function findAllCharacterRelationship(
   if (characterId) where.OR.push({ characterId }, { targetId: characterId });
   if (targetId) where.OR.push({ targetId }, { characterId: targetId });
 
-  return CharacterRelationships.findMany({
-    where,
-    include: { Character: true }
-  });
+  return CharacterRelationships.findMany({ where, include: CharacterSrc });
 }
 
 /** find one `Character-Relationship` record matching params */
 export async function getCharacterRelationship(
   where: CharacterRelationshipByIdInput
 ) {
-  return CharacterRelationships.findUnique({
-    where,
-    include: { Character: true }
-  });
+  return CharacterRelationships.findUnique({ where, include: CharacterSrc });
 }
 
 /** update one `Character-Relationship` record matching params */
@@ -64,11 +59,7 @@ export async function updateCharacterRelationship(
   where: CharacterRelationshipByIdInput,
   data: UpsertRelationshipInput
 ) {
-  return CharacterRelationships.update({
-    data,
-    where,
-    include: { Character: true }
-  });
+  return CharacterRelationships.update({ data, where, include: CharacterSrc });
 }
 
 /** delete a `Character-Relationship` */

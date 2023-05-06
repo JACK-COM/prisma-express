@@ -60,6 +60,7 @@ export const MFLocationUpsertInput = inputObjectType({
     t.int("id", { default: undefined, description: "Location ID" });
     t.nonNull.string("name");
     t.nonNull.string("description");
+    t.nonNull.field("type", { type: "LocationType" });
     t.string("image");
     t.field("climate", { type: "Climate" });
     t.field("flora", { type: "Richness" });

@@ -1,61 +1,82 @@
-import { ChangeEvent, useEffect, useMemo } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { noOp } from "../utils";
-import { Character, UserRole } from "../utils/types";
+import { UserRole } from "../utils/types";
 import {
   Form,
-  FormRow,
   Hint,
   Input,
   Label,
   Legend,
-  RadioInput,
-  RadioLabel,
   Select,
-  Textarea,
-  TinyMCE
+  Textarea
 } from "components/Forms/Form";
 import { CreateCharacterData } from "graphql/requests/characters.graphql";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
+import { GlobalCharacter, GlobalWorld } from "state";
 
 export type CreateCharacterProps = {
   data?: Partial<CreateCharacterData>;
   onChange?: (data: Partial<CreateCharacterData>) => void;
 };
 
+const initialFormData = () => {
+  const { focusedWorld, focusedLocation } = GlobalWorld.getState();
+  const { focusedCharacter } = GlobalCharacter.getState();
+  const { worldId: owid } = focusedCharacter || focusedLocation || {};
+  const worldId = owid || focusedWorld?.id;
+  const formData: Partial<CreateCharacterData> = { worldId };
+  if (focusedCharacter) {
+    formData.id = focusedCharacter.id;
+    formData.authorId = focusedCharacter.authorId;
+    formData.description = focusedCharacter.description;
+    formData.name = focusedCharacter.name;
+    formData.locationId = focusedCharacter.locationId;
+  }
+  if (!formData.locationId && focusedLocation) {
+    formData.locationId = focusedLocation.id;
+  }
+  return formData;
+};
+
 /** Create or edit a `Character` */
 const CreateCharacterForm = (props: CreateCharacterProps) => {
+  const { onChange = noOp } = props;
   const { id: userId } = useGlobalUser(["id"]);
-  const { data = {}, onChange = noOp } = props;
-  const { worlds = [], focusedWorld } = useGlobalWorld();
-  const role: UserRole = useMemo(() => {
-    return !data.id || (data.authorId && userId === data.authorId)
-      ? "Author"
-      : "Reader";
+  const { worlds = [] } = useGlobalWorld(["worlds"]);
+  const data = initialFormData();
+  const { authorId, id: charId } = data;
+  const [formData, setFormData] = useState<Partial<CreateCharacterData>>(data);
+  const role = useMemo<UserRole>(() => {
+    return !charId || (authorId && userId === authorId) ? "Author" : "Reader";
   }, [userId, data]);
-  const updateDescription = (description: string) => {
-    onChange({ ...data, description });
+  const hasLocation = useMemo(
+    () => Boolean(data.id && (data.locationId || data.worldId)),
+    [data]
+  );
+  const update = (updates: Partial<CreateCharacterData>) => {
+    setFormData(updates);
+    onChange(updates);
   };
-  const updateOrigin = (id: string) => {
+  const onDescription = (d: string) => update({ ...formData, description: d });
+  const onOrigin = (id: string) => {
     const worldId = Number(id);
-    onChange({ ...data, worldId: isNaN(worldId) ? -1 : worldId });
+    update({ ...formData, worldId: isNaN(worldId) ? -1 : worldId });
   };
-  const updateName = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...data, name: e.target.value });
+  const onName = (e: ChangeEvent<HTMLInputElement>) => {
+    update({ ...formData, name: e.target.value });
   };
 
   useEffect(() => {
-    if (focusedWorld && !data.worldId) {
-      updateOrigin(focusedWorld.id.toString());
-    }
+    update(data);
   }, []);
 
   return (
     <Form>
       <Legend>
-        {data.id ? (
+        {formData.id ? (
           <>
-            Edit <span className="accent--text">{data.name}</span>
+            Edit <span className="accent--text">{formData.name}</span>
           </>
         ) : (
           <>
@@ -87,8 +108,8 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
           disabled={role === "Reader"}
           placeholder="Tog Omarai"
           type="text"
-          value={data.name || ""}
-          onChange={updateName}
+          value={formData.name || ""}
+          onChange={onName}
         />
       </Label>
       <Hint>Enter a name for your character</Hint>
@@ -97,22 +118,32 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
       <Label direction="column">
         <span className="label required">
           Where is{" "}
-          <span className="accent--text">{data.name || "your character"}</span>{" "}
+          <span className="accent--text">
+            {formData.name || "your character"}
+          </span>{" "}
           from?
         </span>
         <Select
-          disabled={role === "Reader"}
+          disabled={role === "Reader" || hasLocation}
           data={worlds}
-          value={data.worldId || ""}
+          value={formData.worldId || ""}
           itemText={(w) => w.name}
           itemValue={(w) => w.id}
           placeholder={"Select a universe/realm:"}
-          onChange={updateOrigin}
+          onChange={onOrigin}
         />
       </Label>
-      <Hint>
-        Select the <b>Universe</b> or <b>Realm</b> of this character's origin.
-      </Hint>
+
+      {hasLocation ? (
+        <Hint className="error--text">
+          This character {formData.id ? "is" : "will be"} linked to the current
+          world or location.
+        </Hint>
+      ) : (
+        <Hint>
+          Select the <b>Universe</b> or <b>Realm</b> of this character's origin.
+        </Hint>
+      )}
 
       {/* Description */}
       <Label direction="column">
@@ -120,8 +151,8 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
         <Textarea
           disabled={role === "Reader"}
           rows={300}
-          value={data.description || ""}
-          onChange={e => updateDescription(e.target.value)}
+          value={formData.description || ""}
+          onChange={(e) => onDescription(e.target.value)}
         />
       </Label>
       <Hint>Describe your character as a series of short writing-prompts.</Hint>

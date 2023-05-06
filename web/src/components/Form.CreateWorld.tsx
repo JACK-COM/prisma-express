@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, useMemo, useState } from "react";
 import { noOp } from "../utils";
 import { WorldType } from "../utils/types";
 import {
@@ -11,34 +11,65 @@ import {
   RadioInput,
   RadioLabel,
   Select,
-  TinyMCE
+  Textarea
 } from "components/Forms/Form";
 import { CreateWorldData } from "graphql/requests/worlds.graphql";
 import { Accent } from "./Common/Containers";
-import { GlobalWorld } from "state";
+import { ButtonWithIcon } from "./Forms/Button";
+import { getAndShowPrompt } from "api/loadUserData";
+import { buildDescriptionPrompt } from "utils/prompt-builder";
+import { useGlobalWorld } from "hooks/GlobalWorld";
 
 export type CreateWorldProps = {
-  data?: Partial<CreateWorldData>;
   onChange?: (data: Partial<CreateWorldData>) => void;
 };
 
 /** `WorldTypes` list */
-const worldTypes = [WorldType.Universe, WorldType.Realm, WorldType.Other];
+const { Universe, Realm, Planet, Other } = WorldType;
+const worldTypes = [Realm, Universe, Planet, Other];
 
 /** Create or edit a `World` */
 const CreateWorldForm = (props: CreateWorldProps) => {
-  const { data, onChange = noOp } = props;
-  const { worlds } = GlobalWorld.getState();
-  const updatePublic = (e: boolean) => onChange({ ...data, public: e });
-  const updateType = (type: WorldType) => onChange({ ...data, type });
+  const { onChange = noOp } = props;
+  const { worlds = [], focusedWorld } = useGlobalWorld([
+    "worlds",
+    "focusedWorld"
+  ]);
+  const [data, setData] = useState({ ...focusedWorld });
+  const validParents = useMemo(() => {
+    const valid = worlds.filter((w) => w.id !== data?.id);
+    switch (data?.type) {
+      case Planet:
+        return valid.filter(({ type }) =>
+          [Realm, Universe, Other].includes(type)
+        );
+      case Universe:
+      case Realm:
+        return valid.filter(({ type }) => [Realm, Other].includes(type));
+      default:
+        return valid;
+    }
+  }, [data, focusedWorld]);
+  const onUpdate = (d: Partial<CreateWorldData>) => {
+    setData(d);
+    onChange(d);
+  };
+  const updatePublic = (e: boolean) => onUpdate({ ...data, public: e });
+  const updateType = (type: WorldType) => onUpdate({ ...data, type });
   const updateDescription = (description: string) => {
-    onChange({ ...data, description });
+    onUpdate({ ...data, description });
   };
   const updateParent = (pwid: string) => {
-    onChange({ ...data, parentWorldId: Number(pwid) });
+    onUpdate({ ...data, parentWorldId: Number(pwid) });
   };
   const updateTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...data, name: e.target.value });
+    onUpdate({ ...data, name: e.target.value });
+  };
+  const getDescriptionIdea = async () => {
+    const ideaPrompt = buildDescriptionPrompt({ ...data, type: "place" });
+    if (!ideaPrompt) return;
+    const idea = await getAndShowPrompt(ideaPrompt);
+    if (idea) updateDescription(idea);
   };
 
   return (
@@ -72,7 +103,7 @@ const CreateWorldForm = (props: CreateWorldProps) => {
             Is it in another <Accent>World</Accent>?
           </span>
           <Select
-            data={worlds}
+            data={validParents}
             value={data?.parentWorldId || ""}
             itemText={(d) => d.name}
             itemValue={(d) => d.id}
@@ -135,13 +166,24 @@ const CreateWorldForm = (props: CreateWorldProps) => {
       {/* Description */}
       <Label direction="column">
         <span className="label required">Short Description</span>
-        <TinyMCE
-          height={300}
+        <Textarea
+          rows={300}
           value={data?.description || ""}
-          onChange={updateDescription}
+          onChange={(e) => updateDescription(e.target.value)}
         />
       </Label>
       <Hint>Describe your world as a series of short writing-prompts.</Hint>
+      <hr />
+
+      {!data?.description && (
+        <ButtonWithIcon
+          type="button"
+          onClick={getDescriptionIdea}
+          icon="tips_and_updates"
+          size="lg"
+          text="Get description ideas"
+        />
+      )}
     </Form>
   );
 };

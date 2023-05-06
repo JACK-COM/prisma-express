@@ -15,9 +15,9 @@ const LIGHT_THEME: AppTheme = {
 
     accent: "#30457a", // --marian-blue: #30457aff;
     bgColor: "#acbdba", // --ash-gray: #acbdbaff;
-    bgGradient: "linear-gradient(45deg, #30457aff 0%, #11234fff 100%)",
+    bgGradient: "linear-gradient(45deg, #11234fff 0%, #30457aff 100%)",
     bgGradientDir: (dir = "45deg") =>
-      `linear-gradient(${dir}, #30457aff 0%, #11234fff 100%)`,
+      `linear-gradient(${dir}, #11234fff 0%, #30457aff 100%)`,
     semitransparent: "#FFFFFF33",
     error: "#92150d", // --barn-red: #77100aff;
     errorDark: "#020300",

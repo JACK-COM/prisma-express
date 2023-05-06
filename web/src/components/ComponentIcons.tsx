@@ -1,6 +1,12 @@
 import styled, { css } from "styled-components";
 import { MatIcon, MatIconProps } from "components/Common/Containers";
-import { APIData, PermissionProps, UserRole, World } from "utils/types";
+import {
+  APIData,
+  PermissionProps,
+  UserRole,
+  World,
+  WorldType
+} from "utils/types";
 import { upsertWorld, deleteWorld } from "graphql/requests/worlds.graphql";
 import {
   updateWorlds,
@@ -9,7 +15,8 @@ import {
   setGlobalModal,
   MODAL
 } from "state";
-import { requireAuthor, noOp, suppressEvent } from "utils";
+import { requireAuthor, noOp } from "utils";
+import { useMemo } from "react";
 
 /** Generic Icon component Props */
 type ItemIconProps = Omit<MatIconProps, "onClick" | "icon"> & {
@@ -51,11 +58,11 @@ export const TallIcon = styled(PermissionedIcon)`
 `;
 
 /** `World` Icon Container (indicates a `World` data-type) */
-const WorldIcon = styled(TallIcon)`
-  animation: shake 280ms linear;
+export const WorldIcon = styled(TallIcon)`
+  animation: bounce 280ms linear;
 
   &:hover {
-    animation-name: spin;
+    animation: beacon 1.2s linear infinite;
     color: ${({ theme }) => theme.colors.accent};
   }
 `;
@@ -66,7 +73,17 @@ type WorldIconProps = Pick<ItemIconProps, "permissions"> & {
 };
 export const WorldPublicIcon = (props: WorldIconProps) => {
   const { permissions, data: world } = props;
-  const icon = permissions === "Author" ? "public" : "lock";
+  const icon = useMemo(() => {
+    if (permissions !== "Author") return "lock";
+    switch (world.type) {
+      case WorldType.Realm:
+        return "grass";
+      case WorldType.Universe:
+        return "auto_awesome";
+      default:
+        return "public";
+    }
+  }, [world]);
   const iconClass = world.public ? "icon success--text" : "icon error--text";
   const title = world.public ? "Public World" : "Private World";
   const togglePublic = requireAuthor(async () => {

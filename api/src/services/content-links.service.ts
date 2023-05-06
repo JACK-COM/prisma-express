@@ -42,20 +42,17 @@ export async function getContentLinkById(id: ContentLink["id"]) {
 
 /** find multiple `ContentLink` records matching filters */
 export async function findManyContentLinks(filters: SearchContentLinkInput) {
-  const where: Prisma.SceneContentLinkWhereInput = {};
-  if (filters.id) where.id = { in: filters.id };
-  if (filters.authorId) where.authorId = filters.authorId;
-  if (filters.seriesId) where.seriesId = filters.seriesId;
-  if (filters.bookId) where.bookId = filters.bookId;
-  if (filters.chapterId) where.chapterId = filters.chapterId;
-  if (filters.sceneId) where.sceneId = filters.sceneId;
-  if (filters.text) where.text = { contains: filters.text };
-
+  const where: Prisma.SceneContentLinkWhereInput = buildWhereInput(filters);
   return ContentLinks.findMany({ where });
 }
 
 /** find a single `ContentLink` record matching filters */
 export async function findOneContentLink(filters: SearchContentLinkInput) {
+  const where: Prisma.SceneContentLinkWhereInput = buildWhereInput(filters);
+  return ContentLinks.findFirst({ where });
+}
+
+function buildWhereInput(filters: SearchContentLinkInput) {
   const where: Prisma.SceneContentLinkWhereInput = {};
   if (filters.id) where.id = { in: filters.id };
   if (filters.authorId) where.authorId = filters.authorId;
@@ -64,8 +61,7 @@ export async function findOneContentLink(filters: SearchContentLinkInput) {
   if (filters.chapterId) where.chapterId = filters.chapterId;
   if (filters.sceneId) where.sceneId = filters.sceneId;
   if (filters.text) where.text = { contains: filters.text };
-
-  return ContentLinks.findFirst({ where });
+  return where;
 }
 
 /** delete a single `ContentLink` record */

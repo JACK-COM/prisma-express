@@ -26,12 +26,14 @@ export type CreateWorldData = {
 /** Data required to create a location */
 export type CreateLocationData = {
   id?: number;
+  authorId?: number;
 } & Pick<
   Location,
   | "name"
   | "description"
   | "climate"
   | "parentLocationId"
+  | "type"
   | "flora"
   | "fauna"
   | "worldId"
@@ -153,25 +155,15 @@ export async function listLocations(
 
 // Prune location data for API
 export function pruneLocationForAPI(data: Partial<CreateLocationData>) {
-  const {
-    id,
-    name,
-    description,
-    climate,
-    parentLocationId,
-    flora,
-    fauna,
-    worldId
-  } = data;
-
   return {
-    id,
-    name,
-    description,
-    climate,
-    parentLocationId,
-    flora,
-    fauna,
-    worldId
+    id: data.id,
+    name: data.name,
+    description: data.description,
+    climate: data.climate,
+    parentLocationId: data.parentLocationId,
+    type: data.type,
+    flora: data.flora,
+    fauna: data.fauna,
+    worldId: data.worldId
   };
 }

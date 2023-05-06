@@ -29,7 +29,7 @@ export const MFTimelineEventFragment = `
 
 /** graphql `Location` fragment */
 export const MFLocationFragment = `
-    id, name, description, climate, fauna, flora, authorId, worldId, parentLocationId,
+    id, name, description, type, climate, fauna, flora, authorId, worldId, parentLocationId,
     ChildLocations {id, name, description, climate, fauna, flora, authorId, worldId, parentLocationId }
 `;
 

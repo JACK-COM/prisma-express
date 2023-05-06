@@ -1,19 +1,19 @@
 import { useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { Card, CardTitle } from "components/Common/Containers";
+import { Card, CardTitle, PageDescription } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, Location, World } from "utils/types";
 import ListView from "components/Common/ListView";
 import { useGlobalUser } from "hooks/GlobalUser";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import LocationItem from "./LocationItem";
 import ManageLocationModal from "components/Modals/ManageLocationModal";
 import { SharedButtonProps } from "components/Forms/Button.Helpers";
 import ManageWorldEventsModal from "components/Modals/ManageWorldEventsModal";
-import ManageCharacterModal from "components/Modals/ManageCharacterModal";
 import { clearGlobalWorld, setGlobalLocation } from "state";
 import groupBy from "lodash.groupby";
+import { Paths, insertId } from "routes";
 
 const AddItemButton = styled(ButtonWithIcon)`
   align-self: end;
@@ -31,14 +31,21 @@ type WorldLocationsListProps = {
   focusedLocation?: APIData<Location> | null;
   focusedWorld?: APIData<World> | null;
   worldLocations?: APIData<Location>[];
+  showDescription?: boolean;
 };
 
 /** @component List of World `Locations` */
 const WorldLocationsList = (props: WorldLocationsListProps) => {
-  const { focusedWorld, focusedLocation, worldLocations = [] } = props;
+  const {
+    focusedWorld,
+    focusedLocation,
+    worldLocations = [],
+    showDescription
+  } = props;
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const { worldId } = useParams<{ worldId: string }>();
+  const navigate = useNavigate();
   const clearModalData = () => {
     clearGlobalModal();
     setGlobalLocation(null);
@@ -46,6 +53,16 @@ const WorldLocationsList = (props: WorldLocationsListProps) => {
   const onEditLocation = (location: APIData<Location>) => {
     setGlobalLocation(location);
     setGlobalModal(MODAL.MANAGE_LOCATION);
+  };
+  const goToLocation = (location: APIData<Location>) => {
+    if (!focusedWorld) return;
+    setGlobalLocation(location);
+    const url = insertId(
+      insertId(Paths.Worlds.ExploreLocation.path, location.id, "locationId"),
+      focusedWorld.id,
+      "worldId"
+    );
+    navigate(url);
   };
   const clearComponentData = () => {
     clearModalData();
@@ -81,7 +98,7 @@ const WorldLocationsList = (props: WorldLocationsListProps) => {
   return (
     <>
       <Card>
-        <CardTitle>Locations</CardTitle>
+        <CardTitle>Places</CardTitle>
         {/* List */}
         {!worldLocations.length && (
           <EmptyText>
@@ -99,6 +116,15 @@ const WorldLocationsList = (props: WorldLocationsListProps) => {
           </EmptyText>
         )}
 
+        {showDescription && (
+          <PageDescription>
+            <p>
+              <b>{focusedWorld?.name}:</b>{" "}
+              <span>{focusedWorld?.description}</span>
+            </p>
+          </PageDescription>
+        )}
+
         {/* Add new (button - top) */}
         {authenticated &&
           controls(parentLocations.length > 5 ? "transparent" : "outlined")}
@@ -112,7 +138,7 @@ const WorldLocationsList = (props: WorldLocationsListProps) => {
                 location={location}
                 childLocations={childLocations.get(location.id)}
                 onEdit={onEditLocation}
-                onSelect={onEditLocation}
+                onSelect={goToLocation}
                 permissions={location.authorId === userId ? "Author" : "Reader"}
               />
             )}
@@ -139,9 +165,6 @@ const WorldLocationsList = (props: WorldLocationsListProps) => {
             data={focusedWorld.Events}
             open={active === MODAL.MANAGE_WORLD_EVENTS}
           />
-
-          {/* Characters */}
-          <ManageCharacterModal open={active === MODAL.MANAGE_CHARACTER} />
         </>
       )}
     </>

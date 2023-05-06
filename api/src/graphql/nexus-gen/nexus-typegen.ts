@@ -105,6 +105,7 @@ export interface NexusGenInputs {
     northOf?: number | null; // Int
     parentLocationId?: number | null; // Int
     southOf?: number | null; // Int
+    type: NexusGenEnums['LocationType']; // LocationType!
     westOf?: number | null; // Int
     worldId: number; // Int!
   }
@@ -180,9 +181,10 @@ export interface NexusGenEnums {
   EventPolarity: "NegativeExpected" | "NegativeUnexpected" | "Neutral" | "PositiveExpected" | "PositiveUnexpected"
   EventTarget: "Local" | "Person" | "World"
   GroupType: "Culture" | "Other" | "Philosophy" | "Trade"
+  LocationType: "Building" | "City" | "Continent" | "Country" | "Other" | "Region" | "Ruins" | "Settlement" | "Town" | "Village"
   Richness: "Abundant" | "Adequate" | "Barren" | "Sparse" | "Unspecified"
   UserRole: "Admin" | "Author" | "Moderator" | "Reader"
-  WorldType: "Other" | "Realm" | "Universe"
+  WorldType: "Other" | "Planet" | "Realm" | "Universe"
 }
 
 export interface NexusGenScalars {
@@ -286,6 +288,7 @@ export interface NexusGenObjects {
     id: number; // Int!
     name: string; // String!
     parentLocationId?: number | null; // Int
+    type: NexusGenEnums['LocationType']; // LocationType!
     worldId: number; // Int!
   }
   MFPopulationGroup: { // root type
@@ -498,6 +501,7 @@ export interface NexusGenFieldTypes {
     id: number; // Int!
     name: string; // String!
     parentLocationId: number | null; // Int
+    type: NexusGenEnums['LocationType']; // LocationType!
     worldId: number; // Int!
   }
   MFPopulationGroup: { // field return type
@@ -757,6 +761,7 @@ export interface NexusGenFieldTypeNames {
     id: 'Int'
     name: 'String'
     parentLocationId: 'Int'
+    type: 'LocationType'
     worldId: 'Int'
   }
   MFPopulationGroup: { // field return type name

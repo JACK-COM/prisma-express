@@ -1,5 +1,5 @@
 import { APIData, UserRole, Location, World, Richness } from "utils/types";
-import { noOp, requireAuthor } from "utils";
+import { noOp, requireAuthor, suppressEvent } from "utils";
 import {
   ItemGridContainer,
   ItemDescription,
@@ -10,7 +10,7 @@ import {
 import { TallIcon } from "./ComponentIcons";
 import ListView from "./Common/ListView";
 import styled from "styled-components";
-import { useMemo } from "react";
+import { MouseEventHandler, useMemo } from "react";
 import { GlobalUser } from "state";
 
 type LocationItemProps = {
@@ -43,7 +43,10 @@ const LocationItem = ({
   const iconClass = isPublic ? "icon success--text" : "icon error--text";
   const title = isPublic ? "Public Location" : "Private Location";
   const edit = requireAuthor(() => onEdit(location), permissions);
-  const select = requireAuthor(() => onSelect(location), permissions);
+  const select: MouseEventHandler<HTMLDivElement> = (e) => {
+    suppressEvent(e);
+    onSelect(location);
+  };
   const icon = useMemo(() => {
     if (!isAuthor) return "lock";
     return location.parentLocationId ? "pin_drop" : "map";

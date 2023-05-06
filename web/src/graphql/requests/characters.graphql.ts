@@ -13,17 +13,25 @@ import { listCharactersQuery, listRelationshipsQuery } from "graphql/queries";
 import { APIData, Character, CharacterRelationship } from "utils/types";
 
 /** Data required to create a character */
-export type CreateCharacterData = {
-  id?: number;
-  authorId?: number;
-} & Pick<Character, "name" | "description" | "worldId">;
+type PartialId = { id?: number };
+export type CreateCharacterData =
+  | Omit<
+      Character,
+      "Event" | "Scene" | "Author" | "Group" | "Location" | "World"
+    > &
+      PartialId;
 
 /** Data required to create a relationship */
-export type CreateRelationshipData = {
-  id?: number;
-} & Pick<
-  CharacterRelationship,
-  "characterId" | "authorId" | "targetId" | "relationship"
+export type CreateRelationshipData =
+  | Pick<
+      CharacterRelationship,
+      "characterId" | "authorId" | "targetId" | "relationship"
+    > &
+      PartialId;
+
+/** @type `Character` search filters */
+export type CharacterFilters = APIData<
+  Pick<Character, "name" | "authorId" | "description">
 >;
 
 /** @mutation Create a `Character` on the server */
@@ -32,6 +40,8 @@ export async function upsertCharacter(raw: Partial<CreateCharacterData>) {
     id: c.id || undefined,
     name: c.name || undefined,
     description: c.description || undefined,
+    locationId: c.locationId || undefined,
+    groupId: c.groupId || undefined,
     worldId: c.worldId || undefined,
     authorId: c.authorId || undefined
   });
@@ -49,7 +59,7 @@ export async function upsertCharacter(raw: Partial<CreateCharacterData>) {
 export async function deleteCharacter(id: number) {
   return fetchGQL<APIData<Character> | null>({
     query: deleteCharacterMutation(),
-    variables:{ id },
+    variables: { id },
     onResolve: ({ upsertCharacter: list }, err) => err || list,
     fallbackResponse: null
   });
@@ -84,11 +94,6 @@ export async function upsertRelationships(
   return newRelationship;
 }
 
-/** @type `Character` search filters */
-export type CharacterFilters = Pick<
-  APIData<Character>,
-  "id" | "name" | "authorId" | "description"
->;
 /** @query List all `Characters` on the server (with optional filters) */
 export async function listCharacters(filters: Partial<CharacterFilters> = {}) {
   const newCharacter = await fetchGQL<APIData<Character>[]>({

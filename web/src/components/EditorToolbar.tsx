@@ -1,18 +1,12 @@
 import styled from "styled-components";
 import { GridContainer } from "./Common/Containers";
-import {
-  GlobalUser,
-  MODAL,
-  addNotification,
-  setGlobalModal,
-  updateNotification
-} from "state";
-import { getWritingPrompt } from "api/loadUserData";
+import { GlobalUser, MODAL, setGlobalModal } from "state";
 import { ComponentPropsWithRef, Fragment, useMemo } from "react";
 import { Paths, downloadBookURL, insertId } from "routes";
 import { ButtonWithIcon } from "./Forms/Button";
 import { UserRole } from "utils/types";
 import { noOp } from "utils";
+import { getAndShowPrompt } from "api/loadUserData";
 
 const Toolbar = styled(GridContainer)`
   align-items: center;
@@ -77,7 +71,11 @@ const TOOLBAR_BUTTONS = (o: ToolbarButtonOpts) => [
     icon: "download",
     onClick: () => window.open(o.downloadUrl, "_self")
   },
-  { text: "Prompt", icon: "tips_and_updates", onClick: getAndShowPrompt }
+  {
+    text: "Prompt",
+    icon: "tips_and_updates",
+    onClick: () => getAndShowPrompt()
+  }
 ];
 
 // Instance of Editor Toolbar
@@ -140,11 +138,3 @@ const EditorToolbar = (props: EditorToolbarOpts) => {
 };
 
 export default EditorToolbar;
-
-// Helper
-/** Generate a writing prompt from OpenAI */
-async function getAndShowPrompt() {
-  const notificationId = addNotification("Generating writing prompt...", true);
-  const prompt = await getWritingPrompt();
-  updateNotification(prompt, notificationId, true);
-}

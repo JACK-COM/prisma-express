@@ -15,6 +15,7 @@ type SearchLibraryInput = Partial<
 type LibraryByIdInput = Pick<Library, "id">;
 
 const { Libraries } = context;
+const LibraryContent: Prisma.LibraryInclude = { Book: true, Series: true };
 
 /** create `Library` record */
 export async function upsertLibrary(newLibrary: UpsertLibraryInput) {
@@ -24,9 +25,9 @@ export async function upsertLibrary(newLibrary: UpsertLibraryInput) {
     ? Libraries.update({
         data,
         where: { id: newLibrary.id },
-        include: { Book: true, Series: true }
+        include: LibraryContent
       })
-    : Libraries.create({ data, include: { Book: true, Series: true } });
+    : Libraries.create({ data, include: LibraryContent });
 }
 
 /** create `Library` records */
@@ -49,15 +50,12 @@ export async function findAllLibraries(filters: SearchLibraryInput) {
   if (filters.afterDate) AND.push({ purchaseDate: { gt: filters.afterDate } });
   if (AND.length) where.AND = AND;
 
-  return Libraries.findMany({ where, include: { Book: true, Series: true } });
+  return Libraries.findMany({ where, include: LibraryContent });
 }
 
 /** find one `Library` record by id */
 export async function getLibraryById(id: LibraryByIdInput["id"]) {
-  return Libraries.findUnique({
-    where: { id },
-    include: { Book: true, Series: true }
-  });
+  return Libraries.findUnique({ where: { id }, include: LibraryContent });
 }
 
 /** delete one `Library` record matching params */

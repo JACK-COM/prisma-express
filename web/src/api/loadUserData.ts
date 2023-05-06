@@ -6,7 +6,10 @@ import {
   GlobalCharacter,
   getByIdFromWorldState,
   updateChaptersState,
-  GlobalLibraryInstance
+  GlobalLibraryInstance,
+  addNotification,
+  updateNotification,
+  updateAsError
 } from "state";
 import {
   listTimelines,
@@ -68,12 +71,28 @@ export async function loadUser() {
 /**
  * Generate a writing prompt from the API
  * @todo this should take additional parameters (world, character, etc) */
-export async function getWritingPrompt() {
-  const { prompt } = await fetchRaw<{ prompt: string }>({
+export async function getWritingPrompt(input: string | null = null) {
+  const resp = await fetchRaw<{ prompt: string }>({
     url: API_PROMPT,
-    onResolve: (x) => x
+    timeout: 10000,
+    additionalOpts: { body: JSON.stringify({ prompt: input }) },
+    onResolve: (x, errors) => (errors ? new Error(errors) : x)
   });
-  return prompt;
+  if (resp instanceof Error) throw resp;
+  return resp.prompt;
+}
+
+/** Generate a writing prompt from OpenAI */
+export async function getAndShowPrompt(input?: string) {
+  const notificationId = addNotification("Generating writing prompt...", true);
+  try {
+    const prompt = await getWritingPrompt(input);
+    updateNotification(prompt, notificationId, true);
+    return prompt;
+  } catch (error: any) {
+    updateAsError(error.message, notificationId);
+    return null;
+  }
 }
 
 /** Load and focus a single world */

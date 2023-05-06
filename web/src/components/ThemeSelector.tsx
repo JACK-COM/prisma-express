@@ -18,6 +18,7 @@ const ThemeSelector = () => {
       variant="transparent"
       onClick={() => setTheme(nextTheme)}
       title={`Switch to ${nextTheme} mode`}
+      animation="none"
     >
       <MatIcon icon={icon} />
     </RoundButton>

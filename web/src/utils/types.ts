@@ -105,10 +105,26 @@ export enum Richness {
   Unspecified = "Unspecified"
 }
 
+/** Used to describe a type of location */
+export enum LocationType {
+  Building = "Building",
+  City = "City",
+  Continent = "Continent",
+  Country = "Country",
+  Other = "Other",
+  Region = "Region",
+  Ruins = "Ruins",
+  Settlement = "Settlement",
+  Town = "Town",
+  Village = "Village"
+}
+
 /** The type of World (super-set of locations)  */
 export enum WorldType {
   /** A dimensional causal space (e.g. with planets, stars, etc) */
   Universe = "Universe",
+  /** A planet-mass body with many sub-locations */
+  Planet = "Planet",
   /** A non-dimensional space where causal events still occur */
   Realm = "Realm",
   /** Something other than dimensional and non-dimensional */
@@ -251,6 +267,7 @@ export type Location = {
   climate: Climate;
   fauna: Richness;
   flora: Richness;
+  type: LocationType;
   parentLocationId?: number;
   westOf?: number;
   eastOf?: number;

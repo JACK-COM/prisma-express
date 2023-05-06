@@ -5,8 +5,18 @@ import {
 } from "graphql/requests/characters.graphql";
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
-import { clearGlobalModal, updateAsError, updateCharacters } from "state";
+import {
+  GlobalCharacter,
+  GlobalWorld,
+  addNotification,
+  clearGlobalModal,
+  updateAsError,
+  updateCharacters,
+  updateNotification
+} from "state";
 import { ErrorMessage } from "components/Common/Containers";
+import { useGlobalCharacter } from "hooks/GlobalCharacter";
+import { APIData, Character } from "utils/types";
 
 /** Modal props */
 type ManageCharacterModalProps = {
@@ -17,12 +27,13 @@ type ManageCharacterModalProps = {
 
 /** Specialized Modal for creating/editing a `Character` */
 export default function ManageCharacterModal(props: ManageCharacterModalProps) {
-  const { data, open, onClose = clearGlobalModal } = props;
+  const { open, onClose = clearGlobalModal } = props;
+  const { focusedCharacter: data } = useGlobalCharacter(["focusedCharacter"]);
   const [formData, setFormData] = useState<Partial<CreateCharacterData>>({});
   const [error, setError] = useState("");
-  const showError = (msg: string) => {
+  const showError = (msg: string, noteId = -1) => {
     setError(msg);
-    updateAsError(msg);
+    updateAsError(msg, noteId);
   };
   const submit = async () => {
     // Validate
@@ -33,33 +44,37 @@ export default function ManageCharacterModal(props: ManageCharacterModalProps) {
     // Create
     setError("");
     if (!formData.description) formData.description = "No description.";
+    const noteId = addNotification("Saving character...");
     const resp = await upsertCharacter(formData);
     if (typeof resp === "string") return setError(resp);
     else if (resp) {
       // Notify
+      updateNotification("Character saved!", noteId);
       updateCharacters([resp]);
       onClose();
-    } else showError("Did not create character: please check your entries.");
+    } else {
+      const e = "Did not create character: please check your entries.";
+      showError(e, noteId);
+    }
   };
 
   useEffect(() => {
-    if (data) setFormData({ ...data, ...formData });
     return () => {
       setFormData({});
       setError("");
     };
-  }, [data]);
+  }, [open]);
 
   return (
     <Modal
       open={open}
-      onClose={onClose}
       title={data?.id ? "Edit Character" : "Create Character"}
       cancelText="Cancel"
       confirmText={data?.id ? "Update" : "Create"}
+      onClose={onClose}
       onConfirm={submit}
     >
-      <CreateCharacterForm data={formData} onChange={setFormData} />
+      {open && <CreateCharacterForm onChange={setFormData} />}
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </Modal>
   );

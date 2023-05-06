@@ -15,11 +15,11 @@ export const Paths = {
   Dashboard: {
     Index: {
       path: "/dashboard",
-      text: "Dashboard"
+      text: "Home"
     },
     Settings: {
       path: "/dashboard/settings",
-      text: "User Settings"
+      text: "Settings"
     }
   },
 
@@ -73,13 +73,13 @@ export const Paths = {
       path: "/worlds",
       text: "Worlds & Settings"
     },
-    Events: {
-      path: "/worlds/:worldId/events",
-      text: "Major World Events"
-    },
     Locations: {
       path: "/worlds/:worldId/locations",
       text: "World Locations"
+    },
+    ExploreLocation: {
+      path: "/worlds/:worldId/locations/:locationId/explore",
+      text: "Location"
     }
   }
 };
@@ -98,8 +98,10 @@ export function downloadBookURL(bookId: number) {
 }
 
 // Replace id wildcard with actual id
-export function insertId(path: string, id: string | number) {
-  return path.replace(/:\b(\w*Id)/, id.toString());
+export function insertId(path: string, id: string | number, idKey?: string) {
+  return idKey
+    ? path.replace(`:${idKey}`, id.toString())
+    : path.replace(/:\b(\w*Id)/, id.toString());
 }
 
 // Replace category wildcard with actual value

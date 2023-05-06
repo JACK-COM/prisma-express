@@ -87,11 +87,29 @@ export const UserRole = enumType({
   }
 });
 
+export const LocationType = enumType({
+  name: "LocationType",
+  description: "A type of Location",
+  members: {
+    Continent: "Continent",
+    Country: "Country",
+    City: "City",
+    Town: "Town",
+    Village: "Village",
+    Region: "Region",
+    Settlement: "Settlement",
+    Building: "Building",
+    Ruins: "Ruins",
+    Other: "Other"
+  }
+});
+
 export const WorldType = enumType({
   name: "WorldType",
   description: "A type of World (super-set of locations) ",
   members: {
     Universe: "Universe",
+    Planet: "Planet",
     Realm: "Realm",
     Other: "Other"
   }

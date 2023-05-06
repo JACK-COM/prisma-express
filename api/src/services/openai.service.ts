@@ -4,16 +4,34 @@
  */
 
 import { Request, Response } from "express";
-import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
+import {
+  ChatCompletionRequestMessage,
+  ChatCompletionResponseMessage,
+  Configuration,
+  OpenAIApi
+} from "openai";
 import { OPENAI_KEY } from "../constants";
 
 const openaiConfig = new Configuration({ apiKey: OPENAI_KEY });
 const openAiApi = new OpenAIApi(openaiConfig);
 const COMPLETIONS_MODEL = "text-davinci-003";
 const CHAT_MODEL = "gpt-3.5-turbo";
-const DEFAULT_PROMPT = "Respond with a short writing prompt";
-const prompt_history: any[] = [
-  { role: "system", content: "You are a helpful writing-prompt generator." }
+const DEFAULT_PROMPT = "Generate a short writing prompt";
+const prompt_history: (
+  | ChatCompletionRequestMessage
+  | ChatCompletionResponseMessage
+)[] = [
+  { role: "system", content: "You are a helpful writing-prompt generator." },
+  {
+    role: "user",
+    content: `Roleplay a prompt-generator that prefers short responses. 
+  If an input is prefaced with [ CONTEXT TYPE ], provide a short response using [ CONTEXT TYPE ] to instruct
+  your response, and exclude both it and your context from your response. If asked for writing prompts, please 
+  respond with just a short writing prompt. When an input cannot be accurately translated into a prompt, preface your 
+  response with "[ ERROR ] " and briefly explain why the input was invalid. Good luck! Everyone will love you.
+  If you understand, please respond with "OK".`
+  },
+  { role: "system", content: "OK" }
 ];
 
 /**
@@ -56,12 +74,10 @@ export async function generateCompletion(prompt = DEFAULT_PROMPT) {
  * @returns The chat completion
  */
 export async function generateChatCompletion(prompt = DEFAULT_PROMPT) {
-  const msg = createChatCompletionMsg(prompt);
-  const messages = [...prompt_history, msg];
-  prompt_history.push(msg);
+  prompt_history.push(createChatCompletionMsg(prompt));
   try {
     const completion = await openAiApi.createChatCompletion({
-      messages,
+      messages: [...prompt_history],
       max_tokens: 150,
       temperature: 0,
       presence_penalty: 1.2,

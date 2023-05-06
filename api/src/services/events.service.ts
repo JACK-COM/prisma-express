@@ -40,18 +40,13 @@ export async function upsertEvents(newEvents: UpsertEventInput[]) {
 
 /** find all event records matching params */
 export async function findAllEvents(filter: SearchEventInput) {
-  const {
-    id,
-    name,
-    description,
-    authorId,
-    worldId,
-    groupId,
-    locationId,
-    characterId,
-    polarity,
-    target
-  } = filter;
+  const where: Prisma.EventFindManyArgs["where"] = buildWhereInput(filter);
+
+  return Events.findMany({ where });
+}
+
+function buildWhereInput(filter: SearchEventInput) {
+  const { id, authorId, worldId, characterId } = filter;
   const where: Prisma.EventFindManyArgs["where"] = {};
   if (id) where.id = id;
   if (characterId) where.characterId = characterId;
@@ -59,10 +54,10 @@ export async function findAllEvents(filter: SearchEventInput) {
   if (worldId) where.AND.push({ worldId });
   if (authorId) where.AND.push({ authorId });
 
+  const { name, description, groupId, locationId, polarity, target } = filter;
   where.OR = [];
   if (name) where.OR.push({ name: { contains: name } });
   if (description) where.OR.push({ description: { contains: description } });
-
   if (groupId) where.OR.push({ groupId });
   if (locationId) where.OR.push({ locationId });
   if (polarity) where.OR.push({ polarity });
@@ -70,8 +65,7 @@ export async function findAllEvents(filter: SearchEventInput) {
 
   if (where.AND.length === 0) delete where.AND;
   if (where.OR.length === 0) delete where.OR;
-
-  return Events.findMany({ where });
+  return where;
 }
 
 /** find one event record matching params */

@@ -8,6 +8,7 @@ import { Link, useLocation, useMatch } from "react-router-dom";
 import ModalDrawer from "./Modals/ModalDrawer";
 import { useGlobalWindow } from "hooks/GlobalWindow";
 import { useEffect, useState } from "react";
+import { useGlobalUser } from "hooks/GlobalUser";
 
 const Menu = styled.nav`
   align-items: center;
@@ -40,11 +41,18 @@ const FloatingButtons = styled.div`
   }
 `;
 
-const routes = [Paths.Library, Paths.Characters, Paths.Worlds, Paths.Timelines];
+const routes = [
+  Paths.Dashboard,
+  Paths.Library,
+  Paths.Characters,
+  Paths.Worlds,
+  Paths.Timelines
+];
 
 const AppNav = () => {
   const location = useLocation();
   const { isMobile } = useGlobalWindow();
+  const { authenticated } = useGlobalUser(["authenticated"]);
   const [open, setOpen] = useState(false);
   const closeDrawer = () => setOpen(false);
   const toggleDrawer = () => (isMobile ? setOpen(!open) : closeDrawer());
@@ -69,13 +77,13 @@ const AppNav = () => {
           <AppAuth />
 
           {isMobile && (
-            <RoundButton size="lg" variant="transparent">
+            <RoundButton animation="none" size="lg" variant="transparent">
               <MatIcon icon="menu" onClick={toggleDrawer} />
             </RoundButton>
           )}
         </FloatingButtons>
 
-        <MenuLinks />
+        <MenuLinks authenticated={authenticated} />
       </Menu>
 
       {isMobile && (
@@ -85,7 +93,7 @@ const AppNav = () => {
           openTowards="left"
           onClose={closeDrawer}
         >
-          <MenuLinks />
+          <MenuLinks authenticated={authenticated} />
         </ModalDrawer>
       )}
     </>
@@ -126,18 +134,24 @@ const NavLink = styled(Link)`
   }
 `;
 
-function MenuLinks() {
+function MenuLinks({ authenticated }: { authenticated: boolean }) {
   const active = ({ path }: AppRouteDef) => useMatch(path) !== null;
   const cn = (r: AppRouteDef) => (active(r) ? "active" : "");
+  const showHide = authenticated ? "" : "hide";
 
   return (
     <MenuLinksContainer className="menu--links">
-      <h6 className="primary--text">NAVIGATION</h6>
       {routes.map((r) => (
         <NavLink key={r.Index.path} className={cn(r.Index)} to={r.Index.path}>
           {r.Index.text}
         </NavLink>
       ))}
+      <NavLink
+        className={`${showHide} ${cn(Paths.Dashboard.Settings)}`}
+        to={Paths.Dashboard.Settings.path}
+      >
+        {Paths.Dashboard.Settings.text}
+      </NavLink>
     </MenuLinksContainer>
   );
 }

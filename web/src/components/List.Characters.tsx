@@ -1,26 +1,27 @@
-import { useGlobalModal } from "hooks/GlobalModal";
-import { useGlobalUser } from "hooks/GlobalUser";
-import { useGlobalCharacter } from "hooks/GlobalCharacter";
 import styled from "styled-components";
-import { Card, CardTitle } from "components/Common/Containers";
-import { ButtonWithIcon } from "components/Forms/Button";
-import {
-  deleteCharacter,
-  listRelationships
-} from "graphql/requests/characters.graphql";
-import CreateCharacterModal from "components/Modals/ManageCharacterModal";
-import ListView from "components/Common/ListView";
-import CharacterItem from "components/CharacterItem";
-import { APIData, Character, CharacterRelationship } from "utils/types";
-import CreateRelationshipsModal from "components/Modals/ManageRelationshipsModal";
 import {
   GlobalCharacter,
   addNotification,
+  clearGlobalCharacter,
   removeCharacterFromState,
   updateAsError,
   updateNotification
 } from "state";
+import { useGlobalModal } from "hooks/GlobalModal";
+import { useGlobalUser } from "hooks/GlobalUser";
+import { useGlobalCharacter } from "hooks/GlobalCharacter";
+import { Card, CardTitle } from "components/Common/Containers";
+import { ButtonWithIcon } from "components/Forms/Button";
+import ManageCharacterModal from "components/Modals/ManageCharacterModal";
+import ListView from "components/Common/ListView";
+import CharacterItem from "components/CharacterItem";
+import CreateRelationshipsModal from "components/Modals/ManageRelationshipsModal";
 import { SharedButtonProps } from "components/Forms/Button.Helpers";
+import {
+  deleteCharacter,
+  listRelationships
+} from "graphql/requests/characters.graphql";
+import { APIData, Character, CharacterRelationship } from "utils/types";
 
 const AddCharacterButton = styled(ButtonWithIcon)`
   align-self: end;
@@ -40,10 +41,13 @@ type CharactersListProps = {
 
 /** @Component  List of characters */
 const CharactersList = (props: CharactersListProps) => {
-  const { characters = [], relationships = [], focusedCharacter } = props;
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
-  const { clearGlobalCharacter } = useGlobalCharacter([]);
+  const {
+    focusedCharacter,
+    characters = [],
+    relationships = []
+  } = useGlobalCharacter(["focusedCharacter", "characters", "relationships"]);
   const clearComponentData = () => {
     clearGlobalModal();
     clearGlobalCharacter();
@@ -62,9 +66,9 @@ const CharactersList = (props: CharactersListProps) => {
       removeCharacterFromState(char);
     }
   };
-  const onEditCharacter = (char: APIData<Character>) => {
-    GlobalCharacter.focusedCharacter(char);
+  const onEditCharacter = (char: APIData<Character> | null) => {
     setGlobalModal(MODAL.MANAGE_CHARACTER);
+    GlobalCharacter.focusedCharacter(char);
   };
   const controls = (variant: SharedButtonProps["variant"] = "outlined") => (
     <AddCharacterButton
@@ -72,7 +76,7 @@ const CharactersList = (props: CharactersListProps) => {
       icon="face_2"
       text="Add New Character"
       variant={variant}
-      onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
+      onClick={() => onEditCharacter(null)}
     />
   );
 
@@ -112,8 +116,7 @@ const CharactersList = (props: CharactersListProps) => {
       </Card>
 
       {/* Modals */}
-      <CreateCharacterModal
-        data={focusedCharacter}
+      <ManageCharacterModal
         open={active === MODAL.MANAGE_CHARACTER}
         onClose={clearComponentData}
       />

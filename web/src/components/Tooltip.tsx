@@ -18,7 +18,6 @@ const TooltipContainer = styled.div`
   }
 `;
 const TooltipText = styled.div`
-  ${({ theme }) => theme.mixins.lineclamp(7)};
   background-color: black;
   border-radius: 6px;
   color: #fff;
@@ -37,6 +36,9 @@ const TooltipText = styled.div`
   visibility: hidden;
   width: minmax(max-content, 300px);
   z-index: 9;
+  > * {
+    ${({ theme }) => theme.mixins.lineclamp(6)};
+  }
 `;
 
 type TooltipProps = { text: string } & React.ComponentPropsWithRef<"div">;

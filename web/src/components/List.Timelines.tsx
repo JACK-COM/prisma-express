@@ -1,18 +1,15 @@
 import styled from "styled-components";
 import { Card, CardTitle } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
-import { Paths, insertId } from "routes";
 import CreateTimelineModal from "components/Modals/ManageTimelineModal";
 import ListView from "components/Common/ListView";
 import TimelineItem from "components/TimelineItem";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, Timeline } from "utils/types";
 import { useGlobalUser } from "hooks/GlobalUser";
-import { useNavigate } from "react-router";
 import { GlobalWorld } from "state";
 import { SharedButtonProps } from "components/Forms/Button.Helpers";
 
-const { Timelines: TimelinePaths } = Paths;
 const AddTimelineButton = styled(ButtonWithIcon)`
   align-self: end;
 `;
@@ -26,14 +23,14 @@ const List = styled(ListView)`
 type TimelinesListProps = {
   timelines?: APIData<Timeline>[];
   focusedTimeline?: APIData<Timeline> | null;
+  className?: string;
 };
 
 /** @component List of timelines */
 const TimelinesList = (props: TimelinesListProps) => {
-  const { focusedTimeline, timelines = [] } = props;
+  const { focusedTimeline, timelines = [], className } = props;
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
-  const navigate = useNavigate();
   const onEditTimeline = (timeline: APIData<Timeline>) => {
     GlobalWorld.focusedTimeline(timeline);
     setGlobalModal(MODAL.MANAGE_TIMELINE);
@@ -50,7 +47,7 @@ const TimelinesList = (props: TimelinesListProps) => {
 
   return (
     <>
-      <Card>
+      <Card className={className}>
         <CardTitle>Timelines</CardTitle>
 
         {/* Empty List message */}

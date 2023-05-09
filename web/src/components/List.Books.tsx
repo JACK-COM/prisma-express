@@ -25,10 +25,12 @@ type BooksListProps = {
   focusedBook?: APIData<Book> | null;
   books?: APIData<Book>[];
   series?: APIData<Series>[];
+  title?: string;
+  className?: string;
 };
 /** @component List of worlds */
 const BooksList = (props: BooksListProps) => {
-  const { books = [] } = props;
+  const { books = [], className, title = "Books and Series" } = props;
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
   const { setGlobalModal, MODAL } = useGlobalModal();
   const onEditBook = (book: APIData<Book>) => {
@@ -43,8 +45,8 @@ const BooksList = (props: BooksListProps) => {
     );
 
   return (
-    <Card>
-      <CardTitle>Books and Series</CardTitle>
+    <Card className={className}>
+      <CardTitle>{title}</CardTitle>
 
       {/* Empty List message */}
       {!books.length && (

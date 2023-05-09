@@ -1,35 +1,32 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import styled from "styled-components";
 import { Card, CardTitle } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
-import { Paths, insertId } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useGlobalWorld } from "hooks/GlobalWorld";
-import { useParams } from "react-router";
 import { GlobalWorld, updateAsError } from "state";
 import { SharedButtonProps } from "components/Forms/Button.Helpers";
 import ManageTimelineEventsModal from "components/Modals/ManageTimelineEventsModal";
 import ListView from "components/Common/ListView";
 import TimelineEventItem from "components/TimelineEventItem";
 import { deleteTimelineEvent } from "graphql/requests/timelines.graphql";
-import { loadTimelines } from "api/loadUserData";
-import { APIData, Timeline, UserRole, World } from "utils/types";
+import { APIData, Timeline, UserRole } from "utils/types";
 
-const { Timelines: TimelinePaths } = Paths;
 const AddEventButton = styled(ButtonWithIcon)`
   align-self: end;
 `;
 
 type TimelinesEventsListProps = {
   focusedTimeline?: APIData<Timeline> | null;
+  className?: string;
 };
 
 /** @component List of timeline events */
 const TimelinesEventsList = (props: TimelinesEventsListProps) => {
-  const { focusedTimeline } = props;
+  const { focusedTimeline, className } = props;
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
+  const { active, setGlobalModal, MODAL } = useGlobalModal();
   const { updateTimelines } = useGlobalWorld([]);
   const [timelineId, role, crumbTitle, timelineEvents] = useMemo(() => {
     const { authorId, id, name = "Timeline" } = focusedTimeline || {};
@@ -57,7 +54,7 @@ const TimelinesEventsList = (props: TimelinesEventsListProps) => {
 
   return (
     <>
-      <Card>
+      <Card className={className}>
         <CardTitle>{crumbTitle}</CardTitle>
         {/* Controls */}
         {authenticated && timelineEvents.length > 5 && controls("transparent")}

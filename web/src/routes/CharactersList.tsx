@@ -24,7 +24,7 @@ const CharactersListRoute = () => {
       description="Create or manage your <b>Characters</b> and realms here."
     >
       {/* List */}
-      <CharactersList />
+      <CharactersList className="fill" />
     </PageLayout>
   );
 };

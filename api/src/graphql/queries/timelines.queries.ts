@@ -31,9 +31,13 @@ export const getTimelineById = queryField("getTimelineById", {
    */
   resolve: async (_, { id }, { user }) => {
     const timeline = await TimelinesService.getTimeline({ id });
-    const isAuthor = timeline?.World.public || user?.id === timeline?.authorId;
+    if (timeline) {
+      const isAuthor =
+        timeline?.World?.public || user?.id === timeline?.authorId;
+      return !isAuthor ? null : timeline;
+    }
     // require public timeline or author
-    return !timeline || !isAuthor ? null : timeline;
+    return null;
   }
 });
 

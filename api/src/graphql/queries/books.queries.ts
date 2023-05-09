@@ -14,7 +14,10 @@ import {
 } from "nexus";
 import * as BooksService from "../../services/books.service";
 import * as SeriesService from "../../services/series.service";
-import { checkLibrary } from "../../services/libraries.service";
+import {
+  checkLibrary,
+  getUserLibraryBooks
+} from "../../services/libraries.service";
 import { DateTime } from "luxon";
 
 /**
@@ -126,9 +129,8 @@ export const listBooks = queryField("listBooks", {
       description: args.description || undefined,
       seriesId: args.seriesId || undefined
     });
-
-    // filter out private books if user is not the author
-    return books;
+    const libBooks = await getUserLibraryBooks(user?.id);
+    return [...books, ...libBooks];
   }
 });
 

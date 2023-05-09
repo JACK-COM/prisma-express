@@ -6,6 +6,7 @@
 import { Prisma, Library } from "@prisma/client";
 import { context } from "../graphql/context";
 import { DateTime } from "luxon";
+import { findAllBooks } from "./books.service";
 
 type UpsertLibraryInput =
   | Prisma.LibraryUpsertArgs["create"] & Prisma.LibraryUpsertArgs["update"];
@@ -56,6 +57,17 @@ export async function findAllLibraries(filters: SearchLibraryInput) {
 /** find one `Library` record by id */
 export async function getLibraryById(id: LibraryByIdInput["id"]) {
   return Libraries.findUnique({ where: { id }, include: LibraryContent });
+}
+
+/** Get books in library */
+export async function getUserLibraryBooks(userId?: Library["userId"]) {
+  if (!userId) return [];
+  const lib = await Libraries.findMany({ where: { userId } });
+  if (!lib.length) return [];
+
+  const bookIds: number[] = [];
+  lib.forEach(({ bookId }) => bookId && bookIds.push(bookId));
+  return findAllBooks({ id: bookIds });
 }
 
 /** delete one `Library` record matching params */

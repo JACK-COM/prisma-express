@@ -44,6 +44,7 @@ const FloatingButtons = styled.div`
 const routes = [
   Paths.Dashboard,
   Paths.Library,
+  Paths.BookStore,
   Paths.Characters,
   Paths.Worlds,
   Paths.Timelines

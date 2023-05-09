@@ -80,7 +80,6 @@ export const listWorlds = queryField("listWorlds", {
    */
   resolve: async (_, args, { user }) => {
     const { authorId, description, name } = args;
-
     if (!user?.id) return WorldsService.findAllWorld({ public: true });
 
     // return only public worlds or author

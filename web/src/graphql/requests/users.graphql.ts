@@ -5,6 +5,7 @@
 
 import fetchGQL from "graphql/fetch-gql";
 import { upsertUserMutation } from "graphql/mutations";
+import { getUserQuery } from "graphql/queries";
 import { APIData, User } from "utils/types";
 
 export type MicroUser = Pick<
@@ -25,6 +26,7 @@ export async function upsertUser(id: number, data: UpsertUserData) {
   const res = await fetchGQL<MicroUser | null>({
     query: upsertUserMutation(),
     variables: { id, data },
+    refetchQueries: [{ query: getUserQuery() }],
     fallbackResponse: null,
     onResolve: (x, errors) => errors || x.updateUser
   });

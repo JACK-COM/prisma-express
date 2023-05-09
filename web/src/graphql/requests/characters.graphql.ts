@@ -14,20 +14,18 @@ import { APIData, Character, CharacterRelationship } from "utils/types";
 
 /** Data required to create a character */
 type PartialId = { id?: number };
-export type CreateCharacterData =
-  | Omit<
-      Character,
-      "Event" | "Scene" | "Author" | "Group" | "Location" | "World"
-    > &
-      PartialId;
+export type CreateCharacterData = PartialId &
+  Omit<
+    Character,
+    "Event" | "Scene" | "Author" | "Group" | "Location" | "World"
+  >;
 
 /** Data required to create a relationship */
-export type CreateRelationshipData =
-  | Pick<
-      CharacterRelationship,
-      "characterId" | "authorId" | "targetId" | "relationship"
-    > &
-      PartialId;
+export type CreateRelationshipData = PartialId &
+  Pick<
+    CharacterRelationship,
+    "characterId" | "authorId" | "targetId" | "relationship"
+  >;
 
 /** @type `Character` search filters */
 export type CharacterFilters = APIData<
@@ -47,6 +45,9 @@ export async function upsertCharacter(raw: Partial<CreateCharacterData>) {
   });
   const newCharacter = await fetchGQL<APIData<Character> | null>({
     query: upsertCharacterMutation(),
+    refetchQueries: [
+      { query: listCharactersQuery(), variables: { authorId: raw.authorId } }
+    ],
     variables: { data: formatForAPI(raw) },
     onResolve: ({ upsertCharacter: list }, err) => err || list,
     fallbackResponse: null
@@ -59,8 +60,9 @@ export async function upsertCharacter(raw: Partial<CreateCharacterData>) {
 export async function deleteCharacter(id: number) {
   return fetchGQL<APIData<Character> | null>({
     query: deleteCharacterMutation(),
+    refetchQueries: [{ query: listCharactersQuery() }],
     variables: { id },
-    onResolve: ({ upsertCharacter: list }, err) => err || list,
+    onResolve: ({ deleteCharacter }, err) => err || deleteCharacter,
     fallbackResponse: null
   });
 }
@@ -85,6 +87,9 @@ export async function upsertRelationships(
   const newRelationship = await fetchGQL<APIData<CharacterRelationship> | null>(
     {
       query: upsertRelationshipsMutation(),
+      refetchQueries: [
+        { query: listRelationshipsQuery(), variables: { characterId } }
+      ],
       variables: { data },
       onResolve: ({ upsertRelationships: list }, err) => err || list,
       fallbackResponse: null
@@ -125,11 +130,14 @@ export async function listRelationships(
 }
 
 /** @mutation Delete a `Relationship` on the server */
-export async function deleteRelationship(id: number) {
+export async function deleteRelationship(id: number, characterId: number) {
   const respCharacter = await fetchGQL<APIData<Character> | null>({
     query: deleteRelationshipMutation(),
+    refetchQueries: [
+      { query: listRelationshipsQuery(), variables: { characterId } }
+    ],
     variables: { id },
-    onResolve: ({ upsertCharacter: list }, error) => error || list,
+    onResolve: ({ deleteRelationship: rel }, error) => error || rel,
     fallbackResponse: null
   });
 

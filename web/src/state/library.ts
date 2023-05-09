@@ -59,12 +59,68 @@ export function clearGlobalBooksState() {
   });
 }
 
+// Select next scene or chapter in list
+export function nextGlobalScene() {
+  const { focusedScene, focusedChapter, chapters } = GlobalLibrary.getState();
+  if (!focusedChapter || !focusedChapter.Scenes.length) return;
+
+  const scenes = focusedChapter.Scenes;
+  if (!focusedScene) {
+    GlobalLibrary.focusedScene(scenes[0]);
+    return;
+  }
+
+  const nextScene = scenes.find((s) => s.order > focusedScene?.order);
+  if (!nextScene) {
+    const nextChapter = chapters.find((c) => c.order > focusedChapter.order);
+    if (!nextChapter) return;
+    GlobalLibrary.multiple({
+      focusedChapter: nextChapter,
+      focusedScene: nextChapter.Scenes[0] || null
+    });
+  } else GlobalLibrary.focusedScene(nextScene);
+}
+
+// Select previous scene or chapter in list
+export function prevGlobalScene() {
+  const { focusedScene, focusedChapter, chapters } = GlobalLibrary.getState();
+  if (!focusedChapter || !focusedChapter.Scenes.length) return;
+
+  const scenes = focusedChapter.Scenes;
+  if (!focusedScene) {
+    GlobalLibrary.focusedScene(scenes[0]);
+    return;
+  }
+
+  const sceneIndex = scenes.findIndex((s) => s.id === focusedScene?.id);
+  if (sceneIndex <= 0) {
+    const chapterIndex = chapters.findIndex((s) => s.id === focusedChapter.id);
+    const prevChapter = chapters[chapterIndex - 1] || chapters[0];
+    if (!prevChapter) return;
+    GlobalLibrary.multiple({
+      focusedChapter: prevChapter,
+      focusedScene: prevChapter.Scenes[0] || null
+    });
+  } else GlobalLibrary.focusedScene(scenes[sceneIndex - 1]);
+}
+
 // Globally select a chapter and overwrite the selected scene
 export function setGlobalChapter(focusedChapter: APIData<Chapter>) {
   if (!focusedChapter.Scenes.length) return;
+  const { focusedScene, chapters } = GlobalLibrary.getState();
+  const fallbackScene = focusedChapter.Scenes[0] || null;
+  const scenes = focusedChapter.Scenes;
+  const nextScene = focusedScene
+    ? scenes.find((s) => s.id === focusedScene.id) || fallbackScene
+    : fallbackScene;
+  const nextChapters = chapters.map((c) =>
+    c.id === focusedChapter.id ? focusedChapter : c
+  );
+
   GlobalLibrary.multiple({
     focusedChapter,
-    focusedScene: focusedChapter.Scenes[0] || null
+    focusedScene: nextScene,
+    chapters: nextChapters
   });
 }
 

@@ -3,6 +3,7 @@
  * @description GraphQL requests relating to `Series`, `Books`, `Chapters`, and `Scenes`.
  */
 
+import { gql } from "@apollo/client";
 import fetchGQL from "graphql/fetch-gql";
 import {
   deleteBookMutation,
@@ -157,10 +158,7 @@ export async function listScenes(
 type ListSeriesFilters = Omit<
   UpsertSeriesData,
   "public" | "id" | "books" | "free"
-> & {
-  publicOnly: boolean;
-  freeOnly: boolean;
-};
+> & { publicOnly: boolean; freeOnly: boolean };
 
 /** Get a list of series with fetchGQL (filtered) */
 export async function listSeries(
@@ -180,8 +178,20 @@ export async function listSeries(
 
 /** Create/update a book with fetchGQL */
 export async function upsertBook(data: UpsertBookData): Promise<APIData<Book>> {
+  const refetchQueries: any[] = [{ query: listBooksQuery() }];
+  if (data.id) {
+    refetchQueries.push({ query: getBookQuery(), variables: { id: data.id } });
+  }
+  if (data.seriesId) {
+    refetchQueries.push({
+      query: getSeriesQuery(),
+      variables: { id: data.seriesId }
+    });
+  }
+
   return fetchGQL<APIData<Book>>({
     query: upsertBookMutation(),
+    refetchQueries,
     variables: { data },
     onResolve(x, errors) {
       return errors || x.upsertBook;
@@ -194,8 +204,14 @@ export async function upsertBook(data: UpsertBookData): Promise<APIData<Book>> {
 export async function upsertChapter(
   data: UpsertChapterData
 ): Promise<APIData<Chapter>> {
+  const refetchQueries: any[] = [
+    { query: gql(listChaptersQuery()) },
+    { query: gql(getBookQuery()), variables: { id: data.bookId } }
+  ];
+
   return fetchGQL<APIData<Chapter>>({
     query: upsertChapterMutation(),
+    refetchQueries,
     variables: { data },
     onResolve(x, errors) {
       return errors || x.upsertChapter;
@@ -206,8 +222,12 @@ export async function upsertChapter(
 
 /** Create/update a scene with fetchGQL */
 export async function upsertScene(data: UpsertSceneData) {
+  const refetchQueries: any[] = [
+    { query: gql(getChapterQuery()), variables: { id: data.chapterId } }
+  ];
   const res = await fetchGQL<APIData<Scene>>({
     query: upsertSceneMutation(),
+    refetchQueries,
     variables: { data: pruneSceneForAPI(data) },
     onResolve(x, errors) {
       return errors || x.upsertScene;
@@ -235,8 +255,17 @@ export async function getScene(id: number): Promise<APIData<Scene> | null> {
 export async function upsertSeries(
   data: UpsertSeriesData
 ): Promise<APIData<Series>> {
+  const refetchQueries: any[] = [{ query: listSeriesQuery() }];
+  if (data.id) {
+    refetchQueries.push({
+      query: getSeriesQuery(),
+      variables: { id: data.id }
+    });
+  }
+
   return fetchGQL<APIData<Series>>({
     query: upsertSeriesMutation(),
+    refetchQueries,
     variables: { data },
     onResolve(x, errors) {
       return errors || x.upsertSeries;
@@ -249,6 +278,10 @@ export async function upsertSeries(
 export async function publishSeries(id: number): Promise<APIData<Series>> {
   return fetchGQL<APIData<Series>>({
     query: publishSeriesMutation(),
+    refetchQueries: [
+      { query: listSeriesQuery() },
+      { query: getSeriesQuery(), variables: { id } }
+    ],
     variables: { id },
     onResolve(x, errors) {
       return errors || x.publishSeries;
@@ -261,6 +294,10 @@ export async function publishSeries(id: number): Promise<APIData<Series>> {
 export async function publishBook(id: number): Promise<APIData<Book>> {
   return fetchGQL<APIData<Book>>({
     query: publishBookMutation(),
+    refetchQueries: [
+      { query: listBooksQuery() },
+      { query: getBookQuery(), variables: { id } }
+    ],
     variables: { id },
     onResolve(x, errors) {
       return errors || x.publishBook;
@@ -273,6 +310,7 @@ export async function publishBook(id: number): Promise<APIData<Book>> {
 export async function deleteBook(id: number): Promise<APIData<Book>> {
   return fetchGQL<APIData<Book>>({
     query: deleteBookMutation(),
+    refetchQueries: [{ query: listBooksQuery() }],
     variables: { id },
     onResolve(x, errors) {
       return errors || x.deleteBook;
@@ -282,27 +320,34 @@ export async function deleteBook(id: number): Promise<APIData<Book>> {
 }
 
 /** Delete a chapter with fetchGQL */
-export async function deleteChapter(id: number): Promise<APIData<Chapter>> {
+export async function deleteChapter(
+  id: number,
+  bookId: number
+): Promise<APIData<Chapter>> {
   return fetchGQL<APIData<Chapter>>({
     query: deleteChapterMutation(),
+    refetchQueries: [
+      { query: gql(listChaptersQuery()) },
+      { query: gql(getBookQuery()), variables: { id: bookId } }
+    ],
     variables: { id },
-    onResolve(x, errors) {
-      return errors || x.deleteChapter;
-    },
+    onResolve: (x, errors) => errors || x.deleteChapter,
     fallbackResponse: undefined
   });
 }
 
 /** Delete a scene with fetchGQL */
 export async function deleteScene(
-  id: number
+  id: number,
+  chapterId: number
 ): Promise<APIData<Chapter> | null> {
   const res = await fetchGQL<APIData<Scene>>({
     query: deleteSceneMutation(),
+    refetchQueries: [
+      { variables: { id: chapterId }, query: getChapterQuery() }
+    ],
     variables: { id },
-    onResolve(x, errors) {
-      return errors || x.deleteScene;
-    },
+    onResolve: (x, errors) => errors || x.deleteScene,
     fallbackResponse: undefined
   });
 
@@ -314,6 +359,7 @@ export async function deleteScene(
 export async function deleteSeries(id: number): Promise<APIData<Series>> {
   return fetchGQL<APIData<Series>>({
     query: deleteSeriesMutation(),
+    refetchQueries: [{ query: listSeriesQuery() }],
     variables: { id },
     onResolve(x, errors) {
       return errors || x.deleteSeries;

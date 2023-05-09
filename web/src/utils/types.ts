@@ -123,11 +123,13 @@ export enum LocationType {
 export enum WorldType {
   /** A dimensional causal space (e.g. with planets, stars, etc) */
   Universe = "Universe",
+  /** A Galaxy */
+  Galaxy = "Galaxy",
   /** A planet-mass body with many sub-locations */
   Planet = "Planet",
   /** A non-dimensional space where causal events still occur */
   Realm = "Realm",
-  /** Something other than dimensional and non-dimensional */
+  /** Something other than dimensional and non-dimensional (e.g. star's orbit) */
   Other = "Other"
 }
 

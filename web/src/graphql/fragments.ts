@@ -38,6 +38,7 @@ export const MFWorldFragment = `
     id, name, description, type, public, authorId, parentWorldId, 
     Locations { ${MFLocationFragment} },
     Events { ${MFEventFragment} },
+    childWorlds,
 `;
 
 /** graphql `Timeline` fragment */

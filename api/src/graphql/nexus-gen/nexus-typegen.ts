@@ -184,7 +184,7 @@ export interface NexusGenEnums {
   LocationType: "Building" | "City" | "Continent" | "Country" | "Other" | "Region" | "Ruins" | "Settlement" | "Town" | "Village"
   Richness: "Abundant" | "Adequate" | "Barren" | "Sparse" | "Unspecified"
   UserRole: "Admin" | "Author" | "Moderator" | "Reader"
-  WorldType: "Other" | "Planet" | "Realm" | "Universe"
+  WorldType: "Galaxy" | "Other" | "Planet" | "Realm" | "Universe"
 }
 
 export interface NexusGenScalars {
@@ -594,8 +594,10 @@ export interface NexusGenFieldTypes {
     Events: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     Groups: Array<NexusGenRootTypes['MFPopulationGroup'] | null> | null; // [MFPopulationGroup]
     Locations: Array<NexusGenRootTypes['MFLocation'] | null> | null; // [MFLocation]
+    Subworlds: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
     Timelines: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
     authorId: number | null; // Int
+    childWorlds: number | null; // Int
     description: string; // String!
     id: number; // Int!
     image: string | null; // String
@@ -853,8 +855,10 @@ export interface NexusGenFieldTypeNames {
     Events: 'MFEvent'
     Groups: 'MFPopulationGroup'
     Locations: 'MFLocation'
+    Subworlds: 'MFWorld'
     Timelines: 'MFTimeline'
     authorId: 'Int'
+    childWorlds: 'Int'
     description: 'String'
     id: 'Int'
     image: 'String'

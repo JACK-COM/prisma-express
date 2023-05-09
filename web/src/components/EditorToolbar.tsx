@@ -1,6 +1,12 @@
 import styled from "styled-components";
 import { GridContainer } from "./Common/Containers";
-import { GlobalUser, MODAL, setGlobalModal } from "state";
+import {
+  GlobalUser,
+  MODAL,
+  nextGlobalScene,
+  prevGlobalScene,
+  setGlobalModal
+} from "state";
 import { ComponentPropsWithRef, Fragment, useMemo } from "react";
 import { Paths, downloadBookURL, insertId } from "routes";
 import { ButtonWithIcon } from "./Forms/Button";
@@ -14,6 +20,7 @@ const Toolbar = styled(GridContainer)`
   border-top: 1px solid ${({ theme }) => theme.colors.semitransparent};
   gap: ${({ theme }) => theme.sizes.xs};
   overflow-x: auto;
+  overflow-y: hidden;
   > .spacer {
     display: inline-block;
     width: 1px;
@@ -51,6 +58,16 @@ const TOOLBAR_BUTTONS = (o: ToolbarButtonOpts) => [
     onClick: () => setGlobalModal(MODAL.SELECT_CHAPTER)
   },
   { text: "Save", icon: "save", onClick: o.handleSave || noOp },
+  {
+    text: "Previous",
+    icon: "navigate_before",
+    onClick: prevGlobalScene
+  },
+  {
+    text: "Next",
+    icon: "navigate_next",
+    onClick: nextGlobalScene
+  },
   {
     text: "Autosave",
     icon: `check_box${o.saveOnBlur ? "" : "_outline_blank"}`,

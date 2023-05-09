@@ -627,10 +627,12 @@ type MFWorld {
   Events: [MFEvent]
   Groups: [MFPopulationGroup]
   Locations: [MFLocation]
+  Subworlds: [MFWorld]
   Timelines: [MFTimeline]
 
   """Book Author/owner"""
   authorId: Int
+  childWorlds: Int
   description: String!
   id: Int!
   image: String
@@ -795,6 +797,7 @@ enum UserRole {
 
 """A type of World (super-set of locations) """
 enum WorldType {
+  Galaxy
   Other
   Planet
   Realm

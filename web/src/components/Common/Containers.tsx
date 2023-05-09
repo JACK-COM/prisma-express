@@ -25,7 +25,11 @@ export const ExLink = styled.a.attrs({
 export const BaseContainer = styled.section``;
 
 /** UI bordered section */
-export const Card = styled(BaseContainer).attrs({ className: "card" })`
+export const Card = styled(BaseContainer).attrs<{ className?: string }>(
+  (props) => ({
+    className: `card ${props.className}`
+  })
+)`
   border: ${({ theme }) => `1px dotted ${theme.colors.semitransparent}`};
   border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
   padding: 0 1em 1em;

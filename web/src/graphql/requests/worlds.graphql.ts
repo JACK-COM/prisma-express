@@ -62,6 +62,10 @@ export async function upsertWorld(raw: Partial<CreateWorldData>) {
   };
   const newWorld = await fetchGQL<APIData<World> | null>({
     query: upsertWorldMutation(),
+    refetchQueries: [
+      { query: getWorldQuery(), variables: { id: raw.id } },
+      { query: listWorldsQuery() }
+    ],
     variables: { data },
     onResolve: ({ upsertWorld: list }, errors) => errors || list,
     fallbackResponse: null
@@ -74,6 +78,7 @@ export async function upsertWorld(raw: Partial<CreateWorldData>) {
 export async function deleteWorld(worldId: number) {
   const respWorld = await fetchGQL<APIData<World> | null>({
     query: deleteWorldMutation(),
+    refetchQueries: [{ query: listWorldsQuery() }],
     variables: { id: worldId },
     onResolve: ({ deleteWorld: list }, errors) => errors || list,
     fallbackResponse: null
@@ -98,6 +103,10 @@ export async function getLocation(locationId: number) {
 export async function upsertLocation(data: Partial<CreateLocationData>) {
   const newLocation = await fetchGQL<APIData<Location> | null>({
     query: upsertLocationMutation(),
+    refetchQueries: [
+      { query: getWorldQuery(), variables: { id: data.worldId } },
+      { query: listLocationsQuery(), variables: { worldId: data.worldId } }
+    ],
     variables: { data },
     onResolve: ({ upsertLocation: list }, errors) => errors || list,
     fallbackResponse: null

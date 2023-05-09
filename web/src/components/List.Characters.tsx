@@ -37,10 +37,11 @@ type CharactersListProps = {
   characters?: APIData<Character>[];
   focusedCharacter?: APIData<Character> | null;
   relationships?: APIData<CharacterRelationship>[];
+  className?: string;
 };
 
 /** @Component  List of characters */
-const CharactersList = (props: CharactersListProps) => {
+const CharactersList = ({ className }: CharactersListProps) => {
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
   const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const {
@@ -82,7 +83,7 @@ const CharactersList = (props: CharactersListProps) => {
 
   return (
     <>
-      <Card>
+      <Card className={className}>
         <CardTitle className="h4">Characters</CardTitle>
 
         {/* Empty List message */}

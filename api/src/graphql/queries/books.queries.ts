@@ -135,8 +135,8 @@ export const listBooks = queryField("listBooks", {
 });
 
 /** List all published books */
-export const listBookPublications = queryField("listBookPublications", {
-  type: list("MFBook"),
+export const searchPublications = queryField("searchPublications", {
+  type: "MFSearchResult",
   args: {
     title: stringArg(),
     genre: stringArg(),
@@ -148,15 +148,22 @@ export const listBookPublications = queryField("listBookPublications", {
 
   resolve: async (_, args, __dbCtx) => {
     const { authorId, freeOnly } = args;
-    return BooksService.findAllPublishedBooks({
+    const sharedOpts = {
       title: args.title || undefined,
       genre: args.genre || undefined,
       authorId,
       public: true,
-      free: freeOnly || false,
-      description: args.description || undefined,
-      seriesId: args.seriesId || undefined
-    });
+      description: args.description || undefined
+    };
+    const [books, series] = await Promise.all([
+      BooksService.findAllPublishedBooks({
+        ...sharedOpts,
+        free: freeOnly || false,
+        seriesId: args.seriesId || undefined
+      }),
+      SeriesService.findAllPublishedSeries(sharedOpts)
+    ]);
+    return { books, series };
   }
 });
 

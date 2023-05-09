@@ -17,6 +17,7 @@ export * from "./MFLocation";
 export * from "./MFPopulationGroup";
 export * from "./MFScene";
 export * from "./MFSceneContentLink";
+export * from "./MFSearchResult";
 export * from "./MFSeries";
 export * from "./MFTimeline";
 export * from "./MFTimelineEvent";

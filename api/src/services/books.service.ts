@@ -54,7 +54,7 @@ export async function findAllBooks(filters: SearchBookInput) {
 }
 
 function findAllWhereInput(filters: SearchBookInput) {
-  const where: Prisma.BookWhereInput = { public: filters.public };
+  const where: Prisma.BookWhereInput = {};
   where.OR = [];
   if (filters.id) where.id = { in: filters.id };
   if (filters.authorId) {
@@ -64,9 +64,10 @@ function findAllWhereInput(filters: SearchBookInput) {
     );
   } else where.OR.push({ public: true });
   if (filters.seriesId) where.seriesId = filters.seriesId;
-  if (filters.title) where.title = { contains: filters.title };
+  if (filters.title)
+    where.title = { contains: filters.title, mode: "insensitive" };
   if (filters.description)
-    where.description = { contains: filters.description };
+    where.description = { contains: filters.description, mode: "insensitive" };
 
   if (filters.published) {
     where.publishDate = { lte: DateTime.now().toISO() };
@@ -81,19 +82,8 @@ function findAllWhereInput(filters: SearchBookInput) {
 
 /** find all published `Book` records matching params */
 export async function findAllPublishedBooks(filters: SearchBookInput) {
-  const where: Prisma.BookWhereInput = {};
-  where.publishDate = { lte: DateTime.now().toISO() };
-  if (filters.id) where.id = { in: filters.id };
-  if (filters.seriesId) where.seriesId = filters.seriesId;
-  if (filters.title) where.title = { contains: filters.title };
-  if (filters.description)
-    where.description = { contains: filters.description };
-
-  if (filters.genre) {
-    where.OR = [];
-    where.OR.push({ genre: { contains: filters.genre } });
-  }
-
+  const where: Prisma.BookWhereInput = findAllWhereInput(filters);
+  where.AND = [{ publishDate: { lte: DateTime.now().toISO() } }];
   return Books.findMany({ where, include: BookContents });
 }
 

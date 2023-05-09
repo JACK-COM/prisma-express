@@ -1,24 +1,70 @@
-import { useEffect } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { gql, useLazyQuery } from "@apollo/client";
+import { searchTitlesQuery } from "graphql";
 import { Paths } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
 import PageLayout from "components/Common/PageLayout";
-import ChaptersList from "components/List.Books";
+import BooksList from "components/List.Books";
 import { clearGlobalBooksState } from "state";
-import { Form, FormRow, Input } from "components/Forms/Form";
+import {
+  Form,
+  FormRow,
+  Input,
+  RadioInput,
+  RadioLabel,
+  Select
+} from "components/Forms/Form";
 import { Card, CardTitle } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
+import { GENRES, suppressEvent } from "utils";
+import styled from "styled-components";
+import ListView from "components/Common/ListView";
+
+const SearchInput = styled(Input)`
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+  height: 100%;
+`;
+const SearchGenre = styled(Select)`
+  border-radius: 0;
+  height: 100%;
+`;
+const SearchButton = styled(ButtonWithIcon)`
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  height: 100%;
+`;
 
 const { BookStore } = Paths;
+const SEARCH_TITLES = gql(searchTitlesQuery());
 
 /** ROUTE: Find and add books to library */
 const BookStoreRoute = () => {
+  // const
+  const [searchBookstore, { loading, error, data }] =
+    useLazyQuery(SEARCH_TITLES);
   const { clearGlobalModal } = useGlobalModal();
-  const {
-    focusedBook,
-    books = [],
-    series = []
-  } = useGlobalLibrary(["books", "focusedBook", "series"]);
+  const { books, series, resultsCount, resultsDesc } = useMemo(() => {
+    const { books: b = [], series: s = [] } = data?.searchPublications || {};
+    const count = b.length + s.length;
+    return {
+      books: b,
+      series: s,
+      resultsCount: count,
+      resultsDesc: `${count} ${count === 1 ? "result" : "results"}:`
+    };
+  }, [data]);
+  const [searchType, setSearchType] = useState("title");
+  const [searchInput, setSearchInput] = useState("");
+  const [resultTitle, setResultTitle] = useState("Recent Publications");
+  const buildVars = () => ({ [searchType]: searchInput });
+  const onSearch = (e: FormEvent) => {
+    suppressEvent(e);
+    searchBookstore({ variables: buildVars() });
+    if (searchInput) setResultTitle(`Results for "${searchInput}"`);
+    setSearchInput("");
+  };
 
   const clearComponentData = () => {
     clearGlobalModal();
@@ -37,15 +83,49 @@ const BookStoreRoute = () => {
       description={`Add <b class="accent--text">Books and Series</b> to your Library.`}
     >
       {/* Search Form */}
-      <Card>
-        <CardTitle>Search titles</CardTitle>
-        <Form>
-          <FormRow columns="6fr 2fr; align-items:stretch">
-            <Input
-              style={{ height: "100%" }}
-              placeholder="Search Books and Series"
+      <Card className={data ? undefined : "fill"}>
+        <CardTitle>Find Books and Series</CardTitle>
+        <Form onSubmit={onSearch}>
+          <FormRow columns="4fr 1fr min-content" gap="0">
+            <SearchInput
+              placeholder="Enter title or description"
+              value={searchInput}
+              onChange={({ target }) => setSearchInput(target.value)}
             />
-            <ButtonWithIcon text="Find Titles" icon="search" />
+            <SearchGenre
+              // aria-invalid={!value}
+              data={GENRES.ALL}
+              // value={value}
+              itemText={(d) => d}
+              itemValue={(d) => d}
+              emptyMessage="No category selected."
+              placeholder="All genres"
+              // onChange={onChange}
+            />
+            <SearchButton text="Search" icon="search" />
+          </FormRow>
+
+          {/* Search type */}
+          <FormRow columns="max-content repeat(2, max-content)">
+            <span className="label">Search For:</span>
+            <RadioLabel>
+              <span>Titles</span>
+              <RadioInput
+                name="search-type"
+                value={searchType}
+                checked={searchType === "title"}
+                onChange={() => setSearchType("title")}
+              />
+            </RadioLabel>
+            <RadioLabel>
+              <span>Descriptions</span>
+              <RadioInput
+                name="search-type"
+                value={searchType}
+                checked={searchType === "description"}
+                onChange={() => setSearchType("description")}
+              />
+            </RadioLabel>
           </FormRow>
         </Form>
       </Card>
@@ -53,13 +133,18 @@ const BookStoreRoute = () => {
       <hr className="transparent" />
 
       {/* Search Results */}
-      <ChaptersList
-        className="fill"
-        title="Search Results"
-        books={books}
-        focusedBook={focusedBook}
-        series={series}
-      />
+      {data && (
+        <Card className="fill">
+          <CardTitle>{resultTitle}</CardTitle>
+          {resultsCount > 0 && <p>{resultsDesc}</p>}
+          <ListView
+            data={books}
+            itemText={(d) => d.title}
+            onItemClick={(d) => {}}
+            placeholder="No results found."
+          />
+        </Card>
+      )}
     </PageLayout>
   );
 };

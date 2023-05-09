@@ -487,6 +487,12 @@ input MFSceneUpsertInput {
   title: String!
 }
 
+"""A search result"""
+type MFSearchResult {
+  books: [MFBook]!
+  series: [MFSeries]!
+}
+
 """A collection of `Books` (e.g. a trilogy)"""
 type MFSeries {
   Author: MFAuthor
@@ -748,7 +754,6 @@ type Query {
   getTimelineById(id: Int!): MFTimeline
   getWorld(id: Int!): MFWorld
   getWorldById(id: Int!): MFWorld
-  listBookPublications(authorId: Int, description: String, freeOnly: Boolean = false, genre: String, seriesId: Int, title: String): [MFBook]
   listBooks(authorId: Int, description: String, free: Boolean = false, genre: String, public: Boolean = false, seriesId: Int, title: String): [MFBook]
   listChapters(authorId: Int, bookId: Int!, description: String, id: [Int!], title: String): [MFChapter]
 
@@ -776,6 +781,7 @@ type Query {
   List/filter multiple `Worlds`. Author can view their own worlds, a reader can view public worlds
   """
   listWorlds(authorId: Int, description: String, id: Int, name: String, public: Boolean = true): [MFWorld]
+  searchPublications(authorId: Int, description: String, freeOnly: Boolean = false, genre: String, seriesId: Int, title: String): MFSearchResult
 }
 
 """Relative abundance of resources."""

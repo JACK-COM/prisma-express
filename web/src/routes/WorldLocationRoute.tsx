@@ -25,6 +25,7 @@ import CharactersList from "components/List.Characters";
 const { Worlds: WorldPaths } = Paths;
 const AddItemButton = styled(ButtonWithIcon)`
   align-self: end;
+  width: 100%;
 `;
 const PageGrid = styled(GridContainer)`
   grid-template-columns: 4fr 1.5fr;
@@ -103,6 +104,11 @@ const WorldLocationRoute = () => {
     clearGlobalCharacter();
     GlobalCharacter.characters([]);
   };
+  const Title = (
+    <>
+      {worldIcon} {place}
+    </>
+  );
 
   useEffect(() => {
     loadComponentData();
@@ -114,14 +120,10 @@ const WorldLocationRoute = () => {
       <PageLayout
         id="world-locations"
         breadcrumbs={[WorldPaths.Index, WorldPaths.Locations]}
-        title={
-          <>
-            {worldIcon} {place}
-          </>
-        }
+        title={Title}
         description={`(<b class="${publicClass}">${worldPublic}</b>) Explore <b>${place}</b> in <b>${worldName}</b>`}
       >
-        <Card>
+        <Card className="fill">
           <CardTitle>{place}</CardTitle>
           <Description>No world or location found</Description>
         </Card>
@@ -132,14 +134,10 @@ const WorldLocationRoute = () => {
     <PageLayout
       id="world-locations"
       breadcrumbs={[WorldPaths.Index, WorldPaths.Locations]}
-      title={
-        <>
-          {worldIcon} {place}
-        </>
-      }
+      title={Title}
       description={`(<b class="${publicClass}">${worldPublic}</b>) Explore <b>${place}</b> in <b>${worldName}</b>`}
     >
-      <PageGrid gap="0.6rem">
+      <PageGrid className="fill" gap="0.6rem">
         <Card>
           <CardTitle>{place}</CardTitle>
           <Description
@@ -171,28 +169,20 @@ const WorldLocationRoute = () => {
             <>
               <Card>
                 <CardTitle>Location Actions</CardTitle>
-                <GridContainer columns="1fr" style={{ marginBottom: "1.5rem" }}>
-                  <AddItemButton
-                    icon="face"
-                    text="Add a Character"
-                    variant="outlined"
-                    // onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
-                  />
-                  <hr />
-                  <AddItemButton
-                    icon="manage_history"
-                    text="Add World Event"
-                    variant="outlined"
-                    // onClick={() => setGlobalModal(MODAL.MANAGE_WORLD_EVENTS)}
-                  />
-                  <hr />
-                  <AddItemButton
-                    icon="timeline"
-                    text="Add Timeline"
-                    variant="outlined"
-                    // onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
-                  />
-                </GridContainer>
+                <AddItemButton
+                  icon="face"
+                  text="Add a Character"
+                  variant="outlined"
+                  // onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
+                />
+                <hr className="transparent" />
+                <AddItemButton
+                  icon="book"
+                  text="Add Book"
+                  variant="outlined"
+                  // onClick={() => setGlobalModal(MODAL.MANAGE_WORLD_EVENTS)}
+                />
+                <hr className="transparent" />
               </Card>
               <hr />
             </>

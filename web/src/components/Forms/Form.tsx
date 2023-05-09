@@ -180,7 +180,7 @@ export const Form = styled.form`
 
 export const FormRow = styled(GridContainer)`
   place-content: space-between;
-  gap: 4px;
+  gap: ${({ gap = "4px" }) => gap};
   grid-template-columns: ${({ columns = "calc(50% - 2px) calc(50% - 2px)" }) =>
     columns};
 

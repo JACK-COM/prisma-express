@@ -26,8 +26,6 @@ export const getTimelineById = queryField("getTimelineById", {
    * database directly, or to access the authenticated `user` if the request has one.
    * @returns `MFTimeline` object from service
    * @throws Error if timeline not found or timeline is private and user is not the author
-   * @throws Error if timeline not found
-   * @throws Error if timeline is private and user is not the author
    */
   resolve: async (_, { id }, { user }) => {
     const timeline = await TimelinesService.getTimeline({ id });

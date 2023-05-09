@@ -196,6 +196,18 @@ model CharacterRelationship {
   Author       User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
 }
 
+// Collaborations track World-related contributions from multiple users.
+model WorldCollaboration {
+  id             Int  @id @default(autoincrement())
+  authorId       Int // ( references User )
+  collaboratorId Int // ( references User )
+  worldId        Int // ( references World | nullable )
+  locationId     Int? // ( references Location | nullable )
+  groupId        Int? // ( references Group | nullable )
+  timelineId     Int? // ( references Event | nullable )
+  characterId    Int? // ( references Character | nullable )
+}
+
 // Collaborations track content-specific contributions from multiple users.
 model Collaboration {
   id             Int  @id @default(autoincrement())

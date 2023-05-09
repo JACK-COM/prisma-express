@@ -327,6 +327,10 @@ export interface NexusGenObjects {
     seriesId?: number | null; // Int
     text: string; // String!
   }
+  MFSearchResult: { // root type
+    books: Array<NexusGenRootTypes['MFBook'] | null>; // [MFBook]!
+    series: Array<NexusGenRootTypes['MFSeries'] | null>; // [MFSeries]!
+  }
   MFSeries: { // root type
     Author?: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
     Books: Array<NexusGenRootTypes['MFBook'] | null>; // [MFBook]!
@@ -539,6 +543,10 @@ export interface NexusGenFieldTypes {
     seriesId: number | null; // Int
     text: string; // String!
   }
+  MFSearchResult: { // field return type
+    books: Array<NexusGenRootTypes['MFBook'] | null>; // [MFBook]!
+    series: Array<NexusGenRootTypes['MFSeries'] | null>; // [MFSeries]!
+  }
   MFSeries: { // field return type
     Author: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
     Books: Array<NexusGenRootTypes['MFBook'] | null>; // [MFBook]!
@@ -650,7 +658,6 @@ export interface NexusGenFieldTypes {
     getTimelineById: NexusGenRootTypes['MFTimeline'] | null; // MFTimeline
     getWorld: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     getWorldById: NexusGenRootTypes['MFWorld'] | null; // MFWorld
-    listBookPublications: Array<NexusGenRootTypes['MFBook'] | null> | null; // [MFBook]
     listBooks: Array<NexusGenRootTypes['MFBook'] | null> | null; // [MFBook]
     listChapters: Array<NexusGenRootTypes['MFChapter'] | null> | null; // [MFChapter]
     listCharacters: Array<NexusGenRootTypes['MFCharacter'] | null> | null; // [MFCharacter]
@@ -664,6 +671,7 @@ export interface NexusGenFieldTypes {
     listTimelines: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
     listWorldEvents: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     listWorlds: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
+    searchPublications: NexusGenRootTypes['MFSearchResult'] | null; // MFSearchResult
   }
 }
 
@@ -800,6 +808,10 @@ export interface NexusGenFieldTypeNames {
     seriesId: 'Int'
     text: 'String'
   }
+  MFSearchResult: { // field return type name
+    books: 'MFBook'
+    series: 'MFSeries'
+  }
   MFSeries: { // field return type name
     Author: 'MFAuthor'
     Books: 'MFBook'
@@ -911,7 +923,6 @@ export interface NexusGenFieldTypeNames {
     getTimelineById: 'MFTimeline'
     getWorld: 'MFWorld'
     getWorldById: 'MFWorld'
-    listBookPublications: 'MFBook'
     listBooks: 'MFBook'
     listChapters: 'MFChapter'
     listCharacters: 'MFCharacter'
@@ -925,6 +936,7 @@ export interface NexusGenFieldTypeNames {
     listTimelines: 'MFTimeline'
     listWorldEvents: 'MFEvent'
     listWorlds: 'MFWorld'
+    searchPublications: 'MFSearchResult'
   }
 }
 
@@ -1054,14 +1066,6 @@ export interface NexusGenArgTypes {
     getWorldById: { // args
       id: number; // Int!
     }
-    listBookPublications: { // args
-      authorId?: number | null; // Int
-      description?: string | null; // String
-      freeOnly?: boolean | null; // Boolean
-      genre?: string | null; // String
-      seriesId?: number | null; // Int
-      title?: string | null; // String
-    }
     listBooks: { // args
       authorId?: number | null; // Int
       description?: string | null; // String
@@ -1153,6 +1157,14 @@ export interface NexusGenArgTypes {
       id?: number | null; // Int
       name?: string | null; // String
       public: boolean | null; // Boolean
+    }
+    searchPublications: { // args
+      authorId?: number | null; // Int
+      description?: string | null; // String
+      freeOnly?: boolean | null; // Boolean
+      genre?: string | null; // String
+      seriesId?: number | null; // Int
+      title?: string | null; // String
     }
   }
 }

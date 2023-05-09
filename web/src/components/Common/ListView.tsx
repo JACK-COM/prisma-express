@@ -72,6 +72,7 @@ export type ListViewProps<T> = {
   ordered?: boolean;
   row?: boolean;
   grid?: boolean;
+  placeholder?: string;
   rounded?: boolean;
   dummyFirstItem?: ReactNode;
   dummyLastItem?: ReactNode;
@@ -89,6 +90,7 @@ const ListView = styled((props: ListViewProps<any>): JSX.Element => {
     onItemClick = noOp,
     rounded = true,
     grid = false,
+    placeholder,
     dummyFirstItem,
     dummyLastItem,
     ordered,
@@ -117,6 +119,10 @@ const ListView = styled((props: ListViewProps<any>): JSX.Element => {
           {itemText(item, i)}
         </ListViewItem>
       ))}
+
+      {placeholder && !data.length && (
+        <ListViewItem className={itemClassname}>{placeholder}</ListViewItem>
+      )}
 
       {dummyLastItem && (
         <ListViewItem className={itemClassname}>{dummyLastItem}</ListViewItem>

@@ -65,13 +65,17 @@ export const MFBookFragment = `
 
 /** graphql `Series` fragment */
 export const MFSeriesFragment = `
-    id, name, description, authorId, worldId,
-    Books {
-      ${MFBookFragment}
-    }
+    id, title, description, authorId, 
+    Books { ${MFBookFragment} }
 `;
 
 /** graphql `ContentLink` fragment */
 export const MFContentLinkFragment = `
     id, text, authorId, originId, seriesId, bookId, chapterId, sceneId
+`;
+
+/** search result fragment */
+export const MFSearchResultFragment = `
+    books { ${MFBookFragment} },
+    series { ${MFSeriesFragment} }
 `;

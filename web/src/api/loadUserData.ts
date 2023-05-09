@@ -120,21 +120,26 @@ export async function loadChapter(
   chapterId: number,
   skipUpdates = false
 ): Promise<ChapterUpdates> {
-  const noresponse: ChapterUpdates = {
+  const defResponse: ChapterUpdates = {
     focusedChapter: null,
     focusedScene: null,
     chapters: []
   };
-  if (!chapterId) return noresponse;
+  if (!chapterId) return defResponse;
 
   const focusedChapter = await getChapter(chapterId);
-  if (!focusedChapter) return noresponse;
+  if (!focusedChapter) return defResponse;
 
-  const updates = updateChaptersState([focusedChapter], true) as ChapterUpdates;
-  updates.focusedChapter = focusedChapter;
-  updates.focusedScene = focusedChapter.Scenes[0] || null;
-  if (!skipUpdates) GlobalLibrary.multiple(updates);
-  return updates;
+  if (skipUpdates) {
+    defResponse.focusedChapter = focusedChapter;
+    defResponse.focusedScene = focusedChapter.Scenes[0] || null;
+    defResponse.chapters = GlobalLibrary.getState().chapters.map((c) =>
+      c.id === chapterId ? focusedChapter : c
+    );
+    return defResponse;
+  }
+
+  return updateChaptersState([focusedChapter]) as ChapterUpdates;
 }
 
 /** Load and focus a single book */

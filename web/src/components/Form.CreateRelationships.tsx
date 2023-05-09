@@ -81,7 +81,7 @@ const CreateRelationshipsForm = (props: CreateRelationshipsProps) => {
   };
   const removeRelationship = async (i: number) => {
     const old = data[i];
-    if (old.id) await deleteRelationship(old.id);
+    if (old.id) await deleteRelationship(old.id, character.id);
     const next = data.filter((v, x) => x !== i);
     onChange(next);
   };

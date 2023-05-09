@@ -2,81 +2,41 @@ import { API_DL_BOOK_ROUTE } from "utils";
 /** All app routes for maximum convenience */
 export const Paths = {
   Search: {
-    Index: {
-      path: "/",
-      text: "Search"
-    },
-    Results: {
-      path: "/results",
-      text: "Search results"
-    }
+    Index: { path: "/", text: "Search" },
+    Results: { path: "/results", text: "Search results" }
   },
 
   Dashboard: {
-    Index: {
-      path: "/dashboard",
-      text: "Home"
-    },
-    Settings: {
-      path: "/dashboard/settings",
-      text: "Settings"
-    }
+    Index: { path: "/dashboard", text: "Home" },
+    Settings: { path: "/dashboard/settings", text: "Settings" }
   },
 
   Library: {
-    Index: {
-      path: "/library",
-      text: "Book Library"
-    },
+    Index: { path: "/library", text: "Book Library" },
     BookDeepLink: {
       path: "/library/books/:bookId/link/:chapterOrder/:sceneOrder",
       text: "View Book"
     },
-    BookPreview: {
-      path: "/library/books/:bookId/view",
-      text: "View Book"
-    },
-    BookEditor: {
-      path: "/library/books/:bookId/edit",
-      text: "Edit Book"
-    },
-    Series: {
-      path: "/library/series/:seriesId",
-      text: "View Book"
-    }
+    BookEditor: { path: "/library/books/:bookId/edit", text: "Edit Book" },
+    BookPreview: { path: "/library/books/:bookId/view", text: "View Book" },
+    Series: { path: "/library/series/:seriesId", text: "View Book" }
   },
 
+  BookStore: { Index: { path: "/bookstore", text: "Marketplace" } },
+
   Timelines: {
-    Index: {
-      path: "/timelines",
-      text: "Timelines"
-    },
-    Events: {
-      path: "/timelines/:timelineId/events",
-      text: "Timeline Events"
-    }
+    Index: { path: "/timelines", text: "Timelines" },
+    Events: { path: "/timelines/:timelineId/events", text: "Timeline Events" }
   },
 
   Characters: {
-    Index: {
-      path: "/characters",
-      text: "Cast & Characters"
-    },
-    Relationships: {
-      path: "/characters/relationships",
-      text: "Relationships"
-    }
+    Index: { path: "/characters", text: "Cast & Characters" },
+    Relationships: { path: "/characters/relationships", text: "Relationships" }
   },
 
   Worlds: {
-    Index: {
-      path: "/worlds",
-      text: "Worlds & Settings"
-    },
-    Locations: {
-      path: "/worlds/:worldId/locations",
-      text: "World Locations"
-    },
+    Index: { path: "/worlds", text: "Worlds & Settings" },
+    Locations: { path: "/worlds/:worldId/locations", text: "World Locations" },
     ExploreLocation: {
       path: "/worlds/:worldId/locations/:locationId/explore",
       text: "Location"

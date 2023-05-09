@@ -42,7 +42,7 @@ export function SceneItem(props: SceneItemProps) {
   const edit = requireAuthor(() => onEdit(scene), permissions, true);
   const onDeleteScene = async () => {
     const sceneId: number = scene.id;
-    const resp = await deleteScene(sceneId);
+    const resp = await deleteScene(sceneId, scene.chapterId);
     if (typeof resp === "string") updateAsError(resp);
     else if (resp) updateChaptersState([resp]);
   };

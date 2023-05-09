@@ -13,6 +13,11 @@ type SearchTimelineInput = Partial<
 type TimelineByIdInput = Pick<Timeline, "id">;
 const { Timelines } = context;
 
+const TimelineContent: Prisma.TimelineInclude = {
+  World: true,
+  TimelineEvents: { include: { Event: true }, orderBy: { order: "asc" } }
+};
+
 /** create timeline record */
 export async function upsertTimeline(tl: UpsertTimelineInput) {
   const data: UpsertTimelineInput = { ...tl };
@@ -21,13 +26,7 @@ export async function upsertTimeline(tl: UpsertTimelineInput) {
     ? Timelines.update({
         data,
         where: { id: data.id },
-        include: {
-          World: true,
-          TimelineEvents: {
-            include: { Event: true },
-            orderBy: { order: "asc" }
-          }
-        }
+        include: TimelineContent
       })
     : Timelines.create({ data });
 }
@@ -38,40 +37,23 @@ export async function findAllTimelines(filter: SearchTimelineInput) {
   const where: Prisma.TimelineWhereInput = {};
   if (id) where.id = id;
   if (name) where.name = { contains: name, mode: "insensitive" };
-  where.OR = [];
   if (worldId) where.worldId = worldId;
-  else where.OR.push({ World: { public: true } });
+  where.OR = [];
   if (authorId) {
     where.OR.push(
       { World: { public: false }, authorId },
-      { World: { public: true }, authorId }
+      { World: { public: true }, authorId },
+      { World: { public: true } }
     );
-  }
+  } else where.OR.push({ World: { public: true } });
 
-  return await Timelines.findMany({
-    where,
-    include: {
-      World: true,
-      TimelineEvents: {
-        include: { Event: true },
-        orderBy: { order: "asc" }
-      }
-    }
-  });
+  if (where.OR.length === 0) delete where.OR;
+  return await Timelines.findMany({ where, include: TimelineContent });
 }
 
 /** find one timeline record matching params */
 export async function getTimeline(where: TimelineByIdInput) {
-  return await Timelines.findUnique({
-    where,
-    include: {
-      World: true,
-      TimelineEvents: {
-        include: { Event: true },
-        orderBy: { order: "asc" }
-      }
-    }
-  });
+  return await Timelines.findUnique({ where, include: TimelineContent });
 }
 
 /** update one timeline record matching params */
@@ -79,17 +61,7 @@ export async function updateTimeline(
   where: TimelineByIdInput,
   data: UpsertTimelineInput
 ) {
-  return Timelines.update({
-    data,
-    where,
-    include: {
-      World: true,
-      TimelineEvents: {
-        include: { Event: true },
-        orderBy: { order: "asc" }
-      }
-    }
-  });
+  return Timelines.update({ data, where, include: TimelineContent });
 }
 
 /** delete a timeline */

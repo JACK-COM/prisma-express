@@ -88,6 +88,7 @@ enum LocationType {
 // A type of World (super-set of locations) 
 enum WorldType {
   Universe
+  Galaxy
   Planet
   Realm
   Other

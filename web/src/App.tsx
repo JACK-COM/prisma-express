@@ -16,6 +16,7 @@ import ManageSceneModal from "components/Modals/ManageSceneModal";
 import Home from "routes/Home";
 import ManageContentLinksModal from "components/Modals/ManageLinksModal";
 import ConfirmDeleteBookModal from "components/Modals/ConfirmDeleteBookModal";
+import BookStoreRoute from "routes/BookStore";
 
 const CharactersRoute = lazy(() => import("./routes/CharactersRoute"));
 const Dashboard = lazy(() => import("./routes/DashboardRoute"));
@@ -102,6 +103,16 @@ function App() {
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
                     <WorldsRoute />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                // Marketplace
+                path={wildcard(Paths.BookStore.Index.path)}
+                element={
+                  <Suspense fallback={<FullScreenLoader />}>
+                    <BookStoreRoute />
                   </Suspense>
                 }
               />

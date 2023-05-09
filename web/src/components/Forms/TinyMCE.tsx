@@ -74,14 +74,18 @@ export const TinyMCE = (props: TinyMCEProps) => {
   const { disabled, value, ...initOpts } = makeInitOpts(theme, otherProps);
 
   return (
-    <GrammarlyEditorPlugin clientId={GMLY_KEY} config={grammarlyConfig}>
+    <GrammarlyEditorPlugin
+      className="fill"
+      clientId={GMLY_KEY}
+      config={grammarlyConfig}
+    >
       <Editor
         apiKey={production ? TINY_KEY : undefined}
         tinymceScriptSrc={production ? undefined : `/tinymce/tinymce.min.js`}
         key={activeTheme}
         disabled={disabled}
         value={value || grammarlyConfig.introText}
-        init={{ ...initOpts, autosave_interval: "10s" }}
+        init={initOpts}
         onEditorChange={onChange}
         onBlur={autosave ? triggerSave : undefined}
       />
@@ -98,7 +102,7 @@ function prepInitOpts(opts: TinyMCEProps) {
     value: "",
     onChange: noOp,
     height: 500,
-    autosave_restore_when_empty: true,
+    // autosave_restore_when_empty: true,
     toolbar:
       "preview restoredraft | undo redo | blocks | " +
       "removeformat | bold italic forecolor | alignleft aligncenter " +
@@ -115,7 +119,7 @@ function makeInitOpts(
   opts: TinyMCEProps
 ): TinyMCEInit & ReturnType<typeof prepInitOpts> {
   const plugs = [...defaultPlugins];
-  if (opts.autosave) plugs.push("autosave");
+  // if (opts.autosave) plugs.push("autosave");
 
   return {
     menubar: false,
@@ -123,7 +127,13 @@ function makeInitOpts(
     content_style: `body { 
       color: ${theme.colors.secondary};
       font-size: 16px;
-    }`,
+    }
+    
+    .mce-content-body {
+      height: -webkit-fill-available;
+      height: 95%
+    }
+    `,
     plugins: plugs,
     skin: "oxide-dark",
     ...prepInitOpts(opts)

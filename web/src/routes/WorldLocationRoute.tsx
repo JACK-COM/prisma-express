@@ -78,7 +78,9 @@ const WorldLocationRoute = () => {
     ];
   }, [focusedWorld, focusedLocation]);
   const worldName = focusedWorld?.name || "a World";
-  const worldPublic = focusedWorld?.public ? "PUBLIC" : "PRIVATE";
+  const worldPublic = useMemo(() => {
+    return `${isPublic ? "PUBLIC" : "PRIVATE"} ${focusedLocation?.type}`;
+  }, [focusedWorld, focusedLocation]);
   const clearModalData = () => {
     clearGlobalModal();
     setGlobalLocation(null);

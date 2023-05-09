@@ -14,7 +14,7 @@ const classOverrides = css`
 `;
 const IconPaddingRight = ({ round }: { round?: boolean }) =>
   round ? 0 : "0.4rem";
-const defaultButtonCSS = css`
+export const defaultButtonCSS = css`
   align-items: center;
   background-color: ${UI.bgColor};
   border-radius: ${UI.borderRadius};

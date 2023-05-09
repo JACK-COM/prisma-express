@@ -153,7 +153,7 @@ export const listScenesQuery = () =>
 /** Get `Scene` */
 export const getSceneQuery = () =>
   `query GetScene($id: Int!) {  
-    getScene(id: $id) {
+    getSceneById(id: $id) {
       ${MFSceneFragment}
     }
   }`;

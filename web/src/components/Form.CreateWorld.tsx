@@ -25,8 +25,8 @@ export type CreateWorldProps = {
 };
 
 /** `WorldTypes` list */
-const { Universe, Realm, Planet, Other } = WorldType;
-const worldTypes = [Realm, Universe, Planet, Other];
+const { Universe, Realm, Galaxy, Planet, Other } = WorldType;
+const worldTypes = [Realm, Universe, Galaxy, Planet, Other];
 
 /** Create or edit a `World` */
 const CreateWorldForm = (props: CreateWorldProps) => {
@@ -40,6 +40,10 @@ const CreateWorldForm = (props: CreateWorldProps) => {
     const valid = worlds.filter((w) => w.id !== data?.id);
     switch (data?.type) {
       case Planet:
+        return valid.filter(({ type }) =>
+          [Realm, Universe, Galaxy, Other].includes(type)
+        );
+      case Galaxy:
         return valid.filter(({ type }) =>
           [Realm, Universe, Other].includes(type)
         );

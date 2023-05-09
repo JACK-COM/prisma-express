@@ -2,7 +2,7 @@ import createState from "@jackcom/raphsducks";
 import { ThemeProps, createGlobalStyle } from "styled-components";
 import DARK_THEME from "./theme.dark";
 import LIGHT_THEME from "./theme.light";
-import { AppTheme } from "./theme.shared";
+import { AppTheme, sidebarWidth } from "./theme.shared";
 
 export type UIThemeType = "Dark" | "Light";
 export type GlobalTheme = Record<UIThemeType, AppTheme> & {
@@ -39,6 +39,10 @@ const THEME: GlobalTheme = {
 
     .hide {
       display: none;
+    }
+
+    .transparent {
+      opacity: 0;
     }
 
     .accent { 
@@ -129,7 +133,7 @@ const THEME: GlobalTheme = {
   /* Main App container */
   .App {
     display: grid;
-    grid-template-columns: 160px auto;
+    grid-template-columns: ${sidebarWidth} auto;
     grid-template-rows: max-content;
     min-height: 100vh;
 

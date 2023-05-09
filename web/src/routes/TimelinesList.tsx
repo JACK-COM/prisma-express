@@ -27,7 +27,11 @@ const TimelinesListRoute = () => {
       title={TimelinePaths.Index.text}
       description="Create or manage your <b>Timelines</b> and <b>Events</b> here."
     >
-      <TimelinesList timelines={timelines} focusedTimeline={focusedTimeline} />
+      <TimelinesList
+        className="fill"
+        timelines={timelines}
+        focusedTimeline={focusedTimeline}
+      />
     </PageLayout>
   );
 };

@@ -34,7 +34,7 @@ const Container = styled(GridContainer)`
   align-items: start;
   background: ${({ theme }) => theme.colors.bgGradientDir('180deg')};
   color: ${({ theme }) => theme.colors.primary};
-  grid-template-columns: max-content;
+  grid-template-columns: 100%;
   grid-template-rows: max-content auto;
   grid-row: 1 / span 2;
   justify-content: start;

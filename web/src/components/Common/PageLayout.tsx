@@ -27,6 +27,11 @@ const autoColumn = css`
 const Page = styled(PageContainer)`
   ${autoColumn}
   grid-row: 2;
+  height: -webkit-fill-available;
+
+  .fill {
+    height: 100%;
+  }
 `;
 const PageHeader = styled.header`
   ${autoColumn}
@@ -46,16 +51,14 @@ const PageHeader = styled.header`
     background: transparent;
   }
 `;
+const Footer = styled.footer`
+  font-size: smaller;
+  padding: ${({ theme }) => theme.sizes.sm} 0;
+`;
 
 // Default Layout for app pages
 const PageLayout = (props: PageLayoutProps) => {
-  const {
-    title,
-    editableHeader = false,
-    breadcrumbs,
-    description,
-    children
-  } = props;
+  const { title, breadcrumbs, description, children } = props;
 
   return (
     // Header
@@ -68,10 +71,11 @@ const PageLayout = (props: PageLayoutProps) => {
       </PageHeader>
 
       <Page id="page-layout">
-        {breadcrumbs && Boolean(false) && <Breadcrumbs data={breadcrumbs} />}
+        {/* {breadcrumbs && Boolean(false) && <Breadcrumbs data={breadcrumbs} />} */}
 
         {/* Page content */}
         {children}
+        <Footer>© Copyright {new Date().getFullYear()} Mythos Forge </Footer>
       </Page>
     </>
   );

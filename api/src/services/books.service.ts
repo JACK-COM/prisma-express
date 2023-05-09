@@ -24,7 +24,10 @@ type SearchBookInput = Partial<
 const { Books, Chapters, Scenes } = context;
 const BookContents: Prisma.BookInclude = {
   Author: true,
-  Chapters: { orderBy: { order: "asc" } }
+  Chapters: {
+    include: { Scenes: { orderBy: { order: "asc" } } },
+    orderBy: { order: "asc" }
+  }
 };
 
 /** create or update `Book` record */
@@ -56,7 +59,7 @@ function findAllWhereInput(filters: SearchBookInput) {
   if (filters.id) where.id = { in: filters.id };
   if (filters.authorId) {
     where.OR.push(
-      { public: true },
+      { authorId: filters.authorId, public: true },
       { authorId: filters.authorId, public: false }
     );
   } else where.OR.push({ public: true });

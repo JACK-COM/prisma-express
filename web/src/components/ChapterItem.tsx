@@ -78,7 +78,7 @@ const ChapterItem = ({
   const edit = requireAuthor(() => onEditChapter(chapter), permissions);
   const remove = requireAuthor(
     async () => {
-      const res = await deleteChapter(chapter.id, chapter.bookId);
+      const res = await deleteChapter(chapter.id, chapter.bookId as number);
       if (typeof res === "string") {
         updateAsError(res);
       } else if (res) removeBookFromState(chapter.id);

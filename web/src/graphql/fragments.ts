@@ -35,10 +35,11 @@ export const MFLocationFragment = `
 
 /** graphql `World` fragment */
 export const MFWorldFragment = `
-    id, name, description, type, public, authorId, parentWorldId, 
+    id, name, description, type, public, authorId, image, parentWorldId, 
     Locations { ${MFLocationFragment} },
     Events { ${MFEventFragment} },
-    childWorlds,
+    childWorldsCount,
+    ChildWorlds { id, name, description, type, public, image, authorId }
 `;
 
 /** graphql `Timeline` fragment */

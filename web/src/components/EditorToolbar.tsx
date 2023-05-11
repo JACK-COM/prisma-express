@@ -16,8 +16,6 @@ import { getAndShowPrompt } from "api/loadUserData";
 
 const Toolbar = styled(GridContainer)`
   align-items: center;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.semitransparent};
-  border-top: 1px solid ${({ theme }) => theme.colors.semitransparent};
   gap: ${({ theme }) => theme.sizes.xs};
   overflow-x: auto;
   overflow-y: hidden;
@@ -91,7 +89,7 @@ const TOOLBAR_BUTTONS = (o: ToolbarButtonOpts) => [
   {
     text: "Prompt",
     icon: "tips_and_updates",
-    onClick: () => getAndShowPrompt()
+    onClick: () => getAndShowPrompt(undefined, true)
   }
 ];
 

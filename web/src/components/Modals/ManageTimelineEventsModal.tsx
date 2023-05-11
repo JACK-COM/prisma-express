@@ -1,7 +1,6 @@
 import {
   CreateTimelineEventData,
   deleteTimelineEvent,
-  upsertEvents,
   upsertTimelineEvents
 } from "graphql/requests/timelines.graphql";
 import Modal from "./Modal";

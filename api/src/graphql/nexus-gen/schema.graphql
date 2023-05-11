@@ -630,15 +630,15 @@ input MFUserUpsertInput {
 
 """A collection of `Locations`"""
 type MFWorld {
+  ChildWorlds: [MFWorld]
   Events: [MFEvent]
   Groups: [MFPopulationGroup]
   Locations: [MFLocation]
-  Subworlds: [MFWorld]
   Timelines: [MFTimeline]
 
   """Book Author/owner"""
   authorId: Int
-  childWorlds: Int
+  childWorldsCount: Int
   description: String!
   id: Int!
   image: String
@@ -780,7 +780,7 @@ type Query {
   """
   List/filter multiple `Worlds`. Author can view their own worlds, a reader can view public worlds
   """
-  listWorlds(authorId: Int, description: String, id: Int, name: String, public: Boolean = true): [MFWorld]
+  listWorlds(authorId: Int, description: String, id: Int, name: String, parentWorldId: Int, public: Boolean = true): [MFWorld]
   searchPublications(authorId: Int, description: String, freeOnly: Boolean = false, genre: String, seriesId: Int, title: String): MFSearchResult
 }
 

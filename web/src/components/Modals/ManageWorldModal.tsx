@@ -10,6 +10,7 @@ import {
   updateWorlds
 } from "state";
 import { ErrorMessage } from "components/Common/Containers";
+import { useGlobalWorld } from "hooks/GlobalWorld";
 
 /** Modal props */
 type ManageWorldModalProps = {
@@ -25,7 +26,8 @@ const emptyForm = (): Partial<CreateWorldData> => ({
 
 /** Specialized Modal for creating/editing a `World` */
 export default function ManageWorldModal(props: ManageWorldModalProps) {
-  const { data, open, onClose = clearGlobalModal } = props;
+  const { open, onClose = clearGlobalModal } = props;
+  const { focusedWorld: data } = useGlobalWorld(["focusedWorld"]);
   const [formData, setFormData] = useState(emptyForm());
   const [error, setLocalError] = useState("");
   const setError = (e: string, noteId?: number) => {

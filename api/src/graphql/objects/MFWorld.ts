@@ -19,11 +19,11 @@ export const MFWorld = objectType({
     t.list.field("Timelines", { type: "MFTimeline" });
     t.list.field("Events", { type: "MFEvent" });
     t.list.field("Groups", { type: "MFPopulationGroup" });
-    t.int("childWorlds", {
+    t.int("childWorldsCount", {
       resolve: ({ id }, _, { Worlds }) =>
         Worlds.count({ where: { parentWorldId: id } })
     });
-    t.list.field("Subworlds", {
+    t.list.field("ChildWorlds", {
       type: "MFWorld",
       resolve: ({ id }, _, { Worlds }) =>
         Worlds.findMany({ where: { parentWorldId: id } })

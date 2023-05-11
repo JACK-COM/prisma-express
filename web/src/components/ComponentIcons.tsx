@@ -13,7 +13,8 @@ import {
   removeWorld,
   updateAsError,
   setGlobalModal,
-  MODAL
+  MODAL,
+  setGlobalWorld
 } from "state";
 import { requireAuthor, noOp } from "utils";
 import { useMemo } from "react";
@@ -80,6 +81,8 @@ export const WorldPublicIcon = (props: WorldIconProps) => {
         return "grass";
       case WorldType.Universe:
         return "auto_awesome";
+      case WorldType.Galaxy:
+        return "storm";
       default:
         return "public";
     }
@@ -144,10 +147,9 @@ export const DeleteWorldIcon = (props: WorldIconProps & ItemIconProps) => {
   const iconClass = world.public ? "success--text" : "error--text";
   const title = world.public ? "Public World" : "Private World";
   const onDelete = requireAuthor(
-    async () => {
-      const resp = await deleteWorld(world.id);
-      if (typeof resp === "string") return updateAsError(resp);
-      if (resp) removeWorld(world.id);
+    () => {
+      setGlobalWorld(world);
+      setGlobalModal(MODAL.CONFIRM_DELETE_WORLD);
     },
     permissions,
     false

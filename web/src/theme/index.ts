@@ -21,7 +21,19 @@ const THEME: GlobalTheme = {
   }
   
   html {
-    height: minmax(100vh, auto);
+    min-height: 100vh;
+    height: fit-content;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color: #213547;
+      background: ${({ theme }) => theme.colors.bgGradientDir!('350deg')};
+    }
+
+    button {
+      background-color: #f9f9f9;
+    }
   }
 
   body {
@@ -134,7 +146,7 @@ const THEME: GlobalTheme = {
   .App {
     display: grid;
     grid-template-columns: ${sidebarWidth} auto;
-    grid-template-rows: max-content;
+    grid-auto-rows: 3.6rem auto;
     min-height: 100vh;
 
     @media screen and (max-width: 768px) {

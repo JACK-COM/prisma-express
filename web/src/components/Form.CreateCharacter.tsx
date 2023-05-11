@@ -124,7 +124,7 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
           from?
         </span>
         <Select
-          disabled={role === "Reader" || hasLocation}
+          // disabled={role === "Reader" || hasLocation}
           data={worlds}
           value={formData.worldId || ""}
           itemText={(w) => w.name}
@@ -136,8 +136,7 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
 
       {hasLocation ? (
         <Hint className="error--text">
-          This character {formData.id ? "is" : "will be"} linked to the current
-          world or location.
+          This character is linked to the current world or location.
         </Hint>
       ) : (
         <Hint>

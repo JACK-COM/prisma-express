@@ -1,5 +1,6 @@
 import { AppRouteDef } from "routes";
 import {
+  GridContainer,
   PageContainer,
   PageDescription,
   PageTitleVariable
@@ -24,13 +25,14 @@ const autoColumn = css`
     grid-row: unset;
   }
 `;
-const Page = styled(PageContainer)`
+const Page = styled(GridContainer)`
+  display: block;
   ${autoColumn}
   grid-row: 2;
   height: -webkit-fill-available;
 
   .fill {
-    height: 100%;
+    min-height: calc(100vh - 100px);
   }
 `;
 const PageHeader = styled.header`
@@ -53,7 +55,10 @@ const PageHeader = styled.header`
 `;
 const Footer = styled.footer`
   font-size: smaller;
-  padding: ${({ theme }) => theme.sizes.sm} 0;
+  line-height: 2.4rem;
+  grid-column: 1 / -1;
+  grid-row: 3 / 3;
+  padding: 0 ${({ theme }) => theme.sizes.sm};
 `;
 
 // Default Layout for app pages
@@ -75,6 +80,8 @@ const PageLayout = (props: PageLayoutProps) => {
 
         {/* Page content */}
         {children}
+
+        {/* Footer */}
         <Footer>© Copyright {new Date().getFullYear()} Mythos Forge </Footer>
       </Page>
     </>

@@ -64,6 +64,7 @@ export const listWorlds = queryField("listWorlds", {
   args: {
     id: intArg(),
     authorId: intArg(),
+    parentWorldId: intArg(),
     description: stringArg({ default: undefined }),
     name: stringArg({ default: undefined }),
     public: booleanArg({ default: true })
@@ -80,15 +81,15 @@ export const listWorlds = queryField("listWorlds", {
    */
   resolve: async (_, args, { user }) => {
     const { authorId, description, name } = args;
+    // enforce public worlds if no authed user
     if (!user?.id) return WorldsService.findAllWorld({ public: true });
 
-    // return only public worlds or author
     const worlds = await WorldsService.findAllWorld({
       id: args.id || undefined,
       authorId: authorId || undefined,
+      parentWorldId: args.parentWorldId || undefined,
       description: description || undefined,
       name: name || undefined,
-      // enforce public worlds if no authed user
       public: args.public || undefined
     });
     return worlds;

@@ -7,7 +7,14 @@ import { ErrorMessage } from "components/Common/Containers";
 import CreateWorldEventsForm from "components/Form.CreateWorldEvents";
 import { useEffect, useState } from "react";
 import { useGlobalWorld } from "hooks/GlobalWorld";
-import { clearGlobalModal, updateAsError } from "state";
+import {
+  addNotification,
+  clearGlobalModal,
+  setGlobalWorld,
+  updateAsError,
+  updateNotification,
+  updateWorlds
+} from "state";
 import { mergeLists } from "utils";
 
 /** Modal props */
@@ -23,13 +30,14 @@ const emptyForm = (): Partial<CreateEventData>[] => [];
 // API form data (to prevent gql errors)
 const condenseFormData = (data: Partial<CreateEventData>[]) =>
   data.map((item) => ({
-    id: item.id,
-    name: item.name,
+    authorId: item.authorId,
     description: item.description,
-    target: item.target,
-    polarity: item.polarity,
     groupId: item.groupId,
+    id: item.id,
     locationId: item.locationId,
+    name: item.name,
+    polarity: item.polarity,
+    target: item.target,
     worldId: item.worldId
   }));
 
@@ -37,20 +45,21 @@ const condenseFormData = (data: Partial<CreateEventData>[]) =>
 export default function ManageWorldEventsModal(
   props: ManageWorldEventsModalProps
 ) {
-  const { data = [], open, onClose = clearGlobalModal } = props;
-  const { updateEvents } = useGlobalWorld(["events"]);
+  const { open, onClose = clearGlobalModal } = props;
+  const { focusedWorld } = useGlobalWorld(["focusedWorld"]);
+  const { Events: data = [] } = focusedWorld || {};
   const [error, setError] = useState("");
-  const [notificationId, setNotificationId] = useState(-1);
   const [formData, setFormData] = useState<Partial<CreateEventData>[]>(
     data?.length ? condenseFormData(data) : emptyForm()
   );
-  const onErr = (err: string) => {
+  const onErr = (err: string, noteId?: number) => {
     setError(err);
-    setNotificationId(updateAsError(err, notificationId));
+    updateAsError(err, noteId);
   };
   const resetForm = () => setFormData(emptyForm());
   const submit = async () => {
     // validate
+    if (!focusedWorld) return onErr("No world selected.");
     const errorMessage = formData.reduce((acc, item) => {
       if (acc.length > 0) return acc;
       if (!item.name) return "Name is required on all items.";
@@ -62,11 +71,13 @@ export default function ManageWorldEventsModal(
     if (errorMessage.length > 0) return;
 
     // Create & notify
+    const noteId = addNotification("Saving events...");
     const resp = await upsertEvents(formData);
-    if (typeof resp === "string") setError(resp);
-    else if (!resp) return;
+    if (typeof resp === "string") onErr(resp, noteId);
+    else if (!resp) return onErr("Failed to save events.", noteId);
 
-    updateEvents(resp);
+    updateNotification("Events saved!", noteId);
+    updateWorlds([resp]);
     resetForm();
     onClose();
   };

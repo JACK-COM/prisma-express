@@ -14,13 +14,12 @@ import WorldLocationsList from "../components/List.WorldLocations";
 import PageLayout from "components/Common/PageLayout";
 import TimelinesList from "components/List.Timelines";
 import { loadTimelines } from "api/loadUserData";
-import { GlobalCharacter, clearGlobalCharacter } from "state";
+import { GlobalCharacter, MODAL, clearGlobalCharacter } from "state";
 import CharactersList from "components/List.Characters";
+import WorldsList from "components/List.Worlds";
+import WorldActions from "components/WorldActions";
 
 const { Worlds: WorldPaths } = Paths;
-const AddItemButton = styled(ButtonWithIcon)`
-  align-self: end;
-`;
 const PageGrid = styled(GridContainer)`
   grid-template-columns: 4fr 1.5fr;
   @media (max-width: 768px) {
@@ -30,29 +29,27 @@ const PageGrid = styled(GridContainer)`
 
 /** @route List of World `Locations` */
 const WorldLocationsListRoute = () => {
-  const { id: userId, authenticated } = useGlobalUser(["id"]);
+  const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
   const { clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
   const {
     clearGlobalWorld,
     setGlobalLocation,
     focusedLocation,
-    focusedWorld,
     focusedTimeline,
+    focusedWorld,
     timelines = [],
     worldLocations = []
   } = useGlobalWorld([
-    "focusedWorld",
     "focusedLocation",
     "focusedTimeline",
+    "focusedWorld",
     "timelines",
     "worldLocations"
   ]);
-  const { worldId } = useParams<{ worldId: string }>();
+  const { worldId: wid } = useParams<{ worldId: string }>();
+  const worldId = useMemo(() => Number(wid), [wid]);
   const worldTimelines = useMemo(
-    () =>
-      Boolean(worldId) && timelines.length > 0
-        ? timelines.filter(({ worldId: wid }) => wid === Number(worldId))
-        : [],
+    () => timelines.filter(({ worldId: w }) => w === worldId),
     [timelines]
   );
   const [place, isPublic, publicClass, isAuthor, worldIcon] = useMemo(() => {
@@ -67,7 +64,10 @@ const WorldLocationsListRoute = () => {
       focusedWorld && <WorldPublicIcon data={focusedWorld} permissions={role} />
     ];
   }, [focusedWorld]);
-  const worldName = focusedWorld?.name || "a World";
+  const [ChildWorlds, worldDesc] = useMemo(() => {
+    if (!focusedWorld) return [[], "All <b>unique locations</b>"];
+    return [focusedWorld.ChildWorlds, focusedWorld.description];
+  }, [focusedWorld]);
   const worldType = `${focusedWorld?.public ? "PUBLIC" : "PRIVATE"} ${
     focusedWorld?.type
   }`;
@@ -88,71 +88,59 @@ const WorldLocationsListRoute = () => {
     clearGlobalCharacter();
     GlobalCharacter.characters([]);
   };
+  const PageTitle = (
+    <>
+      {worldIcon} {place}
+    </>
+  );
 
   useEffect(() => {
     loadComponentData();
     return clearComponentData;
-  }, []);
+  }, [worldId]);
 
   return (
     <PageLayout
       id="world-locations"
       breadcrumbs={[WorldPaths.Index, WorldPaths.Locations]}
-      title={
-        <>
-          {worldIcon} {place}
-        </>
-      }
-      description={`(<b class="${publicClass}">${worldType}</b>) All <b>unique story settings</b> in <b>${worldName}</b>`}
+      title={PageTitle}
+      description={`(<b class="${publicClass}">${worldType}</b>) ${worldDesc}`}
     >
-      <PageGrid gap="0.6rem">
-        <WorldLocationsList
-          showDescription
-          focusedWorld={focusedWorld}
-          focusedLocation={focusedLocation}
-          worldLocations={worldLocations}
-        />
-
-        <div>
-          {authenticated && (isAuthor || isPublic) && (
+      <PageGrid className="fill" gap="0.6rem">
+        <section>
+          {ChildWorlds.length > 0 && (
             <>
-              <Card>
-                <CardTitle>World Actions</CardTitle>
-                <GridContainer columns="1fr" style={{ marginBottom: "1.5rem" }}>
-                  <AddItemButton
-                    icon="face"
-                    text="Add a Character"
-                    variant="outlined"
-                    onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
-                  />
-                  <hr />
-                  <AddItemButton
-                    icon="manage_history"
-                    text="Add World Event"
-                    variant="outlined"
-                    onClick={() => setGlobalModal(MODAL.MANAGE_WORLD_EVENTS)}
-                  />
-                  <hr />
-                  <AddItemButton
-                    icon="timeline"
-                    text="Add Timeline"
-                    variant="outlined"
-                    onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
-                  />
-                </GridContainer>
-              </Card>
-              <hr />
+              <WorldsList worlds={ChildWorlds} focusedWorld={focusedWorld} />
+              <hr className="transparent" />
             </>
           )}
 
-          <TimelinesList
-            timelines={worldTimelines}
-            focusedTimeline={focusedTimeline}
+          <WorldLocationsList
+            showDescription
+            focusedWorld={focusedWorld}
+            focusedLocation={focusedLocation}
+            worldLocations={worldLocations}
           />
+        </section>
 
-          <hr />
+        <aside>
+          {authenticated && (isAuthor || isPublic) && (
+            <>
+              <WorldActions />
+              <hr className="transparent" />
+            </>
+          )}
+
+          {(focusedWorld?.Events ?? []).length > 0 && (
+            <TimelinesList
+              timelines={worldTimelines}
+              focusedTimeline={focusedTimeline}
+            />
+          )}
+
+          <hr className="transparent" />
           <CharactersList />
-        </div>
+        </aside>
       </PageGrid>
     </PageLayout>
   );

@@ -15,9 +15,18 @@ import {
 import {
   getTimelineQuery,
   listWorldEventsQuery,
-  listTimelinesQuery
+  listTimelinesQuery,
+  getWorldQuery,
+  listWorldsQuery
 } from "graphql/queries";
-import { APIData, WorldEvent, Timeline, TimelineEvent } from "utils/types";
+import { GlobalUser } from "state";
+import {
+  APIData,
+  WorldEvent,
+  Timeline,
+  TimelineEvent,
+  World
+} from "utils/types";
 
 // Shared ID type
 type ItemID = { id?: number };
@@ -42,16 +51,24 @@ export type CreateTimelineEventData = ItemID &
 
 // Use fetchGQL to create/update one or more `Events` on the server
 export async function upsertEvents(data: Partial<CreateEventData>[]) {
-  return fetchGQL<APIData<WorldEvent>[]>({
+  const { id: authorId } = GlobalUser.getState();
+  const resp = await fetchGQL<APIData<WorldEvent>[]>({
     query: upsertEventMutation(),
-    refetchQueries: [
-      { query: listTimelinesQuery() },
-      { query: getTimelineQuery(), variables: { id: data[0].id } }
-    ],
+    refetchQueries: [{ query: listWorldsQuery(), variables: { authorId } }],
     variables: { data },
     onResolve: ({ upsertEvents: list }, errors) => errors || list,
     fallbackResponse: []
   });
+
+  if (Array.isArray(resp))
+    return fetchGQL<APIData<World> | null>({
+      query: getWorldQuery(),
+      variables: { id: resp[0].worldId },
+      onResolve: ({ getWorld: world }, errors) => errors || world,
+      fallbackResponse: null
+    });
+
+  return resp;
 }
 
 // Use fetchGQL to create or update a `Timeline` on the server

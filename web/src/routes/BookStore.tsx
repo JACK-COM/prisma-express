@@ -57,22 +57,26 @@ const BookStoreRoute = () => {
   }, [data]);
   const [searchType, setSearchType] = useState("title");
   const [searchInput, setSearchInput] = useState("");
+  const [searchGenre, setSearchGenre] = useState("");
   const [resultTitle, setResultTitle] = useState("Recent Publications");
-  const buildVars = () => ({ [searchType]: searchInput });
+  const buildVars = () => {
+    const vars = { [searchType]: searchInput };
+    if (searchGenre) vars.genre = searchGenre;
+    return vars;
+  };
   const onSearch = (e: FormEvent) => {
     suppressEvent(e);
     searchBookstore({ variables: buildVars() });
     if (searchInput) setResultTitle(`Results for "${searchInput}"`);
     setSearchInput("");
-  };
-
-  const clearComponentData = () => {
-    clearGlobalModal();
-    clearGlobalBooksState();
+    setSearchGenre("");
   };
 
   useEffect(() => {
-    return () => clearComponentData();
+    return () => {
+      clearGlobalModal();
+      clearGlobalBooksState();
+    };
   }, []);
 
   return (
@@ -93,14 +97,13 @@ const BookStoreRoute = () => {
               onChange={({ target }) => setSearchInput(target.value)}
             />
             <SearchGenre
-              // aria-invalid={!value}
               data={GENRES.ALL}
-              // value={value}
+              value={searchGenre}
               itemText={(d) => d}
               itemValue={(d) => d}
               emptyMessage="No category selected."
               placeholder="All genres"
-              // onChange={onChange}
+              onChange={(genre) => setSearchGenre(genre)}
             />
             <SearchButton text="Search" icon="search" />
           </FormRow>
@@ -130,20 +133,22 @@ const BookStoreRoute = () => {
         </Form>
       </Card>
 
-      <hr className="transparent" />
-
       {/* Search Results */}
       {data && (
-        <Card className="fill">
-          <CardTitle>{resultTitle}</CardTitle>
-          {resultsCount > 0 && <p>{resultsDesc}</p>}
-          <ListView
-            data={books}
-            itemText={(d) => d.title}
-            onItemClick={(d) => {}}
-            placeholder="No results found."
-          />
-        </Card>
+        <>
+          <hr className="transparent" />
+
+          <Card className="fill">
+            <CardTitle>{resultTitle}</CardTitle>
+            {resultsCount > 0 && <p>{resultsDesc}</p>}
+            <ListView
+              data={books}
+              itemText={(d) => d.title}
+              onItemClick={(d) => {}}
+              placeholder="No results found."
+            />
+          </Card>
+        </>
       )}
     </PageLayout>
   );

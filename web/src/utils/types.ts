@@ -338,18 +338,22 @@ export type TimelineEvent = {
   Pick<TimelineRelation, "Timeline">;
 
 /** A `World` is the superset of locations where a story occurs */
-export type World = {
+export type WorldCore = {
   public: boolean;
   name: string;
   description: string;
   type: WorldType;
-  parentWorldId?: number;
   image?: string;
+};
+export type World = WorldCore & {
+  childWorldsCount: number;
+  parentWorldId?: number;
   Locations: APIData<Location>[];
   Timelines: APIData<Timeline>[];
   Events: APIData<WorldEvent>[];
   Groups: APIData<PopulationGroup>[];
   Characters: APIData<Character>[];
+  ChildWorlds: APIData<WorldCore>[];
 } & AuthorRelation;
 
 export type PermissionProps = { permissions: UserRole };

@@ -3,7 +3,6 @@ import { APIData, UserRole, World } from "utils/types";
 import { noOp, suppressEvent } from "utils";
 import {
   MatIcon,
-  ItemDescription,
   ItemLinkContainer,
   ItemName,
   ItemGridContainer,
@@ -36,12 +35,14 @@ type WorldItemProps = {
   onEdit?: (w: APIData<World>) => void;
   onSelect?: (w: APIData<World>) => void;
   permissions?: UserRole;
+  showControls?: boolean;
 };
 const WorldItem = ({
   world,
   onSelect,
   onEdit = noOp,
-  permissions = "Reader"
+  permissions = "Reader",
+  showControls = false
 }: WorldItemProps) => {
   const url = insertId(Paths.Worlds.Locations.path, world.id);
   const edit = requireAuthor(() => onEdit(world), permissions);
@@ -65,7 +66,7 @@ const WorldItem = ({
         </span>
       </GridItemName>
 
-      {permissions === "Author" && (
+      {permissions === "Author" && showControls && (
         <GridItemControls columns="max-content auto">
           <GridContainer
             columns="repeat(3, 1fr)"

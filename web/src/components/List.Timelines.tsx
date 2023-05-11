@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { Card, CardTitle } from "components/Common/Containers";
 import { ButtonWithIcon } from "components/Forms/Button";
-import CreateTimelineModal from "components/Modals/ManageTimelineModal";
 import ListView from "components/Common/ListView";
 import TimelineItem from "components/TimelineItem";
 import { useGlobalModal } from "hooks/GlobalModal";
@@ -28,22 +27,23 @@ type TimelinesListProps = {
 
 /** @component List of timelines */
 const TimelinesList = (props: TimelinesListProps) => {
-  const { focusedTimeline, timelines = [], className } = props;
+  const { timelines = [], className } = props;
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
+  const { setGlobalModal, MODAL } = useGlobalModal();
   const onEditTimeline = (timeline: APIData<Timeline>) => {
     GlobalWorld.focusedTimeline(timeline);
     setGlobalModal(MODAL.MANAGE_TIMELINE);
   };
-  const controls = (variant: SharedButtonProps["variant"] = "outlined") => (
-    <AddTimelineButton
-      size="lg"
-      icon="timeline"
-      text="Create New Timeline"
-      variant={variant}
-      onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
-    />
-  );
+  const controls = (variant: SharedButtonProps["variant"] = "outlined") =>
+    authenticated && (
+      <AddTimelineButton
+        size="lg"
+        icon="timeline"
+        text="Create New Timeline"
+        variant={variant}
+        onClick={() => setGlobalModal(MODAL.MANAGE_TIMELINE)}
+      />
+    );
 
   return (
     <>
@@ -58,12 +58,11 @@ const TimelinesList = (props: TimelinesListProps) => {
           </EmptyText>
         )}
 
-        {/* Add new (button - top) */}
-        {authenticated && timelines.length > 5 && controls("transparent")}
-
         {/* List */}
         <List
           data={timelines}
+          dummyFirstItem={timelines.length > 5 && controls("transparent")}
+          dummyLastItem={controls()}
           itemText={(timeline: APIData<Timeline>) => (
             <TimelineItem
               timeline={timeline}
@@ -72,17 +71,7 @@ const TimelinesList = (props: TimelinesListProps) => {
             />
           )}
         />
-
-        {/* Add new (button - bottom) */}
-        {authenticated && controls()}
       </Card>
-
-      {/* Modal */}
-      <CreateTimelineModal
-        data={focusedTimeline}
-        open={active === MODAL.MANAGE_TIMELINE}
-        onClose={clearGlobalModal}
-      />
     </>
   );
 };

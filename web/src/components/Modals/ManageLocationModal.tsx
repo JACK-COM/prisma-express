@@ -5,7 +5,13 @@ import {
 } from "graphql/requests/worlds.graphql";
 import { useEffect, useState } from "react";
 import Modal from "./Modal";
-import { clearGlobalModal, removeNotification, updateAsError } from "state";
+import {
+  addNotification,
+  clearGlobalModal,
+  removeNotification,
+  updateAsError,
+  updateNotification
+} from "state";
 import { APIData, Climate, Location } from "utils/types";
 import { Richness } from "utils/types";
 import { useGlobalWorld } from "hooks/GlobalWorld";
@@ -20,33 +26,26 @@ type ManageLocationModalProps = {
   onClose?: () => void;
 };
 
+const DEFAULT_ENVIRONMENT: Partial<CreateLocationData> = {
+  climate: Climate.Temperate,
+  flora: Richness.Adequate,
+  fauna: Richness.Adequate
+};
+
 /** Specialized Modal for creating/editing a World `Location` */
 export default function ManageLocationModal(props: ManageLocationModalProps) {
   const { data, open, onClose = clearGlobalModal, worldId } = props;
   const { updateLocations } = useGlobalWorld(["worldLocations"]);
   const [error, setError] = useState("");
-  const [notificationId, setNotificationId] = useState<number>(-1);
-  const [formData, setFormData] = useState<Partial<CreateLocationData>>({
-    climate: Climate.Temperate,
-    flora: Richness.Adequate,
-    fauna: Richness.Adequate
-  });
-  const onError = (err: string) => {
+  const [formData, setFormData] =
+    useState<Partial<CreateLocationData>>(DEFAULT_ENVIRONMENT);
+  const onError = (err: string, noteId?: number) => {
     setError(err);
-    setNotificationId(updateAsError(err, notificationId));
+    updateAsError(err, noteId);
   };
-  const clearError = () => {
-    setError("");
-    if (notificationId === -1) return;
-    removeNotification(notificationId)
-    setNotificationId(-1);
-  };
+  const clearError = () => setError("");
   const resetForm = () =>
-    setFormData({
-      climate: Climate.Temperate,
-      flora: Richness.Adequate,
-      fauna: Richness.Adequate
-    });
+    setFormData(DEFAULT_ENVIRONMENT as Partial<CreateLocationData>);
   const submit = async () => {
     // Validate
     if (!formData.name) return onError("Name is required.");
@@ -61,24 +60,18 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
     formData.worldId = worldId;
     clearError();
 
-    // Notify
+    // Save and notify
+    const noteId = addNotification("Saving location...");
     const resp = await upsertLocation(pruneLocationForAPI(formData));
-    if (typeof resp === "string") return onError(resp);
-
+    if (typeof resp === "string") return onError(resp, noteId);
+    updateNotification("Location saved!", noteId);
     updateLocations([resp as APIData<Location>]);
     resetForm();
     onClose();
   };
 
   useEffect(() => {
-    if (data)
-      setFormData({
-        ...data,
-        ...formData,
-        climate: data.climate, //
-        flora: data.flora, //
-        fauna: data.fauna //
-      });
+    if (data) setFormData(data);
     return () => resetForm();
   }, [data]);
 
@@ -91,7 +84,7 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
       confirmText={data?.id ? "Update" : "Create"}
       onConfirm={submit}
     >
-      <CreateLocationForm data={formData} onChange={setFormData} />
+      {open &&  <CreateLocationForm onChange={setFormData} />}
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </Modal>
   );

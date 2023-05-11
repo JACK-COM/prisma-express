@@ -105,13 +105,31 @@ export enum Richness {
   Unspecified = "Unspecified"
 }
 
+/** Used to describe a type of location */
+export enum LocationType {
+  Building = "Building",
+  City = "City",
+  Continent = "Continent",
+  Country = "Country",
+  Other = "Other",
+  Region = "Region",
+  Ruins = "Ruins",
+  Settlement = "Settlement",
+  Town = "Town",
+  Village = "Village"
+}
+
 /** The type of World (super-set of locations)  */
 export enum WorldType {
   /** A dimensional causal space (e.g. with planets, stars, etc) */
   Universe = "Universe",
+  /** A Galaxy */
+  Galaxy = "Galaxy",
+  /** A planet-mass body with many sub-locations */
+  Planet = "Planet",
   /** A non-dimensional space where causal events still occur */
   Realm = "Realm",
-  /** Something other than dimensional and non-dimensional */
+  /** Something other than dimensional and non-dimensional (e.g. star's orbit) */
   Other = "Other"
 }
 
@@ -251,6 +269,7 @@ export type Location = {
   climate: Climate;
   fauna: Richness;
   flora: Richness;
+  type: LocationType;
   parentLocationId?: number;
   westOf?: number;
   eastOf?: number;
@@ -319,18 +338,22 @@ export type TimelineEvent = {
   Pick<TimelineRelation, "Timeline">;
 
 /** A `World` is the superset of locations where a story occurs */
-export type World = {
+export type WorldCore = {
   public: boolean;
   name: string;
   description: string;
   type: WorldType;
-  parentWorldId?: number;
   image?: string;
+};
+export type World = WorldCore & {
+  childWorldsCount: number;
+  parentWorldId?: number;
   Locations: APIData<Location>[];
   Timelines: APIData<Timeline>[];
   Events: APIData<WorldEvent>[];
   Groups: APIData<PopulationGroup>[];
   Characters: APIData<Character>[];
+  ChildWorlds: APIData<WorldCore>[];
 } & AuthorRelation;
 
 export type PermissionProps = { permissions: UserRole };

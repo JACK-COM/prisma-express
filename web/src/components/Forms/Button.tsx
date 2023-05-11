@@ -12,7 +12,9 @@ const classOverrides = css`
     }
   }
 `;
-const defaultButtonCSS = css`
+const IconPaddingRight = ({ round }: { round?: boolean }) =>
+  round ? 0 : "0.4rem";
+export const defaultButtonCSS = css`
   align-items: center;
   background-color: ${UI.bgColor};
   border-radius: ${UI.borderRadius};
@@ -51,6 +53,9 @@ const defaultButtonCSS = css`
 `;
 const ButtonBase = styled.button<AllButtonProps>`
   ${defaultButtonCSS}
+  > .material-icons {
+    padding-right: ${IconPaddingRight};
+  }
 `;
 /** Default Application button */
 export const Button = styled(ButtonBase)``;
@@ -63,6 +68,9 @@ export const ButtonLink = styled.a<UI.SharedButtonProps>`
   height: ${(props) => (props.round ? UI.width(props) : "auto")};
   padding: ${({ theme }) => theme.sizes.xs};
   width: ${(props) => (props.round ? UI.width(props) : "auto")};
+  > .material-icons {
+    padding-right: ${IconPaddingRight};
+  }
 `;
 /** `<Link>` component with app button styles (and some props) */
 export const StyledLink = styled(Link)<UI.SharedButtonProps>`
@@ -70,6 +78,9 @@ export const StyledLink = styled(Link)<UI.SharedButtonProps>`
   height: ${UI.width};
   width: ${(props) => (props.round ? UI.width(props) : "auto")};
   text-shadow: ${UI.textShadow} !important;
+  > .material-icons {
+    padding-right: ${IconPaddingRight};
+  }
 `;
 type WithIconProps = {
   /** Name of Material Icon to apply (e.g. `account_circle`) */
@@ -95,12 +106,12 @@ export const LinkWithIcon = (props: LinkWithIconProps) => {
   return external ? (
     <ButtonLink target="_blank" href={href} variant={variant} {...linkProps}>
       <MatIcon icon={icon} />
-      {text}
+      <span className="text">{text}</span>
     </ButtonLink>
   ) : (
     <StyledLink to={href} variant={variant} {...linkProps}>
       <MatIcon icon={icon} />
-      {text}
+      <span className="text">{text}</span>
     </StyledLink>
   );
 };
@@ -119,12 +130,33 @@ export const ButtonWithIcon = (props: ButtonWithIconProps) => {
 };
 
 /** A circular button */
+type AnimationProps = {
+  animation?: string;
+  duration?: string;
+  timing?: string;
+  repeat?: string;
+};
 export const RoundButton = styled(ButtonBase).attrs({
   round: true
-})`
+})<AnimationProps>`
+  font-size: ${UI.fontSize};
   padding: ${({ theme }) => theme.sizes.sm};
   > * {
-    font-size: ${UI.fontSize};
+    font-size: inherit;
+  }
+  .material-icons {
+    transition: color 0.2s ease-in-out;
+  }
+  &:hover .material-icons {
+    animation-name: ${({ animation = "rotate180" }) => animation};
+    animation-duration: ${({ duration = "0.5s" }) => duration};
+    animation-timing-function: ${({ timing = "ease-in-out" }) => timing};
+    animation-iteration-count: ${({ repeat = "1" }) => repeat};
+    animation-fill-mode: forwards;
+
+    &.delete {
+      color: ${({ theme }) => theme.colors.error};
+    }
   }
 `;
 

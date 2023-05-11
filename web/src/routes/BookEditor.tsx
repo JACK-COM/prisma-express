@@ -10,6 +10,7 @@ import {
   MODAL,
   addNotification,
   clearGlobalBooksState,
+  setGlobalChapter,
   setGlobalModal,
   setGlobalScene,
   updateAsError,
@@ -25,6 +26,7 @@ import { useGlobalWindow } from "hooks/GlobalWindow";
 import { upsertBook, upsertScene } from "graphql/requests/books.graphql";
 import { useGlobalUser } from "hooks/GlobalUser";
 import EditorToolbar from "components/EditorToolbar";
+import PellEditor from "components/Forms/Pell";
 
 const { Library } = Paths;
 const Clickable = styled.span`
@@ -68,8 +70,10 @@ const BooksEditorRoute = () => {
   }, [focusedBook, focusedChapter, focusedScene, active]);
   const pageDescription = useMemo(() => {
     if (!focusedChapter) return "Manage your <b>book contents</b> here.";
-    const sceneTitle = sceneName ? `<em class="accent--text">- ${sceneName}</em>` : ""
-    return `<b class="accent--text">${chapterTitle}</b> ${sceneTitle}`.trim()
+    const sceneTitle = sceneName
+      ? `<em class="accent--text">- ${sceneName}</em>`
+      : "";
+    return `<b class="accent--text">${chapterTitle}</b> ${sceneTitle}`.trim();
   }, [focusedChapter, chapterTitle, sceneName]);
   const loadComponentData = async () => {
     if (bookId) {
@@ -82,8 +86,11 @@ const BooksEditorRoute = () => {
     clearGlobalBooksState();
   };
   const focusChapter = async (ch: APIData<Chapter>) => {
-    const { focusedScene } = await loadChapter(ch.id);
-    updateDraft(focusedScene?.text || "");
+    const updates = await loadChapter(ch.id, true);
+    const { focusedScene: nsc, focusedChapter: nch } = updates;
+    if (!nch) return;
+    updateDraft(nsc?.text || "");
+    setGlobalChapter(nch);
     clearGlobalModal();
   };
   const focusScene = async (scene: APIData<Scene>) => {
@@ -101,8 +108,7 @@ const BooksEditorRoute = () => {
     const resp = await upsertScene({ ...focusedScene, text: draft });
     if (typeof resp === "string") updateAsError(resp, notificationId);
     else if (resp && focusedChapter) {
-      const newScene = resp.Scenes.find(({ id }) => id === focusedScene.id);
-      GlobalLibrary.multiple({ focusedChapter: resp, focusedScene: newScene });
+      setGlobalChapter(resp);
       updateNotification("Chapter saved!", notificationId);
     }
   };
@@ -131,10 +137,13 @@ const BooksEditorRoute = () => {
   const toggleAutoSave = () => setEditorAutosave(!editorAutosave);
 
   useEffect(() => {
-    updateDraft(focusedScene?.text || "");
     loadComponentData();
     return () => clearComponentData();
   }, []);
+
+  useEffect(() => {
+    updateDraft(focusedScene?.text || "");
+  }, [focusedScene, focusedChapter]);
 
   return (
     <PageLayout
@@ -156,7 +165,6 @@ const BooksEditorRoute = () => {
       description={pageDescription}
     >
       <EditorToolbar
-        style={{ marginTop: -9 }}
         bookId={Number(bookId)}
         role={role}
         handleSave={saveScene}
@@ -169,11 +177,12 @@ const BooksEditorRoute = () => {
           height={height * 0.78}
           value={draft}
           inline
+          autosave={editorAutosave}
           onChange={updateText}
           triggerSave={saveScene}
         />
       ) : (
-        <Card>
+        <Card className="fill">
           <Clickable onClick={() => setGlobalModal(MODAL.SELECT_CHAPTER)}>
             {chapters.length ? "Select" : "Create"}
           </Clickable>

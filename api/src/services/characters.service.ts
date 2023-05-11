@@ -12,6 +12,10 @@ type SearchCharacterInput = { authorId: number; id?: number } & Partial<
   Pick<Character, "name" | "worldId" | "groupId" | "description">
 >;
 const { Characters } = context;
+const SharedCharacterFields: Prisma.CharacterFindManyArgs = {
+  include: { World: true },
+  orderBy: { World: { name: "asc" } }
+};
 
 /** create character record */
 export async function upsertCharacter(newCharacter: UpsertCharacterInput) {
@@ -26,28 +30,39 @@ export async function upsertCharacter(newCharacter: UpsertCharacterInput) {
 }
 
 /** find all public character records */
-export async function findAllPublicCharacter() {
-  return Characters.findMany({
-    where: { World: { public: true } },
-    include: { World: true },
-    orderBy: { World: { name: "asc" } }
-  });
+export async function findAllPublicCharacter(
+  filters: Partial<SearchCharacterInput> = {}
+) {
+  const where = makeFindManyInput(filters as SearchCharacterInput);
+  if (where.AND && Array.isArray(where.AND)) {
+    const index = where.AND.findIndex((item) => item.World?.public === true);
+    if (index === -1) where.AND.push({ World: { public: true } });
+  } else where.AND = [{ World: { public: true } }];
+
+  return Characters.findMany({ where, ...SharedCharacterFields });
 }
 
 /** find all character records matching params */
 export async function findAllCharacter(filters: SearchCharacterInput) {
+  const where = makeFindManyInput(filters);
+  return Characters.findMany({ where, ...SharedCharacterFields });
+}
+
+function makeFindManyInput(filters: SearchCharacterInput) {
   const { id, name, authorId, worldId, groupId, description } = filters;
   const where: Prisma.CharacterFindManyArgs["where"] = {};
   if (id) where.id = id;
   if (name) where.name = { contains: name, mode: "insensitive" };
+  if (worldId) where.worldId = worldId;
+  if (!authorId && !groupId && !description) return where;
 
   where.OR = [];
-  if (worldId) where.worldId = worldId;
-  else where.OR.push({ World: { public: true } });
+  if (groupId) where.OR.push({ groupId });
   if (authorId) {
     where.OR.push(
       { authorId, World: { public: false } },
-      { authorId, World: { public: true } }
+      { authorId, World: { public: true } },
+      { World: { public: true } }
     );
   }
   if (description) {
@@ -55,14 +70,7 @@ export async function findAllCharacter(filters: SearchCharacterInput) {
       description: { contains: description, mode: "insensitive" }
     });
   }
-  if (groupId) where.OR.push({ groupId });
-  if (!where.OR.length) delete where.OR;
-
-  return Characters.findMany({
-    where,
-    include: { World: true },
-    orderBy: { World: { name: "asc" } }
-  });
+  return where;
 }
 
 /** find one character record matching params */

@@ -13,6 +13,7 @@ import {
   MFEventFragment,
   MFLocationFragment,
   MFRelationshipFragment,
+  MFSearchResultFragment,
   MFSceneFragment,
   MFSeriesFragment,
   MFTimelineEventFragment,
@@ -153,7 +154,7 @@ export const listScenesQuery = () =>
 /** Get `Scene` */
 export const getSceneQuery = () =>
   `query GetScene($id: Int!) {  
-    getScene(id: $id) {
+    getSceneById(id: $id) {
       ${MFSceneFragment}
     }
   }`;
@@ -285,4 +286,26 @@ export const listContentLinksQuery = () =>
 export const getUserQuery = () =>
   `query GetUser {
     getAuthUser { ${MFUserFragment} }
+  }`;
+
+/** Search titles */
+export const searchTitlesQuery = () =>
+  `query SearchPublications(
+    $title: String,
+    $genre: String,
+    $description: String,
+    $seriesId: Int,
+    $authorId: Int,
+    $freeOnly: Boolean
+  ) {
+    searchPublications(
+      title: $title,
+      genre: $genre,
+      description: $description,
+      seriesId: $seriesId,
+      authorId: $authorId,
+      freeOnly: $freeOnly
+    ) {
+      ${MFSearchResultFragment}
+    }
   }`;

@@ -48,7 +48,6 @@ export function useGlobalWorld(
     updateLocations,
     updateTimelines: (t: APIData<Timeline>[]) =>
       updateWorldStateList(t, "timelines"),
-    updateEvents: (t: APIData<Timeline>[]) => updateWorldStateList(t, "events"),
     updateWorlds
   };
 }

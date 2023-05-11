@@ -30,7 +30,12 @@ const WorldsListRoute = () => {
       breadcrumbs={[Paths.Worlds.Index]}
       description="Create or manage your <b>Worlds</b> and realms here."
     >
-      <WorldsList worlds={worlds} focusedWorld={focusedWorld} />
+      <WorldsList
+        className="fill"
+        showControls
+        worlds={worlds}
+        focusedWorld={focusedWorld}
+      />
     </PageLayout>
   );
 };

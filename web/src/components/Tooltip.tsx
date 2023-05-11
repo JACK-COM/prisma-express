@@ -18,15 +18,15 @@ const TooltipContainer = styled.div`
   }
 `;
 const TooltipText = styled.div`
-  ${({ theme }) => theme.mixins.lineclamp(7)};
+  ${({ theme }) => theme.mixins.lineclamp(6)};
   background-color: black;
   border-radius: 6px;
   color: #fff;
   font-size: initial;
   font-weight: initial;
+  height: minmax(2rem, 320px);
   left: 50%;
   margin-left: -60px;
-  max-height: 400px;
   max-width: 400px;
   opacity: 0;
   padding: ${({ theme }) => theme.sizes.sm};
@@ -35,8 +35,11 @@ const TooltipText = styled.div`
   top: 100%;
   transition: opacity 0.3s;
   visibility: hidden;
-  width: minmax(max-content, 300px);
+  width: minmax(min-content, 300px);
   z-index: 9;
+  > * {
+    ${({ theme }) => theme.mixins.lineclamp(4)};
+  }
 `;
 
 type TooltipProps = { text: string } & React.ComponentPropsWithRef<"div">;

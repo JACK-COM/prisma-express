@@ -1,5 +1,6 @@
 import { AppRouteDef } from "routes";
 import {
+  GridContainer,
   PageContainer,
   PageDescription,
   PageTitleVariable
@@ -24,9 +25,15 @@ const autoColumn = css`
     grid-row: unset;
   }
 `;
-const Page = styled(PageContainer)`
+const Page = styled(GridContainer)`
+  display: block;
   ${autoColumn}
   grid-row: 2;
+  height: -webkit-fill-available;
+
+  .fill {
+    min-height: calc(100vh - 100px);
+  }
 `;
 const PageHeader = styled.header`
   ${autoColumn}
@@ -46,16 +53,17 @@ const PageHeader = styled.header`
     background: transparent;
   }
 `;
+const Footer = styled.footer`
+  font-size: smaller;
+  line-height: 2.4rem;
+  grid-column: 1 / -1;
+  grid-row: 3 / 3;
+  padding: 0 ${({ theme }) => theme.sizes.sm};
+`;
 
 // Default Layout for app pages
 const PageLayout = (props: PageLayoutProps) => {
-  const {
-    title,
-    editableHeader = false,
-    breadcrumbs,
-    description,
-    children
-  } = props;
+  const { title, breadcrumbs, description, children } = props;
 
   return (
     // Header
@@ -68,10 +76,13 @@ const PageLayout = (props: PageLayoutProps) => {
       </PageHeader>
 
       <Page id="page-layout">
-        {breadcrumbs && Boolean(false) && <Breadcrumbs data={breadcrumbs} />}
+        {/* {breadcrumbs && Boolean(false) && <Breadcrumbs data={breadcrumbs} />} */}
 
         {/* Page content */}
         {children}
+
+        {/* Footer */}
+        <Footer>© Copyright {new Date().getFullYear()} Mythos Forge </Footer>
       </Page>
     </>
   );

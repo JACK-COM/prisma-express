@@ -1,99 +1,108 @@
 import { useEffect } from "react";
 import styled from "styled-components";
-import { Card, CardTitle } from "components/Common/Containers";
-import { ButtonWithIcon } from "components/Forms/Button";
-import CreateWorldModal from "components/Modals/ManageWorldModal";
+import { Card, CardTitle, PageDescription } from "components/Common/Containers";
 import ListView from "components/Common/ListView";
-import WorldItem from "components/WorldItem";
+import WorldItem, { CreateWorldItem } from "components/WorldItem";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { APIData, World } from "utils/types";
+import { APIData, World, WorldCore } from "utils/types";
 import { useGlobalUser } from "hooks/GlobalUser";
-import { clearGlobalWorld, setGlobalWorld } from "state";
-import { SharedButtonProps } from "components/Forms/Button.Helpers";
+import {
+  GlobalWorld,
+  MODAL,
+  clearGlobalModal,
+  setGlobalModal,
+  setGlobalWorld
+} from "state";
+import { WorldIcon } from "components/ComponentIcons";
 
-const AddWorldButton = styled(ButtonWithIcon)`
-  align-self: end;
-`;
 const EmptyText = styled.p`
   font-style: oblique;
 `;
 const List = styled(ListView)`
   margin: ${({ theme }) => theme.sizes.md} 0;
 `;
+const LegendItem = styled.span`
+  &,
+  .material-icons {
+    padding-right: 0.4rem;
+  }
+`;
+
+const legend = [
+  { icon: "public", class: "success--text", text: "Public/owned" },
+  { icon: "public", class: "error--text", text: "Private" },
+  { icon: "lock", class: "success--text", text: "Public/unowned" }
+];
 
 type WorldsListProps = {
-  worlds?: APIData<World>[];
+  showControls?: boolean;
+  className?: string;
+  worlds?: APIData<WorldCore>[];
   focusedWorld?: APIData<World> | null;
 };
 
 /** @component List of worlds */
 const WorldsList = (props: WorldsListProps) => {
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const { active, clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
-  const { focusedWorld, worlds = [] } = props;
-  const clearComponentData = () => {
-    clearGlobalModal();
-    clearGlobalWorld();
-  };
+  const { className, worlds = [], showControls = false } = props;
   const onEditWorld = (world: APIData<World>) => {
     setGlobalWorld(world);
     setGlobalModal(MODAL.MANAGE_WORLD);
   };
-  const controls = (variant: SharedButtonProps["variant"] = "outlined") =>
-    authenticated && (
-      <>
-        <AddWorldButton
-          icon="public"
-          size="lg"
-          text="Create New World"
-          variant={variant}
-          onClick={() => setGlobalModal(MODAL.MANAGE_WORLD)}
-        />
-      </>
+  const controls = () =>
+    authenticated &&
+    showControls && (
+      <CreateWorldItem
+        onClick={() => {
+          GlobalWorld.focusedWorld(null);
+          setGlobalModal(MODAL.MANAGE_WORLD);
+        }}
+      />
     );
 
   useEffect(() => {
-    return () => clearComponentData();
+    return clearGlobalModal;
   }, []);
 
   return (
-    <>
-      <Card>
-        <CardTitle>{authenticated ? "Your" : "Public"} Worlds</CardTitle>
+    <Card className={className}>
+      <CardTitle>{authenticated ? "Your" : "Public"} Worlds</CardTitle>
 
-        {/* Empty List message */}
-        {!worlds.length && (
-          <EmptyText>
-            A formless void, without <b>Worlds</b> to display
-          </EmptyText>
+      <PageDescription className="flex">
+        <b>Legend:&nbsp;</b>
+        {legend.map(({ icon, class: className, text }) => (
+          <LegendItem className="flex" key={text}>
+            <WorldIcon permissions="Author" icon={icon} className={className} />
+            {text}
+          </LegendItem>
+        ))}
+      </PageDescription>
+
+      {/* Empty List message */}
+      {!worlds.length && (
+        <EmptyText>
+          A formless void, without <b>Worlds</b> to display
+        </EmptyText>
+      )}
+
+      {/* Add new (button - top) */}
+
+      {/* List */}
+      <List
+        grid
+        data={worlds}
+        dummyFirstItem={worlds.length > 5 && controls()}
+        dummyLastItem={controls()}
+        itemText={(world: APIData<World>) => (
+          <WorldItem
+            world={world}
+            onEdit={onEditWorld}
+            permissions={world.authorId === userId ? "Author" : "Reader"}
+            showControls={showControls}
+          />
         )}
-
-        {/* Add new (button - top) */}
-        {authenticated && worlds.length > 5 && controls("transparent")}
-
-        {/* List */}
-        <List
-          data={worlds}
-          itemText={(world: APIData<World>) => (
-            <WorldItem
-              world={world}
-              onEdit={onEditWorld}
-              permissions={world.authorId === userId ? "Author" : "Reader"}
-            />
-          )}
-        />
-
-        {/* Add new (button - bottom) */}
-        {authenticated && controls()}
-      </Card>
-
-      {/* Modal */}
-      <CreateWorldModal
-        data={focusedWorld}
-        open={active === MODAL.MANAGE_WORLD}
-        onClose={clearComponentData}
       />
-    </>
+    </Card>
   );
 };
 

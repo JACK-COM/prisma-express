@@ -8,7 +8,7 @@
   }
 
   100% {
-    transform: scale(4, 4);
+    transform: scale(1.4);
     opacity: 0;
   }
 }
@@ -84,6 +84,16 @@
 
   to {
     transform: rotate(90deg);
+  }
+}
+
+@keyframes rotate180 {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(180deg);
   }
 }
 

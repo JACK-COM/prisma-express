@@ -35,14 +35,6 @@ export const upsertChapterMutation = mutationField("upsertChapter", {
       throw new Error("Author role required to create a chapter");
     }
 
-    console.log(
-      ChaptersService.pruneChapterData({
-        ...data,
-        authorId: data.authorId || user.id,
-        bookId: data.bookId || undefined
-      })
-    );
-
     // Create chapter
     const newChapter = await ChaptersService.upsertChapter(
       ChaptersService.pruneChapterData({

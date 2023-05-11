@@ -51,6 +51,20 @@ enum GroupType {
   Trade
 }
 
+"""A type of Location"""
+enum LocationType {
+  Building
+  City
+  Continent
+  Country
+  Other
+  Region
+  Ruins
+  Settlement
+  Town
+  Village
+}
+
 """An abbreviated `MFUser` model"""
 type MFAuthor {
   Books: [MFBook]
@@ -70,7 +84,6 @@ type MFAuthor {
 type MFBook {
   Author: MFAuthor
   Chapters: [MFChapter]
-  Series: MFSeries
 
   """Book Author/owner"""
   authorId: Int
@@ -326,6 +339,7 @@ type MFLocation {
 
   """Parent Location id (optional)"""
   parentLocationId: Int
+  type: LocationType!
 
   """Event target `World`"""
   worldId: Int!
@@ -355,6 +369,7 @@ input MFLocationUpsertInput {
 
   """Location south neighbor"""
   southOf: Int
+  type: LocationType!
 
   """Location west neighbor"""
   westOf: Int
@@ -470,6 +485,12 @@ input MFSceneUpsertInput {
   """Scene event timeline"""
   timelineId: Int
   title: String!
+}
+
+"""A search result"""
+type MFSearchResult {
+  books: [MFBook]!
+  series: [MFSeries]!
 }
 
 """A collection of `Books` (e.g. a trilogy)"""
@@ -609,6 +630,7 @@ input MFUserUpsertInput {
 
 """A collection of `Locations`"""
 type MFWorld {
+  ChildWorlds: [MFWorld]
   Events: [MFEvent]
   Groups: [MFPopulationGroup]
   Locations: [MFLocation]
@@ -616,6 +638,7 @@ type MFWorld {
 
   """Book Author/owner"""
   authorId: Int
+  childWorldsCount: Int
   description: String!
   id: Int!
   image: String
@@ -731,7 +754,6 @@ type Query {
   getTimelineById(id: Int!): MFTimeline
   getWorld(id: Int!): MFWorld
   getWorldById(id: Int!): MFWorld
-  listBookPublications(authorId: Int, description: String, freeOnly: Boolean = false, genre: String, seriesId: Int, title: String): [MFBook]
   listBooks(authorId: Int, description: String, free: Boolean = false, genre: String, public: Boolean = false, seriesId: Int, title: String): [MFBook]
   listChapters(authorId: Int, bookId: Int!, description: String, id: [Int!], title: String): [MFChapter]
 
@@ -758,7 +780,8 @@ type Query {
   """
   List/filter multiple `Worlds`. Author can view their own worlds, a reader can view public worlds
   """
-  listWorlds(authorId: Int, description: String, id: Int, name: String, public: Boolean = true): [MFWorld]
+  listWorlds(authorId: Int, description: String, id: Int, name: String, parentWorldId: Int, public: Boolean = true): [MFWorld]
+  searchPublications(authorId: Int, description: String, freeOnly: Boolean = false, genre: String, seriesId: Int, title: String): MFSearchResult
 }
 
 """Relative abundance of resources."""
@@ -780,7 +803,9 @@ enum UserRole {
 
 """A type of World (super-set of locations) """
 enum WorldType {
+  Galaxy
   Other
+  Planet
   Realm
   Universe
 }

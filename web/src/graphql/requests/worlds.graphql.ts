@@ -26,12 +26,14 @@ export type CreateWorldData = {
 /** Data required to create a location */
 export type CreateLocationData = {
   id?: number;
+  authorId?: number;
 } & Pick<
   Location,
   | "name"
   | "description"
   | "climate"
   | "parentLocationId"
+  | "type"
   | "flora"
   | "fauna"
   | "worldId"
@@ -58,8 +60,13 @@ export async function upsertWorld(raw: Partial<CreateWorldData>) {
     authorId: raw.authorId,
     parentWorldId: raw.parentWorldId || undefined
   };
+  const refetchQueries: any[] = [{ query: listWorldsQuery() }];
+  if (raw.id)
+    refetchQueries.push({ query: getWorldQuery(), variables: { id: raw.id } });
+
   const newWorld = await fetchGQL<APIData<World> | null>({
     query: upsertWorldMutation(),
+    refetchQueries,
     variables: { data },
     onResolve: ({ upsertWorld: list }, errors) => errors || list,
     fallbackResponse: null
@@ -72,6 +79,7 @@ export async function upsertWorld(raw: Partial<CreateWorldData>) {
 export async function deleteWorld(worldId: number) {
   const respWorld = await fetchGQL<APIData<World> | null>({
     query: deleteWorldMutation(),
+    refetchQueries: [{ query: listWorldsQuery() }],
     variables: { id: worldId },
     onResolve: ({ deleteWorld: list }, errors) => errors || list,
     fallbackResponse: null
@@ -96,6 +104,10 @@ export async function getLocation(locationId: number) {
 export async function upsertLocation(data: Partial<CreateLocationData>) {
   const newLocation = await fetchGQL<APIData<Location> | null>({
     query: upsertLocationMutation(),
+    refetchQueries: [
+      { query: getWorldQuery(), variables: { id: data.worldId } },
+      { query: listLocationsQuery(), variables: { worldId: data.worldId } }
+    ],
     variables: { data },
     onResolve: ({ upsertLocation: list }, errors) => errors || list,
     fallbackResponse: null
@@ -153,25 +165,15 @@ export async function listLocations(
 
 // Prune location data for API
 export function pruneLocationForAPI(data: Partial<CreateLocationData>) {
-  const {
-    id,
-    name,
-    description,
-    climate,
-    parentLocationId,
-    flora,
-    fauna,
-    worldId
-  } = data;
-
   return {
-    id,
-    name,
-    description,
-    climate,
-    parentLocationId,
-    flora,
-    fauna,
-    worldId
+    id: data.id,
+    name: data.name,
+    description: data.description,
+    climate: data.climate,
+    parentLocationId: data.parentLocationId,
+    type: data.type,
+    flora: data.flora,
+    fauna: data.fauna,
+    worldId: data.worldId
   };
 }

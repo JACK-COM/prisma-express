@@ -2,7 +2,7 @@ import createState from "@jackcom/raphsducks";
 import { ThemeProps, createGlobalStyle } from "styled-components";
 import DARK_THEME from "./theme.dark";
 import LIGHT_THEME from "./theme.light";
-import { AppTheme } from "./theme.shared";
+import { AppTheme, sidebarWidth } from "./theme.shared";
 
 export type UIThemeType = "Dark" | "Light";
 export type GlobalTheme = Record<UIThemeType, AppTheme> & {
@@ -21,7 +21,19 @@ const THEME: GlobalTheme = {
   }
   
   html {
-    height: minmax(100vh, auto);
+    min-height: 100vh;
+    height: fit-content;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color: #213547;
+      background: ${({ theme }) => theme.colors.bgGradientDir!('350deg')};
+    }
+
+    button {
+      background-color: #f9f9f9;
+    }
   }
 
   body {
@@ -35,6 +47,14 @@ const THEME: GlobalTheme = {
     *:not(code) { 
       box-sizing: border-box;
       position: relative;
+    }
+
+    .hide {
+      display: none;
+    }
+
+    .transparent {
+      opacity: 0;
     }
 
     .accent { 
@@ -125,8 +145,8 @@ const THEME: GlobalTheme = {
   /* Main App container */
   .App {
     display: grid;
-    grid-template-columns: 160px auto;
-    grid-template-rows: max-content;
+    grid-template-columns: ${sidebarWidth} auto;
+    grid-auto-rows: 3.6rem auto;
     min-height: 100vh;
 
     @media screen and (max-width: 768px) {

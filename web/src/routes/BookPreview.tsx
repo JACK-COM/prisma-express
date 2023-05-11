@@ -56,7 +56,7 @@ type RouteParams = {
 
 /** @route Preview a `Book` */
 const BookPreviewRoute = () => {
-  const { id: userId } = useGlobalUser();
+  const { id: userId } = useGlobalUser(["id"]);
   const {
     focusedBook,
     focusedChapter,
@@ -103,12 +103,10 @@ const BookPreviewRoute = () => {
     APIData<ContentLink>,
     "chapterId" | "sceneId" | "bookId"
   >;
-  const goToLink = async (link: InternalLink) => {
+  const goToLink = async (
+    link: Pick<InternalLink, "chapterId" | "sceneId">
+  ) => {
     if (!link.chapterId) return updateAsError("No chapter ID in link");
-    if (link.bookId !== focusedBook?.id) {
-      return updateAsError("Book ID mismatch");
-    }
-
     const updates = await loadChapter(link.chapterId, true);
     const { focusedChapter } = updates;
     if (link.sceneId) {
@@ -118,6 +116,19 @@ const BookPreviewRoute = () => {
     GlobalLibrary.multiple(updates);
   };
   const contentRef = useRef<HTMLDivElement>(null);
+  const handleContentLink = async (href: string) => {
+    const data = href.split("/link/").pop()?.split("/");
+    const [chapter, scene] = (data || []).map(Number);
+    const nextChapter = chapters.find((c) => c.order === chapter);
+    if (!nextChapter) return updateAsError(`Chapter ${chapter} not found`);
+    const scenes = nextChapter.Scenes || [];
+    if (!scenes.length) return updateAsError(`No Scenes in chapter ${chapter}`);
+
+    const nextScene = scenes.find((s) => s.order === scene) || scenes[0];
+    if (!nextScene) return updateAsError(`Scene ${scene} not found`);
+
+    return goToLink({ chapterId: nextChapter.id, sceneId: nextScene.id });
+  };
 
   // Handle content links: this will attach event listeners to every `<a>` tag in the rendered content
   // with that contains `/link/` in the `href` attribute. When clicked, the link will be parsed and the
@@ -129,19 +140,6 @@ const BookPreviewRoute = () => {
     if (!linkArr.length) return noOp;
 
     const cleanup: (() => void)[] = [];
-    const handleContentLink = async (href: string) => {
-      const data = href.split("/link/").pop()?.split("/");
-      const [chapter, scene] = (data || []).map(Number);
-      const nextChapter = chapters.find((c) => c.order === chapter);
-      const scenes = nextChapter?.Scenes || [];
-      const nextScene = scenes.find((s) => s.order === scene) || scenes[0];
-      if (!nextChapter) return updateAsError(`Chapter ${chapter} not found`);
-      return goToLink({
-        chapterId: nextChapter.id,
-        sceneId: nextScene.id,
-        bookId: focusedBook?.id || 0
-      });
-    };
     linkArr.forEach((link) => {
       const onContentLinkClick = (e: MouseEvent): void => {
         e.preventDefault();
@@ -186,14 +184,18 @@ const BookPreviewRoute = () => {
       id="books-list"
       description="Book Preview"
     >
-      <PreviewGrid columns="4fr 1.5fr" gap="0.6rem">
+      <PreviewGrid className="fill" columns="4fr 1.5fr" gap="0.6rem">
         {/* Overview/Summary */}
         <Content>
           <Card>
             <PreviewTitle>
               <span>{sectionTitle}</span>
               {isAuthor && (
-                <LinkWithIcon icon="edit" variant="transparent" href={editUrl} />
+                <LinkWithIcon
+                  icon="edit"
+                  variant="transparent"
+                  href={editUrl}
+                />
               )}
             </PreviewTitle>
             {/* Content */}
@@ -227,7 +229,7 @@ const BookPreviewRoute = () => {
           title="Chapters"
           emptyText="There are no chapters in this book."
           chapters={chapters}
-          onSelectChapter={(ch) => loadChapter(ch.id)}
+          onSelectChapter={(ch) => goToLink({ chapterId: ch.id })}
           onSelectScene={setGlobalScene}
         />
       </PreviewGrid>

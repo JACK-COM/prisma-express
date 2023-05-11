@@ -8,6 +8,8 @@ type RawFetchOpts<T> = {
   url?: string;
   /** query string */
   additionalOpts?: RequestInit;
+  /** Cancel request after this amount of time (milliseconds) */
+  timeout?: number;
   /** Function to call with the response */
   onResolve(x: T, errors?: string): any;
   /** Optional fallback value if response fails */
@@ -21,7 +23,8 @@ export async function fetchRaw<T>(opts: RawFetchOpts<T>) {
     url = "http://localhost:4001",
     onResolve,
     additionalOpts = {},
-    fallbackResponse: fallback = {} as T
+    timeout = 3500,
+    fallbackResponse: fb = {} as T
   } = opts;
   const controller = new AbortController();
   const reqInit: RequestInit = {
@@ -38,10 +41,17 @@ export async function fetchRaw<T>(opts: RawFetchOpts<T>) {
   const request = () =>
     fetch(url, reqInit)
       .then((res) => res.json())
-      .then((res) => onResolve(res || fallback, condenseErrors(res.errors)))
+      .then((res) => onResolve(res || fb, condenseErrors(res.errors)))
       .catch((e) => onResolve({} as T, condenseErrors(e.errors || e)));
-
-  return withTimeout({ request, fallbackResponse: fallback, controller });
+  const withTimeoutOpts = {
+    request,
+    timeout,
+    fallbackResponse: fb,
+    controller
+  };
+  return withTimeout(withTimeoutOpts).catch((e) =>
+    onResolve({} as T, e.message)
+  );
 }
 export default fetchRaw;
 
@@ -55,12 +65,12 @@ export type CancelableProps<T> = {
 
 /** Halt a request if it takes longer than `timeout` to resolve */
 export async function withTimeout<T>(opts: CancelableProps<T>): Promise<T> {
-  const { request, fallbackResponse, controller, timeout = 3500 } = opts;
-  return new Promise((resolve) => {
+  const { request, controller, timeout = 3500 } = opts;
+  return new Promise((resolve, reject) => {
     const call = typeof request === "function";
     const cancel = () => {
       controller.abort();
-      resolve(fallbackResponse as T);
+      reject(new Error("Request timed out"));
     };
     setTimeout(cancel, timeout);
     return call ? request().then(resolve) : request;

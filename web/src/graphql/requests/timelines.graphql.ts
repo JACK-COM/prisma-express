@@ -3,7 +3,7 @@
  * @description GraphQL requests relating to `Events`, `Timelines`, and `TimelineEvents`.
  */
 
-import fetchGQL from "graphql/fetch-gql";
+import fetchGQL, { FetchGQLOpts } from "graphql/fetch-gql";
 import { MFTimelineFragment } from "graphql/fragments";
 import {
   deleteTimelineEventMutation,
@@ -15,9 +15,18 @@ import {
 import {
   getTimelineQuery,
   listWorldEventsQuery,
-  listTimelinesQuery
+  listTimelinesQuery,
+  getWorldQuery,
+  listWorldsQuery
 } from "graphql/queries";
-import { APIData, WorldEvent, Timeline, TimelineEvent } from "utils/types";
+import { GlobalUser } from "state";
+import {
+  APIData,
+  WorldEvent,
+  Timeline,
+  TimelineEvent,
+  World
+} from "utils/types";
 
 // Shared ID type
 type ItemID = { id?: number };
@@ -42,18 +51,40 @@ export type CreateTimelineEventData = ItemID &
 
 // Use fetchGQL to create/update one or more `Events` on the server
 export async function upsertEvents(data: Partial<CreateEventData>[]) {
-  return fetchGQL<APIData<WorldEvent>[]>({
+  const { id: authorId } = GlobalUser.getState();
+  const resp = await fetchGQL<APIData<WorldEvent>[]>({
     query: upsertEventMutation(),
+    refetchQueries: [{ query: listWorldsQuery(), variables: { authorId } }],
     variables: { data },
     onResolve: ({ upsertEvents: list }, errors) => errors || list,
     fallbackResponse: []
   });
+
+  if (Array.isArray(resp))
+    return fetchGQL<APIData<World> | null>({
+      query: getWorldQuery(),
+      variables: { id: resp[0].worldId },
+      onResolve: ({ getWorld: world }, errors) => errors || world,
+      fallbackResponse: null
+    });
+
+  return resp;
 }
 
 // Use fetchGQL to create or update a `Timeline` on the server
 export async function upsertTimeline(data: Partial<CreateTimelineData>) {
+  const refetchQueries: FetchGQLOpts<any>["refetchQueries"] = [
+    { query: listTimelinesQuery() }
+  ];
+  if (data.id)
+    refetchQueries.push({
+      query: getTimelineQuery(),
+      variables: { id: data.id }
+    });
+
   return fetchGQL<APIData<Timeline> | null>({
     query: upsertTimelineMutation(),
+    refetchQueries,
     variables: { data },
     onResolve: ({ upsertTimeline: tl }, errors) => errors || tl,
     fallbackResponse: null
@@ -78,6 +109,10 @@ export async function upsertTimelineEvents(
   // This returns the timeline associated with the new/updated events
   const newEvents = await fetchGQL<APIData<TimelineEvent>[] | null>({
     query: upsertTimelineEventMutation(),
+    refetchQueries: [
+      { query: listTimelinesQuery() },
+      { query: getTimelineQuery(), variables: { id: timelineId } }
+    ],
     variables: { id: timelineId, events },
     onResolve: ({ upsertTimelineEvents: list }, errors) => errors || list,
     fallbackResponse: null
@@ -93,6 +128,7 @@ export async function upsertTimelineEvents(
 export async function deleteTimeline(id: number) {
   const deletedTimeline = await fetchGQL<APIData<Timeline> | null>({
     query: deleteTimelineMutation(),
+    refetchQueries: [{ query: listTimelinesQuery() }],
     variables: { id },
     onResolve: ({ deleteTimeline: tl }, errors) => errors || tl,
     fallbackResponse: null
@@ -105,6 +141,7 @@ export async function deleteTimeline(id: number) {
 export async function deleteTimelineEvent(id: number) {
   const deleted = await fetchGQL<APIData<TimelineEvent> | null>({
     query: deleteTimelineEventMutation(),
+    refetchQueries: [{ query: listTimelinesQuery() }],
     variables: { id },
     onResolve: ({ deleteTimelineEvent: tle }, errors) => errors || tle,
     fallbackResponse: null

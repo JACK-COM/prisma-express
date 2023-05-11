@@ -9,12 +9,7 @@ import CharactersList from "components/List.Characters";
 /** @Route All characters */
 const CharactersListRoute = () => {
   const { id: userId } = useGlobalUser(["id", "role"]);
-  const {
-    characters = [],
-    relationships = [],
-    focusedCharacter,
-    clearGlobalCharacter
-  } = useGlobalCharacter(["focusedCharacter", "characters", "relationships"]);
+  const { clearGlobalCharacter } = useGlobalCharacter([]);
 
   useEffect(() => {
     loadCharacters({ userId });
@@ -29,11 +24,7 @@ const CharactersListRoute = () => {
       description="Create or manage your <b>Characters</b> and realms here."
     >
       {/* List */}
-      <CharactersList
-        characters={characters}
-        relationships={relationships}
-        focusedCharacter={focusedCharacter}
-      />
+      <CharactersList className="fill" />
     </PageLayout>
   );
 };

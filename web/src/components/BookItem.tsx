@@ -1,27 +1,24 @@
+import { Link } from "react-router-dom";
+import styled from "styled-components";
 import { APIData, Book, UserRole } from "utils/types";
 import { noOp, suppressEvent } from "utils";
-import { MatIcon, GridContainer } from "./Common/Containers";
+import {
+  sharedGridItemStyles,
+  MatIcon,
+  GridContainer,
+  GridItemName,
+  GridItemControls,
+  GridItemControl
+} from "./Common/Containers";
 import { TallIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
 import { requireAuthor } from "utils";
-import { deleteBook } from "graphql/requests/books.graphql";
-import {
-  GlobalLibrary,
-  GlobalUser,
-  GlobalModal,
-  removeBookFromState,
-  updateAsError,
-  MODAL
-} from "state";
-import styled from "styled-components";
+import { GlobalLibrary, GlobalUser, GlobalModal, MODAL } from "state";
 import { useNavigate } from "react-router";
 import Tooltip from "./Tooltip";
 import defaultBookCover from "assets/mystic-books.png";
-import { Link } from "react-router-dom";
-import ImageLoader from "./Common/ImageLoader";
-import { RoundButton } from "./Forms/Button";
 
-type WorldItemProps = {
+type BookItemProps = {
   book: APIData<Book>;
   onEdit?: (w: APIData<Book>) => void;
   onSelect?: (w: APIData<Book>) => void;
@@ -29,54 +26,7 @@ type WorldItemProps = {
 };
 
 const Container = styled(Link)<{ permissions: UserRole }>`
-  align-items: center;
-  background-size: cover;
-  background-position: center;
-  border: ${({ theme }) =>
-    `${theme.sizes.xs} solid ${theme.colors.semitransparent}`};
-  border-radius: ${({ theme }) => theme.sizes.sm};
-  color: inherit;
-  justify-content: space-between;
-  height: 25vh;
-  padding: 0;
-  transition: all 0.2s ease-in-out;
-  width: 200px;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.semitransparent};
-  }
-
-  @media (max-width: 768px) {
-    height: 30vh;
-  }
-`;
-const Title = styled.h6`
-  background: linear-gradient(0deg, #00000000, #000717ce);
-  border-radius: ${({ theme }) => `${theme.sizes.xs} ${theme.sizes.xs} 0 0}`};
-  color: white;
-  display: grid;
-  text-shadow: 0 0 0.05rem #000717ce;
-  font-weight: normal;
-  grid-template-columns: 32px auto;
-  overflow: visible;
-  padding: ${({ theme }) => theme.sizes.xs};
-  white-space: normal;
-  width: 100%;
-`;
-const Controls = styled(GridContainer)`
-  background: linear-gradient(180deg, #00000000, #000717ce);
-  border-radius: ${({ theme }) => `0 0 ${theme.sizes.xs} ${theme.sizes.xs}`};
-  color: white;
-  grid-column-gap: ${({ theme }) => theme.sizes.xs};
-  justify-content: space-between;
-  padding: ${({ theme }) => `${theme.sizes.xs} ${theme.sizes.sm}`};
-  width: 100%;
-`;
-const Bwoop = styled(RoundButton).attrs({ size: "lg" })`
-  &:hover {
-    color: inherit;
-    animation: scale-up 1s ease-in-out infinite;
-  }
+  ${sharedGridItemStyles}
 `;
 
 /** @component Book Item in a list */
@@ -85,7 +35,7 @@ const BookItem = ({
   onSelect,
   onEdit = noOp,
   permissions = "Reader"
-}: WorldItemProps) => {
+}: BookItemProps) => {
   const { id: userId } = GlobalUser.getState();
   const previewUrl = insertId(Paths.Library.BookPreview.path, book.id);
   const editUrl = insertId(Paths.Library.BookEditor.path, book.id);
@@ -114,12 +64,12 @@ const BookItem = ({
       permissions={permissions}
       style={{ backgroundImage: `url(${book.image || defaultBookCover})` }}
     >
-      <Title className="title">
+      <GridItemName className="title">
         <TallIcon icon={icon} className={iconColor} permissions={permissions} />
         <Tooltip text={bookDescription}>{book.title}</Tooltip>
-      </Title>
+      </GridItemName>
 
-      <Controls columns="max-content auto">
+      <GridItemControls columns="max-content auto">
         {permissions === "Author" && (
           <>
             <GridContainer
@@ -127,20 +77,20 @@ const BookItem = ({
               className="controls"
               gap="0.2rem"
             >
-              <Bwoop variant="transparent" onClick={editBook}>
+              <GridItemControl variant="transparent" onClick={editBook}>
                 <MatIcon className="icon" icon="edit" />
-              </Bwoop>
-              <Bwoop variant="transparent" onClick={editBookSettings}>
+              </GridItemControl>
+              <GridItemControl variant="transparent" onClick={editBookSettings}>
                 <MatIcon className="icon" icon="settings" />
-              </Bwoop>
+              </GridItemControl>
             </GridContainer>
 
-            <Bwoop variant="outlined" onClick={removeBook}>
-              <MatIcon className="icon" icon="delete" />
-            </Bwoop>
+            <GridItemControl variant="outlined" onClick={removeBook}>
+              <MatIcon className="icon delete" icon="delete" />
+            </GridItemControl>
           </>
         )}
-      </Controls>
+      </GridItemControls>
     </Container>
   );
 };

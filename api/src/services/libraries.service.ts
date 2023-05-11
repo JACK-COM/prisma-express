@@ -6,6 +6,7 @@
 import { Prisma, Library } from "@prisma/client";
 import { context } from "../graphql/context";
 import { DateTime } from "luxon";
+import { findAllBooks } from "./books.service";
 
 type UpsertLibraryInput =
   | Prisma.LibraryUpsertArgs["create"] & Prisma.LibraryUpsertArgs["update"];
@@ -15,6 +16,7 @@ type SearchLibraryInput = Partial<
 type LibraryByIdInput = Pick<Library, "id">;
 
 const { Libraries } = context;
+const LibraryContent: Prisma.LibraryInclude = { Book: true, Series: true };
 
 /** create `Library` record */
 export async function upsertLibrary(newLibrary: UpsertLibraryInput) {
@@ -24,9 +26,9 @@ export async function upsertLibrary(newLibrary: UpsertLibraryInput) {
     ? Libraries.update({
         data,
         where: { id: newLibrary.id },
-        include: { Book: true, Series: true }
+        include: LibraryContent
       })
-    : Libraries.create({ data, include: { Book: true, Series: true } });
+    : Libraries.create({ data, include: LibraryContent });
 }
 
 /** create `Library` records */
@@ -49,15 +51,23 @@ export async function findAllLibraries(filters: SearchLibraryInput) {
   if (filters.afterDate) AND.push({ purchaseDate: { gt: filters.afterDate } });
   if (AND.length) where.AND = AND;
 
-  return Libraries.findMany({ where, include: { Book: true, Series: true } });
+  return Libraries.findMany({ where, include: LibraryContent });
 }
 
 /** find one `Library` record by id */
 export async function getLibraryById(id: LibraryByIdInput["id"]) {
-  return Libraries.findUnique({
-    where: { id },
-    include: { Book: true, Series: true }
-  });
+  return Libraries.findUnique({ where: { id }, include: LibraryContent });
+}
+
+/** Get books in library */
+export async function getUserLibraryBooks(userId?: Library["userId"]) {
+  if (!userId) return [];
+  const lib = await Libraries.findMany({ where: { userId } });
+  if (!lib.length) return [];
+
+  const bookIds: number[] = [];
+  lib.forEach(({ bookId }) => bookId && bookIds.push(bookId));
+  return findAllBooks({ id: bookIds });
 }
 
 /** delete one `Library` record matching params */

@@ -8,6 +8,7 @@ export const MFLocation = objectType({
     t.nonNull.int("id");
     t.nonNull.string("name");
     t.nonNull.string("description");
+    t.nonNull.field("type", { type: "LocationType" });
     t.int("parentLocationId", { description: "Parent Location" });
     t.field("climate", { type: "Climate" });
     t.field("fauna", { type: "Richness" });

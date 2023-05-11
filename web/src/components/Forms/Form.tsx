@@ -119,14 +119,20 @@ export const HintList = styled.ul`
   padding-left: ${({ theme }) => theme.sizes.sm};
 `;
 
+type GroupOption = {
+  groupName: string;
+  options: any[];
+  text(d: any): ReactText;
+  value(d: any): any;
+};
 type SelectProps<T = any> = Omit<
   ComponentPropsWithRef<"select">,
   "onChange"
 > & {
   data: T[];
   emptyMessage?: string;
-  itemText(d: T): ReactText;
-  itemValue(d: T): ReactText;
+  itemText(d: T): ReactText | GroupOption;
+  itemValue(d: T): any;
   onChange?: (e: T) => void;
   wide?: boolean;
 };
@@ -155,11 +161,27 @@ export const Select = styled((props: SelectProps) => {
       {...rest}
     >
       {data.length > 0 && <option value={""}>{placeholder}</option>}
-      {data.map((d, i) => (
-        <option key={i} value={itemValue(d)}>
-          {itemText(d)}
-        </option>
-      ))}
+      {data.map((d, i) => {
+        const text = itemText(d);
+        if ((text as GroupOption).groupName) {
+          const group = text as GroupOption;
+          return (
+            <optgroup key={i} label={group.groupName}>
+              {group.options.map((o, j) => (
+                <option key={j} value={o.value}>
+                  {group.text(o)}
+                </option>
+              ))}
+            </optgroup>
+          );
+        }
+
+        return (
+          <option key={i} value={itemValue(d)}>
+            {text as ReactText}
+          </option>
+        );
+      })}
       {data.length === 0 && <option>{emptyMessage}</option>}
     </StyledSelect>
   );
@@ -180,7 +202,7 @@ export const Form = styled.form`
 
 export const FormRow = styled(GridContainer)`
   place-content: space-between;
-  gap: 4px;
+  gap: ${({ gap = "4px" }) => gap};
   grid-template-columns: ${({ columns = "calc(50% - 2px) calc(50% - 2px)" }) =>
     columns};
 

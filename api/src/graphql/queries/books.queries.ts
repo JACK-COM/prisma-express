@@ -14,7 +14,10 @@ import {
 } from "nexus";
 import * as BooksService from "../../services/books.service";
 import * as SeriesService from "../../services/series.service";
-import { checkLibrary } from "../../services/libraries.service";
+import {
+  checkLibrary,
+  getUserLibraryBooks
+} from "../../services/libraries.service";
 import { DateTime } from "luxon";
 
 /**
@@ -50,7 +53,7 @@ export const getBookById = queryField("getBookById", {
         : false;
       const allowScenes = book.public && (isPublished || inLibrary);
       if (allowScenes) return book;
-      const Chapters = book.Chapters.map((c) => ({ ...c, Scenes: [] }));
+      const Chapters = book.Chapters?.map((c) => ({ ...c, Scenes: [] })) || [];
       return { ...book, Chapters };
     }
 
@@ -126,15 +129,14 @@ export const listBooks = queryField("listBooks", {
       description: args.description || undefined,
       seriesId: args.seriesId || undefined
     });
-
-    // filter out private books if user is not the author
-    return books;
+    const libBooks = await getUserLibraryBooks(user?.id);
+    return [...books, ...libBooks];
   }
 });
 
 /** List all published books */
-export const listBookPublications = queryField("listBookPublications", {
-  type: list("MFBook"),
+export const searchPublications = queryField("searchPublications", {
+  type: "MFSearchResult",
   args: {
     title: stringArg(),
     genre: stringArg(),
@@ -146,15 +148,22 @@ export const listBookPublications = queryField("listBookPublications", {
 
   resolve: async (_, args, __dbCtx) => {
     const { authorId, freeOnly } = args;
-    return BooksService.findAllPublishedBooks({
+    const sharedOpts = {
       title: args.title || undefined,
       genre: args.genre || undefined,
       authorId,
       public: true,
-      free: freeOnly || false,
-      description: args.description || undefined,
-      seriesId: args.seriesId || undefined
-    });
+      description: args.description || undefined
+    };
+    const [books, series] = await Promise.all([
+      BooksService.findAllPublishedBooks({
+        ...sharedOpts,
+        free: freeOnly || false,
+        seriesId: args.seriesId || undefined
+      }),
+      SeriesService.findAllPublishedSeries(sharedOpts)
+    ]);
+    return { books, series };
   }
 });
 

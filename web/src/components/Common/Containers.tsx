@@ -1,3 +1,4 @@
+import { RoundButton } from "components/Forms/Button";
 import { ComponentPropsWithRef } from "react";
 import { Link } from "react-router-dom";
 import styled, { css } from "styled-components";
@@ -24,7 +25,11 @@ export const ExLink = styled.a.attrs({
 export const BaseContainer = styled.section``;
 
 /** UI bordered section */
-export const Card = styled(BaseContainer).attrs({ className: "card" })`
+export const Card = styled(BaseContainer).attrs<{ className?: string }>(
+  (props) => ({
+    className: `card ${props.className || ""}`.trim()
+  })
+)`
   border: ${({ theme }) => `1px dotted ${theme.colors.semitransparent}`};
   border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
   padding: 0 1em 1em;
@@ -116,17 +121,9 @@ export const ItemDescription = styled.div`
   }
 `;
 type NameProps = PermissionProps & { polarity?: EventPolarity };
-export const ItemName = styled.b.attrs({
-  role: "button",
-  tabIndex: -1
-})<NameProps>`
+export const sharedListItemNameStyles = css`
   ${({ theme }) => theme.mixins.ellipsis};
-  color: ${({ polarity }) => EventPolarityColors(polarity)};
   font-family: ${({ theme }) => theme.presets.fonts.heading};
-  grid-column: 2;
-  grid-row: 1;
-  pointer-events: ${({ permissions }) =>
-    permissions === "Author" ? "fill" : "none"};
   width: fit-content;
 
   &:hover {
@@ -140,6 +137,30 @@ export const ItemName = styled.b.attrs({
     cursor: pointer;
   }
 `;
+export const ItemName = styled.b.attrs({
+  role: "button",
+  tabIndex: -1
+})<NameProps>`
+  color: ${({ polarity }) => EventPolarityColors(polarity)};
+  pointer-events: ${({ permissions }) =>
+    permissions === "Author" ? "fill" : "none"};
+  grid-column: 2;
+  grid-row: 1;
+`;
+export const GridItemName = styled.h6`
+  align-self: flex-start;
+  background: linear-gradient(0deg, #00000000, #000717ce);
+  border-radius: ${({ theme }) => `${theme.sizes.xs} ${theme.sizes.xs} 0 0}`};
+  color: white;
+  display: grid;
+  font-weight: normal;
+  grid-template-columns: 32px auto;
+  overflow: visible;
+  padding: ${({ theme }) => theme.sizes.xs};
+  text-shadow: 0 0 0.05rem #000717ce;
+  white-space: normal;
+  width: 100%;
+`;
 
 // Shared list item styles
 const sharedListItemStyles = css`
@@ -147,7 +168,6 @@ const sharedListItemStyles = css`
   column-gap: ${({ theme }) => theme.sizes.sm};
   cursor: pointer;
   display: grid;
-  grid-template-columns: 24px 10fr 3fr;
   padding: ${({ theme }) => theme.sizes.xs};
   text-shadow: ${({ theme }) => theme.presets.elevate.xxs} #001125ec;
   width: 100%;
@@ -157,10 +177,49 @@ const sharedListItemStyles = css`
     text-shadow: none;
   }
 `;
+export const sharedGridItemStyles = css`
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  border: ${({ theme }) =>
+    `${theme.sizes.xs} solid ${theme.colors.semitransparent}`};
+  border-radius: ${({ theme }) => theme.sizes.sm};
+  color: inherit;
+  justify-content: space-between;
+  height: 25vh;
+  padding: 0;
+  transition: all 0.2s ease-in-out;
+  width: 200px;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.semitransparent};
+  }
+
+  @media (max-width: 768px) {
+    height: 30vh;
+  }
+`;
+export const GridItemControls = styled(GridContainer)`
+  align-self: flex-end;
+  background: linear-gradient(180deg, #00000000, #000717ce);
+  border-radius: ${({ theme }) => `0 0 ${theme.sizes.xs} ${theme.sizes.xs}`};
+  color: white;
+  grid-column-gap: ${({ theme }) => theme.sizes.xs};
+  justify-content: space-between;
+  padding: ${({ theme }) => `${theme.sizes.xs} ${theme.sizes.sm}`};
+  width: 100%;
+`;
+export const GridItemControl = styled(RoundButton).attrs({ size: "lg" })`
+  &:hover {
+    color: inherit;
+    animation: scale-up 1s ease-in-out infinite;
+  }
+`;
 // Shared ListItem grid container
-export const ItemGridContainer = styled(GridContainer)<PermissionProps>`
+type ItemProps = { columns?: string } & PermissionProps;
+export const ItemGridContainer = styled(GridContainer)<ItemProps>`
   ${sharedListItemStyles}
-  grid-template-columns: 24px 10fr max-content;
+  grid-template-columns: ${({ columns = "24px 10fr max-content" }) => columns};
   justify-content: space-between;
 
   .list-item {
@@ -170,8 +229,9 @@ export const ItemGridContainer = styled(GridContainer)<PermissionProps>`
 // Shared ListItem link container
 export const ItemLinkContainer = styled(Link).attrs({
   className: "list-item"
-})<PermissionProps>`
+})<ItemProps>`
   ${sharedListItemStyles}
+  grid-template-columns: ${({ columns = "24px 10fr 3fr" }) => columns};
 
   .delete {
     align-self: center;
@@ -286,7 +346,10 @@ export const Section = styled(FlexColumn)`
   }
 `;
 
-const Icon = styled.span``;
+const Icon = styled.span`
+  font-size: inherit;
+  display: inline-block;
+`;
 export type MatIconProps = { icon: string } & ComponentPropsWithRef<"span">;
 export const MatIcon = ({
   icon,

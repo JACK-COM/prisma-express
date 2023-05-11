@@ -13,6 +13,11 @@ type SearchChapterInput = Partial<
 > & { id?: Chapter["id"][] };
 
 const { Chapters } = context;
+const ChapterAuthor: Prisma.ChapterInclude = { Author: true };
+const ChapterContents: Prisma.ChapterInclude = {
+  ...ChapterAuthor,
+  Scenes: { include: { Links: true }, orderBy: { order: "asc" } }
+};
 
 /** create or update `Chapter` record */
 export async function upsertChapter(chapter: ChapterUpsertInput) {
@@ -25,10 +30,7 @@ export async function upsertChapter(chapter: ChapterUpsertInput) {
     ? Chapters.update({
         data,
         where: { id: chapter.id },
-        include: {
-          Author: true,
-          Scenes: { include: { Links: true }, orderBy: { order: "asc" } }
-        }
+        include: ChapterContents
       })
     : Chapters.create({ data });
 }
@@ -48,38 +50,17 @@ export async function findAllChapters(filters: SearchChapterInput) {
   if (filters.description)
     where.description = { contains: filters.description };
 
-  return Chapters.findMany({
-    where,
-    include: { Author: true }
-  });
+  return Chapters.findMany({ where, include: ChapterAuthor });
 }
 
 /** find one `Chapter` record matching params */
 export async function getChapterById(id: Chapter["id"]) {
-  return Chapters.findUnique({
-    where: { id },
-    include: {
-      Author: true,
-      Scenes: {
-        include: { Links: true },
-        orderBy: { order: "asc" }
-      }
-    }
-  });
+  return Chapters.findUnique({ where: { id }, include: ChapterContents });
 }
 
 /** delete one `Chapter` record matching params */
 export async function deleteChapterById(id: Chapter["id"]) {
-  return Chapters.delete({
-    where: { id },
-    include: {
-      Author: true,
-      Scenes: {
-        include: { Links: true },
-        orderBy: { order: "asc" }
-      }
-    }
-  });
+  return Chapters.delete({ where: { id }, include: ChapterContents });
 }
 
 export function pruneChapterData(chapter: any, i = 0) {

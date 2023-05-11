@@ -29,15 +29,17 @@ export const MFTimelineEventFragment = `
 
 /** graphql `Location` fragment */
 export const MFLocationFragment = `
-    id, name, description, climate, fauna, flora, authorId, worldId, parentLocationId,
+    id, name, description, type, climate, fauna, flora, authorId, worldId, parentLocationId,
     ChildLocations {id, name, description, climate, fauna, flora, authorId, worldId, parentLocationId }
 `;
 
 /** graphql `World` fragment */
 export const MFWorldFragment = `
-    id, name, description, type, public, authorId, parentWorldId, 
+    id, name, description, type, public, authorId, image, parentWorldId, 
     Locations { ${MFLocationFragment} },
     Events { ${MFEventFragment} },
+    childWorldsCount,
+    ChildWorlds { id, name, description, type, public, image, authorId }
 `;
 
 /** graphql `Timeline` fragment */
@@ -64,13 +66,17 @@ export const MFBookFragment = `
 
 /** graphql `Series` fragment */
 export const MFSeriesFragment = `
-    id, name, description, authorId, worldId,
-    Books {
-      ${MFBookFragment}
-    }
+    id, title, description, authorId, 
+    Books { ${MFBookFragment} }
 `;
 
 /** graphql `ContentLink` fragment */
 export const MFContentLinkFragment = `
     id, text, authorId, originId, seriesId, bookId, chapterId, sceneId
+`;
+
+/** search result fragment */
+export const MFSearchResultFragment = `
+    books { ${MFBookFragment} },
+    series { ${MFSeriesFragment} }
 `;

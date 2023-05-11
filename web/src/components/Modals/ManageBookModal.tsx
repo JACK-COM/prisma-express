@@ -58,6 +58,10 @@ export default function ManageBookModal(props: ManageBookModalProps) {
 
     return imageRes.fileURL;
   };
+  const close = () => {
+    GlobalLibrary.focusedBook(null);
+    onClose();
+  };
   const submit = async () => {
     err("");
     // Validate
@@ -79,10 +83,12 @@ export default function ManageBookModal(props: ManageBookModalProps) {
     // Notify
     if (resp) {
       const { books } = GlobalLibrary.getState();
-      const newBooks = books.map((b) => (b.id === resp.id ? resp : b));
-      GlobalLibrary.multiple({ focusedBook: resp, books: newBooks });
+      const newBooks = d.id
+        ? books.map((b) => (b.id === resp.id ? resp : b))
+        : [...books, resp];
+      GlobalLibrary.multiple({ focusedBook: null, books: newBooks });
       updateNotification("Book saved!", noteId);
-      onClose();
+      close();
     } else err("Did not create book: please check your entries.");
   };
 
@@ -99,7 +105,7 @@ export default function ManageBookModal(props: ManageBookModalProps) {
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={close}
       title={data?.id ? "Edit Book" : "Create Book"}
       cancelText="Cancel"
       confirmText={data?.id ? "Update" : "Create"}

@@ -112,6 +112,8 @@ const shared = {
 
 export default shared;
 
+export const sidebarWidth = "12rem";
+
 /* Shared CSS Helpers */
 
 /** apply line-clamp rule (limit number of displayed lines with ellipsis) */

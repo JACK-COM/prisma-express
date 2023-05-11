@@ -46,7 +46,7 @@ const TimelinesEventsListRoute = () => {
       breadcrumbs={crumbs}
       description={`A <b>Timeline</b> in <b className="accent--text">${worldName}</b>`}
     >
-      <TimelinesEventsList focusedTimeline={focusedTimeline} />
+      <TimelinesEventsList className="fill" focusedTimeline={focusedTimeline} />
     </PageLayout>
   );
 };

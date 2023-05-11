@@ -33,7 +33,12 @@ const BooksListRoute = () => {
       id="books-list"
       description="Create or manage your <b>Books</b> and <b>Series</b> here."
     >
-      <ChaptersList books={books} focusedBook={focusedBook} series={series} />
+      <ChaptersList
+        className="fill"
+        books={books}
+        focusedBook={focusedBook}
+        series={series}
+      />
     </PageLayout>
   );
 };

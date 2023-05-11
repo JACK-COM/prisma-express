@@ -22,6 +22,13 @@ type SearchBookInput = Partial<
 > & { id?: Book["id"][]; published?: boolean };
 
 const { Books, Chapters, Scenes } = context;
+const BookContents: Prisma.BookInclude = {
+  Author: true,
+  Chapters: {
+    include: { Scenes: { orderBy: { order: "asc" } } },
+    orderBy: { order: "asc" }
+  }
+};
 
 /** create or update `Book` record */
 export async function upsertBook(book: BookUpsertInput) {
@@ -42,19 +49,25 @@ export async function upsertBooks(books: BookUpsertInput[]) {
 
 /** find all `Book` records matching params */
 export async function findAllBooks(filters: SearchBookInput) {
-  const where: Prisma.BookWhereInput = { public: filters.public };
+  const where: Prisma.BookWhereInput = findAllWhereInput(filters);
+  return Books.findMany({ where, include: BookContents });
+}
+
+function findAllWhereInput(filters: SearchBookInput) {
+  const where: Prisma.BookWhereInput = {};
   where.OR = [];
   if (filters.id) where.id = { in: filters.id };
   if (filters.authorId) {
     where.OR.push(
-      { public: true },
+      { authorId: filters.authorId, public: true },
       { authorId: filters.authorId, public: false }
     );
   } else where.OR.push({ public: true });
   if (filters.seriesId) where.seriesId = filters.seriesId;
-  if (filters.title) where.title = { contains: filters.title };
+  if (filters.title)
+    where.title = { contains: filters.title, mode: "insensitive" };
   if (filters.description)
-    where.description = { contains: filters.description };
+    where.description = { contains: filters.description, mode: "insensitive" };
 
   if (filters.published) {
     where.publishDate = { lte: DateTime.now().toISO() };
@@ -64,43 +77,19 @@ export async function findAllBooks(filters: SearchBookInput) {
     where.OR = [];
     where.OR.push({ genre: { contains: filters.genre } });
   }
-
-  return Books.findMany({
-    where,
-    include: { Author: true, Chapters: { orderBy: { order: "asc" } } }
-  });
+  return where;
 }
 
 /** find all published `Book` records matching params */
 export async function findAllPublishedBooks(filters: SearchBookInput) {
-  const where: Prisma.BookWhereInput = {};
-  where.publishDate = { lte: DateTime.now().toISO() };
-  if (filters.id) where.id = { in: filters.id };
-  if (filters.seriesId) where.seriesId = filters.seriesId;
-  if (filters.title) where.title = { contains: filters.title };
-  if (filters.description)
-    where.description = { contains: filters.description };
-
-  if (filters.genre) {
-    where.OR = [];
-    where.OR.push({ genre: { contains: filters.genre } });
-  }
-
-  return Books.findMany({
-    where,
-    include: { Author: true, Chapters: { orderBy: { order: "asc" } } }
-  });
+  const where: Prisma.BookWhereInput = findAllWhereInput(filters);
+  where.AND = [{ publishDate: { lte: DateTime.now().toISO() } }];
+  return Books.findMany({ where, include: BookContents });
 }
 
 /** find one `Book` record matching params */
 export async function getBookById(id: Book["id"]) {
-  return Books.findUnique({
-    where: { id },
-    include: {
-      Author: true,
-      Chapters: { include: { Scenes: true }, orderBy: { order: "asc" } }
-    }
-  });
+  return Books.findUnique({ where: { id }, include: BookContents });
 }
 
 /** delete one `Book` record matching params */

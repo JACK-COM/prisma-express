@@ -65,7 +65,7 @@ export async function updateWorld(
 /** delete a world */
 export async function deleteWorld(where: WorldByIdInput) {
   const { id } = where;
-  await Promise.all([
+  const [deletedWorld] = await Promise.all([
     // delete world and related content (e.g. locations)
     Worlds.delete({ where, include: WorldContent }),
     // nullify non-relational references to this world
@@ -74,4 +74,5 @@ export async function deleteWorld(where: WorldByIdInput) {
       data: { parentWorldId: null }
     })
   ]);
+  return deletedWorld;
 }

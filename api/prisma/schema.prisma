@@ -89,6 +89,7 @@ enum LocationType {
 enum WorldType {
   Universe
   Galaxy
+  Star
   Planet
   Realm
   Other
@@ -139,6 +140,8 @@ model Book {
   public      Boolean   @default(false) // ( publicly accessible )
   free        Boolean   @default(false) // ( free to read )
   authorId    Int? // ( references User )
+  worldId     Int? // ( references World )
+  locationId  Int? // ( references Location )
   seriesId    Int?
   Chapters    Chapter[]
   Author      User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)

@@ -52,12 +52,7 @@ const WorldsList = (props: WorldsListProps) => {
   const controls = () =>
     authenticated &&
     showControls && (
-      <CreateWorldItem
-        onClick={() => {
-          GlobalWorld.focusedWorld(null);
-          setGlobalModal(MODAL.MANAGE_WORLD);
-        }}
-      />
+      <CreateWorldItem onClick={() => setGlobalModal(MODAL.CREATE_WORLD)} />
     );
 
   useEffect(() => {

@@ -29,8 +29,8 @@ export async function upsertWorld(newWorld: UpsertWorldInput) {
 export async function findAllWorld(filters: SearchWorldInput) {
   const where: Prisma.WorldFindManyArgs["where"] = {};
   if (filters.id) where.id = filters.id;
-  if (filters.parentWorldId) where.parentWorldId = filters.parentWorldId;
-  else where.AND = [{ parentWorldId: null }];
+  if (filters.parentWorldId !== undefined)
+    where.parentWorldId = filters.parentWorldId;
 
   where.OR = [];
   const { authorId, public: isPub, name, description } = filters;

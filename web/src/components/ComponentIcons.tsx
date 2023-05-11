@@ -83,6 +83,8 @@ export const WorldPublicIcon = (props: WorldIconProps) => {
         return "auto_awesome";
       case WorldType.Galaxy:
         return "storm";
+      case WorldType.Star:
+        return "star";
       default:
         return "public";
     }

@@ -111,6 +111,7 @@ export const WorldType = enumType({
     Universe: "Universe",
     Planet: "Planet",
     Galaxy: "Galaxy",
+    Star: "Star",
     Realm: "Realm",
     Other: "Other"
   }

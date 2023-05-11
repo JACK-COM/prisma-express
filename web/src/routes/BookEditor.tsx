@@ -26,7 +26,6 @@ import { useGlobalWindow } from "hooks/GlobalWindow";
 import { upsertBook, upsertScene } from "graphql/requests/books.graphql";
 import { useGlobalUser } from "hooks/GlobalUser";
 import EditorToolbar from "components/EditorToolbar";
-import PellEditor from "components/Forms/Pell";
 
 const { Library } = Paths;
 const Clickable = styled.span`

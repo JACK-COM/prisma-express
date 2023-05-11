@@ -11,7 +11,6 @@ import { useParams } from "react-router";
 import { WorldPublicIcon } from "components/ComponentIcons";
 import { loadCharacters, loadWorld } from "api/loadUserData";
 import PageLayout from "components/Common/PageLayout";
-import TimelinesList from "components/List.Timelines";
 import { loadTimelines } from "api/loadUserData";
 import {
   GlobalCharacter,
@@ -173,14 +172,14 @@ const WorldLocationRoute = () => {
                   icon="face"
                   text="Add a Character"
                   variant="outlined"
-                  // onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
+                  onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
                 />
                 <hr className="transparent" />
                 <AddItemButton
                   icon="book"
                   text="Add Book"
                   variant="outlined"
-                  // onClick={() => setGlobalModal(MODAL.MANAGE_WORLD_EVENTS)}
+                  onClick={() => setGlobalModal(MODAL.MANAGE_BOOK)}
                 />
                 <hr className="transparent" />
               </Card>

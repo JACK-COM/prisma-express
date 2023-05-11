@@ -5,6 +5,8 @@ export enum MODAL {
   LINK_SCENE = "Link Scene",
   CONFIRM_DELETE_BOOK = "Confirm Delete Book",
   CONFIRM_DELETE_WORLD = "Confirm Delete World",
+  CREATE_BOOK = "Create Book",
+  CREATE_WORLD = "Create World",
   MANAGE_BOOK = "Manage Book",
   MANAGE_CHAPTER = "Manage Chapter",
   MANAGE_CHARACTER = "Manage Character",

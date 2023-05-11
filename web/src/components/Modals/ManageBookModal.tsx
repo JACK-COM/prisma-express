@@ -8,6 +8,10 @@ import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import {
   GlobalLibrary,
+  GlobalModal,
+  GlobalUser,
+  GlobalWorld,
+  MODAL,
   addNotification,
   clearGlobalModal,
   updateAsError,
@@ -26,12 +30,40 @@ type ManageBookModalProps = {
 };
 
 // Empty/default form data
-const emptyForm = (): Partial<UpsertBookData> => ({ public: false });
+const initialFormData = (): Partial<UpsertBookData> => {
+  const { focusedBook } = GlobalLibrary.getState();
+  const { id: authorId } = GlobalUser.getState();
+  const { active } = GlobalModal.getState();
+  const { focusedLocation, focusedWorld } = GlobalWorld.getState();
+  const worldId = focusedWorld?.id;
+  const locationId = focusedLocation?.id;
+  const $form: Partial<UpsertBookData> = {
+    title: "",
+    description: "",
+    genre: "",
+    public: false,
+    authorId,
+    worldId,
+    locationId
+  };
+
+  if (active === MODAL.MANAGE_BOOK && focusedBook) {
+    $form.title = focusedBook.title;
+    $form.description = focusedBook.description;
+    $form.genre = focusedBook.genre;
+    $form.public = focusedBook.public;
+    $form.id = focusedBook.id;
+    $form.worldId = focusedBook.worldId;
+    $form.locationId = focusedBook.locationId;
+  }
+
+  return $form;
+};
 
 /** Specialized Modal for creating/editing a `Book` */
 export default function ManageBookModal(props: ManageBookModalProps) {
   const { open, onClose = clearGlobalModal } = props;
-  const [formData, setFormData] = useState(emptyForm());
+  const [formData, setFormData] = useState(initialFormData());
   const { focusedBook: data } = useGlobalLibrary(["focusedBook"]);
   const { id: userId } = useGlobalUser(["id"]);
   const [error, setError] = useState("");
@@ -93,14 +125,11 @@ export default function ManageBookModal(props: ManageBookModalProps) {
   };
 
   useEffect(() => {
-    if (data) setFormData({ ...data });
-    else if (!data) setFormData(emptyForm());
-
     return () => {
-      setFormData(emptyForm());
+      setFormData(initialFormData());
       setError("");
     };
-  }, [data]);
+  }, []);
 
   return (
     <Modal

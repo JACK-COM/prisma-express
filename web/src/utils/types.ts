@@ -107,31 +107,39 @@ export enum Richness {
 
 /** Used to describe a type of location */
 export enum LocationType {
-  Building = "Building",
-  City = "City",
   Continent = "Continent",
-  Country = "Country",
-  Other = "Other",
   Region = "Region",
-  Ruins = "Ruins",
-  Settlement = "Settlement",
+  Country = "Country",
+  City = "City",
   Town = "Town",
-  Village = "Village"
+  Village = "Village",
+  Settlement = "Settlement",
+  Ruins = "Ruins",
+  Building = "Building",
+  Other = "Other"
 }
+
+/** List of Location types */
+export const locationTypes = Object.values(LocationType);
 
 /** The type of World (super-set of locations)  */
 export enum WorldType {
+  /** A non-dimensional space where causal events still occur */
+  Realm = "Realm",
   /** A dimensional causal space (e.g. with planets, stars, etc) */
   Universe = "Universe",
   /** A Galaxy */
   Galaxy = "Galaxy",
+  /** A star or star system */
+  Star = "Star",
   /** A planet-mass body with many sub-locations */
   Planet = "Planet",
-  /** A non-dimensional space where causal events still occur */
-  Realm = "Realm",
   /** Something other than dimensional and non-dimensional (e.g. star's orbit) */
   Other = "Other"
 }
+
+/** List of World types */
+export const worldTypes = Object.values(WorldType);
 
 /** Content created by an author */
 export type AuthorRelation = { authorId?: number; Author?: APIData<User> };
@@ -204,6 +212,8 @@ export type Book = {
   genre: string;
   public: boolean;
   free: boolean;
+  worldId?: number; // partial world relation
+  locationId?: number; // partial location relation
   Chapters: APIData<Chapter>[];
 } & AuthorRelation &
   SeriesRelation;
@@ -347,7 +357,7 @@ export type WorldCore = {
 };
 export type World = WorldCore & {
   childWorldsCount: number;
-  parentWorldId?: number;
+  parentWorldId?: number | null;
   Locations: APIData<Location>[];
   Timelines: APIData<Timeline>[];
   Events: APIData<WorldEvent>[];

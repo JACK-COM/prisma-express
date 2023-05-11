@@ -65,6 +65,7 @@ export const listWorlds = queryField("listWorlds", {
     id: intArg(),
     authorId: intArg(),
     parentWorldId: intArg(),
+    parentsOnly: booleanArg({ default: false }),
     description: stringArg({ default: undefined }),
     name: stringArg({ default: undefined }),
     public: booleanArg({ default: true })
@@ -74,10 +75,8 @@ export const listWorlds = queryField("listWorlds", {
    * Query resolver
    * @param _ Source object (ignored in mutations/queries)
    * @param args Args (everything defined in `args` property above)
-   * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
-   * database directly, or to access the authenticated `user` if the request has one.
+   * @param _ctx This is `DBContext` from `src/context.ts`.
    * @returns `MFWorld` object from service
-   * @throws Error if world not found or world is private and user is not the author
    */
   resolve: async (_, args, { user }) => {
     const { authorId, description, name } = args;
@@ -87,7 +86,7 @@ export const listWorlds = queryField("listWorlds", {
     const worlds = await WorldsService.findAllWorld({
       id: args.id || undefined,
       authorId: authorId || undefined,
-      parentWorldId: args.parentWorldId || undefined,
+      parentWorldId: args.parentsOnly ? null : args.parentWorldId,
       description: description || undefined,
       name: name || undefined,
       public: args.public || undefined

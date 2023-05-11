@@ -9,10 +9,10 @@ import {
   Legend,
   RadioInput,
   RadioLabel,
-  TinyMCE
+  Textarea
 } from "components/Forms/Form";
 import { UpsertBookData } from "graphql/requests/books.graphql";
-import WorkCategory from "./Form.WorkCategory";
+import LitCategory from "./Form.LitCategory";
 
 export type CreateBookProps = {
   data?: Partial<UpsertBookData>;
@@ -56,7 +56,9 @@ const CreateBookForm = (props: CreateBookProps) => {
       {/* Name */}
       <FormRow columns="repeat(2, 1fr)">
         <Label direction="column">
-          <span className="label required">Book Title</span>
+          <span className="label required">
+            Book <span className="accent--text">Title</span>
+          </span>
           <Input
             placeholder="Omarai: Rise of the Reborn"
             type="text"
@@ -65,7 +67,9 @@ const CreateBookForm = (props: CreateBookProps) => {
           />
         </Label>
         <Label direction="column">
-          <span className="label">Cover Image</span>
+          <span className="label">
+            Cover <span className="accent--text">Image</span>
+          </span>
           <Input
             type="file"
             accept="image/*"
@@ -78,12 +82,12 @@ const CreateBookForm = (props: CreateBookProps) => {
       <hr />
 
       {/* Genre */}
-      <WorkCategory
-        value={data?.genre || ""}
-        onChange={(genre) => onChange({ ...data, genre })}
+      <LitCategory
+        value={data}
+        onChange={(details) => onChange({ ...data, ...details })}
       />
 
-      {/* Public/Private */}
+      {/* Public/Private | Free/Paid */}
       <FormRow columns="repeat(2, 1fr)">
         <Label direction="column">
           <span className="label">
@@ -148,10 +152,11 @@ const CreateBookForm = (props: CreateBookProps) => {
       {/* Description */}
       <Label direction="column">
         <span className="label required">Summary</span>
-        <TinyMCE
-          height={300}
+        <Textarea
+          rows={300}
+          style={{ width: "100%" }}
           value={data?.description || ""}
-          onChange={updateDescription}
+          onChange={({ target }) => updateDescription(target.value)}
         />
       </Label>
       <Hint>

@@ -119,12 +119,18 @@ export async function upsertLocation(data: Partial<CreateLocationData>) {
 // Use fetchGQL to list all `Worlds` on the server (with optional filters)
 type WorldFilters = Pick<
   APIData<World>,
-  "id" | "public" | "name" | "description" | "type" | "authorId"
->;
+  | "id"
+  | "public"
+  | "name"
+  | "description"
+  | "parentWorldId"
+  | "type"
+  | "authorId"
+> & { parentsOnly?: boolean };
 export async function listWorlds(filters: Partial<WorldFilters> = {}) {
   const unsortedWorlds = await fetchGQL<APIData<World>[]>({
     query: listWorldsQuery(),
-    variables: { ...filters },
+    variables: filters,
     onResolve: ({ listWorlds: list }) => list,
     fallbackResponse: []
   });

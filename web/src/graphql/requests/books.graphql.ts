@@ -45,6 +45,8 @@ export type UpsertBookData = ItemId & {
     | "description"
     | "genre"
     | "seriesId"
+    | "worldId"
+    | "locationId"
   >;
 
 /** Data required to create a chapter */

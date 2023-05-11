@@ -98,6 +98,9 @@ type MFBook {
   id: Int!
   image: String
 
+  """Fictional World location of Book"""
+  locationId: Int
+
   """Book order in series"""
   order: Int
 
@@ -113,6 +116,9 @@ type MFBook {
 
   """Item updated"""
   updated: CsDateTime
+
+  """Fictional World location of Book"""
+  worldId: Int
 }
 
 input MFBookUpsertInput {
@@ -780,7 +786,7 @@ type Query {
   """
   List/filter multiple `Worlds`. Author can view their own worlds, a reader can view public worlds
   """
-  listWorlds(authorId: Int, description: String, id: Int, name: String, parentWorldId: Int, public: Boolean = true): [MFWorld]
+  listWorlds(authorId: Int, description: String, id: Int, name: String, parentWorldId: Int, parentsOnly: Boolean = false, public: Boolean = true): [MFWorld]
   searchPublications(authorId: Int, description: String, freeOnly: Boolean = false, genre: String, seriesId: Int, title: String): MFSearchResult
 }
 
@@ -807,5 +813,6 @@ enum WorldType {
   Other
   Planet
   Realm
+  Star
   Universe
 }

@@ -26,7 +26,10 @@ export default function GlobalModalGroup() {
       {active === M.MANAGE_CHAPTER && <ManageChapterModal open />}
       {active === M.MANAGE_SCENE && <ManageSceneModal open />}
       {active === M.MANAGE_TIMELINE && <ManageTimelineModal open />}
-      {active === M.MANAGE_WORLD && <ManageWorldModal open />}
+      {[M.MANAGE_WORLD, M.CREATE_WORLD].includes(active) && (
+        <ManageWorldModal open />
+      )}
+
       {WH.focusedWorld && (
         <>
           {active === M.MANAGE_LOCATION && (

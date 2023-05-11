@@ -40,8 +40,9 @@ export async function loadUserData(opts = defaultLoadOpts) {
   const { worlds: stateWorlds } = GlobalWorld.getState();
   const { books: stateBooks } = GlobalLibrary.getState();
   const params = makeAPIParams(opts);
+  const wparams = { ...params, parentWorldId: null };
   const [worlds, books] = await Promise.all([
-    listOrLoad(stateWorlds, () => listWorlds(params)),
+    listOrLoad(stateWorlds, () => listWorlds(wparams)),
     listOrLoad(stateBooks, () => listBooks(params))
   ]);
 
@@ -96,15 +97,18 @@ export async function getAndShowPrompt(input?: string, show?: boolean) {
 
 /** Load and focus a single world */
 export async function loadWorld(opts: HOOK__LoadWorldOpts) {
-  const { worldId } = makeAPIParams(opts);
+  const { worldId, locationId } = makeAPIParams(opts);
   if (!worldId) return;
   type T = APIData<World>;
   const focusedWorld =
     getByIdFromWorldState<T>(worldId, "worlds") || (await getWorld(worldId));
-  const { Locations: worldLocations, Events: events } = focusedWorld || {};
+  const { Locations: worldLocations = [], Events: events } = focusedWorld || {};
+  const focusedLocation = locationId
+    ? worldLocations.find((l) => l.id === locationId) || null
+    : null;
   GlobalWorld.multiple({
     focusedWorld,
-    focusedLocation: null,
+    focusedLocation,
     worldLocations,
     events
   });
@@ -231,19 +235,19 @@ export async function uploadFileToServer(
 }
 
 type APIParams = {
-  worldId?: number;
   authorId?: number;
-  timelineId?: number;
   public?: boolean;
-};
+} & Pick<HOOK__LoadWorldOpts, "worldId" | "timelineId" | "locationId">;
+
 /** Make API Params */
 function makeAPIParams(opts: HOOK__LoadWorldOpts) {
   const params: APIParams = {};
-  const { worldId, userId, timelineId } = opts;
+  const { worldId, userId, timelineId, locationId } = opts;
   if (userId === -1) params.public = true;
   else if ((userId || -2) > -1) params.authorId = userId;
   else {
     if (worldId) params.worldId = Number(worldId);
+    if (locationId) params.locationId = Number(locationId);
     if (timelineId) params.timelineId = Number(timelineId);
   }
   return params;

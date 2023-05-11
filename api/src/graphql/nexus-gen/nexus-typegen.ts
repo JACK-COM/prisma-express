@@ -184,7 +184,7 @@ export interface NexusGenEnums {
   LocationType: "Building" | "City" | "Continent" | "Country" | "Other" | "Region" | "Ruins" | "Settlement" | "Town" | "Village"
   Richness: "Abundant" | "Adequate" | "Barren" | "Sparse" | "Unspecified"
   UserRole: "Admin" | "Author" | "Moderator" | "Reader"
-  WorldType: "Galaxy" | "Other" | "Planet" | "Realm" | "Universe"
+  WorldType: "Galaxy" | "Other" | "Planet" | "Realm" | "Star" | "Universe"
 }
 
 export interface NexusGenScalars {
@@ -220,12 +220,14 @@ export interface NexusGenObjects {
     genre: string; // String!
     id: number; // Int!
     image?: string | null; // String
+    locationId?: number | null; // Int
     order?: number | null; // Int
     public: boolean; // Boolean!
     publishDate?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     seriesId?: number | null; // Int
     title: string; // String!
     updated?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
+    worldId?: number | null; // Int
   }
   MFChapter: { // root type
     Author?: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
@@ -434,12 +436,14 @@ export interface NexusGenFieldTypes {
     genre: string; // String!
     id: number; // Int!
     image: string | null; // String
+    locationId: number | null; // Int
     order: number | null; // Int
     public: boolean; // Boolean!
     publishDate: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     seriesId: number | null; // Int
     title: string; // String!
     updated: NexusGenScalars['CsDateTime'] | null; // CsDateTime
+    worldId: number | null; // Int
   }
   MFChapter: { // field return type
     Author: NexusGenRootTypes['MFAuthor'] | null; // MFAuthor
@@ -699,12 +703,14 @@ export interface NexusGenFieldTypeNames {
     genre: 'String'
     id: 'Int'
     image: 'String'
+    locationId: 'Int'
     order: 'Int'
     public: 'Boolean'
     publishDate: 'CsDateTime'
     seriesId: 'Int'
     title: 'String'
     updated: 'CsDateTime'
+    worldId: 'Int'
   }
   MFChapter: { // field return type name
     Author: 'MFAuthor'
@@ -1157,6 +1163,7 @@ export interface NexusGenArgTypes {
       id?: number | null; // Int
       name?: string | null; // String
       parentWorldId?: number | null; // Int
+      parentsOnly?: boolean | null; // Boolean
       public: boolean | null; // Boolean
     }
     searchPublications: { // args

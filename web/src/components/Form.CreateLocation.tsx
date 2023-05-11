@@ -1,4 +1,4 @@
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { noOp } from "../utils";
 import { Climate, LocationType, Richness } from "../utils/types";
 import {
@@ -96,7 +96,7 @@ const CreateLocationForm = (props: CreateLocationProps) => {
   };
 
   const validParents = useMemo(() => {
-    if (!data?.id) return worldLocations;
+    if (!data?.type) return worldLocations;
     const valid = worldLocations.filter((w) => w.id !== data.id);
     if (data.type === LocationType.Other) return valid;
     const index = locationTypes.findIndex((w) => w === data.type);
@@ -104,6 +104,10 @@ const CreateLocationForm = (props: CreateLocationProps) => {
     const validParentTypes = new Set(validParentTypesList);
     return valid.filter((w) => validParentTypes.has(w.type));
   }, [props]);
+
+  useEffect(() => {
+    if (!data.type) update({ ...data, type: LocationType.Building });
+  }, []);
 
   return (
     <Form>
@@ -136,7 +140,7 @@ const CreateLocationForm = (props: CreateLocationProps) => {
           </span>
           <Select
             data={locationTypes}
-            value={data?.type || "Building"}
+            value={data?.type}
             itemText={(d) => d}
             itemValue={(d) => d.id}
             placeholder="Select location type:"

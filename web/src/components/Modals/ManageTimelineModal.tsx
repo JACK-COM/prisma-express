@@ -8,7 +8,12 @@ import CreateTimelineForm from "components/Form.CreateTimeline";
 import { useEffect, useState } from "react";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { APIData, Timeline } from "utils/types";
-import { GlobalWorld, clearGlobalModal } from "state";
+import {
+  GlobalWorld,
+  addNotification,
+  clearGlobalModal,
+  updateAsError
+} from "state";
 
 /** Modal props */
 type ManageTimelineModalProps = {
@@ -18,7 +23,10 @@ type ManageTimelineModalProps = {
 };
 
 // Empty/default form data
-const emptyForm = (): Partial<CreateTimelineData> => ({ events: [] });
+const emptyForm = (): Partial<CreateTimelineData> => ({
+  events: [],
+  worldId: GlobalWorld.getState().focusedWorld?.id
+});
 // API form data (to prevent gql errors)
 const condenseFormData = (data: Partial<CreateTimelineData>) => ({
   id: data.id,
@@ -30,25 +38,31 @@ const condenseFormData = (data: Partial<CreateTimelineData>) => ({
 
 /** Specialized Modal for creating/editing a `Timeline` */
 export default function ManageTimelineModal(props: ManageTimelineModalProps) {
-  const { data, open, onClose = clearGlobalModal } = props;
-  const { updateTimelines } = useGlobalWorld(["timelines"]);
+  const { open, onClose = clearGlobalModal } = props;
+  const { focusedTimeline: data, updateTimelines } = useGlobalWorld([
+    "focusedTimeline"
+  ]);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState<Partial<CreateTimelineData>>(
     data ? condenseFormData(data) : emptyForm()
   );
   const resetForm = () => setFormData(emptyForm());
+  const onError = (err: string, noteId?: number) => {
+    setError(err);
+    updateAsError(err, noteId);
+  };
   const submit = async () => {
     // validate
-    if (!formData.name) return setError("Name is required.");
+    if (!formData.name) return onError("Name is required.");
     if (formData.name.length < 2)
-      return setError("Name must be at least 2 characters.");
+      return onError("Name must be at least 2 characters.");
 
     // Create & notify
     setError("");
+    const noteId = addNotification("Saving timeline...", true);
     const resp = await upsertTimeline(formData);
-    if (typeof resp === "string") setError(resp);
-    else if (!resp) return;
-
+    if (typeof resp === "string") return onError(resp, noteId);
+    if (!resp) return onError("Failed to save timeline.", noteId);
     if (resp.id === data?.id) GlobalWorld.focusedTimeline(resp);
     updateTimelines([resp as APIData<Timeline>]);
     resetForm();
@@ -57,9 +71,9 @@ export default function ManageTimelineModal(props: ManageTimelineModalProps) {
 
   // Reset form data when modal is closed
   useEffect(() => {
-    if (data) setFormData({ ...condenseFormData(data), ...formData });
+    if (data) setFormData(condenseFormData(data));
     else resetForm();
-    return () => resetForm();
+    return resetForm;
   }, [data]);
 
   return (

@@ -86,8 +86,11 @@ const BooksEditorRoute = () => {
     clearGlobalBooksState();
   };
   const focusChapter = async (ch: APIData<Chapter>) => {
-    const { focusedScene } = await loadChapter(ch.id);
-    updateDraft(focusedScene?.text || "");
+    const updates = await loadChapter(ch.id, true);
+    const { focusedScene: nsc, focusedChapter: nch } = updates;
+    if (!nch) return;
+    updateDraft(nsc?.text || "");
+    setGlobalChapter(nch);
     clearGlobalModal();
   };
   const focusScene = async (scene: APIData<Scene>) => {
@@ -162,7 +165,6 @@ const BooksEditorRoute = () => {
       description={pageDescription}
     >
       <EditorToolbar
-        style={{ marginTop: -9 }}
         bookId={Number(bookId)}
         role={role}
         handleSave={saveScene}

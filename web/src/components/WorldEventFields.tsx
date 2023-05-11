@@ -59,7 +59,7 @@ export function WorldEventFormFields(props: WorldEventFieldProps) {
     [data.worldId, worlds]
   );
   const { id: userId } = GlobalUser.getState();
-  // const owner = data.
+  const owner = !data.id || data.authorId === userId;
   const [showDesc, setShowDesc] = useState(false);
   const updateName = (e: ChangeEvent<HTMLInputElement>, i: number) => {
     onChanged({ ...data, name: e.target.value }, i);
@@ -76,55 +76,52 @@ export function WorldEventFormFields(props: WorldEventFieldProps) {
 
   return (
     <Fields>
-      <FieldRow columns="repeat(2, 1fr)">
+      <FieldRow columns="3fr repeat(2, 1fr)">
         {/* Event Name */}
         <Label direction="column">
           <span className="label required">Event Name</span>
           <Input
+            disabled={!owner}
             placeholder={`e.g. Creation of ${world?.name || "this Universe"}`}
             type="text"
             value={data.name || ""}
             onChange={(x) => updateName(x, i)}
           />
-          <Hint>Enter a short, recognizable name for this event.</Hint>
+          <Hint>A descriptive name for the event.</Hint>
         </Label>
 
         {/* Event Target */}
         <Label direction="column">
-          <span className="label required">Event Target</span>
+          <span className="label required">Target</span>
           <Select
             data={targets}
+            disabled={!owner}
             value={data.target || EventTarget.World}
             itemText={(d: EventTarget) => d.valueOf()}
             itemValue={(d) => d}
             emptyMessage="No other characters in current world."
-            placeholder="Select a target:"
+            placeholder="Select target:"
             onChange={(ch) => updateTarget(ch, i)}
           />
-          <Hint>Who (or where) is mainly affected by the Event.</Hint>
+          <Hint>The Event's target.</Hint>
+        </Label>
+
+        {/* Event Polarity/Alignment */}
+        <Label direction="column">
+          <span className="label required">Alignment</span>
+          <Select
+            data={polarity}
+            disabled={!owner}
+            value={data.polarity}
+            itemText={EventPolarityText}
+            itemValue={(d) => d}
+            emptyMessage="No other characters in current world."
+            placeholder="Select alignment:"
+            onChange={(ch) => updatePolarity(ch, i)}
+          />
+          <Hint>The type of event, if relevant.</Hint>
         </Label>
       </FieldRow>
-
-      <hr />
-
-      {/* Event Polarity */}
-      <Label direction="column">
-        <span className="label required">Event Polarity</span>
-        <Hint>Choose the type of event, if relevant.</Hint>
-      </Label>
-
-      <FormRow columns="repeat(3, 1fr)">
-        {polarity.map((p) => (
-          <RadioLabel key={p}>
-            <span>{EventPolarityText(p)}</span>
-            <RadioInput
-              checked={data.polarity === p}
-              name={`polarity-${i}`}
-              onChange={() => updatePolarity(p, i)}
-            />
-          </RadioLabel>
-        ))}
-      </FormRow>
 
       <hr />
 
@@ -136,6 +133,7 @@ export function WorldEventFormFields(props: WorldEventFieldProps) {
         </span>
         <div className={showDesc ? "expand--vertical" : "collapse--vertical"}>
           <Textarea
+            disabled={!owner}
             rows={300}
             value={data?.description || ""}
             onChange={({ target }) => updateDescription(target.value, i)}

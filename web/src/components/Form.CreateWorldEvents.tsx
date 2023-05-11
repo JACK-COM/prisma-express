@@ -5,6 +5,7 @@ import { CreateEventData } from "graphql/requests/timelines.graphql";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { ButtonWithIcon } from "./Forms/Button";
 import { WorldEventFormFields } from "./WorldEventFields";
+import { GlobalUser } from "state";
 
 export type CreateWorldEventProps = {
   data?: Partial<CreateEventData>[];
@@ -13,6 +14,7 @@ export type CreateWorldEventProps = {
 
 /** Create or edit a `WorldEvent` */
 const CreateWorldEventsForm = (props: CreateWorldEventProps) => {
+  const { id: userId } = GlobalUser.getState();
   const { data = [], onChange = noOp } = props;
   const { worlds = [], focusedWorld } = useGlobalWorld([
     "worlds",
@@ -27,6 +29,7 @@ const CreateWorldEventsForm = (props: CreateWorldEventProps) => {
     updateAtIndex(
       {
         name: "",
+        authorId: userId,
         worldId: focusedWorld?.id || -1,
         polarity: EventPolarity.Neutral,
         target: EventTarget.World

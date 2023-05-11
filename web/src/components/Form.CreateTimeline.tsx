@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { noOp } from "../utils";
 import {
   Form,
@@ -19,14 +19,23 @@ export type CreateTimelineProps = {
 /** Create or edit a `Timeline` */
 const CreateTimelineForm = (props: CreateTimelineProps) => {
   const { data, onChange = noOp } = props;
-  const { worlds = [] } = useGlobalWorld();
-  const updateOrigin = (id: string) => {
-    const worldId = Number(id);
-    onChange({ ...data, worldId: isNaN(worldId) ? -1 : worldId });
+  const { focusedWorld, worlds = [] } = useGlobalWorld([
+    "focusedWorld",
+    "worlds"
+  ]);
+  const updateOrigin = (id: number) => {
+    const worldId = isNaN(id) ? focusedWorld?.id : id;
+    onChange({ ...data, worldId });
   };
   const updateName = (e: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...data, name: e.target.value });
   };
+
+  useEffect(() => {
+    if (!data?.worldId && focusedWorld?.id) {
+      updateOrigin(focusedWorld.id);
+    }
+  }, []);
 
   return (
     <Form>
@@ -61,7 +70,7 @@ const CreateTimelineForm = (props: CreateTimelineProps) => {
           itemText={(w) => w.name}
           itemValue={(w) => w.id}
           placeholder="Select Timeline Target:"
-          onChange={updateOrigin}
+          onChange={(id: string) => updateOrigin(parseInt(id))}
         />
       </Label>
       <Hint>

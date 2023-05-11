@@ -8,15 +8,10 @@ import { useGlobalTheme } from "hooks/GlobalTheme";
 import { loadUser, loadUserData } from "api/loadUserData";
 import FullScreenLoader from "components/Common/FullscreenLoader";
 import { Paths, wildcard } from "routes";
-import { useGlobalModal } from "hooks/GlobalModal";
 import ActiveNotifications from "components/ActiveNotifications";
-import ManageBookModal from "components/Modals/ManageBookModal";
-import ManageChapterModal from "components/Modals/ManageChapterModal";
-import ManageSceneModal from "components/Modals/ManageSceneModal";
 import Home from "routes/Home";
-import ManageContentLinksModal from "components/Modals/ManageLinksModal";
-import ConfirmDeleteBookModal from "components/Modals/ConfirmDeleteBookModal";
 import BookStoreRoute from "routes/BookStore";
+import GlobalModalGroup from "components/Modals/GlobalModalGroup";
 
 const CharactersRoute = lazy(() => import("./routes/CharactersRoute"));
 const Dashboard = lazy(() => import("./routes/DashboardRoute"));
@@ -27,7 +22,6 @@ const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
 
 function App() {
   const { theme } = useGlobalTheme();
-  const { active, MODAL } = useGlobalModal();
   const checkLoggedIn = async () => {
     const user = await loadUser();
     await loadUserData({ userId: user?.id });
@@ -134,15 +128,7 @@ function App() {
       <ActiveNotifications />
 
       {/* Modals */}
-      {active === MODAL.MANAGE_BOOK && <ManageBookModal open />}
-
-      {active === MODAL.MANAGE_CHAPTER && <ManageChapterModal open />}
-
-      {active === MODAL.MANAGE_SCENE && <ManageSceneModal open />}
-
-      {active === MODAL.LINK_SCENE && <ManageContentLinksModal open />}
-
-      {active === MODAL.CONFIRM_DELETE_BOOK && <ConfirmDeleteBookModal open />}
+      <GlobalModalGroup />
     </ThemeProvider>
   );
 }

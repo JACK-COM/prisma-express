@@ -8,7 +8,10 @@ import { context } from "../graphql/context";
 type UpsertWorldInput =
   | Prisma.WorldUpsertArgs["create"] & Prisma.WorldUpsertArgs["update"];
 type SearchWorldInput = Partial<
-  Pick<World, "name" | "authorId" | "public" | "description"> & WorldByIdInput
+  Pick<
+    WorldByIdInput & World,
+    "name" | "id" | "authorId" | "public" | "parentWorldId" | "description"
+  >
 >;
 type WorldByIdInput = Pick<World, "id">;
 const { Worlds } = context;
@@ -26,10 +29,13 @@ export async function upsertWorld(newWorld: UpsertWorldInput) {
 export async function findAllWorld(filters: SearchWorldInput) {
   const where: Prisma.WorldFindManyArgs["where"] = {};
   if (filters.id) where.id = filters.id;
+  if (filters.parentWorldId) where.parentWorldId = filters.parentWorldId;
+  else where.AND = [{ parentWorldId: null }];
 
   where.OR = [];
   const { authorId, public: isPub, name, description } = filters;
-  if (authorId) where.OR.push({ authorId, public: false });
+  if (authorId)
+    where.OR.push({ authorId, public: false }, { authorId, public: true });
   if (isPub !== undefined) where.OR.push({ public: isPub });
   if (name) where.OR.push({ name: { contains: name } });
   if (description) where.OR.push({ description: { contains: description } });
@@ -38,7 +44,7 @@ export async function findAllWorld(filters: SearchWorldInput) {
   const worlds = await Worlds.findMany({
     where,
     include: WorldContent,
-    orderBy: { public: "asc", }
+    orderBy: { public: "asc" }
   });
   return worlds;
 }
@@ -58,5 +64,14 @@ export async function updateWorld(
 
 /** delete a world */
 export async function deleteWorld(where: WorldByIdInput) {
-  return Worlds.delete({ where, include: WorldContent });
+  const { id } = where;
+  await Promise.all([
+    // delete world and related content (e.g. locations)
+    Worlds.delete({ where, include: WorldContent }),
+    // nullify non-relational references to this world
+    Worlds.updateMany({
+      where: { parentWorldId: id },
+      data: { parentWorldId: null }
+    })
+  ]);
 }

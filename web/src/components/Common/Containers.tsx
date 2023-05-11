@@ -27,7 +27,7 @@ export const BaseContainer = styled.section``;
 /** UI bordered section */
 export const Card = styled(BaseContainer).attrs<{ className?: string }>(
   (props) => ({
-    className: `card ${props.className}`
+    className: `card ${props.className || ""}`.trim()
   })
 )`
   border: ${({ theme }) => `1px dotted ${theme.colors.semitransparent}`};

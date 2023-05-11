@@ -599,13 +599,13 @@ export interface NexusGenFieldTypes {
     role: NexusGenEnums['UserRole']; // UserRole!
   }
   MFWorld: { // field return type
+    ChildWorlds: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
     Events: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     Groups: Array<NexusGenRootTypes['MFPopulationGroup'] | null> | null; // [MFPopulationGroup]
     Locations: Array<NexusGenRootTypes['MFLocation'] | null> | null; // [MFLocation]
-    Subworlds: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
     Timelines: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
     authorId: number | null; // Int
-    childWorlds: number | null; // Int
+    childWorldsCount: number | null; // Int
     description: string; // String!
     id: number; // Int!
     image: string | null; // String
@@ -864,13 +864,13 @@ export interface NexusGenFieldTypeNames {
     role: 'UserRole'
   }
   MFWorld: { // field return type name
+    ChildWorlds: 'MFWorld'
     Events: 'MFEvent'
     Groups: 'MFPopulationGroup'
     Locations: 'MFLocation'
-    Subworlds: 'MFWorld'
     Timelines: 'MFTimeline'
     authorId: 'Int'
-    childWorlds: 'Int'
+    childWorldsCount: 'Int'
     description: 'String'
     id: 'Int'
     image: 'String'
@@ -1156,6 +1156,7 @@ export interface NexusGenArgTypes {
       description?: string | null; // String
       id?: number | null; // Int
       name?: string | null; // String
+      parentWorldId?: number | null; // Int
       public: boolean | null; // Boolean
     }
     searchPublications: { // args

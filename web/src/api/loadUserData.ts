@@ -16,11 +16,11 @@ import {
   listWorldEvents
 } from "graphql/requests/timelines.graphql";
 import { getBook, getChapter, listBooks } from "graphql/requests/books.graphql";
-import { API_AUTH_ROUTE, API_FILE_UPLOAD_ROUTE, API_PROMPT } from "utils";
+import { API_FILE_UPLOAD_ROUTE, API_PROMPT } from "utils";
 import { listCharacters } from "graphql/requests/characters.graphql";
-import { APIData, Book, Chapter, Scene, Timeline, World } from "utils/types";
+import { APIData, Chapter, Scene, Timeline, World } from "utils/types";
 import { MicroUser } from "graphql/requests/users.graphql";
-import { insertCategory, insertId } from "routes";
+import { insertCategory } from "routes";
 import fetchRaw from "../graphql/fetch-raw";
 import { fetchGQL, getUserQuery } from "graphql";
 
@@ -37,20 +37,19 @@ const defaultLoadOpts: HOOK__LoadWorldOpts = { userId: -1 };
 
 // Shared function to load timelines and worlds
 export async function loadUserData(opts = defaultLoadOpts) {
-  const worldState = GlobalWorld.getState();
-  const libState = GlobalLibrary.getState();
+  const { worlds: stateWorlds } = GlobalWorld.getState();
+  const { books: stateBooks } = GlobalLibrary.getState();
   const params = makeAPIParams(opts);
-  const [worlds, events, books] = await Promise.all([
-    listOrLoad(worldState.worlds, () => listWorlds(params)),
-    listOrLoad(worldState.events, () => listWorldEvents(params)),
-    listOrLoad(libState.books, () => listBooks(params))
+  const [worlds, books] = await Promise.all([
+    listOrLoad(stateWorlds, () => listWorlds(params)),
+    listOrLoad(stateBooks, () => listBooks(params))
   ]);
 
   const focusedWorld = params.worldId
     ? worlds.find((t: any) => t.id === params.worldId)
     : null;
   const worldLocations = focusedWorld?.Locations || [];
-  const updates = { worlds, events, focusedWorld, worldLocations };
+  const updates = { worlds, focusedWorld, worldLocations };
   if (opts.returnUpdates) return { User: updates, Books: books };
 
   GlobalLibrary.books(books);
@@ -83,11 +82,11 @@ export async function getWritingPrompt(input: string | null = null) {
 }
 
 /** Generate a writing prompt from OpenAI */
-export async function getAndShowPrompt(input?: string) {
+export async function getAndShowPrompt(input?: string, show?: boolean) {
   const notificationId = addNotification("Generating writing prompt...", true);
   try {
     const prompt = await getWritingPrompt(input);
-    updateNotification(prompt, notificationId, true);
+    if (show) updateNotification(prompt, notificationId, true);
     return prompt;
   } catch (error: any) {
     updateAsError(error.message, notificationId);

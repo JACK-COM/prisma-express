@@ -60,12 +60,13 @@ export async function upsertWorld(raw: Partial<CreateWorldData>) {
     authorId: raw.authorId,
     parentWorldId: raw.parentWorldId || undefined
   };
+  const refetchQueries: any[] = [{ query: listWorldsQuery() }];
+  if (raw.id)
+    refetchQueries.push({ query: getWorldQuery(), variables: { id: raw.id } });
+
   const newWorld = await fetchGQL<APIData<World> | null>({
     query: upsertWorldMutation(),
-    refetchQueries: [
-      { query: getWorldQuery(), variables: { id: raw.id } },
-      { query: listWorldsQuery() }
-    ],
+    refetchQueries,
     variables: { data },
     onResolve: ({ upsertWorld: list }, errors) => errors || list,
     fallbackResponse: null

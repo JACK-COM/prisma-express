@@ -35,7 +35,6 @@ const DEFAULT_ENVIRONMENT: Partial<CreateLocationData> = {
 /** Specialized Modal for creating/editing a World `Location` */
 export default function ManageLocationModal(props: ManageLocationModalProps) {
   const { data, open, onClose = clearGlobalModal, worldId } = props;
-  const { updateLocations } = useGlobalWorld(["worldLocations"]);
   const [error, setError] = useState("");
   const [formData, setFormData] =
     useState<Partial<CreateLocationData>>(DEFAULT_ENVIRONMENT);
@@ -65,7 +64,6 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
     const resp = await upsertLocation(pruneLocationForAPI(formData));
     if (typeof resp === "string") return onError(resp, noteId);
     updateNotification("Location saved!", noteId);
-    updateLocations([resp as APIData<Location>]);
     resetForm();
     onClose();
   };

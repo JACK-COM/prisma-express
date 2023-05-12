@@ -1,7 +1,18 @@
 import { useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { Card, CardTitle, GridContainer } from "components/Common/Containers";
-import { ButtonWithIcon, LinkWithIcon } from "components/Forms/Button";
+import {
+  Accent,
+  Card,
+  CardTitle,
+  GridContainer,
+  MatIcon,
+  PageDescription
+} from "components/Common/Containers";
+import {
+  ButtonWithIcon,
+  LinkWithIcon,
+  RoundButton
+} from "components/Forms/Button";
 import { Paths, insertId } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { UserRole } from "utils/types";
@@ -39,12 +50,10 @@ const GoToWorld = styled(LinkWithIcon)`
   margin-top: 0.5rem;
   width: 100%;
 `;
-const Cardinality = styled(GridContainer)`
-  grid-template-columns:
-    auto
-    1fr 1fr
-    auto;
-  grid-template-rows: auto;
+const PlaceDescription = styled(PageDescription)`
+  font-style: italic;
+  padding-left: ${({ theme }) => theme.sizes.sm};
+  margin-top: 1.5rem;
 `;
 
 type Params = { worldId: string; locationId: string };
@@ -138,26 +147,62 @@ const WorldLocationRoute = () => {
     >
       <PageGrid className="fill" gap="0.6rem">
         <Card>
-          <CardTitle>{place}</CardTitle>
-          <Description
+          <CardTitle>
+            Explore <Accent>{place}</Accent>
+          </CardTitle>
+          <PlaceDescription
+            as="blockquote"
+            className="location-description"
             dangerouslySetInnerHTML={{ __html: focusedLocation?.description }}
           />
-          <Cardinality gap="0.5rem">
-            <span>North</span>
-            <span>West</span>
-            <span>East</span>
-            <span>South</span>
-          </Cardinality>
 
-          <CardTitle>TO DO</CardTitle>
+          <CardTitle>
+            To <Accent>do</Accent>?
+          </CardTitle>
           <ol>
             <li>
-              Select location type (<b>irreversible!</b>)
+              <b>Author:</b> Create an <b>Exploration</b> for this location; may
+              generate from any <b>Book</b> linked here.
             </li>
-            <li>Add rules for location-type</li>
-            <li>Build + Save map for location type</li>
             <li>
-              <b>Explore!</b>
+              <b>Reader:</b> Choose a <b>Scenario</b> to explore this location
+            </li>
+          </ol>
+
+          <CardTitle>
+            Build an <Accent>Exploration</Accent> scenario
+          </CardTitle>
+          <ol>
+            <li>
+              Select a <b>Book</b> linked to this location
+            </li>
+            <li>
+              <b>Select Scene to build:</b>
+              <ol>
+                <li>Choose background</li>
+                <li>Place foreground elems (templates = elem slots?)</li>
+                <li>[ Auto-insert any content-links as scene choices ]</li>
+              </ol>
+            </li>
+          </ol>
+
+          <CardTitle>Notes</CardTitle>
+          <ol>
+            <li>
+              Requires new{" "}
+              <Accent>
+                <b>Content Viewer</b>
+              </Accent>
+            </li>
+            <li>
+              <Accent>Exploration</Accent> will be named after book
+            </li>
+            <li>
+              Content is default viewed scene-by-scene: enable{" "}
+              <Accent>add content-links</Accent> here
+            </li>
+            <li>
+              <b>Storyboard Component</b> preview chapter + scene outline
             </li>
           </ol>
         </Card>
@@ -167,7 +212,16 @@ const WorldLocationRoute = () => {
           {authenticated && (isAuthor || isPublic) && (
             <>
               <Card>
-                <CardTitle>Location Actions</CardTitle>
+                <CardTitle>
+                  <RoundButton
+                    variant="transparent"
+                    size="md"
+                    onClick={() => setGlobalModal(MODAL.MANAGE_LOCATION)}
+                  >
+                    <MatIcon className="accent--text" icon="settings" />
+                  </RoundButton>
+                  Manage <Accent>Location</Accent>
+                </CardTitle>
                 <AddItemButton
                   icon="face"
                   text="Add a Character"
@@ -179,7 +233,7 @@ const WorldLocationRoute = () => {
                   icon="book"
                   text="Add Book"
                   variant="outlined"
-                  onClick={() => setGlobalModal(MODAL.MANAGE_BOOK)}
+                  onClick={() => setGlobalModal(MODAL.CREATE_BOOK)}
                 />
                 <hr className="transparent" />
               </Card>
@@ -188,7 +242,9 @@ const WorldLocationRoute = () => {
           )}
 
           <Card>
-            <CardTitle>{focusedWorld.name}</CardTitle>
+            <CardTitle>
+              {focusedWorld.name} <Accent>({focusedWorld.type})</Accent>
+            </CardTitle>
             <Description
               dangerouslySetInnerHTML={{ __html: focusedWorld.description }}
             />

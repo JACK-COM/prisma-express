@@ -31,6 +31,12 @@ const CreateWorldForm = (props: CreateWorldProps) => {
   const { active: activeModal } = GlobalModal.getState();
   const { focusedWorld } = GlobalWorld.getState();
   const creating = activeModal === MODAL.CREATE_WORLD;
+  const validTypes = useMemo(() => {
+    const { type } = focusedWorld || {};
+    if (!type) return worldTypes;
+    const tIndex = worldTypes.indexOf(type);
+    return worldTypes.slice(tIndex + 1);
+  }, [focusedWorld]);
   const [data, setData] = useState<Partial<CreateWorldData>>(
     creating ? { parentWorldId: focusedWorld?.id } : { ...focusedWorld }
   );
@@ -91,7 +97,7 @@ const CreateWorldForm = (props: CreateWorldProps) => {
             What <Accent>type</Accent> of World is it?
           </span>
           <Select
-            data={worldTypes}
+            data={validTypes}
             value={data?.type || ""}
             itemText={(d) => d.valueOf()}
             itemValue={(d) => d}

@@ -1,8 +1,8 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { noOp } from "../utils";
 import { APIData, World, WorldType, worldTypes } from "../utils/types";
 import { Select } from "components/Forms/Form";
-import { GlobalUser, GlobalWorld } from "state";
+import { GlobalUser } from "state";
 import { gql, useQuery } from "@apollo/client";
 import { listWorldsQuery } from "graphql";
 
@@ -37,7 +37,6 @@ export default function SelectParentWorld(props: SelectParentWorldProps) {
   const vars = { variables: { authorId } };
   const { loading, data } = useQuery(gql(listWorldsQuery()), vars);
   const worlds: APIData<World>[] = data?.listWorlds || [];
-  const { focusedWorld } = GlobalWorld.getState();
   const {
     excludeWorld,
     targetType,
@@ -51,15 +50,11 @@ export default function SelectParentWorld(props: SelectParentWorldProps) {
       : worlds;
   }, [worlds, targetType, loading]);
 
-  useEffect(() => {
-    if (!value && focusedWorld) onChange(focusedWorld.id);
-  }, []);
-
   return (
     <Select
-      disabled={loading}
+      disabled={loading || !validParents.length}
       data={validParents}
-      value={value}
+      value={value || ""}
       itemText={(d) => `${d.name} (${d.type})`}
       itemValue={(d) => d.id}
       placeholder={placeholder}

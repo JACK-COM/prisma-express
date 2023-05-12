@@ -37,10 +37,12 @@ export interface NexusGenInputs {
     genre: string; // String!
     id?: number | null; // Int
     image?: string | null; // String
+    locationId?: number | null; // Int
     order?: number | null; // Int
     public?: boolean | null; // Boolean
     seriesId?: number | null; // Int
     title: string; // String!
+    worldId?: number | null; // Int
   }
   MFChapterUpsertInput: { // input type
     authorId?: number | null; // Int

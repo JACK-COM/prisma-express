@@ -22,7 +22,9 @@ export default function GlobalModalGroup() {
       {active === M.CONFIRM_DELETE_BOOK && <ConfirmDeleteBookModal open />}
       {active === M.CONFIRM_DELETE_WORLD && <ConfirmDeleteWorldModal open />}
       {active === M.LINK_SCENE && <ManageContentLinksModal open />}
-      {active === M.MANAGE_BOOK && <ManageBookModal open />}
+      {[M.MANAGE_BOOK, M.CREATE_BOOK].includes(active) && (
+        <ManageBookModal open />
+      )}
       {active === M.MANAGE_CHAPTER && <ManageChapterModal open />}
       {active === M.MANAGE_SCENE && <ManageSceneModal open />}
       {active === M.MANAGE_TIMELINE && <ManageTimelineModal open />}

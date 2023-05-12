@@ -133,6 +133,9 @@ input MFBookUpsertInput {
   id: Int
   image: String
 
+  """Event location target (optional)"""
+  locationId: Int
+
   """Sequence in series (if part of one"""
   order: Int
   public: Boolean = false
@@ -140,6 +143,9 @@ input MFBookUpsertInput {
   """Parent Series"""
   seriesId: Int
   title: String!
+
+  """Parent world ID"""
+  worldId: Int
 }
 
 """A collection of Story `Scenes`"""

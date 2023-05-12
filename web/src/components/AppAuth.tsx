@@ -42,6 +42,7 @@ const SubmenuTitle = styled(GridItemTitle)`
 `;
 const $submenuItem = css`
   cursor: pointer;
+  font-size: smaller;
   text-shadow: ${({ theme }) => theme.presets.elevate.xs} #001125ec;
 
   &:hover {
@@ -53,8 +54,8 @@ const SubmenuItem = styled(GridItem)`
   ${$submenuItem}
 `;
 const SubmenuLink = styled(Link)`
-  display: grid;
   color: inherit;
+  display: grid;
   padding: 0.4rem;
   ${SubmenuGrid}
   ${$submenuItem}
@@ -164,7 +165,7 @@ const AppAuth = () => {
             to={Paths.Dashboard.Settings.path}
             onClick={closeSubmenu}
           >
-            <TallIcon permissions="Reader" icon="settings" />
+            <TallIcon permissions="Reader" icon="manage_accounts" />
             Settings
           </SubmenuLink>
 

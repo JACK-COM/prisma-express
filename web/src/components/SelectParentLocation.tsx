@@ -57,7 +57,7 @@ export default function SelectParentLocation(props: SelectLocationProps) {
     <Select
       disabled={loading || !validLocations.length}
       data={validLocations}
-      value={value}
+      value={value || ""}
       itemText={(d) => `${d.name} (${d.type})`}
       itemValue={(d) => d.id}
       placeholder={placeholder}

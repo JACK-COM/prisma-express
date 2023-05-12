@@ -9,7 +9,6 @@ import {
   setGlobalLocation,
   setGlobalWorld,
   setWorldStateList,
-  updateLocations,
   updateWorlds,
   updateWorldStateList
 } from "state";
@@ -28,7 +27,7 @@ export function useGlobalWorld(
   const onWorld = (s: HookState) => setState((prev) => ({ ...prev, ...s }));
 
   useEffect(() => GlobalWorld.subscribeToKeys(onWorld, keys), []);
-  
+
   return {
     ...state,
 
@@ -45,10 +44,8 @@ export function useGlobalWorld(
       setWorldStateList(w, "worlds", { focusedWorld: null }),
     setGlobalLocations: (l: APIData<Location>[]) =>
       setWorldStateList(l, "worldLocations", { focusedLocation: null }),
-    updateLocations,
     updateTimelines: (t: APIData<Timeline>[]) =>
       updateWorldStateList(t, "timelines"),
     updateWorlds
   };
 }
-

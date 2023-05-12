@@ -39,7 +39,7 @@ const BooksList = (props: BooksListProps) => {
   };
   const controls = () =>
     authenticated ? (
-      <CreateBookItem onClick={() => setGlobalModal(MODAL.MANAGE_BOOK)} />
+      <CreateBookItem onClick={() => setGlobalModal(MODAL.CREATE_BOOK)} />
     ) : (
       <></>
     );

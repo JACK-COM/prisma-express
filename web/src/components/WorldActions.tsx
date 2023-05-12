@@ -8,7 +8,7 @@ const actions = [
   {
     icon: "library_add",
     text: "Add Book",
-    onClick: () => setGlobalModal(MODAL.MANAGE_BOOK)
+    onClick: () => setGlobalModal(MODAL.CREATE_BOOK)
   },
   {
     icon: "public",

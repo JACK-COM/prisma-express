@@ -159,6 +159,8 @@ export const MFBookUpsertInput = inputObjectType({
     t.int("order", { description: "Sequence in series (if part of one" });
     t.int("authorId", { description: "Item Author/owner" });
     t.int("seriesId", { description: "Parent Series" });
+    t.int("locationId", { description: "Event location target (optional)" });
+    t.int("worldId", { description: "Parent world ID" });
     t.boolean("public", { default: false });
     t.boolean("free", { default: false });
     t.list.field("chapters", { type: nonNull("MFChapterUpsertInput") });

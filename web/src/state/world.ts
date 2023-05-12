@@ -1,5 +1,13 @@
 import createState from "@jackcom/raphsducks";
-import { APIData, ArrayKeys, Location, Timeline, World, WorldEvent } from "utils/types";
+import { mergeLists } from "utils";
+import {
+  APIData,
+  ArrayKeys,
+  Location,
+  Timeline,
+  World,
+  WorldEvent
+} from "utils/types";
 
 /* Convenience */
 type APIWorld = APIData<World>;
@@ -76,11 +84,13 @@ export function getByIdFromWorldState<
  * Update list of worlds in state
  * @param newWorlds New worlds
  */
-export function updateWorlds(newWorlds: APIWorld[]) {
-  const { focusedWorld } = GlobalWorld.getState();
-  const defer = newWorlds.length === 1 && focusedWorld?.id === newWorlds[0].id;
-  const worlds = updateWorldStateList(newWorlds, "worlds", defer);
-  if (defer) GlobalWorld.multiple({ worlds, focusedWorld: newWorlds[0] });
+export function updateWorlds(newWorlds: APIWorld[], skipUpdate = false) {
+  const { focusedWorld, worlds: old } = GlobalWorld.getState();
+  const worlds: any[] = mergeLists(old, newWorlds);
+  const world = focusedWorld && worlds.find((w) => w.id === focusedWorld.id);
+  const updates = { worlds, focusedWorld: world };
+  if (!skipUpdate) GlobalWorld.multiple(updates);
+  return updates;
 }
 
 /**
@@ -92,23 +102,6 @@ export function removeWorld(targetId: number) {
 }
 
 /**
- * Update list of locations in state
- * @param newLocations New locations
- */
-export function updateLocations(newLocations: APILocation[]) {
-  const { focusedLocation: focusedLocation } = GlobalWorld.getState();
-  if (newLocations.length !== 1 || !focusedLocation) {
-    return updateWorldStateList(newLocations, "worldLocations");
-  }
-
-  const next = updateWorldStateList(newLocations, "worldLocations", true);
-  GlobalWorld.multiple({
-    focusedLocation: newLocations[0],
-    worldLocations: next as APILocation[]
-  });
-}
-
-/**
  * Remove location from list in from state
  * @param targetId Id of target object
  */
@@ -116,7 +109,7 @@ export function removeLocation(targetId: number) {
   return removeFromWorldsList(targetId, "worldLocations");
 }
 
-export type GlobalWorldListKey = ArrayKeys<GlobalWorldInstance>
+export type GlobalWorldListKey = ArrayKeys<GlobalWorldInstance>;
 /**
  * Abstraction to UPDATE a list-key in state
  * @param newItems New worlds

@@ -376,6 +376,8 @@ export async function deleteSeries(id: number): Promise<APIData<Series>> {
 export function pruneBookForAPI(raw: Partial<UpsertBookData>) {
   const data: UpsertBookData = {
     authorId: raw.authorId,
+    locationId: raw.locationId,
+    worldId: raw.worldId,
     seriesId: raw.seriesId,
     order: raw.order || 0,
     title: raw.title || "No Title",

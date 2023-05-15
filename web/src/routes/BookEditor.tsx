@@ -108,7 +108,7 @@ const BooksEditorRoute = () => {
     if (typeof resp === "string") updateAsError(resp, notificationId);
     else if (resp && focusedChapter) {
       setGlobalChapter(resp);
-      updateNotification("Chapter saved!", notificationId);
+      updateNotification("Chapter saved!", notificationId, false);
     }
   };
   const onEditTitle: FocusEventHandler<HTMLSpanElement> = async (e) => {

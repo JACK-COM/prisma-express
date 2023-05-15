@@ -47,7 +47,7 @@ export const upsertSeriesMutation = mutationField("upsertSeries", {
     const newSeries = await SeriesService.upsertSeries({
       id: data.id || undefined,
       authorId: data.authorId || user.id,
-      free: data.free || false,
+      price: data.price || 0.0,
       public: data.public || false,
       description: data.description,
       genre: data.genre,

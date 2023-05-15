@@ -25,21 +25,28 @@ export type CreateWorldProps = {
   onChange?: (data: Partial<CreateWorldData>) => void;
 };
 
+// Whether we're creating a new world or editing an existing one
+const isCreating = () => GlobalModal.getState().active === MODAL.CREATE_WORLD;
+
+// Empty/default form data
+const emptyForm = (): Partial<CreateWorldData> => {
+  const creating = isCreating();
+  const { focusedWorld } = GlobalWorld.getState();
+  return creating ? { parentWorldId: focusedWorld?.id } : { ...focusedWorld };
+};
+
+/** Get valid world types based on the current world type */
+const validWorldTypes = (type?: WorldType) => {
+  if (!type) return worldTypes;
+  const tIndex = worldTypes.indexOf(type);
+  return worldTypes.slice(tIndex + Number(isCreating()));
+};
+
 /** Create or edit a `World` */
 const CreateWorldForm = (props: CreateWorldProps) => {
   const { onChange = noOp } = props;
-  const { active: activeModal } = GlobalModal.getState();
   const { focusedWorld } = GlobalWorld.getState();
-  const creating = activeModal === MODAL.CREATE_WORLD;
-  const validTypes = useMemo(() => {
-    const { type } = focusedWorld || {};
-    if (!type) return worldTypes;
-    const tIndex = worldTypes.indexOf(type);
-    return worldTypes.slice(tIndex + 1);
-  }, [focusedWorld]);
-  const [data, setData] = useState<Partial<CreateWorldData>>(
-    creating ? { parentWorldId: focusedWorld?.id } : { ...focusedWorld }
-  );
+  const [data, setData] = useState<Partial<CreateWorldData>>(emptyForm());
   const hasParent = useMemo(() => {
     const { id, parentWorldId } = data || {};
     return id && parentWorldId;
@@ -97,7 +104,7 @@ const CreateWorldForm = (props: CreateWorldProps) => {
             What <Accent>type</Accent> of World is it?
           </span>
           <Select
-            data={validTypes}
+            data={validWorldTypes(focusedWorld?.type)}
             value={data?.type || ""}
             itemText={(d) => d.valueOf()}
             itemValue={(d) => d}

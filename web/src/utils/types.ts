@@ -1,3 +1,5 @@
+import { type } from "os";
+
 export type ContentStatus = "live" | "draft" | "hidden";
 export type ReporterType = "experiencer" | "observer" | "researcher";
 export type UserRole = "Admin" | "Moderator" | "Author" | "Reader";
@@ -156,6 +158,115 @@ export type CharacterRelation = {
   Character?: APIData<Character>;
 };
 
+/** An `Exploration` is a CYOA-style exploration of a `World` or `Location`, based on a `Book` */
+export type Exploration = {
+  title: string;
+  description?: string;
+  image?: string;
+  usesAttributes?: string;
+  public?: boolean;
+  price?: number;
+  Scenes: ExplorationScene[];
+} & AuthorRelation &
+  WorldRelation &
+  LocationRelation;
+
+/**
+ * An `Exploration Scene` links a `Book Scene` to an `Exploration` instance. It contains additional JSON data
+ * that is used to render the scene in the context of the exploration. */
+export type ExplorationScene = {
+  explorationId?: number; // ( references Exploration )
+  title: string;
+  description: string;
+  order: number;
+  background: string; // JSON data for rendering background layer
+  foreground: string; // JSON data for rendering foreground layer
+  characters: string; // JSON data for rendering characters layer
+  Exploration?: Exploration; // @relation(fields: [explorationId], references: [id], onDelete: Cascade)
+};
+
+/** @client  */
+export enum ExplorationTemplateAction {
+  FALLBACK = "fallback", // Alternative action triggered due to failed dice-roll
+  NAVIGATE = "navigate", // change room
+  HIT_PLAYER = "hitPlayer", // hit player with damage
+  HIT_TARGET = "hitTarget", // hit selected target with damage
+  TEXT_HIDE = "hideText", // hide some text description
+  TEXT_SHOW = "showText", // show soem text description
+  TRIGGER_CHOICE = "triggerChoice" // show choice dialog
+}
+export const explorationTemplateActions = Object.values(
+  ExplorationTemplateAction
+);
+
+export enum ExplorationTemplateEvent {
+  CLICK = "click",
+  DRAG = "drag"
+}
+export const explorationTemplateEvents = Object.values(
+  ExplorationTemplateEvent
+);
+
+export type InteractiveSlot =
+  | { url?: string } & Omit<ExplorationTemplateInteraction, "choices">;
+
+export type InteractiveSlotWithPosition = {
+  xy: [x: number, y: number];
+  url: string;
+  interactions: ExplorationTemplateInteraction[];
+};
+
+/**
+ * @client An `Exploration Template Scene` describes a type of scene in an `Exploration Template`.
+ * It holds multiple `Exploration Template Slots`, each which defines how a `Book Scene` should be rendered.
+ */
+export type ExplorationSceneTemplate = Omit<
+  ExplorationScene,
+  "explorationId" | "background" | "foreground" | "characters" | "Exploration"
+> & {
+  /* JSON data for rendering scenes */
+  /** scene background image (stringify to server; json.parse on load) */
+  background: Partial<InteractiveSlot>;
+  /** scene characters (stringify to server; json.parse on load) */
+  characters: InteractiveSlotWithPosition[];
+  /** scene foreground images (stringify to server; json.parse on load) */
+  foreground: InteractiveSlotWithPosition[];
+};
+
+export type ExplorationTemplateInteraction = {
+  /** Text to show on screen */
+  text: string;
+  /** Event target scene */
+  target?: string;
+  /** Optional choices that can be made by triggering this slot */
+  choices?: ExplorationTemplateInteraction[];
+} & {
+  /** Interaction Event types */
+  [ExplorationTemplateEvent.CLICK]?: ExplorationTemplateAction;
+  [ExplorationTemplateEvent.DRAG]?: ExplorationTemplateAction;
+};
+
+/**
+ * @client An `Exploration Template Scene Slot` describes a single slot in an `Exploration Template`.
+ * It defines what data is required to fill the slot, which will in turn render an asset.
+ */
+export enum ExplorationTemplateSceneSlotType {
+  /** A background image slot */
+  BACKGROUND = "Background",
+  /** A foreground image slot */
+  FOREGROUND = "Foreground",
+  /** A character image slot */
+  CHARACTER = "Character",
+  /** A text slot */
+  TEXT = "Text",
+  /** A choice slot */
+  CHOICE = "Choice"
+}
+
+export const explorationTemplateSceneSlotTypes = Object.values(
+  ExplorationTemplateSceneSlotType
+);
+
 /** Content tagged to a `PopulationGroup` */
 export type GroupRelation = {
   groupId?: number;
@@ -164,7 +275,7 @@ export type GroupRelation = {
 
 /** Content tagged to a `Location` */
 export type LocationRelation = {
-  locationId?: number;
+  locationId?: number | null;
   Location?: APIData<Location>;
 };
 

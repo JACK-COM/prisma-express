@@ -22,7 +22,7 @@ const { ContentLinks } = context;
 export async function upsertContentLink(link: ContentLinkUpsertInput) {
   const data = { ...link };
   const now = DateTime.now().toISO();
-  data.created = link.created || now;
+  if (!data.id) data.created = now;
   data.lastUpdated = DateTime.now().toISO();
 
   return link.id

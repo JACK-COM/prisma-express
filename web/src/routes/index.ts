@@ -36,10 +36,28 @@ export const Paths = {
 
   Worlds: {
     Index: { path: "/worlds", text: "Worlds & Settings" },
-    Locations: { path: "/worlds/:worldId/locations", text: "World Locations" },
-    ExploreLocation: {
-      path: "/worlds/:worldId/locations/:locationId/explore",
+    LocationsList: {
+      path: "/worlds/:worldId/locations",
+      text: "World Locations"
+    },
+    ViewLocation: {
+      path: "/worlds/:worldId/locations/:locationId/view",
       text: "Location"
+    }
+  },
+
+  Explorations: {
+    Index: {
+      path: "/explorations",
+      text: "Explorations"
+    },
+    Build: {
+      path: "/explorations/:explorationId/build",
+      text: "Build Exploration"
+    },
+    Run: {
+      path: "/explorations/:explorationId/run",
+      text: "Run Exploration"
     }
   }
 };

@@ -11,15 +11,9 @@ export type BookUpsertInput = Prisma.BookUpsertArgs["create"] &
 type SearchBookInput = Partial<
   Pick<
     Book,
-    | "title"
-    | "authorId"
-    | "description"
-    | "free"
-    | "public"
-    | "genre"
-    | "seriesId"
+    "title" | "authorId" | "description" | "public" | "genre" | "seriesId"
   >
-> & { id?: Book["id"][]; published?: boolean };
+> & { id?: Book["id"][]; published?: boolean; free?: boolean };
 
 const { Books, Chapters, Scenes } = context;
 const BookContents: Prisma.BookInclude = {
@@ -34,7 +28,7 @@ const BookContents: Prisma.BookInclude = {
 export async function upsertBook(book: BookUpsertInput) {
   const data = { ...book };
   const now = DateTime.now().toISO();
-  data.created = book.created || now;
+  if (!data.id) data.created = now;
   data.lastUpdated = DateTime.now().toISO();
 
   return book.id
@@ -73,10 +67,8 @@ function findAllWhereInput(filters: SearchBookInput) {
     where.publishDate = { lte: DateTime.now().toISO() };
   }
 
-  if (filters.genre) {
-    where.OR = [];
-    where.OR.push({ genre: { contains: filters.genre } });
-  }
+  if (filters.genre) where.OR.push({ genre: { contains: filters.genre } });
+  if (filters.free) where.price = { equals: 0 };
   return where;
 }
 
@@ -126,7 +118,6 @@ export function pruneBookData<T extends BookUpsertInput>(book: T, i = 0) {
     id: book.id || undefined,
     order: book.order || i + 1,
     authorId: book.authorId || undefined,
-    free: book.free || false,
     public: book.public || false,
     seriesId: book.seriesId || undefined,
     description: book.description || "No description",

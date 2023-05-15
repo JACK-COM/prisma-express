@@ -5,6 +5,7 @@
 import sortby from "lodash.sortby";
 import fetchGQL from "graphql/fetch-gql";
 import {
+  deleteLocationMutation,
   deleteWorldMutation,
   upsertLocationMutation,
   upsertWorldMutation
@@ -114,6 +115,22 @@ export async function upsertLocation(data: Partial<CreateLocationData>) {
   });
 
   return newLocation;
+}
+
+// delete a location on the server
+export async function deleteLocation(locationId: number, worldId: number) {
+  const respLocation = await fetchGQL<APIData<Location> | null>({
+    query: deleteLocationMutation(),
+    refetchQueries: [
+      { query: getWorldQuery(), variables: { id: worldId } },
+      { query: listLocationsQuery(), variables: { worldId } }
+    ],
+    variables: { id: locationId },
+    onResolve: ({ deleteLocation: loc }, errors) => errors || loc,
+    fallbackResponse: null
+  });
+
+  return respLocation;
 }
 
 // Use fetchGQL to list all `Worlds` on the server (with optional filters)

@@ -31,6 +31,10 @@ export const MFLocation = objectType({
     t.list.field("Characters", { type: "MFCharacter" });
     t.list.field("Events", { type: "MFEvent" });
     t.list.field("Groups", { type: "MFPopulationGroup" });
+    t.int("childLocationCount", {
+      resolve: ({ id: parentLocationId }, _args, { Locations }) =>
+        Locations.count({ where: { parentLocationId } })
+    });
     t.list.field("ChildLocations", {
       type: "MFLocation",
       resolve: ({ id: parentLocationId }, _args, { Locations }) =>

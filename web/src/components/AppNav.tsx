@@ -136,7 +136,7 @@ const NavLink = styled(Link)`
 `;
 
 function MenuLinks({ authenticated }: { authenticated: boolean }) {
-  const active = ({ path }: AppRouteDef) => useMatch(path) !== null;
+  const active = ({ path }: AppRouteDef) => useMatch(`${path}/*`) !== null;
   const cn = (r: AppRouteDef) => (active(r) ? "active" : "");
   const showHide = authenticated ? "" : "hide";
 

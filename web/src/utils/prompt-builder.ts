@@ -3,6 +3,7 @@ type Describable = {
   title?: string;
   description?: string;
   type:
+    | "adventure"
     | "place"
     | "character"
     | "character group"

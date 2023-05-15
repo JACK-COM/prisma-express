@@ -13,6 +13,9 @@ import {
 } from "components/Forms/Form";
 import { UpsertBookData } from "graphql/requests/books.graphql";
 import LitCategory from "./Form.LitCategory";
+import { buildDescriptionPrompt } from "utils/prompt-builder";
+import { getAndShowPrompt } from "api/loadUserData";
+import { ButtonWithIcon } from "./Forms/Button";
 
 export type CreateBookProps = {
   data?: Partial<UpsertBookData>;
@@ -35,6 +38,12 @@ const CreateBookForm = (props: CreateBookProps) => {
   const updateImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const [file] = e.target.files || [];
     if (file) onCoverImage(file);
+  };
+  const getSummaryIdea = async () => {
+    const ideaPrompt = buildDescriptionPrompt({ ...data, type: "book" });
+    if (!ideaPrompt) return;
+    const idea = await getAndShowPrompt(ideaPrompt, false);
+    if (idea) updateDescription(idea);
   };
 
   return (
@@ -118,7 +127,7 @@ const CreateBookForm = (props: CreateBookProps) => {
           </Hint>
         </Label>
 
-        {/* Free/Paid */}
+        {/* Free/Paid 
         <Label direction="column">
           <span className="label">
             Is this book <b className="accent--text">free</b>?
@@ -146,7 +155,7 @@ const CreateBookForm = (props: CreateBookProps) => {
             Select <b>Free</b> if you would like other users to add this to
             their library at no cost.
           </Hint>
-        </Label>
+        </Label>*/}
       </FormRow>
 
       {/* Description */}
@@ -164,6 +173,16 @@ const CreateBookForm = (props: CreateBookProps) => {
         publicly-visible summary. Until then, you can enter writing-prompts or
         leave this blank.
       </Hint>
+
+      {!data?.description && (
+        <ButtonWithIcon
+          type="button"
+          onClick={getSummaryIdea}
+          icon="tips_and_updates"
+          size="lg"
+          text="Get description ideas"
+        />
+      )}
     </Form>
   );
 };

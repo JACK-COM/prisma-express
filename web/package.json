@@ -17,6 +17,7 @@
     "@jackcom/raphsducks": "^2.0.6",
     "@tinymce/tinymce-react": "^4.3.0",
     "@types/styled-components": "^5.1.26",
+    "axios": "^1.4.0",
     "fs-extra": "^11.1.1",
     "graphql": "^16.6.0",
     "lodash.groupby": "^4.6.0",

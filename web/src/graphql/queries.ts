@@ -11,10 +11,12 @@ import {
   MFCharacterFragment,
   MFContentLinkFragment,
   MFEventFragment,
+  MFExplorationFragment,
+  MFExplorationSceneFragment,
   MFLocationFragment,
   MFRelationshipFragment,
-  MFSearchResultFragment,
   MFSceneFragment,
+  MFSearchResultFragment,
   MFSeriesFragment,
   MFTimelineEventFragment,
   MFTimelineFragment,
@@ -309,5 +311,48 @@ export const searchTitlesQuery = () =>
       freeOnly: $freeOnly
     ) {
       ${MFSearchResultFragment}
+    }
+  }`;
+
+/** List `Explorations` */
+export const listExplorationsQuery = () =>
+  `query ListExplorations(
+    $id: Int, $authorId: Int, $locationId: Int, $worldId: Int, $attributes: [String!], $description: String, $title: String
+    ) {
+      listExplorations(
+        id: $id,
+        authorId: $authorId,
+        worldId: $worldId,
+        locationId: $locationId,
+        attributes: $attributes,
+        description: $description,
+        title: $title
+      ) {
+        ${MFExplorationFragment}
+      }
+    }`;
+
+/** Get `Exploration` by id */
+export const getExplorationQuery = () =>
+  `query GetExploration($id: Int!) {  
+    getExploration(id: $id) {
+      ${MFExplorationFragment},
+      Scene { ${MFExplorationSceneFragment} }
+    }
+  }`;
+
+/** Get `Exploration Scene` */
+export const getExplorationSceneQuery = () =>
+  `query GetExplorationScene($id: Int!) {  
+    getExplorationScene(id: $id) {
+      ${MFExplorationSceneFragment}
+    }
+  }`;
+
+/** Get `Exploration Scene` */
+export const listExplorationScenesQuery = () =>
+  `query ListExplorationScenes($explorationId: Int!) {  
+    listExplorationScenes(explorationId: $explorationId) {
+      ${MFExplorationSceneFragment}
     }
   }`;

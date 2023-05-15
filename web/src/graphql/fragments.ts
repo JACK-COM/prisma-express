@@ -80,3 +80,12 @@ export const MFSearchResultFragment = `
     books { ${MFBookFragment} },
     series { ${MFSeriesFragment} }
 `;
+/** Exploration Scene Fragment */
+export const MFExplorationSceneFragment = `
+id, title, description, order, authorId, background, foreground, characters, explorationId
+`;
+
+/** Exploration Fragment */
+export const MFExplorationFragment = `
+    id, title, description, usesAttributes, authorId, locationId, worldId, public, image, free,
+`;

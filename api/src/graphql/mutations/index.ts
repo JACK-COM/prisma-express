@@ -4,12 +4,13 @@
  * Export all `mutations` from this directory
  */
 
-export * from "./books.mutations";
-export * from "./chapters.mutations";
-export * from "./characters.mutations";
-export * from "./content-links.mutations";
-export * from "./locations.mutations";
-export * from "./series.mutations";
-export * from "./timelines.mutations";
-export * from "./users.mutations";
-export * from "./worlds.mutations";
+import { readdirSync } from "fs";
+
+// export everything from the `queries` directory using fs
+const files = readdirSync(__dirname);
+files.forEach((file) => {
+  if (file === "index.ts") return;
+  const name = file.split(".")[0];
+  const query = require(`./${file}`);
+  exports[name] = query;
+});

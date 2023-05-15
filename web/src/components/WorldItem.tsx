@@ -17,6 +17,7 @@ import { Paths, insertId } from "routes";
 import { requireAuthor } from "utils";
 import defaultWorld from "assets/mystic-world.png";
 import Tooltip from "./Tooltip";
+import { MODAL, setGlobalModal, setGlobalWorld } from "state";
 
 const WorldIcon = styled(WorldPublicIcon)`
   font-size: 1rem;
@@ -32,7 +33,6 @@ const LinkContainer = styled(ItemLinkContainer)<{ permissions: UserRole }>`
 
 type WorldItemProps = {
   world: APIData<World>;
-  onEdit?: (w: APIData<World>) => void;
   onSelect?: (w: APIData<World>) => void;
   permissions?: UserRole;
   showControls?: boolean;
@@ -40,12 +40,14 @@ type WorldItemProps = {
 const WorldItem = ({
   world,
   onSelect,
-  onEdit = noOp,
   permissions = "Reader",
   showControls = false
 }: WorldItemProps) => {
-  const url = insertId(Paths.Worlds.Locations.path, world.id);
-  const edit = requireAuthor(() => onEdit(world), permissions);
+  const url = insertId(Paths.Worlds.LocationsList.path, world.id);
+  const edit = requireAuthor(() => {
+    setGlobalWorld(world);
+    setGlobalModal(MODAL.MANAGE_WORLD);
+  }, permissions);
   const select: React.MouseEventHandler = (e) => {
     if (!onSelect) return;
     suppressEvent(e);

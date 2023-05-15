@@ -7,9 +7,7 @@ export const apolloClient = new ApolloClient({
   credentials: "include",
   queryDeduplication: true,
   defaultOptions: {
-    watchQuery: {
-      fetchPolicy: "no-cache"
-    }
+    watchQuery: { fetchPolicy: "cache-first" }
   }
 });
 

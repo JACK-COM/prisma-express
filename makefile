@@ -2,7 +2,8 @@ VARS="secrets.tfvars"
 
 # dev env spin up
 dev:
-	npm i -g concurrently
+# Only install concurrently if it's not already installed
+	npm list -g concurrently || npm i -g concurrently
 	concurrently "make dev-web" "make dev-api"
 
 # run dev web

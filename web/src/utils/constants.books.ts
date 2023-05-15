@@ -5,6 +5,7 @@
 
 // Genres
 const FICTION = [
+  "@Exploration",
   "Action",
   "Adventure",
   "Children's",

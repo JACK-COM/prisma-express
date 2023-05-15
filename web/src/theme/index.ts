@@ -127,7 +127,8 @@ const THEME: GlobalTheme = {
 
     blockquote {
       border-left: 0.25rem solid ${({ theme }) => theme.colors.accent};
-      padding-left: ${({ theme }) => theme.sizes.xs};
+      font-style: italic;
+      padding-left: ${({ theme }) => theme.sizes.sm};
       &::after,  
       &::before {
         color: ${({ theme }) => theme.colors.accent};

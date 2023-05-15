@@ -1,3 +1,5 @@
+import axios, { AxiosHeaders, AxiosRequestConfig } from "axios";
+
 type ResponseError = { message: string };
 
 /** Generic Fetch options */
@@ -7,7 +9,7 @@ type RawFetchOpts<T> = {
   /** server endpoint */
   url?: string;
   /** query string */
-  additionalOpts?: RequestInit;
+  additionalOpts?: AxiosRequestConfig;
   /** Cancel request after this amount of time (milliseconds) */
   timeout?: number;
   /** Function to call with the response */
@@ -27,20 +29,20 @@ export async function fetchRaw<T>(opts: RawFetchOpts<T>) {
     fallbackResponse: fb = {} as T
   } = opts;
   const controller = new AbortController();
-  const reqInit: RequestInit = {
+  const reqInit: AxiosRequestConfig = {
     method: "post",
-    credentials: "include",
+    withCredentials: true,
     signal: controller.signal,
+    headers:
+      contentType === "application/json"
+        ? new AxiosHeaders({ "Content-Type": contentType })
+        : new AxiosHeaders({ Accept: "*/*" }),
     ...additionalOpts
   };
 
-  if (contentType === "application/json") {
-    reqInit.headers = new Headers({ "Content-Type": contentType });
-  } else reqInit.headers = new Headers({ Accept: "*/*" });
-
   const request = () =>
-    fetch(url, reqInit)
-      .then((res) => res.json())
+    axios(url, reqInit)
+      .then((res) => res.data)
       .then((res) => onResolve(res || fb, condenseErrors(res.errors)))
       .catch((e) => onResolve({} as T, condenseErrors(e.errors || e)));
   const withTimeoutOpts = {
@@ -49,8 +51,9 @@ export async function fetchRaw<T>(opts: RawFetchOpts<T>) {
     fallbackResponse: fb,
     controller
   };
+
   return withTimeout(withTimeoutOpts).catch((e) =>
-    onResolve({} as T, e.message)
+    onResolve({} as T, e.message || e)
   );
 }
 export default fetchRaw;
@@ -73,7 +76,7 @@ export async function withTimeout<T>(opts: CancelableProps<T>): Promise<T> {
       reject(new Error("Request timed out"));
     };
     setTimeout(cancel, timeout);
-    return call ? request().then(resolve) : request;
+    return call ? request().then(resolve).catch(reject) : resolve(request);
   });
 }
 

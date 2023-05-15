@@ -53,7 +53,7 @@ export const upsertLocationMutation = mutationField("upsertLocation", {
 
     // Restrict location nesting
     if (data.id && data.parentLocationId) {
-      const child = await LocationsService.findAllLocation({
+      const child = await LocationsService.findAllLocations({
         parentLocationId: data.id
       });
       if (child.length > 0)
@@ -94,9 +94,7 @@ export const deleteLocationMutation = mutationField("deleteLocation", {
 
   // Input arguments for this mutation. Every key will be required on the `args` object
   // sent to the mutation by the client
-  args: {
-    id: nonNull(intArg())
-  },
+  args: { id: nonNull(intArg()) },
 
   /**
    * Mutation resolver

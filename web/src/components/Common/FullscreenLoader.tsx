@@ -3,8 +3,12 @@ import { FlexRow } from "./Containers";
 
 const CenteredWrapper = styled(FlexRow)`
   color: ${({ theme }) => theme.colors.primary};
+  height: 100vh;
+  left: 0;
   place-content: center;
-  height: 90vmin;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
   width: 100vw;
 `;
 

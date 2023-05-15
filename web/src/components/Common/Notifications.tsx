@@ -60,7 +60,7 @@ export default Notification;
 export const AutoDismissNotification = styled((props: ADNProps) => {
   const { className, notification } = props;
   const timeout = useMemo(
-    () => (notification.persistent ? 30000 : props.timeout || 8000),
+    () => (notification.persistent ? 30000 : props.timeout || 5000),
     [props.timeout]
   );
 
@@ -79,9 +79,14 @@ export const AutoDismissNotification = styled((props: ADNProps) => {
   };
 
   useEffect(() => {
-    if (state.timeout !== null) return;
+    const clearExistingTimeout = () => {
+      if (state.timeout) clearTimeout(state.timeout);
+    };
+
+    clearExistingTimeout();
     setState((o) => ({ ...o, timeout: setTimeout(animate, timeout) }));
-  }, [state.class]);
+    return clearExistingTimeout;
+  }, [state.class, timeout]);
 
   return (
     <Notification

@@ -14,6 +14,7 @@ import { CreateCharacterData } from "graphql/requests/characters.graphql";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { GlobalCharacter, GlobalWorld } from "state";
+import SelectParentWorld from "./SelectParentWorld";
 
 export type CreateCharacterProps = {
   data?: Partial<CreateCharacterData>;
@@ -59,10 +60,7 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
     onChange(updates);
   };
   const onDescription = (d: string) => update({ ...formData, description: d });
-  const onOrigin = (id: string) => {
-    const worldId = Number(id);
-    update({ ...formData, worldId: isNaN(worldId) ? -1 : worldId });
-  };
+  const onOrigin = (worldId?: number) => update({ ...formData, worldId });
   const onName = (e: ChangeEvent<HTMLInputElement>) => {
     update({ ...formData, name: e.target.value });
   };
@@ -123,14 +121,10 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
           </span>{" "}
           from?
         </span>
-        <Select
-          // disabled={role === "Reader" || hasLocation}
-          data={worlds}
-          value={formData.worldId || ""}
-          itemText={(w) => w.name}
-          itemValue={(w) => w.id}
-          placeholder={"Select a universe/realm:"}
+        <SelectParentWorld
           onChange={onOrigin}
+          placeholder="Select a universe/realm:"
+          value={formData.worldId || ""}
         />
       </Label>
 

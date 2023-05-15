@@ -10,11 +10,13 @@ export const MFLibrary = objectType({
     t.nonNull.int("userId");
     t.int("bookId", { description: "ID of Book purchase" });
     t.int("seriesId", { description: "ID of Series purchase" });
+    t.int("explorationId", { description: "ID of Exploration purchase" });
     t.nonNull.boolean("publicPurchase", {
       description: "Make this visible on user profile"
     });
     t.field("purchaseDate", { type: "CsDateTime" });
     t.field("Book", { type: "MFBook" });
     t.field("Series", { type: "MFSeries" });
+    t.field("Exploration", { type: "MFExploration" });
   }
 });

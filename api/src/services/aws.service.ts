@@ -15,6 +15,8 @@ import {
   AWS_BOOK_IMGS_BUCKET,
   AWS_CHAR_IMGS_BUCKET,
   AWS_DEFAULT_REGION,
+  AWS_EXPL_IMGS_BUCKET,
+  AWS_EXPSCENES_IMGS_BUCKET,
   AWS_UPLOADS_URL,
   AWS_USER_IMGS_BUCKET,
   IMGS_BUCKET
@@ -25,7 +27,9 @@ const s3 = new S3Client({ region: AWS_DEFAULT_REGION });
 const categoryBucket = {
   users: AWS_USER_IMGS_BUCKET,
   books: AWS_BOOK_IMGS_BUCKET,
-  characters: AWS_CHAR_IMGS_BUCKET
+  characters: AWS_CHAR_IMGS_BUCKET,
+  explorations: AWS_EXPL_IMGS_BUCKET,
+  explorationScenes: AWS_EXPSCENES_IMGS_BUCKET
 };
 const BUCKETS = new Set(Object.keys(categoryBucket));
 

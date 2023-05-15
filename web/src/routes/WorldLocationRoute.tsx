@@ -5,14 +5,9 @@ import {
   Card,
   CardTitle,
   GridContainer,
-  MatIcon,
   PageDescription
 } from "components/Common/Containers";
-import {
-  ButtonWithIcon,
-  LinkWithIcon,
-  RoundButton
-} from "components/Forms/Button";
+import { ButtonWithIcon, LinkWithIcon } from "components/Forms/Button";
 import { Paths, insertId } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { UserRole } from "utils/types";
@@ -20,23 +15,20 @@ import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useParams } from "react-router";
 import { WorldPublicIcon } from "components/ComponentIcons";
-import { loadCharacters, loadWorld } from "api/loadUserData";
 import PageLayout from "components/Common/PageLayout";
-import { loadTimelines } from "api/loadUserData";
 import {
   GlobalCharacter,
-  GlobalWorld,
   clearGlobalCharacter,
+  clearGlobalModal,
   clearGlobalWorld,
   setGlobalLocation
 } from "state";
 import CharactersList from "components/List.Characters";
+import LocationActions from "components/LocationActions";
+import ExplorationsList from "components/List.Explorations";
+import useGlobalExploration from "hooks/GlobalExploration";
 
 const { Worlds: WorldPaths } = Paths;
-const AddItemButton = styled(ButtonWithIcon)`
-  align-self: end;
-  width: 100%;
-`;
 const PageGrid = styled(GridContainer)`
   grid-template-columns: 4fr 1.5fr;
   @media (max-width: 768px) {
@@ -51,35 +43,32 @@ const GoToWorld = styled(LinkWithIcon)`
   width: 100%;
 `;
 const PlaceDescription = styled(PageDescription)`
-  font-style: italic;
-  padding-left: ${({ theme }) => theme.sizes.sm};
   margin-top: 1.5rem;
+`;
+const Sidebar = styled.div`
+  grid-row: 1 / span 2;
+  grid-column: 2;
 `;
 
 type Params = { worldId: string; locationId: string };
 /** @route A single World `Location` */
 const WorldLocationRoute = () => {
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const { clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
-  const {
-    focusedLocation,
-    focusedWorld,
-    timelines = []
-  } = useGlobalWorld(["focusedWorld", "focusedLocation", "timelines"]);
+  const { explorations, exploration } = useGlobalExploration([
+    "explorations",
+    "exploration"
+  ]);
+  const { focusedLocation, focusedWorld } = useGlobalWorld([
+    "focusedWorld",
+    "focusedLocation"
+  ]);
   const { worldId, locationId } = useParams<Params>();
-  const worldTimelines = useMemo(
-    () =>
-      Boolean(worldId) && timelines.length > 0
-        ? timelines.filter(({ worldId: wid }) => wid === Number(worldId))
-        : [],
-    [timelines]
-  );
   const [place, isPublic, publicClass, isAuthor, worldIcon] = useMemo(() => {
     const author = focusedLocation?.authorId === userId;
     const isPub = focusedWorld?.public;
     const role = author ? "Author" : ("Reader" as UserRole);
     return [
-      focusedLocation?.name || WorldPaths.ExploreLocation.text,
+      focusedLocation?.name || WorldPaths.ViewLocation.text,
       isPub,
       isPub ? "success--text" : "error--text",
       author,
@@ -87,24 +76,15 @@ const WorldLocationRoute = () => {
     ];
   }, [focusedWorld, focusedLocation]);
   const worldName = focusedWorld?.name || "a World";
+  const description =
+    JSON.stringify(focusedLocation?.description) ||
+    `Explore <b>${place}</b> in <b>${worldName}</b>`;
   const worldPublic = useMemo(() => {
     return `${isPublic ? "PUBLIC" : "PRIVATE"} ${focusedLocation?.type}`;
   }, [focusedWorld, focusedLocation]);
   const clearModalData = () => {
     clearGlobalModal();
     setGlobalLocation(null);
-  };
-  const loadComponentData = async () => {
-    await Promise.all([
-      loadWorld({ worldId: Number(worldId) }),
-      loadTimelines({ worldId: Number(worldId) }),
-      loadCharacters({ worldId: Number(worldId) })
-    ]);
-    const { focusedLocation: nfl, focusedWorld: fw } = GlobalWorld.getState();
-    if (nfl) return;
-    const lid = Number(locationId);
-    const focusNext = fw?.Locations.find(({ id }) => id === lid);
-    if (focusNext) setGlobalLocation(focusNext);
   };
   const clearComponentData = () => {
     clearModalData();
@@ -118,18 +98,15 @@ const WorldLocationRoute = () => {
     </>
   );
 
-  useEffect(() => {
-    loadComponentData();
-    return clearComponentData;
-  }, []);
+  useEffect(() => clearComponentData, []);
 
   if (!focusedLocation || !focusedWorld)
     return (
       <PageLayout
         id="world-locations"
-        breadcrumbs={[WorldPaths.Index, WorldPaths.Locations]}
+        breadcrumbs={[WorldPaths.Index, WorldPaths.LocationsList]}
         title={Title}
-        description={`(<b class="${publicClass}">${worldPublic}</b>) Explore <b>${place}</b> in <b>${worldName}</b>`}
+        description={`(<b class="${publicClass}">${worldPublic}</b>) ${description}`}
       >
         <Card className="fill">
           <CardTitle>{place}</CardTitle>
@@ -141,50 +118,24 @@ const WorldLocationRoute = () => {
   return (
     <PageLayout
       id="world-locations"
-      breadcrumbs={[WorldPaths.Index, WorldPaths.Locations]}
+      breadcrumbs={[WorldPaths.Index, WorldPaths.LocationsList]}
       title={Title}
-      description={`(<b class="${publicClass}">${worldPublic}</b>) Explore <b>${place}</b> in <b>${worldName}</b>`}
+      description={`(<b class="${publicClass}">${worldPublic}</b>) ${description}`}
     >
-      <PageGrid className="fill" gap="0.6rem">
+      <PageGrid gap="0.6rem">
+        <ExplorationsList
+          showControls
+          explorations={explorations}
+          exploration={exploration}
+        />
+
         <Card>
           <CardTitle>
-            Explore <Accent>{place}</Accent>
+            What's <Accent>here</Accent>?
           </CardTitle>
-          <PlaceDescription
-            as="blockquote"
-            className="location-description"
-            dangerouslySetInnerHTML={{ __html: focusedLocation?.description }}
-          />
-
-          <CardTitle>
-            To <Accent>do</Accent>?
-          </CardTitle>
-          <ol>
-            <li>
-              <b>Author:</b> Create an <b>Exploration</b> for this location; may
-              generate from any <b>Book</b> linked here.
-            </li>
-            <li>
-              <b>Reader:</b> Choose a <b>Scenario</b> to explore this location
-            </li>
-          </ol>
-
-          <CardTitle>
-            Build an <Accent>Exploration</Accent> scenario
-          </CardTitle>
-          <ol>
-            <li>
-              Select a <b>Book</b> linked to this location
-            </li>
-            <li>
-              <b>Select Scene to build:</b>
-              <ol>
-                <li>Choose background</li>
-                <li>Place foreground elems (templates = elem slots?)</li>
-                <li>[ Auto-insert any content-links as scene choices ]</li>
-              </ol>
-            </li>
-          </ol>
+          <p>
+            Choose a <Accent as="b">Scenario</Accent> to explore this location
+          </p>
 
           <CardTitle>Notes</CardTitle>
           <ol>
@@ -208,35 +159,10 @@ const WorldLocationRoute = () => {
         </Card>
 
         {/* Sidebar */}
-        <div>
+        <Sidebar>
           {authenticated && (isAuthor || isPublic) && (
             <>
-              <Card>
-                <CardTitle>
-                  <RoundButton
-                    variant="transparent"
-                    size="md"
-                    onClick={() => setGlobalModal(MODAL.MANAGE_LOCATION)}
-                  >
-                    <MatIcon className="accent--text" icon="settings" />
-                  </RoundButton>
-                  Manage <Accent>Location</Accent>
-                </CardTitle>
-                <AddItemButton
-                  icon="face"
-                  text="Add a Character"
-                  variant="outlined"
-                  onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
-                />
-                <hr className="transparent" />
-                <AddItemButton
-                  icon="book"
-                  text="Add Book"
-                  variant="outlined"
-                  onClick={() => setGlobalModal(MODAL.CREATE_BOOK)}
-                />
-                <hr className="transparent" />
-              </Card>
+              <LocationActions />
               <hr />
             </>
           )}
@@ -251,14 +177,14 @@ const WorldLocationRoute = () => {
             <GoToWorld
               icon="public"
               text="Back to world"
-              href={insertId(WorldPaths.Locations.path, Number(worldId))}
+              href={insertId(WorldPaths.LocationsList.path, Number(worldId))}
               title={`Back to ${focusedWorld.name}`}
               variant="outlined"
             />
           </Card>
           <hr />
           <CharactersList />
-        </div>
+        </Sidebar>
       </PageGrid>
     </PageLayout>
   );

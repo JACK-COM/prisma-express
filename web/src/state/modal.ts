@@ -2,14 +2,19 @@ import createState from "@jackcom/raphsducks";
 
 export enum MODAL {
   NONE = "None",
-  LINK_SCENE = "Link Scene",
   CONFIRM_DELETE_BOOK = "Confirm Delete Book",
+  CONFIRM_DELETE_CHARACTER = "Confirm Delete Character",
+  CONFIRM_DELETE_EXPLORATION = "Confirm Delete Exploration",
+  CONFIRM_DELETE_LOCATION = "Confirm Delete Location",
   CONFIRM_DELETE_WORLD = "Confirm Delete World",
   CREATE_BOOK = "Create Book",
+  CREATE_EXPLORATION = "Create Exploration",
   CREATE_WORLD = "Create World",
+  LINK_SCENE = "Link Scene",
   MANAGE_BOOK = "Manage Book",
   MANAGE_CHAPTER = "Manage Chapter",
   MANAGE_CHARACTER = "Manage Character",
+  MANAGE_EXPLORATION = "Manage Exploration",
   MANAGE_LOCATION = "Manage Location",
   MANAGE_RELATIONSHIPS = "Manage Relationships",
   MANAGE_SCENE = "Manage Scene",
@@ -17,7 +22,7 @@ export enum MODAL {
   MANAGE_TIMELINE_EVENTS = "Manage Timeline Events",
   MANAGE_WORLD = "Manage World",
   MANAGE_WORLD_EVENTS = "Manage World Events",
-  SELECT_CHAPTER = "Select Chapter"
+  SELECT_CHAPTER = "Select Chapter",
 }
 
 /** Modals */

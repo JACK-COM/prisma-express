@@ -15,18 +15,14 @@ import { getWorld } from "../../services/worlds.service";
  */
 export const getLocationById = queryField("getLocationById", {
   type: "MFLocation",
-  args: {
-    id: nonNull(intArg())
-  },
+  args: { id: nonNull(intArg()) },
 
   /**
    * Query resolver
    * @param _ Source object (ignored in mutations/queries)
    * @param args Args (everything defined in `args` property above)
-   * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
-   * database directly, or to access the authenticated `user` if the request has one.
+   * @param _ctx This is `DBContext` from `src/context.ts`.
    * @returns `MFLocation` object from service
-   * @throws Error if world not found or world is private and user is not the author
    */
   resolve: async (_, { id }, { user }) => {
     const location = await LocationsService.getLocation({ id });
@@ -51,10 +47,6 @@ export const getLocationById = queryField("getLocationById", {
  * @param description Locations matching description
  * @param name Locations matching name
  * @returns `MFLocation` object from service
- * @throws Error if world not found
- * @throws Error if user is not authorized to view world
- * @throws Error if user is not logged in
- * @throws Error if world is private and user is not the author
  */
 export const listLocations = queryField("listLocations", {
   type: list("MFLocation"),
@@ -72,10 +64,8 @@ export const listLocations = queryField("listLocations", {
    * Query resolver
    * @param _ Source object (ignored in mutations/queries)
    * @param args Args (everything defined in `args` property above)
-   * @param _ctx This is `DBContext` from `src/context.ts`. Can be used to access
-   * database directly, or to access the authenticated `user` if the request has one.
+   * @param _ctx This is `DBContext` from `src/context.ts`.
    * @returns `MFLocation` object from service
-   * @throws Error if world not found or world is private and user is not the author
    */
   resolve: async (_, args, { user }) => {
     const { authorId, description, name } = args;
@@ -83,7 +73,7 @@ export const listLocations = queryField("listLocations", {
     // return only public locations or author
     const world = await getWorld({ id: args.worldId });
     if (!world || (!world.public && user?.id !== world.authorId)) return [];
-    const locations = await LocationsService.findAllLocation({
+    const locations = await LocationsService.findAllLocations({
       ...args,
       id: args.id || undefined,
       authorId: authorId || undefined,

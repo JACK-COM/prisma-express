@@ -20,7 +20,7 @@ const { Scenes } = context;
 export async function upsertScene(newScene: UpsertSceneInput) {
   const data: UpsertSceneInput = { ...newScene };
   const now = DateTime.now().toISO();
-  data.created = newScene.created || now;
+  if (!data.id) data.created = now;
   data.lastUpdated = now;
 
   return data.id

@@ -303,7 +303,6 @@ export const PageDescription = styled.div`
   margin: 0 0 1.5rem;
   opacity: 0.7;
   padding: 0;
-  width: 100%;
 `;
 
 export const Figure = styled.figure`

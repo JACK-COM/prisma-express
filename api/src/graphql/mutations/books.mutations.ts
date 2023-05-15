@@ -45,8 +45,7 @@ export const upsertBookMutation = mutationField("upsertBook", {
     const bookData = BooksService.pruneBookData({
       ...data,
       id: data.id || undefined,
-      public: data.public || false,
-      free: data.free || false
+      public: data.public || false
     });
     if (!bookData.authorId) bookData.authorId = user.id;
     const newBook = await BooksService.upsertBook(bookData);

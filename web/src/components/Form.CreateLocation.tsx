@@ -21,6 +21,8 @@ import { getAndShowPrompt } from "api/loadUserData";
 import { buildDescriptionPrompt } from "utils/prompt-builder";
 import { ButtonWithIcon } from "./Forms/Button";
 import { useGlobalWorld } from "hooks/GlobalWorld";
+import SelectParentLocation from "./SelectParentLocation";
+import SelectParentWorld from "./SelectParentWorld";
 
 export type CreateLocationProps = {
   onChange?: (data: Partial<CreateLocationData>) => void;
@@ -45,7 +47,7 @@ const locationTypes = [
 ];
 
 const initialFormData = () => {
-  const { focusedLocation } = GlobalWorld.getState();
+  const { focusedLocation, focusedWorld } = GlobalWorld.getState();
   const formData: Partial<CreateLocationData> = {};
   if (focusedLocation) {
     formData.id = focusedLocation.id;
@@ -57,6 +59,9 @@ const initialFormData = () => {
     formData.climate = focusedLocation.climate;
     formData.flora = focusedLocation.flora;
     formData.fauna = focusedLocation.fauna;
+  }
+  if (focusedWorld && !formData.worldId) {
+    formData.worldId = focusedWorld.id;
   }
   return formData;
 };
@@ -78,12 +83,9 @@ const CreateLocationForm = (props: CreateLocationProps) => {
   const onTitle = ({ target }: ChangeEvent<HTMLInputElement>) =>
     update({ ...data, name: target.value });
 
-  const onParent = (pi?: string) => {
-    if (!pi) return update({ ...data, parentLocationId: undefined });
-    const plid = Number(pi);
+  const onParent = (plid?: number) => {
     const pl = worldLocations.find((w) => w.id === plid);
     if (!pl) return update({ ...data, parentLocationId: undefined });
-
     const { climate, flora, fauna, id } = pl;
     return update({ ...data, parentLocationId: id, climate, flora, fauna });
   };
@@ -133,7 +135,7 @@ const CreateLocationForm = (props: CreateLocationProps) => {
           />
         </Label>
 
-        {/* Parent Location */}
+        {/* Location type */}
         <Label direction="column">
           <span className="label required">
             Select <Accent>type</Accent>:
@@ -149,19 +151,34 @@ const CreateLocationForm = (props: CreateLocationProps) => {
         </Label>
       </FormRow>
 
+      <hr className="transparent" />
+
       <FormRow>
+        {/* Parent World */}
+        <Label direction="column">
+          <span className="label required">
+            Parent <Accent>World</Accent>?
+          </span>
+          <SelectParentWorld
+            excludeWorld={data?.worldId}
+            value={data?.worldId || ""}
+            onChange={onParent}
+            placeholder="Select Parent World:"
+          />
+        </Label>
+
         {/* Parent Location */}
         <Label direction="column">
           <span className="label">
             Is it in another <Accent>Location</Accent>?
           </span>
-          <Select
-            data={validParents}
+          <SelectParentLocation
+            excludeLocation={data?.id}
             value={data?.parentLocationId || ""}
-            itemText={(d) => d.name}
-            itemValue={(d) => d.id}
-            placeholder="Select Parent Location (optional):"
+            worldId={data?.worldId}
+            targetType={data?.type}
             onChange={onParent}
+            placeholder="Select Parent Location (optional):"
           />
         </Label>
       </FormRow>
@@ -184,7 +201,6 @@ const CreateLocationForm = (props: CreateLocationProps) => {
       </Label>
 
       <Hint>Give yourself some inspiration!</Hint>
-      <hr />
 
       {!data?.description && (
         <ButtonWithIcon

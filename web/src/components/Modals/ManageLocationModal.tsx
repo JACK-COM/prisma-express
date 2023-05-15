@@ -9,6 +9,7 @@ import {
   addNotification,
   clearGlobalModal,
   removeNotification,
+  setGlobalLocation,
   updateAsError,
   updateNotification
 } from "state";
@@ -63,6 +64,7 @@ export default function ManageLocationModal(props: ManageLocationModalProps) {
     const noteId = addNotification("Saving location...");
     const resp = await upsertLocation(pruneLocationForAPI(formData));
     if (typeof resp === "string") return onError(resp, noteId);
+    setGlobalLocation(resp as APIData<Location>);
     updateNotification("Location saved!", noteId);
     resetForm();
     onClose();

@@ -6,9 +6,9 @@ import { WorldType, worldTypes } from "utils/types";
 
 const actions = [
   {
-    icon: "library_add",
-    text: "Add Book",
-    onClick: () => setGlobalModal(MODAL.CREATE_BOOK)
+    icon: "explore",
+    text: "Add Exploration",
+    onClick: () => setGlobalModal(MODAL.CREATE_EXPLORATION)
   },
   {
     icon: "public",

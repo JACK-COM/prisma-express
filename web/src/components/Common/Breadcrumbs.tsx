@@ -1,6 +1,7 @@
 import { useMatch } from "react-router";
 import { Paths, AppRouteDef } from "routes";
-import { FlexRow, GridContainer, MatIcon } from "./Containers";
+import { FlexRow, GridContainer } from "./Containers";
+import { MatIcon } from "./MatIcon";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 

@@ -365,6 +365,7 @@ type MFExploration {
 type MFExplorationScene {
   """Linked Scene"""
   Exploration: MFExploration
+  authorId: Int
 
   """Scene bg data"""
   background: String

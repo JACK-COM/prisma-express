@@ -38,7 +38,7 @@ export type UpsertBookData = ItemId & {
 } & Pick<
     Book,
     | "public"
-    | "free"
+    | "price"
     | "order"
     | "image"
     | "title"
@@ -384,7 +384,7 @@ export function pruneBookForAPI(raw: Partial<UpsertBookData>) {
     description: raw.description || "No description",
     genre: raw.genre || "No Genre",
     public: raw.public || false,
-    free: raw.free || false,
+    price: raw.price || 0.0,
     image: raw.image || undefined
   };
   if (raw.id) data.id = raw.id;

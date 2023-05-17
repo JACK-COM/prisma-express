@@ -2,7 +2,6 @@ import styled from "styled-components";
 import { APIData, UserRole, Exploration } from "utils/types";
 import { noOp, suppressEvent } from "utils";
 import {
-  MatIcon,
   ItemLinkContainer,
   ItemName,
   ItemGridContainer,
@@ -12,12 +11,13 @@ import {
   GridItemControls,
   GridItemControl
 } from "./Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { DeleteItemIcon, TallIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
 import { requireAuthor } from "utils";
 import defaultBG from "assets/mystic-explorer.png";
 import Tooltip from "./Tooltip";
-import { MODAL, setFocusedExploration, setGlobalModal } from "state";
+import { MODAL, setGlobalExploration, setGlobalModal } from "state";
 import { useNavigate } from "react-router";
 
 const ExplorationIcon = styled(TallIcon).attrs({ icon: "explore" })`
@@ -50,12 +50,12 @@ const ExplorationItem = ({
   const editURL = insertId(Paths.Explorations.Build.path, exploration.id);
   const navigate = useNavigate();
   const configure = requireAuthor(() => {
-    setFocusedExploration(exploration);
+    setGlobalExploration(exploration);
     setGlobalModal(MODAL.MANAGE_EXPLORATION);
   }, permissions);
   const edit = requireAuthor(() => navigate(editURL), permissions);
   const onDelete = requireAuthor(() => {
-    setFocusedExploration(exploration);
+    setGlobalExploration(exploration);
     setGlobalModal(MODAL.CONFIRM_DELETE_EXPLORATION);
   }, permissions);
   const select: React.MouseEventHandler = (e) => {

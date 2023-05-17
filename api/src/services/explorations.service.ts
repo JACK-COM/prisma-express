@@ -175,6 +175,7 @@ export function pruneExplorationData<T extends ExplorationUpsertInput>(
 export function pruneExplorationSceneData(scene: any) {
   const { Exploration, ...rest } = scene;
   const args: Partial<ExplorationSceneUpsertInput> = {
+    ...rest,
     title: rest.title || "",
     background: rest.background || "",
     foreground: rest.foreground || "",

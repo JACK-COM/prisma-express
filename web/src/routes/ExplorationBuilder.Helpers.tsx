@@ -19,11 +19,11 @@ export function createExplorationTemplateScene(
 ): ExplorationSceneTemplate {
   return {
     title: "New scene",
-    description: "Player sees this text when the scene loads",
+    description: "Text to show when the scene loads",
     order,
     characters: [],
     foreground: [],
-    background: { url: "" }
+    background: []
   };
 }
 

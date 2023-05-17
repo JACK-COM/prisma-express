@@ -2,7 +2,6 @@ import styled from "styled-components";
 import { APIData, UserRole, World } from "utils/types";
 import { noOp, suppressEvent } from "utils";
 import {
-  MatIcon,
   ItemLinkContainer,
   ItemName,
   ItemGridContainer,
@@ -12,6 +11,7 @@ import {
   GridItemControls,
   GridItemControl
 } from "./Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { DeleteWorldIcon, WorldPublicIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
 import { requireAuthor } from "utils";

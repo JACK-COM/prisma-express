@@ -42,16 +42,19 @@ export async function listUserFilesHandler(req: Request, res: Response) {
 
   const userId = (req.user as CtxUser).id;
   const Prefix = `${category}/${userId}`;
-  const command = new ListObjectsCommand({ Bucket: IMGS_BUCKET, Prefix });
+  const command = new ListObjectsCommand({
+    Bucket: IMGS_BUCKET,
+    Prefix,
+    MaxKeys: 500
+  });
   const { Contents } = await s3.send(command);
   if (!Contents) return res.status(200).send({ files: [] });
 
-  const files = Contents.reduce((agg, file) => {
-    if (!file.Key) return agg;
-    const fileName = file.Key.split("/")[1];
-    agg.push(`${AWS_UPLOADS_URL}${category}/${userId}/${fileName}`);
+  const extractFileNames = (agg: string[], { Key }: any) => {
+    if (Key) agg.push(`${AWS_UPLOADS_URL}/${Key}`);
     return agg;
-  }, [] as string[]);
+  };
+  const files = Contents.reduce(extractFileNames, [] as string[]);
   return res.status(200).send({ files });
 }
 

@@ -1,5 +1,6 @@
 import { GlobalWorld, MODAL, setGlobalModal } from "state";
-import { Card, CardTitle, GridContainer, MatIcon } from "./Common/Containers";
+import { Card, CardTitle, GridContainer } from "./Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { ButtonWithIcon, RoundButton } from "./Forms/Button";
 import { Fragment } from "react";
 import { WorldType, worldTypes } from "utils/types";

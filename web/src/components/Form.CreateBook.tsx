@@ -16,6 +16,7 @@ import LitCategory from "./Form.LitCategory";
 import { buildDescriptionPrompt } from "utils/prompt-builder";
 import { getAndShowPrompt } from "api/loadUserData";
 import { ButtonWithIcon } from "./Forms/Button";
+import { WritingPrompt } from "./WritingPrompt";
 
 export type CreateBookProps = {
   data?: Partial<UpsertBookData>;
@@ -38,12 +39,6 @@ const CreateBookForm = (props: CreateBookProps) => {
   const updateImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const [file] = e.target.files || [];
     if (file) onCoverImage(file);
-  };
-  const getSummaryIdea = async () => {
-    const ideaPrompt = buildDescriptionPrompt({ ...data, type: "book" });
-    if (!ideaPrompt) return;
-    const idea = await getAndShowPrompt(ideaPrompt, false);
-    if (idea) updateDescription(idea);
   };
 
   return (
@@ -175,12 +170,10 @@ const CreateBookForm = (props: CreateBookProps) => {
       </Hint>
 
       {!data?.description && (
-        <ButtonWithIcon
-          type="button"
-          onClick={getSummaryIdea}
-          icon="tips_and_updates"
-          size="lg"
-          text="Get description ideas"
+        <WritingPrompt
+          onPrompt={updateDescription}
+          additionalData={{...data, type: "book"}}
+          buttonText="Get description ideas"
         />
       )}
     </Form>

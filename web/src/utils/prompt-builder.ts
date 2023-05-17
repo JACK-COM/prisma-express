@@ -1,4 +1,4 @@
-type Describable = {
+export type Describable = {
   name?: string;
   title?: string;
   description?: string;
@@ -17,11 +17,12 @@ type Describable = {
 /** Generate ideas for describing a new thing */
 export function buildDescriptionPrompt(o: Describable) {
   const { type, name, title, description } = o;
+  const TYPE = type.toUpperCase();
   const nom = name || title;
-  if (!description && !nom) return `[ DESCRIBE LOCATION ] A new ${type}`;
-  if (!description) return `[ DESCRIBE LOCATION ] A ${type} called "${nom}"`;
+  if (!description && !nom) return `[ DESCRIBE ${TYPE} ] A new ${type}`;
+  if (!description) return `[ DESCRIBE ${TYPE} ] A ${type} called "${nom}"`;
   if (!nom)
-    return `[ DESCRIBE LOCATION ] A ${type} described as "${description}"`;
+    return `[ DESCRIBE ${TYPE} ] A ${type} described as "${description}"`;
   return null;
 }
 

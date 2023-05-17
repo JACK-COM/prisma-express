@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { AppRouteDef, Paths } from "routes/index";
-import { FlexColumn, MatIcon } from "components/Common/Containers";
+import { FlexColumn } from "components/Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { ButtonLink, RoundButton } from "components/Forms/Button";
 import ThemeSelector from "./ThemeSelector";
 import AppAuth from "./AppAuth";

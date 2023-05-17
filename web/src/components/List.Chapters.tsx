@@ -30,7 +30,7 @@ type ChaptersListProps = {
   onSelectChapter?: (d: APIData<Chapter>) => any;
   onSelectScene?: (d: APIData<Scene>) => any;
 };
-/** @component List of worlds */
+/** @component List of chapters */
 const ChaptersList = (props: ChaptersListProps) => {
   const {
     emptyText,

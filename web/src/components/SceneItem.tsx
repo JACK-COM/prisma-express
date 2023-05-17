@@ -1,6 +1,7 @@
 import { APIData, Scene, UserRole } from "utils/types";
 import { noOp } from "utils";
-import { MatIcon, ItemName, ItemGridContainer } from "./Common/Containers";
+import { ItemName, ItemGridContainer } from "./Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { DeleteItemIcon, TallIcon } from "./ComponentIcons";
 import { requireAuthor } from "utils";
 import { deleteScene } from "graphql/requests/books.graphql";

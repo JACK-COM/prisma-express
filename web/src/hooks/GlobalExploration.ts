@@ -8,6 +8,7 @@ import {
 
 const ALL = explorationStoreKeys;
 
+/** Selectively subsribe to `GlobalExploration` state */
 export default function useGlobalExploration(
   keys: ExplorationStoreKey[] = ALL
 ) {

@@ -9,7 +9,9 @@ import {
   addNotification,
   updateNotification,
   updateAsError,
-  GlobalExploration
+  GlobalExploration,
+  convertToSceneTemplate,
+  setGlobalExploration
 } from "state";
 import { listTimelines } from "graphql/requests/timelines.graphql";
 import { getBook, getChapter, listBooks } from "graphql/requests/books.graphql";
@@ -20,12 +22,19 @@ import { MicroUser } from "graphql/requests/users.graphql";
 import { insertCategory } from "routes";
 import fetchRaw from "../graphql/fetch-raw";
 import { fetchGQL, getUserQuery } from "graphql";
-import { listExplorations } from "graphql/requests/explorations.graphql";
+import {
+  UpsertExplorationInput,
+  getExploration,
+  listExplorations,
+  pruneExplorationData,
+  upsertExploration
+} from "graphql/requests/explorations.graphql";
 
 // Additonal instructions for focusing data in the global state
 type GQLRequestOpts = {
   groupId?: number;
   locationId?: number;
+  explorationId?: number;
   returnUpdates?: boolean;
   timelineId?: number;
   userId?: number;
@@ -200,6 +209,27 @@ export async function loadCharacters(opts: GQLRequestOpts) {
   GlobalCharacter.multiple({ characters, focusedCharacter });
 }
 
+/** Load and focus an `Exploration` */
+export async function loadExploration(opts: GQLRequestOpts) {
+  const { explorationId } = makeAPIParams(opts);
+  if (!explorationId)
+    return { exploration: null, explorations: [], explorationScene: null };
+  const exploration = await getExploration(explorationId);
+  return setGlobalExploration(exploration);
+}
+
+/** Save and update an Exploration in state */
+export async function saveAndUpdateExploration(update: Partial<UpsertExplorationInput>) {
+  const noteId = addNotification("Updating title ...", true);
+  const resp = await upsertExploration(pruneExplorationData(update));
+  if (typeof resp === "string") updateAsError(resp, noteId);
+  else if (resp) {
+    setGlobalExploration(resp);
+    updateNotification("Title updated!", noteId, false);
+  }
+  return resp;
+}
+
 /** File Upload category */
 export type FileUploadCategory =
   | "users"
@@ -235,18 +265,20 @@ export async function uploadFileToServer(
 type APIParams = {
   authorId?: number;
   public?: boolean;
-} & Pick<GQLRequestOpts, "worldId" | "timelineId" | "locationId">;
+} & Omit<GQLRequestOpts, "returnUpdates">;
 
 /** Make API Params */
 function makeAPIParams(opts: GQLRequestOpts) {
   const params: APIParams = {};
-  const { worldId, userId, timelineId, locationId } = opts;
+  const { userId } = opts;
   if (userId === -1) params.public = true;
   else if ((userId || -2) > -1) params.authorId = userId;
   else {
+    const { worldId, timelineId, explorationId, locationId } = opts;
     if (worldId) params.worldId = Number(worldId);
     if (locationId) params.locationId = Number(locationId);
     if (timelineId) params.timelineId = Number(timelineId);
+    if (explorationId) params.explorationId = Number(explorationId);
   }
   return params;
 }

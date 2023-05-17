@@ -1,6 +1,7 @@
 import { FocusEventHandler, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Card, MatIcon } from "components/Common/Containers";
+import { Card } from "components/Common/Containers";
+import { MatIcon } from "components/Common/MatIcon";
 import { Paths } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, Chapter, Scene, UserRole } from "utils/types";

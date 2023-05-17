@@ -166,7 +166,7 @@ export type Exploration = {
   usesAttributes?: string;
   public?: boolean;
   price?: number;
-  Scenes: ExplorationScene[];
+  Scenes: APIData<ExplorationScene>[];
 } & AuthorRelation &
   WorldRelation &
   LocationRelation;
@@ -175,15 +175,15 @@ export type Exploration = {
  * An `Exploration Scene` links a `Book Scene` to an `Exploration` instance. It contains additional JSON data
  * that is used to render the scene in the context of the exploration. */
 export type ExplorationScene = {
-  explorationId?: number; // ( references Exploration )
   title: string;
   description: string;
   order: number;
   background: string; // JSON data for rendering background layer
   foreground: string; // JSON data for rendering foreground layer
   characters: string; // JSON data for rendering characters layer
+  explorationId?: number; // ( references Exploration )
   Exploration?: Exploration; // @relation(fields: [explorationId], references: [id], onDelete: Cascade)
-};
+} & AuthorRelation;
 
 /** @client  */
 export enum ExplorationTemplateAction {
@@ -207,12 +207,11 @@ export const explorationTemplateEvents = Object.values(
   ExplorationTemplateEvent
 );
 
-export type InteractiveSlot =
-  | { url?: string } & Omit<ExplorationTemplateInteraction, "choices">;
-
 export type InteractiveSlotWithPosition = {
   xy: [x: number, y: number];
-  url: string;
+  scale?: number;
+  anchor?: number;
+  url?: string;
   interactions: ExplorationTemplateInteraction[];
 };
 
@@ -222,11 +221,12 @@ export type InteractiveSlotWithPosition = {
  */
 export type ExplorationSceneTemplate = Omit<
   ExplorationScene,
-  "explorationId" | "background" | "foreground" | "characters" | "Exploration"
+  "background" | "foreground" | "characters" | "Author" | "Exploration"
 > & {
+  id?: number;
   /* JSON data for rendering scenes */
   /** scene background image (stringify to server; json.parse on load) */
-  background: Partial<InteractiveSlot>;
+  background: InteractiveSlotWithPosition[];
   /** scene characters (stringify to server; json.parse on load) */
   characters: InteractiveSlotWithPosition[];
   /** scene foreground images (stringify to server; json.parse on load) */
@@ -323,6 +323,7 @@ export type Book = {
   genre: string;
   public: boolean;
   free: boolean;
+  price: number;
   worldId?: number; // partial world relation
   locationId?: number; // partial location relation
   Chapters: APIData<Chapter>[];

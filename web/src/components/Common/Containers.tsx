@@ -1,5 +1,4 @@
 import { RoundButton } from "components/Forms/Button";
-import { ComponentPropsWithRef } from "react";
 import { Link } from "react-router-dom";
 import styled, { css } from "styled-components";
 import { lineclamp } from "theme/theme.shared";
@@ -320,9 +319,8 @@ export const BigValue = styled.div`
   margin-bottom: 0.8rem;
 `;
 
-export const CapsLabel = styled.div`
-  color: #666;
-  font-size: 0.8rem;
+export const CapsLabel = styled.span`
+  font-size: ${({ theme }) => theme.sizes.sm};
   text-transform: uppercase;
 `;
 
@@ -344,29 +342,6 @@ export const Section = styled(FlexColumn)`
     opacity: 0.7;
   }
 `;
-
-const Icon = styled.span`
-  font-size: inherit;
-  display: inline-block;
-`;
-export type MatIconProps = { icon: string } & ComponentPropsWithRef<"span">;
-export const MatIcon = ({
-  icon,
-  className = "",
-  title = "",
-  onClick,
-  style,
-  ...rest
-}: MatIconProps) => (
-  <Icon
-    className={`material-icons ${className}`.trim()}
-    title={title}
-    onClick={onClick}
-    children={icon}
-    style={style}
-    {...{ rest }}
-  />
-);
 
 export const GridItem = styled(GridContainer)`
   background-color: inherit;

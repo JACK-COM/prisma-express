@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   UpsertExplorationInput,
-  pruneExplorationData,
-  upsertExploration
 } from "graphql/requests/explorations.graphql";
-import { uploadFileToServer } from "api/loadUserData";
+import { saveAndUpdateExploration, uploadFileToServer } from "api/loadUserData";
 import {
   GlobalExploration,
   GlobalLibrary,
@@ -14,7 +12,7 @@ import {
   MODAL,
   addNotification,
   clearGlobalModal,
-  setFocusedExploration,
+  setGlobalExploration,
   updateAsError,
   updateNotification
 } from "state";
@@ -86,7 +84,7 @@ export default function ManageExplorationModal(props: ModalProps) {
     if (!imgData) return undefined;
     if (!userId || userId === -1 || !imgData) return undefined;
 
-    const noteId = addNotification("Uploading image...", true);
+    const noteId = addNotification("Uploading cover image...", true);
     const imageRes = await uploadFileToServer(imgData, "explorations");
     if (typeof imageRes === "string") {
       updateAsError(imageRes, noteId);
@@ -105,7 +103,6 @@ export default function ManageExplorationModal(props: ModalProps) {
     onClose();
   };
   const submit = async () => {
-    err("");
     // Validate
     if ((formData.title || "").length < 2)
       return err("Title must be at least 2 characters.");
@@ -118,16 +115,10 @@ export default function ManageExplorationModal(props: ModalProps) {
 
     const d = { ...formData };
     if (imgData) d.image = await uploadCoverImage();
-    const noteId = addNotification("Saving Exploration...", true);
-    const resp = await upsertExploration(pruneExplorationData(d));
-    if (typeof resp === "string") return err(resp, noteId);
-
-    // Notify
-    if (resp) {
-      setFocusedExploration(resp);
-      updateNotification("Exploration saved!", noteId, false);
-      close();
-    } else err("Did not create Exploration: please check your entries.");
+    const resp = await saveAndUpdateExploration(d);
+    if (!resp) return err("Error saving data: please check your entries.");
+    // exit
+    close();
   };
 
   useEffect(() => {

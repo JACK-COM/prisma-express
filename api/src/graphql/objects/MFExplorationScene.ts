@@ -8,6 +8,7 @@ export const MFExplorationScene = objectType({
     t.nonNull.int("id");
     t.nonNull.int("explorationId", { description: "Exploration target id" });
     t.nonNull.string("title");
+    t.int("authorId");
     t.string("description");
     t.nonNull.int("order", { description: "Scene order in exploration" });
     t.string("background", { description: "Scene bg data" });

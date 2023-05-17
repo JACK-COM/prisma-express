@@ -4,9 +4,9 @@ import {
   ItemGridContainer,
   ItemDescription,
   ItemName,
-  MatIcon,
   Accent
 } from "components/Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { DeleteItemIcon, TallIcon } from "./ComponentIcons";
 import ListView from "./Common/ListView";
 import styled from "styled-components";

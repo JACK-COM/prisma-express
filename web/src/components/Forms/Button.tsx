@@ -1,7 +1,7 @@
 import { ComponentPropsWithRef } from "react";
 import { Link, LinkProps } from "react-router-dom";
 import styled, { css } from "styled-components";
-import { MatIcon } from "../Common/Containers";
+import MatIcon from "../Common/MatIcon";
 import AllButtonProps, * as UI from "./Button.Helpers";
 
 const classOverrides = css`

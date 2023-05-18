@@ -1,12 +1,14 @@
-import { useState } from "react";
-import styled from "styled-components";
-import { MODAL, setGlobalModal } from "state";
+import { MODAL, clearGlobalModal, setGlobalModal } from "state";
 import useGlobalExploration from "hooks/GlobalExploration";
-import { Accent, Card, CardTitle, FlexColumn } from "./Common/Containers";
+import { Accent, Card, CardTitle } from "./Common/Containers";
 import SceneBuilderHelp from "./SceneBuilderHelp";
 import ModalDrawer from "./Modals/ModalDrawer";
 import { PixiCanvas } from "./PixiCanvas";
+import { useGlobalModal } from "hooks/GlobalModal";
+import { noOp } from "utils";
+import { ExplorationSceneTemplate } from "utils/types";
 
+/** @component Empty Canvas view */
 const EmptyCanvas = (
   <Card>
     <CardTitle>
@@ -20,20 +22,24 @@ const EmptyCanvas = (
   </Card>
 );
 
+type BuilderCanvasOpts = {
+  onChange?: (scene: ExplorationSceneTemplate) => void;
+};
+
 /** @component Builder Canvas (create/manage scene layers) */
-const BuilderCanvas = () => {
+const BuilderCanvas = (props: BuilderCanvasOpts) => {
+  const { onChange = noOp } = props;
   const { explorationScene } = useGlobalExploration(["explorationScene"]);
-  const [showHelp, setShowHelp] = useState(false);
-  const hideHelp = () => setShowHelp(false);
+  const { active } = useGlobalModal();
 
   return explorationScene ? (
     <>
-      <PixiCanvas editing />
+      <PixiCanvas editing onChange={onChange} />
 
       <ModalDrawer
-        open={showHelp}
+        open={active === MODAL.EXPLORATION_BUILDER_HELP}
         title="Scene Builder Help"
-        onClose={hideHelp}
+        onClose={clearGlobalModal}
       >
         <SceneBuilderHelp />
       </ModalDrawer>

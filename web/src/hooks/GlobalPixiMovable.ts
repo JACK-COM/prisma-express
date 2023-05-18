@@ -1,60 +1,64 @@
 import { useCallback, useMemo, useState } from "react";
-import {
-  DisplayObject,
-  FederatedEventTarget,
-  FederatedPointerEvent,
-  Sprite
-} from "pixi.js";
+import { DisplayObject, FederatedPointerEvent, Sprite } from "pixi.js";
 import { noOp } from "utils";
+import { InteractiveSlotCore } from "utils/types";
+import { GlobalExploration } from "state";
 
-type GlobalMovableOptions = {
-  x?: number;
-  y?: number;
-  anchor?: any; // Pixi Pointlike OR number
-  scale?: any; // Pixi Pointlike OR number
+export type GlobalMovableOptions = {
   movable?: boolean;
-  onDisplayChanged?: (pos: {
-    xy: [x: number, y: number];
-    anchor: any;
-    scale: any;
-  }) => void;
+  onDisplayChanged?: (pos: InteractiveSlotCore) => void;
+  onSlotSelect?: () => void;
+} & InteractiveSlotCore;
+
+const NO_COORDS = { x: 0, y: 0 };
+const DEFAULTS: GlobalMovableOptions = {
+  xy: [0, 0],
+  anchor: 0.5,
+  scale: 1.5,
+  movable: false
 };
 
 /** Global Hook for applying draggable logic to `Pixi` components */
-export default function useGlobalMovable(opts: GlobalMovableOptions = {}) {
+export default function useGlobalMovable(opts = DEFAULTS) {
   const {
-    x = 0,
-    y = 0,
-    anchor = 0.5,
-    scale = 1.5,
-    movable = false,
-    onDisplayChanged = noOp
+    xy = DEFAULTS.xy,
+    anchor = DEFAULTS.anchor,
+    scale = DEFAULTS.scale,
+    movable = DEFAULTS.movable,
+    onDisplayChanged = noOp,
+    onSlotSelect = noOp
   } = opts;
+  const init = { xy, anchor, scale };
   const cursor = movable ? "pointer" : "default";
   const [dragging, setDragging] = useState(false);
-  const [position, setPosition] = useState({ x, y, anchor, scale });
+  const [clicked, setClicked] = useState(false);
   const [dragTarget, setDragTarget] = useState<Sprite>();
+  const [position, setPosition] = useState<InteractiveSlotCore>(init);
   const alpha = useMemo(() => (dragging ? 0.5 : 1), [dragging]);
   const ifMovable = useCallback(
-    (fn: (a: any) => void) => (movable ? (e?: any) => fn(e) : undefined),
+    (fn: (a: any) => void) => (movable ? (e?: any) => fn(e) : noOp),
     []
   );
   const endDrag = ifMovable((e?: FederatedPointerEvent) => {
-    const newPos = updatePosition(e);
+    const moved = dragging;
+    setClicked(false);
     setDragging(false);
     setDragTarget(undefined);
-    onDisplayChanged({
-      xy: [newPos.x, newPos.y],
-      anchor: [newPos.anchor.x, newPos.anchor.y],
-      scale: [newPos.scale.x, newPos.scale.y]
-    });
+    if (moved) {
+      const updates = updatePosition(e);
+      onDisplayChanged(updates);
+    } else onSlotSelect();
   });
   const updatePosition = (e?: FederatedPointerEvent) => {
-    if (!(dragging && dragTarget && e)) return position;
-    const $parent = dragTarget.parent as DisplayObject;
-    const { x: px, y: py } = e?.getLocalPosition($parent) || { x: 0, y: 0 };
-    const scaleAnchor = { anchor: dragTarget.anchor, scale: dragTarget.scale };
-    const updates = { x: px, y: py, ...scaleAnchor };
+    if (!(clicked && dragTarget && e)) return position;
+    if (!dragging) setDragging(true);
+    const $parent = dragTarget.parent;
+    const { x: px, y: py } = e?.getLocalPosition($parent) || NO_COORDS;
+    const updates: InteractiveSlotCore = {
+      xy: [px, py],
+      anchor: [dragTarget.anchor.x, dragTarget.anchor.y],
+      scale: [dragTarget.scale.x, dragTarget.scale.y]
+    };
     setPosition(updates);
     return updates;
   };
@@ -62,7 +66,7 @@ export default function useGlobalMovable(opts: GlobalMovableOptions = {}) {
   const startDrag = ifMovable((e?: FederatedPointerEvent) => {
     if (!e || dragging) return;
     const { target } = e;
-    setDragging(true);
+    setClicked(true);
     setDragTarget(target as Sprite);
   });
 

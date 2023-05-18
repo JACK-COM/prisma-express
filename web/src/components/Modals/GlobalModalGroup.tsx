@@ -13,6 +13,7 @@ const ExplorationSceneModal = lazy(
 const ChapterModal = lazy(() => import("./ManageChapterModal"));
 const ConfirmDeleteModal = lazy(() => import("./ConfirmDeleteModal"));
 const ContentLinksModal = lazy(() => import("./ManageLinksModal"));
+const InteractiveSlotModal = lazy(() => import("./ManageInteractiveSlotModal"));
 const LocationModal = lazy(() => import("./ManageLocationModal"));
 const SceneModal = lazy(() => import("./ManageSceneModal"));
 const SelectSceneLayer = lazy(() => import("./SelectSceneLayerModal"));
@@ -51,6 +52,8 @@ export default function GlobalModalGroup() {
       {[M.CREATE_EXPLORATION_SCENE, M.MANAGE_EXPLORATION_SCENE].includes(
         active
       ) && <ExplorationSceneModal open />}
+
+      {active === M.MANAGE_INTERACTIVE_SLOT && <InteractiveSlotModal open />}
 
       {active === M.MANAGE_CHAPTER && <ChapterModal open />}
       {active === M.MANAGE_SCENE && <SceneModal open />}

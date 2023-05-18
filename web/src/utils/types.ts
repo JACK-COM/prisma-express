@@ -1,9 +1,11 @@
+import { Container } from "@pixi/react";
 import { type } from "os";
+import { ComponentPropsWithRef } from "react";
 
 export type ContentStatus = "live" | "draft" | "hidden";
 export type ReporterType = "experiencer" | "observer" | "researcher";
 export type UserRole = "Admin" | "Moderator" | "Author" | "Reader";
-export type NullableString = string | null;
+export type NullableString = Nullable<string>;
 
 /** Saved data from server. Use when an id is expected on an object */
 export type APIData<T> = T & {
@@ -186,18 +188,17 @@ export type ExplorationScene = {
 } & AuthorRelation;
 
 /** @client  */
-export enum ExplorationTemplateAction {
+export enum SlotAction {
+  NONE = "none", // Default no-op action
   FALLBACK = "fallback", // Alternative action triggered due to failed dice-roll
-  NAVIGATE = "navigate", // change room
   HIT_PLAYER = "hitPlayer", // hit player with damage
   HIT_TARGET = "hitTarget", // hit selected target with damage
+  NAVIGATE = "navigate", // change room
   TEXT_HIDE = "hideText", // hide some text description
   TEXT_SHOW = "showText", // show soem text description
   TRIGGER_CHOICE = "triggerChoice" // show choice dialog
 }
-export const explorationTemplateActions = Object.values(
-  ExplorationTemplateAction
-);
+export const explorationTemplateActions = Object.values(SlotAction);
 
 export enum ExplorationTemplateEvent {
   CLICK = "click",
@@ -207,13 +208,7 @@ export const explorationTemplateEvents = Object.values(
   ExplorationTemplateEvent
 );
 
-export type InteractiveSlotWithPosition = {
-  xy: [x: number, y: number];
-  scale?: number;
-  anchor?: number;
-  url?: string;
-  interactions: ExplorationTemplateInteraction[];
-};
+/** @client  */
 
 /**
  * @client An `Exploration Template Scene` describes a type of scene in an `Exploration Template`.
@@ -226,24 +221,36 @@ export type ExplorationSceneTemplate = Omit<
   id?: number;
   /* JSON data for rendering scenes */
   /** scene background image (stringify to server; json.parse on load) */
-  background: InteractiveSlotWithPosition[];
+  background: InteractiveSlot[];
   /** scene characters (stringify to server; json.parse on load) */
-  characters: InteractiveSlotWithPosition[];
+  characters: InteractiveSlot[];
   /** scene foreground images (stringify to server; json.parse on load) */
-  foreground: InteractiveSlotWithPosition[];
+  foreground: InteractiveSlot[];
 };
+export type InternalPointLike = [x: number, y: number];
 
-export type ExplorationTemplateInteraction = {
+export type InteractiveSlotCore = {
+  name?: string;
+  xy?: InternalPointLike;
+} & Pick<ComponentPropsWithRef<typeof Container>, "scale" | "anchor">;
+
+export type InteractiveSlot = {
+  url?: string;
+  index?: number;
+  interaction?: SlotInteraction;
+} & InteractiveSlotCore;
+
+export type SlotInteraction = {
   /** Text to show on screen */
   text: string;
-  /** Event target scene */
-  target?: string;
+  /** Event target scene id */
+  target?: number;
   /** Optional choices that can be made by triggering this slot */
-  choices?: ExplorationTemplateInteraction[];
+  choices?: SlotInteraction[];
 } & {
   /** Interaction Event types */
-  [ExplorationTemplateEvent.CLICK]?: ExplorationTemplateAction;
-  [ExplorationTemplateEvent.DRAG]?: ExplorationTemplateAction;
+  [ExplorationTemplateEvent.CLICK]?: SlotAction;
+  [ExplorationTemplateEvent.DRAG]?: SlotAction;
 };
 
 /**
@@ -275,7 +282,7 @@ export type GroupRelation = {
 
 /** Content tagged to a `Location` */
 export type LocationRelation = {
-  locationId?: number | null;
+  locationId?: Nullable<number>;
   Location?: APIData<Location>;
 };
 
@@ -497,3 +504,6 @@ export type LibraryPurchase = {
 export type ArrayKeys<T> = {
   [K in keyof T]: T[K] extends Array<any> ? K : never;
 }[keyof T];
+
+// A generally nullable type
+export type Nullable<T> = T | null;

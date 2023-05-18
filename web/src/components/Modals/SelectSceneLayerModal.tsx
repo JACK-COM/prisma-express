@@ -7,7 +7,6 @@ import {
 import ModalDrawer from "./ModalDrawer";
 import Button, { TransparentButton } from "components/Forms/Button";
 import { Fragment, useState } from "react";
-import { Input, Label } from "components/Forms/Form";
 import fetchRaw from "graphql/fetch-raw";
 import ListView from "components/Common/ListView";
 import ImageLoader from "components/Common/ImageLoader";

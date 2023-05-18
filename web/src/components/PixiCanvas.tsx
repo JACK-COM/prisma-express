@@ -1,16 +1,14 @@
-import {
-  ComponentPropsWithRef,
-  RefObject,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from "react";
+import { ComponentPropsWithRef, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { SCALE_MODES, BaseTexture } from "pixi.js";
-import { Stage, useTick } from "@pixi/react";
+import { Container, Stage } from "@pixi/react";
 import PixiEditorLayers from "./PixiLayers.Editor";
 import PixiCanvasToolbar from "./PixiCanvasToolbar";
+import { setGlobalLayer } from "state";
+import { ExplorationSceneTemplate } from "utils/types";
+import { noOp } from "utils";
+import { RectFill, layerColors } from "./PixiCanvasLayer";
+import useGlobalExploration from "hooks/GlobalExploration";
 
 // Default scaling operation for the image assets in canvas
 BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
@@ -27,18 +25,27 @@ const Canvas = styled.div`
 `;
 type CanvasProps = {
   editing?: boolean;
-} & ComponentPropsWithRef<typeof Stage>;
+  onChange?: (scene: ExplorationSceneTemplate) => void;
+} & Omit<ComponentPropsWithRef<typeof Stage>, "onChange">;
 
 /** @component PixiCanvas (create/manage Pixi component layers) */
 export const PixiCanvas = (props: CanvasProps) => {
-  const { editing, width = 0, height = 0 } = props;
+  const { editing, width = 0, height = 0, onChange = noOp } = props;
+  const { activeLayer } = useGlobalExploration(["activeLayer"]);
   const [size, setSize] = useState({ width, height });
+  const onBGClick = () => setGlobalLayer("all");
+  const fillBG = useMemo(
+    () => activeLayer && layerColors[activeLayer],
+    [activeLayer]
+  );
 
   useEffect(() => {
     const $elem = document.querySelector("#builder-canvas");
     if (!$elem) return;
-    const { width: cw, height: ch } = $elem.getBoundingClientRect();
-    setSize({ width: cw - 2, height: ch });
+    const $parent = $elem.parentElement || $elem;
+    const { width: cw, height: ch } = $parent.getBoundingClientRect();
+    // -2 for border, -50 for toolbar
+    setSize({ width: cw - 2, height: ch - 50 });
   }, []);
 
   return (
@@ -55,7 +62,18 @@ export const PixiCanvas = (props: CanvasProps) => {
               ...size
             }}
           >
-            <PixiEditorLayers />
+            {activeLayer && (
+              <Container x={0} y={0} {...size} anchor={0}>
+                <RectFill
+                  pointerdown={onBGClick}
+                  fill={fillBG}
+                  x={0}
+                  y={0}
+                  {...size}
+                />
+              </Container>
+            )}
+            <PixiEditorLayers {...size} onChange={onChange} />
           </Stage>
 
           {editing && <PixiCanvasToolbar floating />}

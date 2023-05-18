@@ -85,7 +85,6 @@ const BuilderToolbar = (props: BuilderToolbarOpts) => {
         <Fragment key={i}>
           <ToolbarButton
             disabled={!authenticated || role !== "Author"}
-            className="flex--column"
             text={text}
             type="button"
             icon={icon}

@@ -219,7 +219,9 @@ export async function loadExploration(opts: GQLRequestOpts) {
 }
 
 /** Save and update an Exploration in state */
-export async function saveAndUpdateExploration(update: Partial<UpsertExplorationInput>) {
+export async function saveAndUpdateExploration(
+  update: Partial<UpsertExplorationInput>
+) {
   const noteId = addNotification("Updating title ...", true);
   const resp = await upsertExploration(pruneExplorationData(update));
   if (typeof resp === "string") updateAsError(resp, noteId);
@@ -241,16 +243,38 @@ export type FileUploadCategory =
   | "explorationScenes"
   | "scenes";
 
+type B64ImageOpts = {
+  /** File type */
+  imgContentType: string;
+  /** File name */
+  name: string;
+  /** File data */
+  file: string;
+};
+
 /** Send a file to AWS via the server */
 export async function uploadFileToServer(
-  file: File,
-  category: FileUploadCategory
+  file: File | null,
+  category: FileUploadCategory,
+  b64Opts?: B64ImageOpts
 ) {
+  if (!file && !b64Opts) return "No file supplied for upload";
+
   const url = insertCategory(API_FILE_UPLOAD_ROUTE, category);
   const formData = new FormData();
   formData.append("category", category);
-  formData.append("fileName", file.name);
-  formData.append("imageFile", file);
+
+  if (file) {
+    formData.append("fileName", file.name);
+    formData.append("imageFile", file);
+  } else if (b64Opts) {
+    const { name, imgContentType, file: b64file } = b64Opts;
+    formData.append("fileType", "base64");
+    formData.append("fileName", name);
+    formData.append("imageFile", b64file);
+    formData.append("imgContentType", imgContentType);
+  }
+
   const contentType = "multipart/form-data";
   const res = await fetchRaw<{ fileURL: string }>({
     url,

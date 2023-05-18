@@ -114,16 +114,9 @@ const BooksEditorRoute = () => {
   };
   const onEditTitle: FocusEventHandler<HTMLSpanElement> = async (e) => {
     const newTitle = e.target.innerText;
-    if (newTitle === focusedBook?.title) return;
+    if (!focusedBook || newTitle === focusedBook?.title) return;
     const notificationId = addNotification("Updating book title ...", true);
-    const resp = await upsertBook({
-      id: focusedBook?.id,
-      title: newTitle,
-      description: focusedBook?.description || "No description",
-      free: focusedBook?.free || false,
-      public: focusedBook?.public || false,
-      genre: focusedBook?.genre || "Other"
-    });
+    const resp = await upsertBook({ ...focusedBook, title: newTitle });
     if (typeof resp === "string") updateAsError(resp, notificationId);
     else if (resp) {
       const { books } = GlobalLibrary.getState();

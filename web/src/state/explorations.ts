@@ -4,7 +4,7 @@ import {
   ArrayKeys,
   ExplorationScene,
   ExplorationSceneTemplate,
-  InteractiveSlotWithPosition
+  Nullable
 } from "utils/types";
 import { APIData, Exploration } from "utils/types";
 
@@ -12,10 +12,11 @@ type APIExploration = APIData<Exploration>;
 type APIExplorationScene = APIData<ExplorationScene>;
 
 export const GlobalExploration = createState({
-  exploration: null as APIExploration | null,
+  exploration: null as Nullable<APIExploration>,
   explorations: [] as APIExploration[],
-  explorationScene: null as ExplorationSceneTemplate | null,
-  activeLayer: "all" as "all" | "background" | "foreground" | "characters"
+  explorationScene: null as Nullable<ExplorationSceneTemplate>,
+  activeLayer: "all" as ExplorationSceneLayer,
+  activeSlotIndex: -1
 });
 
 export const explorationStoreKeys = Object.keys(
@@ -24,10 +25,15 @@ export const explorationStoreKeys = Object.keys(
 export type ExplorationStore = ReturnType<typeof GlobalExploration.getState>;
 export type ExplorationStoreKey = keyof ExplorationStore;
 export type ExplorationStoreListKeys = ArrayKeys<ExplorationStore>;
-export type ExplorationSceneLayer = ExplorationStore["activeLayer"]
+export type ExplorationSceneLayer = "all" | "background" | "foreground" | "characters";;
 
 export const setGlobalLayer = (layer: ExplorationSceneLayer) =>
-  GlobalExploration.activeLayer(layer);
+  GlobalExploration.multiple({ activeLayer: layer, activeSlotIndex: -1 });
+
+export const setGlobalSlotIndex = (
+  activeSlotIndex = -1,
+  activeLayer: ExplorationSceneLayer = "all"
+) => GlobalExploration.multiple({ activeSlotIndex, activeLayer });
 
 /** Update current list of `Explorations`; overwrite selected `Exploration` and `Scene` */
 export function setGlobalExploration(exploration: APIExploration | null) {
@@ -121,6 +127,7 @@ export function setGlobalExplorations(explorations: APIExploration[]) {
   return updates;
 }
 
+// Convert a scene to a `ExplorationSceneTemplate`
 export function convertToSceneTemplate(
   scene: APIExplorationScene
 ): ExplorationSceneTemplate {
@@ -135,6 +142,7 @@ export function convertToSceneTemplate(
   };
 }
 
+// Convert a `ExplorationSceneTemplate` to a scene for the API
 export function convertTemplateToAPIScene(
   scene: ExplorationSceneTemplate
 ): APIExplorationScene {

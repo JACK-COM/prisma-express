@@ -16,9 +16,13 @@ export const Toolbar = styled(GridContainer)`
   }
   .material-icons {
     font-size: ${({ theme }) => theme.sizes.md};
+    padding: 0;
   }
 `;
-export const ToolbarButton = styled(ButtonWithIcon)`
+export const ToolbarButton = styled(ButtonWithIcon).attrs((p) => ({
+  className: `toolbar-button flex--column ${p.className || ""}`.trim(),
+  type: "button"
+}))`
   padding: ${({ theme }) => `${theme.sizes.sm}`};
   .text {
     ${({ theme }) => theme.mixins.ellipsis};

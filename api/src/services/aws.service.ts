@@ -84,13 +84,20 @@ export async function fileUploadHandler(req: any, res: Response) {
   if (!category || !BUCKETS.has(category))
     return res.status(400).send({ errors: "Invalid image category" });
 
+  let fileData: any = file;
+  if (body.fileType === "base64") {
+    const cleaned = body.imageFile.replace(/^data:image\/\w+;base64,/, "");
+    fileData = Buffer.from(cleaned, "base64");
+  } else fileData = file.buffer;
+
   const userId = req.user.id;
   const filePath = `${category}/${userId}/${body.fileName}`;
   const bucketName = IMGS_BUCKET;
   const result = await uploadFile({
     bucketName,
     filePath,
-    fileData: file.buffer
+    fileData,
+    ContentType: body.imgContentType
   });
   if (!result) return res.status(500).send({ errors: "Error uploading image" });
 
@@ -101,14 +108,20 @@ export async function fileUploadHandler(req: any, res: Response) {
 // HELPER FUNCTIONS
 
 /** HELPER | Upload a file to an AWS bucket */
-type AWSFileOpts = { bucketName: string; fileData: any; filePath: string };
+type AWSFileOpts = {
+  ContentType?: string;
+  bucketName: string;
+  fileData: any;
+  filePath: string;
+};
 async function uploadFile(opts: AWSFileOpts) {
-  const { fileData: file, filePath, bucketName } = opts;
+  const { fileData: file, filePath, ContentType, bucketName } = opts;
   const command = new PutObjectCommand({
     Bucket: bucketName,
     ACL: "public-read",
     Key: filePath,
-    Body: file
+    Body: file,
+    ContentType
   });
 
   try {

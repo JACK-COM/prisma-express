@@ -1,49 +1,33 @@
 import { FocusEventHandler, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Accent, Card, CardTitle } from "components/Common/Containers";
 import { MatIcon } from "components/Common/MatIcon";
 import { Paths } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { APIData, Chapter, Scene, UserRole } from "utils/types";
-import { useGlobalLibrary } from "hooks/GlobalLibrary";
+import { ExplorationSceneTemplate, UserRole } from "utils/types";
 import {
   GlobalExploration,
-  GlobalLibrary,
   MODAL,
   addNotification,
-  clearGlobalBooksState,
   clearGlobalModal,
-  setGlobalChapter,
+  convertTemplateToAPIScene,
   setGlobalExploration,
   setGlobalModal,
-  setGlobalScene,
   updateAsError,
   updateNotification
 } from "state";
 import PageLayout from "components/Common/PageLayout";
-import ChaptersList from "components/List.Chapters";
 import { useParams } from "react-router";
-import {
-  loadBook,
-  loadChapter,
-  loadExploration,
-  saveAndUpdateExploration
-} from "api/loadUserData";
+import { loadExploration, saveAndUpdateExploration } from "api/loadUserData";
 import ModalDrawer from "components/Modals/ModalDrawer";
-import TinyMCE from "components/Forms/TinyMCE";
-import { useGlobalWindow } from "hooks/GlobalWindow";
-import { upsertBook, upsertScene } from "graphql/requests/books.graphql";
 import { useGlobalUser } from "hooks/GlobalUser";
-import EditorToolbar from "components/EditorToolbar";
 import useGlobalExploration from "hooks/GlobalExploration";
 import {
-  UpsertExplorationInput,
+  pruneExplorationSceneData,
   upsertExplorationScene
 } from "graphql/requests/explorations.graphql";
 import { RoundButton } from "components/Forms/Button";
 import ExplorationScenesList from "components/List.ExplorationScenes";
 import BuilderToolbar from "components/BuilderToolbar";
-import SceneBuilderHelp from "components/SceneBuilderHelp";
 import BuilderCanvas from "components/BuilderCanvas";
 
 const { Library } = Paths;
@@ -64,7 +48,6 @@ const ExplorationBuilderRoute = () => {
   ]);
   const { explorationId: urlId } = useParams<{ explorationId: string }>();
   const explorationId = urlId ? Number(urlId) : undefined;
-  const [draft, updateDraft] = useState("");
   const [pageTitle, role, pageDescription] = useMemo(() => {
     const { title: scTitle, order: scOrder } = explorationScene || {};
     const desc = !explorationScene
@@ -77,6 +60,41 @@ const ExplorationBuilderRoute = () => {
       desc
     ];
   }, [exploration, explorationScene]);
+  const [formData, setFormData] = useState<ExplorationSceneTemplate>();
+  const [editorAutosave, setEditorAutosave] = useState(true);
+  const err = (msg: string, noteId?: number) => {
+    updateAsError(msg, noteId);
+  };
+  const saveExplorationScene = async () => {
+    const { explorationScene, activeLayer: layer } =
+      GlobalExploration.getState();
+    if (!formData) return err("No data to save!");
+    if (!explorationScene) return err("No scene is selected!");
+    if (layer === "all") return err("No layer is selected!");
+
+    err("");
+    const updatedScene = { ...explorationScene, ...formData };
+    const noteId = addNotification("Saving Scene...");
+    const forAPI = convertTemplateToAPIScene(updatedScene);
+    const resp = await upsertExplorationScene(
+      pruneExplorationSceneData(forAPI)
+    );
+    if (typeof resp === "string") return err(resp as any, noteId);
+    const e = `Scene not saved: please check your entries.`;
+    if (!resp) return err(e, noteId);
+
+    // Notify
+    updateNotification("Scene saved!", noteId);
+    setGlobalExploration(resp);
+  };
+  const onEditTitle: FocusEventHandler<HTMLSpanElement> = async (e) => {
+    if (!exploration) return;
+    const newTitle = e.target.innerText;
+    if (newTitle === exploration.title) return;
+    const update = { ...exploration, title: newTitle };
+    await saveAndUpdateExploration(update);
+  };
+  const toggleAutoSave = () => setEditorAutosave(!editorAutosave);
   const loadComponentData = async () => {
     if (explorationId) {
       const res = await loadExploration({ explorationId });
@@ -86,54 +104,18 @@ const ExplorationBuilderRoute = () => {
   };
   const clearComponentData = () => {
     clearGlobalModal();
-    clearGlobalBooksState();
+    GlobalExploration.multiple({
+      activeSlotIndex: -1,
+      exploration: null,
+      explorationScene: null,
+      activeLayer: "all"
+    });
   };
-  const focusScene = async (scene: APIData<Scene>) => {
-    setGlobalScene(scene);
-    updateDraft(scene.text);
-    clearGlobalModal();
-  };
-  const updateText = (content: string) => {
-    if (!explorationScene) return;
-    updateDraft(content);
-  };
-  const saveExplorationScene = async () => {
-    console.log("Saving scene ...");
-    /* if (!draft || !focusedScene) return;
-    const notificationId = addNotification("Saving Chapter ...", true);
-    const resp = await upsertExplorationScene({ ...focusedScene, text: draft });
-    if (typeof resp === "string") updateAsError(resp, notificationId);
-    else if (resp && focusedChapter) {
-      setGlobalChapter(resp);
-      updateNotification("Chapter saved!", notificationId, false);
-    } */
-  };
-  const onEditTitle: FocusEventHandler<HTMLSpanElement> = async (e) => {
-    if (!exploration) return;
-    const newTitle = e.target.innerText;
-    if (newTitle === exploration.title) return;
-    const update = { ...exploration, title: newTitle };
-    await saveAndUpdateExploration(update);
-  };
-
-  const [editorAutosave, setEditorAutosave] = useState(true);
-  const toggleAutoSave = () => setEditorAutosave(!editorAutosave);
-  const modalOpen = useMemo(() => {
-    const localModals = [
-      MODAL.SELECT_EXPLORATION_SCENE,
-      MODAL.MANAGE_EXPLORATION_SCENE_LAYERS
-    ];
-    return localModals.includes(active);
-  }, [active]);
 
   useEffect(() => {
     loadComponentData();
     return clearComponentData;
   }, []);
-
-  // useEffect(() => {
-  // updateDraft(exploration?.text || "");
-  // }, [focusedScene, focusedChapter]);
 
   return (
     <PageLayout
@@ -170,11 +152,11 @@ const ExplorationBuilderRoute = () => {
           toggleAutoSave={toggleAutoSave}
         />
 
-        <BuilderCanvas />
+        <BuilderCanvas onChange={setFormData} />
       </section>
 
       <ModalDrawer
-        title={`Build Exploration`}
+        title={`Build <b class="accent--text">Exploration</b>`}
         openTowards="right"
         open={active === MODAL.SELECT_EXPLORATION_SCENE}
         onClose={clearGlobalModal}

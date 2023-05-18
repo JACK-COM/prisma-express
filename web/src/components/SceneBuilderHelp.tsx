@@ -25,23 +25,45 @@ export default function SceneBuilderHelp() {
       )}
 
       <li>
-        Add components to your scene! There are three main layers
+        Add components to your scene! A component can be either text or an
+        image.
+        <hr />
+        Components go into <Accent as="b">Layers</Accent>. There are{" "}
+        <Accent as="b">3 Layers</Accent> available:
         <ol>
           <li>
-            <Accent as="b">Background:</Accent> Add your background image here.
-            This layer is different from the others because it doesn't hold
-            multiple items. However, it is still similar to an item in one of
-            the other layers.
+            <Accent className="background" as="b">
+              Background:
+            </Accent>{" "}
+            Your scene's background image goes here. You can add anything that
+            is most-distant from the viewer (e.g. clouds, horizon, etc.)
           </li>
           <li>
-            <Accent as="b">Foreground:</Accent> Any foreground items (e.g. items
-            in a room) that the player/viewer can interact with.
+            <Accent className="characters" as="b">
+              Characters:
+            </Accent>{" "}
+            Any characters that the player/viewer can interact with. It is
+            recommended to keep all characters here, so you can easily track
+            them.
           </li>
           <li>
-            <Accent as="b">Characters:</Accent> Any characters that the
-            player/viewer can interact with.
+            <Accent className="foreground" as="b">
+              Foreground:
+            </Accent>{" "}
+            Any foreground items (e.g. items in a room) that the player/viewer
+            can interact with.
           </li>
         </ol>
+      </li>
+
+      <li>
+        <hr />
+        Before you add a component, make sure you are on the{" "}
+        <Accent as="b">correct Scene</Accent>! You can confirm by checking the
+        scene list.
+        <br />
+        When ready, select a <Accent as="b">Layer</Accent> from the menu, then
+        use the buttons on screen to add either some text or a new image.
       </li>
     </ol>
   );

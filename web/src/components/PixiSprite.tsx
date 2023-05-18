@@ -1,25 +1,25 @@
 import { ComponentPropsWithRef, Ref, forwardRef } from "react";
 import { Sprite } from "@pixi/react";
-import useGlobalMovable from "hooks/GlobalPixiMovable";
+import useGlobalMovable, {
+  GlobalMovableOptions
+} from "hooks/GlobalPixiMovable";
 
-type PixiSpriteProps = {
-  containerProps: {
-    movable?: boolean;
-    x?: number;
-    y?: number;
-    src?: string;
-    anchor?: { x: number; y: number };
-    scale?: number;
-    onDisplayChanged?: (a: { x: number; y: number }) => void;
-  };
+export type PixiSpriteProps = {
+  containerProps: GlobalMovableOptions & { src?: string };
 } & ComponentPropsWithRef<typeof Sprite>;
 
 /** @CanvasComponent Pixi Sprite (wrapped) with dragging functionality */
 const PixiSprite = forwardRef((props: PixiSpriteProps, ref: Ref<any>) => {
-  const { containerProps = {}, x, y, scale, ...pixiProps } = props;
+  const { containerProps = {}, x = 0, y = 0, scale, ...pixiProps } = props;
   const { src = "https://pixijs.io/pixi-react/img/bunny.png" } = containerProps;
   const { alpha, cursor, position, startDrag, handleDrag, endDrag } =
-    useGlobalMovable({ ...containerProps, x, y, scale });
+    useGlobalMovable({
+      ...containerProps,
+      xy: containerProps.xy || [x, y],
+      scale,
+      anchor: containerProps.anchor
+    });
+  const { xy = [0, 0], ...anchorScale } = position;
 
   return (
     <Sprite
@@ -32,7 +32,9 @@ const PixiSprite = forwardRef((props: PixiSpriteProps, ref: Ref<any>) => {
       onglobalpointermove={handleDrag}
       pointerup={endDrag}
       pointerupoutside={endDrag}
-      {...position}
+      x={xy[0]}
+      y={xy[1]}
+      {...anchorScale}
       {...pixiProps}
     />
   );

@@ -60,6 +60,9 @@ export function watchUnhandledErrors() {
   watchingErrors = true;
   window.onunhandledrejection = (e) => {
     if (!e.reason) return;
+    if (e.reason.name === "AbortError") return;
+    if (!e.reason.message)
+      return updateAsError("Unknown network error occurred");
     updateAsError(e.reason.message || e.reason);
   };
 }

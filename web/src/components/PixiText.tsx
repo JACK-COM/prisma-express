@@ -1,22 +1,20 @@
 import { ComponentPropsWithRef, Ref, forwardRef } from "react";
 import { Text } from "@pixi/react";
-import useGlobalMovable from "hooks/GlobalPixiMovable";
+import useGlobalMovable, {
+  GlobalMovableOptions
+} from "hooks/GlobalPixiMovable";
 
 type ContainerOpts = {
-  containerProps?: {
-    /** Allow container to be dragged `true` */
-    movable?: boolean;
-    /** Handler for updates after position change */
-    onDisplayChanged?: (a: { x: number; y: number }) => void;
-  };
+  containerProps?: Pick<GlobalMovableOptions, "movable" | "onDisplayChanged">;
 };
 type PixiTextProps = ContainerOpts & ComponentPropsWithRef<typeof Text>;
 
 /** @CanvasComponent Pixi Text (wrapped) with dragging functionality */
 const PixiText = forwardRef((props: PixiTextProps, ref: Ref<any>) => {
-  const { containerProps = {}, x, y, scale, ...pixiTextProps } = props;
+  const { containerProps = {}, x = 0, y = 0, scale, ...pixiTextProps } = props;
   const { alpha, cursor, position, startDrag, handleDrag, endDrag } =
-    useGlobalMovable({ ...containerProps, x, y, scale });
+    useGlobalMovable({ ...containerProps, xy: [x, y], scale });
+    const { xy = [0, 0], ...anchorScale } = position;
 
   return (
     <Text
@@ -24,11 +22,13 @@ const PixiText = forwardRef((props: PixiTextProps, ref: Ref<any>) => {
       cursor={cursor}
       alpha={alpha}
       eventMode="static"
-      pointerdown={startDrag}
-      onglobalpointermove={handleDrag}
-      pointerup={endDrag}
-      pointerupoutside={endDrag}
-      {...position}
+      pointerdown={startDrag || undefined}
+      onglobalpointermove={handleDrag || undefined}
+      pointerup={endDrag || undefined}
+      pointerupoutside={endDrag || undefined}
+      x={xy[0]}
+      y={xy[1]}
+      {...anchorScale}
       {...pixiTextProps}
     />
   );

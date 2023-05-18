@@ -5,9 +5,8 @@ import {
   ItemDescription,
   ItemGridContainer,
   ItemName,
-  ItemWorldName,
-  MatIcon
-} from "components/Common/Containers";
+  ItemWorldName} from "components/Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { TallIcon } from "./ComponentIcons";

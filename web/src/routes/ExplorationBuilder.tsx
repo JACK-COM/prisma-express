@@ -1,38 +1,36 @@
 import { FocusEventHandler, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Card, MatIcon } from "components/Common/Containers";
+import { MatIcon } from "components/Common/MatIcon";
 import { Paths } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
-import { APIData, Chapter, Scene, UserRole } from "utils/types";
-import { useGlobalLibrary } from "hooks/GlobalLibrary";
+import { ExplorationSceneTemplate, UserRole } from "utils/types";
 import {
-  GlobalLibrary,
+  GlobalExploration,
   MODAL,
   addNotification,
-  clearGlobalBooksState,
-  setGlobalChapter,
+  clearGlobalModal,
+  convertTemplateToAPIScene,
+  setGlobalExploration,
   setGlobalModal,
-  setGlobalScene,
   updateAsError,
   updateNotification
 } from "state";
 import PageLayout from "components/Common/PageLayout";
-import ChaptersList from "components/List.Chapters";
 import { useParams } from "react-router";
-import { loadBook, loadChapter } from "api/loadUserData";
+import { loadExploration, saveAndUpdateExploration } from "api/loadUserData";
 import ModalDrawer from "components/Modals/ModalDrawer";
-import TinyMCE from "components/Forms/TinyMCE";
-import { useGlobalWindow } from "hooks/GlobalWindow";
-import { upsertBook, upsertScene } from "graphql/requests/books.graphql";
 import { useGlobalUser } from "hooks/GlobalUser";
-import EditorToolbar from "components/EditorToolbar";
+import useGlobalExploration from "hooks/GlobalExploration";
+import {
+  pruneExplorationSceneData,
+  upsertExplorationScene
+} from "graphql/requests/explorations.graphql";
+import { RoundButton } from "components/Forms/Button";
+import ExplorationScenesList from "components/List.ExplorationScenes";
+import BuilderToolbar from "components/BuilderToolbar";
+import BuilderCanvas from "components/BuilderCanvas";
 
 const { Library } = Paths;
-const Clickable = styled.span`
-  color: ${({ theme }) => theme.colors.accent};
-  cursor: pointer;
-  font-weight: bold;
-`;
 const SpanGrid = styled.span`
   align-items: center;
   display: grid;
@@ -42,113 +40,95 @@ const SpanGrid = styled.span`
 
 /** ROUTE: List of worlds */
 const ExplorationBuilderRoute = () => {
-  const {
-    chapters = [],
-    focusedBook,
-    focusedChapter,
-    focusedScene
-  } = useGlobalLibrary([
-    "chapters",
-    "focusedChapter",
-    "focusedScene",
-    "focusedBook"
-  ]);
-  const { height } = useGlobalWindow();
-  const { active, clearGlobalModal } = useGlobalModal();
+  const { active } = useGlobalModal();
   const { id: userId } = useGlobalUser(["id", "authenticated"]);
-  const { bookId } = useParams<{ bookId: string }>();
-  const [draft, updateDraft] = useState(focusedScene?.text || "");
-  const [pageTitle, chapterTitle, sceneName, role] = useMemo(() => {
-    const { title: chTitle, order: chOrder } = focusedChapter || {};
+  const { exploration, explorationScene } = useGlobalExploration([
+    "exploration",
+    "explorationScene"
+  ]);
+  const { explorationId: urlId } = useParams<{ explorationId: string }>();
+  const explorationId = urlId ? Number(urlId) : undefined;
+  const [pageTitle, role, pageDescription] = useMemo(() => {
+    const { title: scTitle, order: scOrder } = explorationScene || {};
+    const desc = !explorationScene
+      ? exploration?.description ||
+        "Manage your <b>Exploration contents</b> here."
+      : `${scOrder}. <b class="accent--text">${scTitle}</b>`.trim();
     return [
-      focusedBook?.title || Library.BookEditor.text,
-      focusedChapter ? `${chOrder}. ${chTitle}` : "No chapter selected",
-      focusedScene?.title || "",
-      (focusedBook?.authorId === userId ? "Author" : "Reader") as UserRole
+      exploration?.title || Paths.Explorations.Build.text,
+      (exploration?.authorId === userId ? "Author" : "Reader") as UserRole,
+      desc
     ];
-  }, [focusedBook, focusedChapter, focusedScene, active]);
-  const pageDescription = useMemo(() => {
-    if (!focusedChapter) return "Manage your <b>book contents</b> here.";
-    const sceneTitle = sceneName
-      ? `<em class="accent--text">- ${sceneName}</em>`
-      : "";
-    return `<b class="accent--text">${chapterTitle}</b> ${sceneTitle}`.trim();
-  }, [focusedChapter, chapterTitle, sceneName]);
+  }, [exploration, explorationScene]);
+  const [formData, setFormData] = useState<ExplorationSceneTemplate>();
+  const [editorAutosave, setEditorAutosave] = useState(true);
+  const err = (msg: string, noteId?: number) => {
+    updateAsError(msg, noteId);
+  };
+  const saveExplorationScene = async () => {
+    const { explorationScene, activeLayer: layer } =
+      GlobalExploration.getState();
+    if (!formData) return err("No data to save!");
+    if (!explorationScene) return err("No scene is selected!");
+    if (layer === "all") return err("No layer is selected!");
+
+    err("");
+    const updatedScene = { ...explorationScene, ...formData };
+    const noteId = addNotification("Saving Scene...");
+    const forAPI = convertTemplateToAPIScene(updatedScene);
+    const resp = await upsertExplorationScene(
+      pruneExplorationSceneData(forAPI)
+    );
+    if (typeof resp === "string") return err(resp as any, noteId);
+    const e = `Scene not saved: please check your entries.`;
+    if (!resp) return err(e, noteId);
+
+    // Notify
+    updateNotification("Scene saved!", noteId);
+    setGlobalExploration(resp);
+  };
+  const onEditTitle: FocusEventHandler<HTMLSpanElement> = async (e) => {
+    if (!exploration) return;
+    const newTitle = e.target.innerText;
+    if (newTitle === exploration.title) return;
+    const update = { ...exploration, title: newTitle };
+    await saveAndUpdateExploration(update);
+  };
+  const toggleAutoSave = () => setEditorAutosave(!editorAutosave);
   const loadComponentData = async () => {
-    if (bookId) {
-      const { focusedScene: scene } = await loadBook(Number(bookId));
-      if (scene) updateDraft(scene.text);
-    } else if (!focusedChapter) setGlobalModal(MODAL.SELECT_CHAPTER);
+    if (explorationId) {
+      const res = await loadExploration({ explorationId });
+      const { explorationScene: nsc } = res;
+      if (!nsc) setGlobalModal(MODAL.SELECT_EXPLORATION_SCENE);
+    } else setGlobalModal(MODAL.SELECT_EXPLORATION_SCENE);
   };
   const clearComponentData = () => {
     clearGlobalModal();
-    clearGlobalBooksState();
-  };
-  const focusChapter = async (ch: APIData<Chapter>) => {
-    const updates = await loadChapter(ch.id, true);
-    const { focusedScene: nsc, focusedChapter: nch } = updates;
-    if (!nch) return;
-    updateDraft(nsc?.text || "");
-    setGlobalChapter(nch);
-    clearGlobalModal();
-  };
-  const focusScene = async (scene: APIData<Scene>) => {
-    setGlobalScene(scene);
-    updateDraft(scene.text);
-    clearGlobalModal();
-  };
-  const updateText = (content: string) => {
-    if (!focusedScene) return;
-    updateDraft(content);
-  };
-  const saveScene = async () => {
-    if (!draft || !focusedScene) return;
-    const notificationId = addNotification("Saving Chapter ...", true);
-    const resp = await upsertScene({ ...focusedScene, text: draft });
-    if (typeof resp === "string") updateAsError(resp, notificationId);
-    else if (resp && focusedChapter) {
-      setGlobalChapter(resp);
-      updateNotification("Chapter saved!", notificationId, false);
-    }
-  };
-  const onEditTitle: FocusEventHandler<HTMLSpanElement> = async (e) => {
-    const newTitle = e.target.innerText;
-    if (newTitle === focusedBook?.title) return;
-    const notificationId = addNotification("Updating book title ...", true);
-    const resp = await upsertBook({
-      id: focusedBook?.id,
-      title: newTitle,
-      description: focusedBook?.description || "No description",
-      free: focusedBook?.free || false,
-      public: focusedBook?.public || false,
-      genre: focusedBook?.genre || "Other"
+    GlobalExploration.multiple({
+      activeSlotIndex: -1,
+      exploration: null,
+      explorationScene: null,
+      activeLayer: "all"
     });
-    if (typeof resp === "string") updateAsError(resp, notificationId);
-    else if (resp) {
-      const { books } = GlobalLibrary.getState();
-      const newBooks = books.map((b) => (b.id === resp.id ? resp : b));
-      GlobalLibrary.multiple({ focusedBook: resp, books: newBooks });
-      updateNotification("Book title updated!", notificationId);
-    }
   };
-
-  const [editorAutosave, setEditorAutosave] = useState(true);
-  const toggleAutoSave = () => setEditorAutosave(!editorAutosave);
 
   useEffect(() => {
     loadComponentData();
-    return () => clearComponentData();
+    return clearComponentData;
   }, []);
-
-  useEffect(() => {
-    updateDraft(focusedScene?.text || "");
-  }, [focusedScene, focusedChapter]);
 
   return (
     <PageLayout
       title={
         <SpanGrid>
-          <MatIcon className="success--text" icon="edit_document" />
+          <RoundButton
+            variant="transparent"
+            size="md"
+            onClick={() => setGlobalModal(MODAL.MANAGE_EXPLORATION)}
+          >
+            <MatIcon className="success--text" icon="settings" />
+          </RoundButton>
+
           <span
             // Editable title
             onBlur={onEditTitle}
@@ -163,44 +143,27 @@ const ExplorationBuilderRoute = () => {
       id="books-list"
       description={pageDescription}
     >
-      <EditorToolbar
-        bookId={Number(bookId)}
-        role={role}
-        handleSave={saveScene}
-        saveOnBlur={editorAutosave}
-        toggleAutoSave={toggleAutoSave}
-      />
-
-      {focusedScene ? (
-        <TinyMCE
-          height={height * 0.78}
-          value={draft}
-          inline
-          autosave={editorAutosave}
-          onChange={updateText}
-          triggerSave={saveScene}
+      <section className="fill">
+        <BuilderToolbar
+          explorationId={explorationId}
+          role={role}
+          handleSave={saveExplorationScene}
+          saveOnBlur={editorAutosave}
+          toggleAutoSave={toggleAutoSave}
         />
-      ) : (
-        <Card className="fill">
-          <Clickable onClick={() => setGlobalModal(MODAL.SELECT_CHAPTER)}>
-            {chapters.length ? "Select" : "Create"}
-          </Clickable>
-          &nbsp; a <b>chapter</b> to start writing!
-        </Card>
-      )}
+
+        <BuilderCanvas onChange={setFormData} />
+      </section>
 
       <ModalDrawer
-        title={`Build Exploration`}
+        title={`Build <b class="accent--text">Exploration</b>`}
         openTowards="right"
-        // open={active === MODAL.SELECT_CHAPTER}
+        open={active === MODAL.SELECT_EXPLORATION_SCENE}
         onClose={clearGlobalModal}
       >
-        <ChaptersList
-          chapters={chapters}
-          focusedChapter={focusedChapter}
-          focusedScene={focusedScene}
-          onSelectChapter={focusChapter}
-          onSelectScene={focusScene}
+        <ExplorationScenesList
+          exploration={exploration}
+          explorationScene={explorationScene}
         />
       </ModalDrawer>
     </PageLayout>

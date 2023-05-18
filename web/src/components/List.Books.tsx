@@ -28,7 +28,7 @@ type BooksListProps = {
   title?: string;
   className?: string;
 };
-/** @component List of worlds */
+/** @component List of books */
 const BooksList = (props: BooksListProps) => {
   const { books = [], className, title = "Books and Series" } = props;
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);

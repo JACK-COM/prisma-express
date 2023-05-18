@@ -337,7 +337,7 @@ export const getExplorationQuery = () =>
   `query GetExploration($id: Int!) {  
     getExploration(id: $id) {
       ${MFExplorationFragment},
-      Scene { ${MFExplorationSceneFragment} }
+      Scenes { ${MFExplorationSceneFragment} }
     }
   }`;
 

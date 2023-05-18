@@ -11,12 +11,10 @@ import {
   RadioLabel,
   Textarea
 } from "components/Forms/Form";
-import { buildDescriptionPrompt } from "utils/prompt-builder";
-import { getAndShowPrompt } from "api/loadUserData";
 import { UpsertExplorationInput } from "graphql/requests/explorations.graphql";
-import { ButtonWithIcon } from "./Forms/Button";
 import SelectParentWorld from "./SelectParentWorld";
 import SelectParentLocation from "./SelectParentLocation";
+import { WritingPrompt } from "./WritingPrompt";
 
 export type CreateExplorationProps = {
   data?: Partial<UpsertExplorationInput>;
@@ -40,12 +38,6 @@ const CreateExplorationForm = (props: CreateExplorationProps) => {
   };
   const updateWorld = (i: number) => onChange({ ...data, worldId: i });
   const updateLocation = (i: number) => onChange({ ...data, locationId: i });
-  const getSummaryIdea = async () => {
-    const ideaPrompt = buildDescriptionPrompt({ ...data, type: "adventure" });
-    if (!ideaPrompt) return;
-    const idea = await getAndShowPrompt(ideaPrompt, false);
-    if (idea) updateDescr(idea);
-  };
 
   return (
     <Form>
@@ -181,12 +173,10 @@ const CreateExplorationForm = (props: CreateExplorationProps) => {
       </Hint>
 
       {!data?.description && (
-        <ButtonWithIcon
-          type="button"
-          onClick={getSummaryIdea}
-          icon="tips_and_updates"
-          size="lg"
-          text="Get description ideas"
+        <WritingPrompt
+          additionalData={data}
+          buttonText="Get description ideas"
+          onPrompt={updateDescr}
         />
       )}
     </Form>

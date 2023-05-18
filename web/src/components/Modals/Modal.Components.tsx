@@ -90,7 +90,7 @@ export const ModalDrawerContents = styled(FlexColumn).attrs({
   height: 100vh;
 `;
 export const ModalDrawerTitle = styled(GridContainer).attrs({
-  columns: "auto min-content"
+  columns: "auto 32px"
 })`
   ${drawerContentBoundary}
   ${titleContainer}

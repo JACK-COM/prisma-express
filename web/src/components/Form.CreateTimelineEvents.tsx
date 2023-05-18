@@ -4,7 +4,8 @@ import { Form, Hint, Legend, Select } from "components/Forms/Form";
 import { CreateTimelineEventData } from "graphql/requests/timelines.graphql";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { ButtonWithIcon } from "./Forms/Button";
-import { GridContainer, MatIcon, WarningMessage } from "./Common/Containers";
+import { GridContainer, WarningMessage } from "./Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import styled from "styled-components";
 import { DeleteItemIcon } from "./ComponentIcons";
 

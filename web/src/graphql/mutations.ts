@@ -247,7 +247,8 @@ mutation DeleteContentLink($id: Int!) {
 export const upsertExplorationMutation = () => `
 mutation UpsertExploration($data: MFExplorationUpsertInput!) {
   upsertExploration(data: $data) {
-    ${MFExplorationFragment}
+    ${MFExplorationFragment},
+    Scenes { ${MFExplorationSceneFragment} }
   }
 }`;
 

@@ -324,6 +324,7 @@ export interface NexusGenObjects {
   }
   MFExplorationScene: { // root type
     Exploration?: NexusGenRootTypes['MFExploration'] | null; // MFExploration
+    authorId?: number | null; // Int
     background?: string | null; // String
     characters?: string | null; // String
     description?: string | null; // String
@@ -601,6 +602,7 @@ export interface NexusGenFieldTypes {
   }
   MFExplorationScene: { // field return type
     Exploration: NexusGenRootTypes['MFExploration'] | null; // MFExploration
+    authorId: number | null; // Int
     background: string | null; // String
     characters: string | null; // String
     description: string | null; // String
@@ -939,6 +941,7 @@ export interface NexusGenFieldTypeNames {
   }
   MFExplorationScene: { // field return type name
     Exploration: 'MFExploration'
+    authorId: 'Int'
     background: 'String'
     characters: 'String'
     description: 'String'

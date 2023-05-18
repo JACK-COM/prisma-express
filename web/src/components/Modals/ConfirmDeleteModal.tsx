@@ -11,6 +11,8 @@ import {
   removeBookFromState,
   removeCharacterFromState,
   removeWorld,
+  setGlobalExploration,
+  setGlobalExplorations,
   updateAsError,
   updateNotification
 } from "state";
@@ -18,7 +20,10 @@ import { deleteBook } from "graphql/requests/books.graphql";
 import { deleteLocation, deleteWorld } from "graphql/requests/worlds.graphql";
 import { deleteCharacter } from "graphql/requests/characters.graphql";
 import { Accent } from "components/Common/Containers";
-import { deleteExploration } from "graphql/requests/explorations.graphql";
+import {
+  deleteExploration,
+  deleteExplorationScene
+} from "graphql/requests/explorations.graphql";
 
 type Props = {
   open?: boolean;
@@ -27,7 +32,7 @@ type Props = {
 
 const ConfirmDeleteModal = (props: Props) => {
   const { open = false, onClose = clearGlobalModal } = props;
-  const { id, title, handleDelete } = getFocusedProps();
+  const { id, title, type, handleDelete } = getFocusedProps();
   const onDelete = async () => {
     if (!id) return updateAsError("No Item selected");
     const noteId = addNotification(`Deleting "${title}"...`, true);
@@ -43,7 +48,7 @@ const ConfirmDeleteModal = (props: Props) => {
       open={open}
       onClose={onClose}
       onConfirm={onDelete}
-      confirmText="Delete Book"
+      confirmText="Delete"
       cancelText="Cancel"
     >
       <p>
@@ -58,6 +63,7 @@ export default ConfirmDeleteModal;
 
 type FocusedProps = {
   title: string;
+  type: string;
   id?: number;
   handleDelete: (id: number) => Promise<string | null>;
 };
@@ -71,30 +77,55 @@ function getFocusedProps(): FocusedProps {
     case MODAL.CONFIRM_DELETE_BOOK: {
       const { focusedBook: book } = GlobalLibrary.getState();
       const { id, title = "this book" } = book || {};
-      return { id, title, handleDelete: handleDeleteBook };
+      return { id, type: "Book", title, handleDelete: handleDeleteBook };
     }
     case MODAL.CONFIRM_DELETE_CHARACTER: {
       const { focusedCharacter } = GlobalCharacter.getState();
       const { id, name: title = "this character" } = focusedCharacter || {};
-      return { id, title, handleDelete: handleDeleteCharacter };
+      return {
+        id,
+        title,
+        type: "Character",
+        handleDelete: handleDeleteCharacter
+      };
     }
     case MODAL.CONFIRM_DELETE_EXPLORATION: {
       const { exploration } = GlobalExploration.getState();
       const { id, title = "this exploration" } = exploration || {};
-      return { id, title, handleDelete: handleDeleteExploration };
+      return {
+        id,
+        title,
+        type: "Exploration",
+        handleDelete: handleDeleteExploration
+      };
+    }
+    case MODAL.CONFIRM_DELETE_EXPLORATION_SCENE: {
+      const { explorationScene: exsc } = GlobalExploration.getState();
+      const { id, title = "this scene", explorationId } = exsc || {};
+      let handleDelete: any = () => Promise.resolve(null);
+      if (!id || !explorationId) {
+        return { title: "this item", type: "Scene", handleDelete };
+      }
+
+      handleDelete = () => handleDeleteExploreScene(id, explorationId);
+      return { id, title, type: "Scene", handleDelete };
     }
     case MODAL.CONFIRM_DELETE_LOCATION: {
       const { id, worldId, name = "this location" } = focusedLocation || {};
       const handleDelete = (i: number) =>
         handleDeleteLocation(i, worldId || -1);
-      return { id, title: name, handleDelete };
+      return { id, title: name, type: "Location", handleDelete };
     }
     case MODAL.CONFIRM_DELETE_WORLD: {
       const { id, name: title = "this world" } = focusedWorld || {};
-      return { id, title, handleDelete: handleDeleteWorld };
+      return { id, title, type: "World", handleDelete: handleDeleteWorld };
     }
     default:
-      return { title: "this item", handleDelete: () => Promise.resolve(null) };
+      return {
+        title: "this item",
+        type: "item",
+        handleDelete: () => Promise.resolve(null)
+      };
   }
 }
 
@@ -142,7 +173,17 @@ async function handleDeleteExploration(id: number) {
   const res = await deleteExploration(id);
   if (typeof res === "string") return res;
   if (!res) return "Error deleting exploration";
-  const { exploration } = GlobalExploration.getState();
-  if (exploration?.id === id) GlobalExploration.exploration(null);
+  const { explorations: old } = GlobalExploration.getState();
+  const explorations = old.filter((e) => e.id !== id);
+  setGlobalExplorations(explorations);
+  return null;
+}
+
+/** Delete an Exploration Scene */
+async function handleDeleteExploreScene(id: number, explorationId: number) {
+  const res = await deleteExplorationScene(id, explorationId);
+  if (typeof res === "string") return res;
+  if (!res) return "Error deleting exploration scene";
+  setGlobalExploration(res);
   return null;
 }

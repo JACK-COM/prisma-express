@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { API_BASE } from "utils/constants";
-import { MatIcon } from "components/Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { RoundButton } from "components/Forms/Button";
 import { GridItem } from "components/Common/Containers";
 import { GridItemTitle } from "components/Common/Containers";

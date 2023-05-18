@@ -18,7 +18,7 @@ import {
   MODAL,
   clearGlobalModal,
   setGlobalModal,
-  setFocusedExploration
+  setGlobalExploration
 } from "state";
 import { TallIcon } from "components/ComponentIcons";
 import { useGlobalWorld } from "hooks/GlobalWorld";

@@ -2,17 +2,18 @@ import React, { ReactNode, ReactText } from "react";
 import styled, { css } from "styled-components";
 import { noOp, suppressEvent } from "../../utils/index";
 
-const sharedListStyles = css<{ row?: boolean }>`
+const sharedListStyles = css<StyledListProps>`
   display: flex;
   flex-direction: ${({ row }) => (row ? "row" : "column")};
 `;
-const OrderedList = styled.ol<{ row?: boolean }>`
+type StyledListProps = { itemWidth?: string; row?: boolean; grid?: boolean };
+const OrderedList = styled.ol<StyledListProps>`
   ${sharedListStyles}
   > * {
     width: 100%;
   }
 `;
-const UnorderedList = styled.ul<{ row?: boolean }>`
+const UnorderedList = styled.ul<StyledListProps>`
   ${sharedListStyles}
   list-style: none;
   margin: 0;
@@ -22,13 +23,14 @@ const UnorderedList = styled.ul<{ row?: boolean }>`
   }
 `;
 /** Grid-style list container */
-const GridList = styled(UnorderedList)`
+const GridList = styled(UnorderedList)<{ itemWidth?: string }>`
   align-content: center;
   align-items: center;
   display: grid;
   grid-auto-rows: minmax(100px, auto);
   grid-gap: ${({ theme }) => theme.sizes.sm};
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: ${({ itemWidth = "150px" }) =>
+    `repeat(auto-fill, ${itemWidth})`};
   justify-content: center;
   justify-items: center;
   margin: 0 auto;
@@ -76,6 +78,7 @@ export type ListViewProps<T> = {
   rounded?: boolean;
   dummyFirstItem?: ReactNode;
   dummyLastItem?: ReactNode;
+  itemWidth?: string;
   itemText: (d: T, i?: number) => ReactNode;
   onItemClick?: (d: T) => any | void;
 } & React.ComponentPropsWithRef<"ul" | "ol">;
@@ -87,6 +90,7 @@ const ListView = styled((props: ListViewProps<any>): JSX.Element => {
   const {
     data,
     itemText,
+    itemWidth = "200px",
     onItemClick = noOp,
     rounded = true,
     grid = false,
@@ -105,7 +109,7 @@ const ListView = styled((props: ListViewProps<any>): JSX.Element => {
   };
 
   return (
-    <Wrapper row={row} {...rest}>
+    <Wrapper row={row} itemWidth={itemWidth} {...rest}>
       {dummyFirstItem && (
         <ListViewItem className={itemClassname}>{dummyFirstItem}</ListViewItem>
       )}

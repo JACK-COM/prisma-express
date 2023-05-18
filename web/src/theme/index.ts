@@ -102,6 +102,9 @@ const THEME: GlobalTheme = {
     .grey--text {
       color: #9c9c9c;
     }
+    .gold--text{ 
+      color: #dcba0f;
+    }
     .primary--text{ 
       color: ${({ theme }) => theme.colors.primary}; 
     }

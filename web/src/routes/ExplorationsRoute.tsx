@@ -2,9 +2,6 @@ import { Routes, Route } from "react-router-dom";
 import { Paths, trimParent } from "routes";
 import { Suspense, lazy } from "react";
 import FullScreenLoader from "components/Common/FullscreenLoader";
-import { useGlobalUser } from "hooks/GlobalUser";
-import ExplorationsList from "components/List.Explorations";
-import useGlobalExploration from "hooks/GlobalExploration";
 
 const ExplorationBuilderRoute = lazy(() => import("./ExplorationBuilder"));
 const ExplorationsListRoute = lazy(() => import("./ExplorationsListRoute"));

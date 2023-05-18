@@ -16,6 +16,7 @@ import LitCategory from "./Form.LitCategory";
 import { buildDescriptionPrompt } from "utils/prompt-builder";
 import { getAndShowPrompt } from "api/loadUserData";
 import { ButtonWithIcon } from "./Forms/Button";
+import { WritingPrompt } from "./WritingPrompt";
 
 export type CreateBookProps = {
   data?: Partial<UpsertBookData>;
@@ -28,7 +29,7 @@ const CreateBookForm = (props: CreateBookProps) => {
   const { data, onChange = noOp, onCoverImage = noOp } = props;
   const updatePublic = (e: boolean) =>
     onChange({ ...data, public: e || false });
-  const updateFree = (free: boolean) => onChange({ ...data, free });
+  const updatePrice = (price = 0.0) => onChange({ ...data, price });
   const updateDescription = (description: string) => {
     onChange({ ...data, description });
   };
@@ -38,12 +39,6 @@ const CreateBookForm = (props: CreateBookProps) => {
   const updateImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const [file] = e.target.files || [];
     if (file) onCoverImage(file);
-  };
-  const getSummaryIdea = async () => {
-    const ideaPrompt = buildDescriptionPrompt({ ...data, type: "book" });
-    if (!ideaPrompt) return;
-    const idea = await getAndShowPrompt(ideaPrompt, false);
-    if (idea) updateDescription(idea);
   };
 
   return (
@@ -62,8 +57,9 @@ const CreateBookForm = (props: CreateBookProps) => {
         free or can be seen by other users.
       </Hint>
 
-      {/* Name */}
+      {/* Cover Image + Name */}
       <FormRow columns="repeat(2, 1fr)">
+        {/* Name */}
         <Label direction="column">
           <span className="label required">
             Book <span className="accent--text">Title</span>
@@ -75,6 +71,8 @@ const CreateBookForm = (props: CreateBookProps) => {
             onChange={updateTitle}
           />
         </Label>
+
+        {/* Cover Image */}
         <Label direction="column">
           <span className="label">
             Cover <span className="accent--text">Image</span>
@@ -95,11 +93,13 @@ const CreateBookForm = (props: CreateBookProps) => {
         value={data}
         onChange={(details) => onChange({ ...data, ...details })}
       />
+      <hr />
 
       {/* Public/Private | Free/Paid */}
       <FormRow columns="repeat(2, 1fr)">
+        {/* Public/Private */}
         <Label direction="column">
-          <span className="label">
+          <span className="label required">
             Is this book <b className="accent--text">public</b>?
           </span>
 
@@ -122,41 +122,25 @@ const CreateBookForm = (props: CreateBookProps) => {
             </RadioLabel>
           </FormRow>
           <Hint>
-            Select <b>Public</b> if you would like other users to cheer your
-            progress.
+            <b>Private</b> books won't appear in search results.
           </Hint>
         </Label>
 
-        {/* Free/Paid 
+        {/* Free/Paid */}
         <Label direction="column">
           <span className="label">
-            Is this book <b className="accent--text">free</b>?
+            Book <span className="accent--text">Price</span>
           </span>
-
-          <FormRow>
-            <RadioLabel>
-              <span>Free</span>
-              <RadioInput
-                checked={data?.free || false}
-                name="isFree"
-                onChange={() => updateFree(true)}
-              />
-            </RadioLabel>
-            <RadioLabel>
-              <span>Paid</span>
-              <RadioInput
-                checked={!data?.free}
-                name="isFree"
-                onChange={() => updateFree(false)}
-              />
-            </RadioLabel>
-          </FormRow>
-          <Hint>
-            Select <b>Free</b> if you would like other users to add this to
-            their library at no cost.
-          </Hint>
-        </Label>*/}
+          <Input
+            placeholder="0.99"
+            type="number"
+            value={data?.price || ""}
+            onChange={({ target }) => updatePrice(target.valueAsNumber)}
+          />
+          <Hint>Leave blank to keep the book free.</Hint>
+        </Label>
       </FormRow>
+      <hr />
 
       {/* Description */}
       <Label direction="column">
@@ -175,12 +159,10 @@ const CreateBookForm = (props: CreateBookProps) => {
       </Hint>
 
       {!data?.description && (
-        <ButtonWithIcon
-          type="button"
-          onClick={getSummaryIdea}
-          icon="tips_and_updates"
-          size="lg"
-          text="Get description ideas"
+        <WritingPrompt
+          onPrompt={updateDescription}
+          additionalData={{ ...data, type: "book" }}
+          buttonText="Get description ideas"
         />
       )}
     </Form>

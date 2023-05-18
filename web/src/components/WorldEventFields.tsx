@@ -20,7 +20,7 @@ import {
   World
 } from "utils/types";
 import styled from "styled-components";
-import { MatIcon } from "./Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { GlobalUser } from "state";
 
 export type WorldEventFieldProps = {

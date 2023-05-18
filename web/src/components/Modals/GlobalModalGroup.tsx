@@ -7,11 +7,16 @@ import FullScreenLoader from "components/Common/FullscreenLoader";
 // All delete-confirmation modals
 const BookModal = lazy(() => import("./ManageBookModal"));
 const ExplorationModal = lazy(() => import("./ManageExplorationModal"));
+const ExplorationSceneModal = lazy(
+  () => import("components/Modals/ManageExplorationSceneModal")
+);
 const ChapterModal = lazy(() => import("./ManageChapterModal"));
 const ConfirmDeleteModal = lazy(() => import("./ConfirmDeleteModal"));
 const ContentLinksModal = lazy(() => import("./ManageLinksModal"));
+const InteractiveSlotModal = lazy(() => import("./ManageInteractiveSlotModal"));
 const LocationModal = lazy(() => import("./ManageLocationModal"));
 const SceneModal = lazy(() => import("./ManageSceneModal"));
+const SelectSceneLayer = lazy(() => import("./SelectSceneLayerModal"));
 const TimelineModal = lazy(() => import("./ManageTimelineModal"));
 const WorldEventsModal = lazy(() => import("./ManageWorldEventsModal"));
 const WorldModal = lazy(() => import("components/Modals/ManageWorldModal"));
@@ -21,11 +26,14 @@ const deleteState = [
   M.CONFIRM_DELETE_BOOK,
   M.CONFIRM_DELETE_CHARACTER,
   M.CONFIRM_DELETE_EXPLORATION,
+  M.CONFIRM_DELETE_EXPLORATION_SCENE,
   M.CONFIRM_DELETE_LOCATION,
   M.CONFIRM_DELETE_WORLD
 ];
 
-/** Application Modals group: add all modals here for maximum efficiency */
+/**
+ * Application Modals group: add all modals here for maximum efficiency, if
+ * their data can live in some global state instance. */
 export default function GlobalModalGroup() {
   const { active } = useGlobalModal();
   const WH = useGlobalWorld(["focusedWorld", "focusedLocation"]);
@@ -41,9 +49,16 @@ export default function GlobalModalGroup() {
         <ExplorationModal open />
       )}
 
+      {[M.CREATE_EXPLORATION_SCENE, M.MANAGE_EXPLORATION_SCENE].includes(
+        active
+      ) && <ExplorationSceneModal open />}
+
+      {active === M.MANAGE_INTERACTIVE_SLOT && <InteractiveSlotModal open />}
+
       {active === M.MANAGE_CHAPTER && <ChapterModal open />}
       {active === M.MANAGE_SCENE && <SceneModal open />}
       {active === M.MANAGE_TIMELINE && <TimelineModal open />}
+      {active === M.SELECT_SCENE_LAYER && <SelectSceneLayer open />}
       {[M.CREATE_WORLD, M.MANAGE_WORLD].includes(active) && <WorldModal open />}
 
       {WH.focusedWorld && (

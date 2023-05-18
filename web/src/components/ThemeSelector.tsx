@@ -1,7 +1,7 @@
 import { useGlobalTheme } from "hooks/GlobalTheme";
 import { UIThemeType } from "theme";
 import { RoundButton } from "./Forms/Button";
-import { MatIcon } from "./Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { useMemo } from "react";
 
 const ThemeSelector = () => {

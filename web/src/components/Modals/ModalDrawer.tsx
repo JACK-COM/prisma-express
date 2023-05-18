@@ -1,8 +1,7 @@
 import { RoundButton, WideButton } from "components/Forms/Button";
 import { MouseEventHandler, useEffect, useMemo } from "react";
 import { noOp } from "utils";
-import { MatIcon } from "../Common/Containers";
-import useEscapeKeyListener from "hooks/GlobalEscapeKeyEvent";
+import { MatIcon } from "components/Common/MatIcon";
 import {
   DrawerContainer,
   ModalDrawerControls,
@@ -64,8 +63,13 @@ const ModalDrawer = (p: ModalDrawerProps) => {
   return (
     <DrawerContainer style={style} className={rootClass} onClick={onBGClick}>
       <ModalDrawerTitle>
-        {title && <h1 className="title h4">{title}</h1>}
-        <RoundButton variant="transparent" onClick={onClose}>
+        {title && (
+          <h1
+            className="title h4"
+            dangerouslySetInnerHTML={{ __html: title }}
+          />
+        )}
+        <RoundButton size="md" variant="transparent" onClick={onClose}>
           <MatIcon icon="close" />
         </RoundButton>
       </ModalDrawerTitle>

@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { MatIcon, MatIconProps } from "components/Common/Containers";
+import { MatIcon, MatIconProps } from "./Common/MatIcon";
 import {
   APIData,
   PermissionProps,

@@ -1,12 +1,12 @@
 import { APIData, Chapter, Scene, UserRole } from "utils/types";
 import { noOp, suppressEvent } from "utils";
 import {
-  MatIcon,
   ItemDescription,
   ItemName,
   ItemGridContainer,
   GridContainer
 } from "./Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { DeleteItemIcon, TallIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
 import { requireAuthor } from "utils";

@@ -3,6 +3,7 @@
  * @description GraphQL requests relating to `Explorations`, and `ExplorationScenes`.
  */
 
+import { gql } from "@apollo/client";
 import {
   fetchGQL,
   deleteExplorationMutation,
@@ -19,11 +20,16 @@ import { APIData, Exploration, ExplorationScene } from "utils/types";
 type PartialId = { id?: number };
 /** Data to create an `Exploration` */
 export type UpsertExplorationInput = PartialId &
-  Omit<Exploration, "World" | "Author" | "Location">;
+  Omit<Exploration, "World" | "Author" | "Scenes" | "Location"> & {
+    Scenes?: UpsertExplorationSceneInput[];
+  };
 
 /** Data to create an `ExplorationScene` */
-export type UpsertExplorationSceneInput = PartialId &
-  Omit<ExplorationScene, "Exploration" | "explorationId"> & {
+export type UpsertExplorationSceneInput = Omit<
+  ExplorationScene,
+  "Exploration" | "explorationId"
+> &
+  PartialId & {
     explorationId?: number;
   };
 
@@ -88,22 +94,23 @@ export async function upsertExploration(
   });
 }
 
-/** Create or update an `ExplorationScene` */
+/** Create or update an `ExplorationScene` (returns parent `Exploration`) */
 export async function upsertExplorationScene(
   data: UpsertExplorationSceneInput
-): Promise<APIData<ExplorationScene> | null> {
+): Promise<APIData<Exploration> | null> {
   const pruned = pruneExplorationSceneData(data);
-  if (!data.explorationId) throw new Error("Exploration ID not found on scene");
+  const { explorationId } = data;
+  if (!explorationId) throw new Error("Exploration ID not found on scene");
 
   return fetchGQL<APIData<ExplorationScene> | null>({
     query: upsertExplorationSceneMutation(),
     refetchQueries: [
-      { query: getExplorationQuery(), variables: { id: data.explorationId } }
+      { query: gql(getExplorationQuery()), variables: { id: explorationId } }
     ],
     variables: { data: pruned },
     onResolve: (x, errors) => errors || x.upsertExplorationScene,
     fallbackResponse: null
-  });
+  }).then((x: any) => (x?.id ? getExploration(explorationId) : x));
 }
 
 /** Delete an `Exploration` */
@@ -120,14 +127,18 @@ export async function deleteExploration(
 
 /** Delete an `ExplorationScene` */
 export async function deleteExplorationScene(
-  id: number
-): Promise<APIData<ExplorationScene> | null> {
-  return fetchGQL<APIData<ExplorationScene> | null>({
+  id: number,
+  explorationId: number
+): Promise<APIData<Exploration> | null> {
+  return fetchGQL<APIData<Exploration> | null>({
     query: deleteExplorationSceneMutation(),
+    refetchQueries: [
+      { query: gql(getExplorationQuery()), variables: { id: explorationId } }
+    ],
     variables: { id },
     onResolve: (x, errors) => errors || x.deleteExplorationScene,
     fallbackResponse: null
-  });
+  }).then((x) => (x?.id ? getExploration(explorationId) : x));
 }
 
 // HELPER | prune data for API
@@ -151,11 +162,9 @@ export function pruneExplorationData(
   };
 }
 
-export function pruneExplorationSceneData(
-  data: UpsertExplorationSceneInput
-): UpsertExplorationSceneInput {
-  return {
-    id: data.id,
+export function pruneExplorationSceneData(data: UpsertExplorationSceneInput) {
+  const d: UpsertExplorationSceneInput = {
+    authorId: data.authorId,
     order: data.order,
     title: data.title,
     description: safeString(data.description),
@@ -164,4 +173,6 @@ export function pruneExplorationSceneData(
     foreground: safeString(data.foreground),
     characters: safeString(data.characters)
   };
+  if (data.id) d.id = data.id;
+  return d as UpsertExplorationSceneInput;
 }

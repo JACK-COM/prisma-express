@@ -1,7 +1,7 @@
 import { RoundButton, WideButton } from "components/Forms/Button";
 import { MouseEventHandler, useEffect, useMemo } from "react";
 import { noOp } from "utils";
-import { MatIcon } from "../Common/Containers";
+import { MatIcon } from "components/Common/MatIcon";
 import useEscapeKeyListener from "hooks/GlobalEscapeKeyEvent";
 import {
   ModalContainer,

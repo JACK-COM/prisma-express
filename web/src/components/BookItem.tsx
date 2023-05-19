@@ -4,12 +4,12 @@ import { APIData, Book, UserRole } from "utils/types";
 import { noOp, suppressEvent } from "utils";
 import {
   sharedGridItemStyles,
-  MatIcon,
   GridContainer,
   GridItemName,
   GridItemControls,
   GridItemControl
 } from "./Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { TallIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
 import { requireAuthor } from "utils";

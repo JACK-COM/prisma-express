@@ -4,14 +4,14 @@ import {
   ItemGridContainer,
   ItemDescription,
   ItemName,
-  MatIcon,
   Accent
 } from "components/Common/Containers";
-import { TallIcon } from "./ComponentIcons";
+import { MatIcon } from "./Common/MatIcon";
+import { DeleteItemIcon, TallIcon } from "./ComponentIcons";
 import ListView from "./Common/ListView";
 import styled from "styled-components";
 import { MouseEventHandler, useMemo } from "react";
-import { GlobalUser } from "state";
+import { GlobalUser, GlobalWorld, MODAL, setGlobalModal } from "state";
 
 type LocationItemProps = {
   world: APIData<World>;
@@ -42,6 +42,14 @@ const LocationItem = ({
   const permissions: UserRole = isAuthor ? "Author" : "Reader";
   const iconClass = isPublic ? "icon success--text" : "icon error--text";
   const title = isPublic ? "Public Location" : "Private Location";
+  const onDelete = requireAuthor(
+    () => {
+      GlobalWorld.focusedLocation(location);
+      setGlobalModal(MODAL.CONFIRM_DELETE_LOCATION);
+    },
+    permissions,
+    false
+  );
   const edit = requireAuthor(() => onEdit(location), permissions);
   const select: MouseEventHandler<HTMLDivElement> = (e) => {
     suppressEvent(e);
@@ -72,6 +80,13 @@ const LocationItem = ({
       </ItemName>
       <ItemDescription
         dangerouslySetInnerHTML={locationDescription(location)}
+      />
+
+      <DeleteItemIcon
+        style={{ gridRow: "1 / span 2" }}
+        data={1}
+        onItemClick={onDelete}
+        permissions={permissions}
       />
 
       {/* Child Locations */}

@@ -38,13 +38,15 @@ export type UpsertBookData = ItemId & {
 } & Pick<
     Book,
     | "public"
-    | "free"
+    | "price"
     | "order"
     | "image"
     | "title"
     | "description"
     | "genre"
     | "seriesId"
+    | "worldId"
+    | "locationId"
   >;
 
 /** Data required to create a chapter */
@@ -374,13 +376,15 @@ export async function deleteSeries(id: number): Promise<APIData<Series>> {
 export function pruneBookForAPI(raw: Partial<UpsertBookData>) {
   const data: UpsertBookData = {
     authorId: raw.authorId,
+    locationId: raw.locationId,
+    worldId: raw.worldId,
     seriesId: raw.seriesId,
     order: raw.order || 0,
     title: raw.title || "No Title",
     description: raw.description || "No description",
     genre: raw.genre || "No Genre",
     public: raw.public || false,
-    free: raw.free || false,
+    price: raw.price || 0.0,
     image: raw.image || undefined
   };
   if (raw.id) data.id = raw.id;

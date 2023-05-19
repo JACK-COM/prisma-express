@@ -1,6 +1,12 @@
 import { useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { Card, CardTitle, GridContainer } from "components/Common/Containers";
+import {
+  Accent,
+  Card,
+  CardTitle,
+  GridContainer,
+  PageDescription
+} from "components/Common/Containers";
 import { ButtonWithIcon, LinkWithIcon } from "components/Forms/Button";
 import { Paths, insertId } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
@@ -9,24 +15,20 @@ import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useParams } from "react-router";
 import { WorldPublicIcon } from "components/ComponentIcons";
-import { loadCharacters, loadWorld } from "api/loadUserData";
 import PageLayout from "components/Common/PageLayout";
-import TimelinesList from "components/List.Timelines";
-import { loadTimelines } from "api/loadUserData";
 import {
   GlobalCharacter,
-  GlobalWorld,
   clearGlobalCharacter,
+  clearGlobalModal,
   clearGlobalWorld,
   setGlobalLocation
 } from "state";
 import CharactersList from "components/List.Characters";
+import LocationActions from "components/LocationActions";
+import ExplorationsList from "components/List.Explorations";
+import useGlobalExploration from "hooks/GlobalExploration";
 
 const { Worlds: WorldPaths } = Paths;
-const AddItemButton = styled(ButtonWithIcon)`
-  align-self: end;
-  width: 100%;
-`;
 const PageGrid = styled(GridContainer)`
   grid-template-columns: 4fr 1.5fr;
   @media (max-width: 768px) {
@@ -40,38 +42,33 @@ const GoToWorld = styled(LinkWithIcon)`
   margin-top: 0.5rem;
   width: 100%;
 `;
-const Cardinality = styled(GridContainer)`
-  grid-template-columns:
-    auto
-    1fr 1fr
-    auto;
-  grid-template-rows: auto;
+const PlaceDescription = styled(PageDescription)`
+  margin-top: 1.5rem;
+`;
+const Sidebar = styled.div`
+  grid-row: 1 / span 2;
+  grid-column: 2;
 `;
 
 type Params = { worldId: string; locationId: string };
 /** @route A single World `Location` */
 const WorldLocationRoute = () => {
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const { clearGlobalModal, setGlobalModal, MODAL } = useGlobalModal();
-  const {
-    focusedLocation,
-    focusedWorld,
-    timelines = []
-  } = useGlobalWorld(["focusedWorld", "focusedLocation", "timelines"]);
+  const { explorations, exploration } = useGlobalExploration([
+    "explorations",
+    "exploration"
+  ]);
+  const { focusedLocation, focusedWorld } = useGlobalWorld([
+    "focusedWorld",
+    "focusedLocation"
+  ]);
   const { worldId, locationId } = useParams<Params>();
-  const worldTimelines = useMemo(
-    () =>
-      Boolean(worldId) && timelines.length > 0
-        ? timelines.filter(({ worldId: wid }) => wid === Number(worldId))
-        : [],
-    [timelines]
-  );
   const [place, isPublic, publicClass, isAuthor, worldIcon] = useMemo(() => {
     const author = focusedLocation?.authorId === userId;
     const isPub = focusedWorld?.public;
     const role = author ? "Author" : ("Reader" as UserRole);
     return [
-      focusedLocation?.name || WorldPaths.ExploreLocation.text,
+      focusedLocation?.name || WorldPaths.ViewLocation.text,
       isPub,
       isPub ? "success--text" : "error--text",
       author,
@@ -79,24 +76,15 @@ const WorldLocationRoute = () => {
     ];
   }, [focusedWorld, focusedLocation]);
   const worldName = focusedWorld?.name || "a World";
+  const description =
+    JSON.stringify(focusedLocation?.description) ||
+    `Explore <b>${place}</b> in <b>${worldName}</b>`;
   const worldPublic = useMemo(() => {
     return `${isPublic ? "PUBLIC" : "PRIVATE"} ${focusedLocation?.type}`;
   }, [focusedWorld, focusedLocation]);
   const clearModalData = () => {
     clearGlobalModal();
     setGlobalLocation(null);
-  };
-  const loadComponentData = async () => {
-    await Promise.all([
-      loadWorld({ worldId: Number(worldId) }),
-      loadTimelines({ worldId: Number(worldId) }),
-      loadCharacters({ worldId: Number(worldId) })
-    ]);
-    const { focusedLocation: nfl, focusedWorld: fw } = GlobalWorld.getState();
-    if (nfl) return;
-    const lid = Number(locationId);
-    const focusNext = fw?.Locations.find(({ id }) => id === lid);
-    if (focusNext) setGlobalLocation(focusNext);
   };
   const clearComponentData = () => {
     clearModalData();
@@ -110,18 +98,15 @@ const WorldLocationRoute = () => {
     </>
   );
 
-  useEffect(() => {
-    loadComponentData();
-    return clearComponentData;
-  }, []);
+  useEffect(() => clearComponentData, []);
 
   if (!focusedLocation || !focusedWorld)
     return (
       <PageLayout
         id="world-locations"
-        breadcrumbs={[WorldPaths.Index, WorldPaths.Locations]}
+        breadcrumbs={[WorldPaths.Index, WorldPaths.LocationsList]}
         title={Title}
-        description={`(<b class="${publicClass}">${worldPublic}</b>) Explore <b>${place}</b> in <b>${worldName}</b>`}
+        description={`(<b class="${publicClass}">${worldPublic}</b>) ${description}`}
       >
         <Card className="fill">
           <CardTitle>{place}</CardTitle>
@@ -133,77 +118,73 @@ const WorldLocationRoute = () => {
   return (
     <PageLayout
       id="world-locations"
-      breadcrumbs={[WorldPaths.Index, WorldPaths.Locations]}
+      breadcrumbs={[WorldPaths.Index, WorldPaths.LocationsList]}
       title={Title}
-      description={`(<b class="${publicClass}">${worldPublic}</b>) Explore <b>${place}</b> in <b>${worldName}</b>`}
+      description={`(<b class="${publicClass}">${worldPublic}</b>) ${description}`}
     >
-      <PageGrid className="fill" gap="0.6rem">
-        <Card>
-          <CardTitle>{place}</CardTitle>
-          <Description
-            dangerouslySetInnerHTML={{ __html: focusedLocation?.description }}
-          />
-          <Cardinality gap="0.5rem">
-            <span>North</span>
-            <span>West</span>
-            <span>East</span>
-            <span>South</span>
-          </Cardinality>
+      <PageGrid gap="0.6rem">
+        <ExplorationsList
+          showControls
+          explorations={explorations}
+          exploration={exploration}
+        />
 
-          <CardTitle>TO DO</CardTitle>
+        <Card>
+          <CardTitle>
+            What's <Accent>here</Accent>?
+          </CardTitle>
+          <p>
+            Choose a <Accent as="b">Scenario</Accent> to explore this location
+          </p>
+
+          <CardTitle>Notes</CardTitle>
           <ol>
             <li>
-              Select location type (<b>irreversible!</b>)
+              Requires new{" "}
+              <Accent>
+                <b>Content Viewer</b>
+              </Accent>
             </li>
-            <li>Add rules for location-type</li>
-            <li>Build + Save map for location type</li>
             <li>
-              <b>Explore!</b>
+              <Accent>Exploration</Accent> will be named after book
+            </li>
+            <li>
+              Content is default viewed scene-by-scene: enable{" "}
+              <Accent>add content-links</Accent> here
+            </li>
+            <li>
+              <b>Storyboard Component</b> preview chapter + scene outline
             </li>
           </ol>
         </Card>
 
         {/* Sidebar */}
-        <div>
+        <Sidebar>
           {authenticated && (isAuthor || isPublic) && (
             <>
-              <Card>
-                <CardTitle>Location Actions</CardTitle>
-                <AddItemButton
-                  icon="face"
-                  text="Add a Character"
-                  variant="outlined"
-                  // onClick={() => setGlobalModal(MODAL.MANAGE_CHARACTER)}
-                />
-                <hr className="transparent" />
-                <AddItemButton
-                  icon="book"
-                  text="Add Book"
-                  variant="outlined"
-                  // onClick={() => setGlobalModal(MODAL.MANAGE_WORLD_EVENTS)}
-                />
-                <hr className="transparent" />
-              </Card>
+              <LocationActions />
               <hr />
             </>
           )}
 
           <Card>
-            <CardTitle>{focusedWorld.name}</CardTitle>
+            <CardTitle>
+              {focusedWorld.name} <Accent>({focusedWorld.type})</Accent>
+            </CardTitle>
             <Description
               dangerouslySetInnerHTML={{ __html: focusedWorld.description }}
             />
             <GoToWorld
               icon="public"
               text="Back to world"
-              href={insertId(WorldPaths.Locations.path, Number(worldId))}
+              href={insertId(WorldPaths.LocationsList.path, Number(worldId))}
               title={`Back to ${focusedWorld.name}`}
               variant="outlined"
             />
           </Card>
           <hr />
           <CharactersList />
-        </div>
+        </Sidebar>
       </PageGrid>
     </PageLayout>
   );

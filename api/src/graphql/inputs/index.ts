@@ -142,7 +142,7 @@ export const MFSeriesUpsertInput = inputObjectType({
     t.string("image");
     t.int("authorId", { description: "Item Author/owner" });
     t.boolean("public", { default: false });
-    t.boolean("free", { default: false });
+    t.float("price", { default: 0.0 });
     t.list.field("books", { type: nonNull("MFBookUpsertInput") });
   }
 });
@@ -159,8 +159,10 @@ export const MFBookUpsertInput = inputObjectType({
     t.int("order", { description: "Sequence in series (if part of one" });
     t.int("authorId", { description: "Item Author/owner" });
     t.int("seriesId", { description: "Parent Series" });
+    t.int("locationId", { description: "Event location target (optional)" });
+    t.int("worldId", { description: "Parent world ID" });
     t.boolean("public", { default: false });
-    t.boolean("free", { default: false });
+    t.float("price", { default: 0.0 });
     t.list.field("chapters", { type: nonNull("MFChapterUpsertInput") });
   }
 });
@@ -225,5 +227,42 @@ export const MFContentLinkUpsertInput = inputObjectType({
     t.int("chapterId");
     t.int("sceneId");
     t.int("authorId", { description: "Item Author/owner" });
+  }
+});
+
+/** Input fields for creating an `ExplorationScene` */
+export const MFExplorationSceneUpsertInput = inputObjectType({
+  name: "MFExplorationSceneUpsertInput",
+  definition(t) {
+    t.int("id");
+    t.int("explorationId", { description: "Exploration target id" });
+    t.nonNull.string("title");
+    t.string("description");
+    t.int("authorId", { description: "Item Author/owner" });
+    t.nonNull.int("order", { description: "Scene order in exploration" });
+    t.string("background", { description: "Scene bg data" });
+    t.string("foreground", { description: "Scene objects" });
+    t.string("characters", { description: "Scene characters" });
+  }
+});
+
+/** Input fields for creating an `Exploration` */
+export const MFExplorationUpsertInput = inputObjectType({
+  name: "MFExplorationUpsertInput",
+  definition(t) {
+    t.int("id", { default: undefined, description: "Exploration ID" });
+    t.nonNull.string("title");
+    t.string("image");
+    t.string("description");
+    t.string("usesAttributes", {
+      description: "Attributes used in exploration"
+    });
+    t.int("authorId", { description: "Item Author/owner" });
+    t.nonNull.int("worldId", { description: "Parent world ID" });
+    t.int("locationId", { description: "Location ID" });
+    t.boolean("public", { default: false });
+    t.float("price", { default: 0.0 });
+    t.field("publishDate", { type: "CsDateTime" });
+    t.list.field("Scenes", { type: nonNull("MFExplorationSceneUpsertInput") });
   }
 });

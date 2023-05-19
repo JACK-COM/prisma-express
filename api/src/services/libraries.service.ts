@@ -6,7 +6,6 @@
 import { Prisma, Library } from "@prisma/client";
 import { context } from "../graphql/context";
 import { DateTime } from "luxon";
-import { findAllBooks } from "./books.service";
 
 type UpsertLibraryInput =
   | Prisma.LibraryUpsertArgs["create"] & Prisma.LibraryUpsertArgs["update"];
@@ -62,12 +61,34 @@ export async function getLibraryById(id: LibraryByIdInput["id"]) {
 /** Get books in library */
 export async function getUserLibraryBooks(userId?: Library["userId"]) {
   if (!userId) return [];
-  const lib = await Libraries.findMany({ where: { userId } });
+  const lib = await Libraries.findMany({
+    where: { userId },
+    include: { Book: true }
+  });
   if (!lib.length) return [];
+  return lib.map(({ Book }) => Book);
+}
 
-  const bookIds: number[] = [];
-  lib.forEach(({ bookId }) => bookId && bookIds.push(bookId));
-  return findAllBooks({ id: bookIds });
+/** Get series in library */
+export async function getUserLibrarySeries(userId?: Library["userId"]) {
+  if (!userId) return [];
+  const lib = await Libraries.findMany({
+    where: { userId },
+    include: { Series: true }
+  });
+  if (!lib.length) return [];
+  return lib.map(({ Series }) => Series);
+}
+
+/** Get explorations in library */
+export async function getUserLibraryExplorations(userId?: Library["userId"]) {
+  if (!userId) return [];
+  const lib = await Libraries.findMany({
+    where: { userId },
+    include: { Exploration: { include: { Scenes: true } } }
+  });
+  if (!lib.length) return [];
+  return lib.map(({ Exploration }) => Exploration);
 }
 
 /** delete one `Library` record matching params */
@@ -80,6 +101,7 @@ type CheckLibraryInput = {
   userId?: Library["userId"] | null;
   bookId?: Library["bookId"] | null;
   seriesId?: Library["seriesId"] | null;
+  explorationId?: Library["explorationId"] | null;
 };
 
 /** Check if a user `Library` contains an item */

@@ -20,7 +20,7 @@ import {
   World
 } from "utils/types";
 import styled from "styled-components";
-import { MatIcon } from "./Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { GlobalUser } from "state";
 
 export type WorldEventFieldProps = {
@@ -135,6 +135,7 @@ export function WorldEventFormFields(props: WorldEventFieldProps) {
           <Textarea
             disabled={!owner}
             rows={300}
+            style={{ width: "100%" }}
             value={data?.description || ""}
             onChange={({ target }) => updateDescription(target.value, i)}
           />

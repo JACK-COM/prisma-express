@@ -11,8 +11,14 @@ export const MFBook = objectType({
     t.nonNull.string("description");
     t.nonNull.string("genre");
     t.nonNull.boolean("public", { description: "Book is publicly visible" });
-    t.nonNull.boolean("free", { description: "Book is free to read" });
+    t.boolean("free", {
+      description: "Book is free to read",
+      resolve: ({ price }) => !price || price === 0
+    });
     t.string("image");
+    t.float("price", { description: "Book price in USD" });
+    t.int("worldId", { description: "Fictional World location of Book" });
+    t.int("locationId", { description: "Fictional World location of Book" });
     t.int("authorId", { description: "Book Author/owner" });
     t.int("seriesId", { description: "Book series parent id" });
     t.field("created", { type: "CsDateTime", description: "Item created" });

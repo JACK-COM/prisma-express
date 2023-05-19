@@ -108,9 +108,8 @@ export const listChapters = queryField("listChapters", {
     const isAuthor = userId === book.authorId;
     if (book.public) {
       // check if book is free or user has purchased it
-      if (!book.free) {
-        const inLibrary = await checkLibrary({ userId, bookId });
-        if (!inLibrary) return [];
+      if (book.price && !(await checkLibrary({ userId, bookId }))) {
+        return [];
       }
     } else if (!isAuthor) return [];
 
@@ -162,7 +161,7 @@ export const listScenes = queryField("listScenes", {
     const userId = user?.id;
     const chapter = await Chapters.findUnique({
       where: { id: chapterId },
-      include: { Book: { select: { public: true, free: true } } }
+      include: { Book: { select: { public: true, price: true } } }
     });
     if (!chapter) return [];
 
@@ -183,7 +182,8 @@ export const listScenes = queryField("listScenes", {
     else if (!chapter.Book.public) return [];
 
     // Book is public, so check if it's free
-    if (chapter.Book.free) return scenesList();
+    const isFree = !chapter.Book.price || chapter.Book.price === 0;
+    if (isFree) return scenesList();
 
     // Book is not free, so check if user has purchased it
     const bookId = chapter.bookId;

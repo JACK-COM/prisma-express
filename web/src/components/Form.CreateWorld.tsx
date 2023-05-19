@@ -1,6 +1,6 @@
-import { ChangeEvent, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { noOp } from "../utils";
-import { APIData, World, WorldCore, WorldType } from "../utils/types";
+import { worldTypes, WorldType } from "../utils/types";
 import {
   Form,
   FormRow,
@@ -18,59 +18,39 @@ import { Accent } from "./Common/Containers";
 import { ButtonWithIcon } from "./Forms/Button";
 import { getAndShowPrompt } from "api/loadUserData";
 import { buildDescriptionPrompt } from "utils/prompt-builder";
-import { useGlobalWorld } from "hooks/GlobalWorld";
+import SelectParentWorld from "./SelectParentWorld";
+import { GlobalModal, GlobalWorld, MODAL } from "state";
 
 export type CreateWorldProps = {
   onChange?: (data: Partial<CreateWorldData>) => void;
 };
 
-/** `WorldTypes` list */
-const { Universe, Realm, Galaxy, Planet, Other } = WorldType;
-const worldTypes = [Realm, Universe, Galaxy, Planet, Other];
-const validateParents = (type: WorldType, worlds: APIData<World>[]) => {
-  switch (type) {
-    case Planet:
-      return worlds.filter(({ type: t }) =>
-        [Realm, Universe, Galaxy, Other].includes(t)
-      );
-    case Galaxy:
-      return worlds.filter(({ type: t }) =>
-        [Realm, Universe, Other].includes(t)
-      );
-    case Universe:
-    case Realm:
-      return worlds.filter(({ type: t }) => [Realm, Other].includes(t));
-    default:
-      return worlds;
-  }
+// Whether we're creating a new world or editing an existing one
+const isCreating = () => GlobalModal.getState().active === MODAL.CREATE_WORLD;
+
+// Empty/default form data
+const emptyForm = (): Partial<CreateWorldData> => {
+  const creating = isCreating();
+  const { focusedWorld } = GlobalWorld.getState();
+  return creating ? { parentWorldId: focusedWorld?.id } : { ...focusedWorld };
+};
+
+/** Get valid world types based on the current world type */
+const validWorldTypes = (type?: WorldType) => {
+  if (!type) return worldTypes;
+  const tIndex = worldTypes.indexOf(type);
+  return worldTypes.slice(tIndex + Number(isCreating()));
 };
 
 /** Create or edit a `World` */
 const CreateWorldForm = (props: CreateWorldProps) => {
   const { onChange = noOp } = props;
-  const { worlds = [], focusedWorld } = useGlobalWorld([
-    "worlds",
-    "focusedWorld"
-  ]);
-  const [data, setData] = useState({ ...focusedWorld });
-  const [hasParent, parentName] = useMemo(() => {
+  const { focusedWorld } = GlobalWorld.getState();
+  const [data, setData] = useState<Partial<CreateWorldData>>(emptyForm());
+  const hasParent = useMemo(() => {
     const { id, parentWorldId } = data || {};
-    const isChild = id && parentWorldId;
-    const pn = isChild
-      ? worlds.reduce((agg, w) => {
-          if (agg.length) return agg;
-          if (w.id === parentWorldId) return w.name;
-          const c = w.ChildWorlds.find((cw) => cw.id === parentWorldId);
-          return c?.name || agg;
-        }, "") || "another world"
-      : "";
-    return [isChild, pn];
+    return id && parentWorldId;
   }, [data]);
-  const validParents = useMemo(() => {
-    const valid = worlds.filter((w) => w.id !== data?.id);
-    if (!data.type) return valid;
-    return validateParents(data.type, valid);
-  }, [data, focusedWorld]);
   const onUpdate = (d: Partial<CreateWorldData>) => {
     setData(d);
     onChange(d);
@@ -91,7 +71,7 @@ const CreateWorldForm = (props: CreateWorldProps) => {
     <Form>
       {data?.id ? (
         <Legend>
-          Manage <b className="accent--text">{data.type}</b>
+          Manage <Accent is="b">{data.type}</Accent>
         </Legend>
       ) : (
         <Legend>New World or Universe</Legend>
@@ -124,7 +104,7 @@ const CreateWorldForm = (props: CreateWorldProps) => {
             What <Accent>type</Accent> of World is it?
           </span>
           <Select
-            data={worldTypes}
+            data={validWorldTypes(focusedWorld?.type)}
             value={data?.type || ""}
             itemText={(d) => d.valueOf()}
             itemValue={(d) => d}
@@ -171,30 +151,18 @@ const CreateWorldForm = (props: CreateWorldProps) => {
           <span className="label">
             <Accent>Where</Accent> is it? (optional)
           </span>
-          <Select
-            data={validParents}
-            value={data?.parentWorldId || ""}
-            itemText={(d) =>
-              d.ChildWorlds.length > 0
-                ? {
-                    groupName: d.name,
-                    text: (w) => `${w.name} (${w.type})`,
-                    value: (w) => w.id,
-                    options: d.ChildWorlds
-                  }
-                : `${d.name} (${d.type})`
-            }
-            itemValue={(d) => d.id}
-            placeholder="Select Parent World (optional):"
-            onChange={(pid) => updateParent(Number(pid))}
+          <SelectParentWorld
+            excludeWorld={data.id}
+            targetType={data.type}
+            value={data.parentWorldId || undefined}
+            onChange={updateParent}
           />
         </Label>
       </FormRow>
       <Hint>
         {hasParent && (
           <span className="error--text">
-            This world is a <b>child</b> of{" "}
-            <b className="accent--text">{parentName}!</b>{" "}
+            This world has a <b>parent</b>!
           </span>
         )}
         You can set the world <b className="accent--text">Public</b> if you

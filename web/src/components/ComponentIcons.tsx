@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { MatIcon, MatIconProps } from "components/Common/Containers";
+import { MatIcon, MatIconProps } from "./Common/MatIcon";
 import {
   APIData,
   PermissionProps,
@@ -14,7 +14,9 @@ import {
   updateAsError,
   setGlobalModal,
   MODAL,
-  setGlobalWorld
+  setGlobalWorld,
+  addNotification,
+  updateNotification
 } from "state";
 import { requireAuthor, noOp } from "utils";
 import { useMemo } from "react";
@@ -83,6 +85,8 @@ export const WorldPublicIcon = (props: WorldIconProps) => {
         return "auto_awesome";
       case WorldType.Galaxy:
         return "storm";
+      case WorldType.Star:
+        return "star";
       default:
         return "public";
     }
@@ -90,8 +94,13 @@ export const WorldPublicIcon = (props: WorldIconProps) => {
   const iconClass = world.public ? "icon success--text" : "icon error--text";
   const title = world.public ? "Public World" : "Private World";
   const togglePublic = requireAuthor(async () => {
+    const noteId = addNotification("Updating World...", true);
+    const isPublic = !world.public ? "is now Public" : "is now Private";
     const resp = await upsertWorld({ ...world, public: !world.public });
-    if (resp && typeof resp !== "string") updateWorlds([resp]);
+    if (resp && typeof resp !== "string") {
+      updateWorlds([resp]);
+      updateNotification(`${world.name} ${isPublic}`, noteId);
+    } else updateAsError(resp || `Did not update ${world.name}`, noteId);
   }, permissions);
 
   return (

@@ -1,8 +1,9 @@
+import { useEffect } from "react";
 import styled from "styled-components";
+import { Alert, updateAsError } from "state";
 import useGlobalNotifications from "hooks/GlobalNotifications";
 import { FlexColumn } from "./Common/Containers";
 import { AutoDismissNotification } from "./Common/Notifications";
-import { Alert } from "state";
 
 const NotificationGroup = styled(FlexColumn)`
   margin: 0 auto;
@@ -30,9 +31,14 @@ const NotificationGroup = styled(FlexColumn)`
 
 const ActiveNotifications = styled(() => {
   const { lastTenNotifications: msgs } = useGlobalNotifications();
-  if (!msgs.length) return <></>;
-  const timeout = (m: Alert) => (m.error ? 30000 : 8000);
 
+  useEffect(() => {
+    watchUnhandledErrors();
+  }, []);
+
+  if (!msgs.length) return <></>;
+  const timeout = (m: Alert) =>
+    m.error ? 30000 : m.msg.split(" ").length * 1000 + 1500;
   return (
     <NotificationGroup className="slide-in-right">
       {msgs.map((m) => (
@@ -47,3 +53,16 @@ const ActiveNotifications = styled(() => {
 })``;
 
 export default ActiveNotifications;
+
+let watchingErrors = false;
+export function watchUnhandledErrors() {
+  if (watchingErrors) return;
+  watchingErrors = true;
+  window.onunhandledrejection = (e) => {
+    if (!e.reason) return;
+    if (e.reason.name === "AbortError") return;
+    if (!e.reason.message)
+      return updateAsError("Unknown network error occurred");
+    updateAsError(e.reason.message || e.reason);
+  };
+}

@@ -13,7 +13,9 @@ import {
   MFSceneFragment,
   MFSeriesFragment,
   MFTimelineEventFragment,
-  MFTimelineFragment
+  MFTimelineFragment,
+  MFExplorationFragment,
+  MFExplorationSceneFragment
 } from "./fragments";
 
 /** Create new `User` */
@@ -238,5 +240,38 @@ export const deleteContentLinkMutation = () => `
 mutation DeleteContentLink($id: Int!) {
   deleteContentLink(id: $id) {
     ${MFContentLinkFragment}
+  }
+}`;
+
+/** Create/update an `Exploration` */
+export const upsertExplorationMutation = () => `
+mutation UpsertExploration($data: MFExplorationUpsertInput!) {
+  upsertExploration(data: $data) {
+    ${MFExplorationFragment},
+    Scenes { ${MFExplorationSceneFragment} }
+  }
+}`;
+
+/** Create/update an `Exploration Scene` */
+export const upsertExplorationSceneMutation = () => `
+mutation UpsertExplorationScene($data: MFExplorationSceneUpsertInput!) {
+  upsertExplorationScene(data: $data) {
+    ${MFExplorationSceneFragment}
+  }
+}`;
+
+/** Delete an `Exploration` */
+export const deleteExplorationMutation = () => `
+mutation DeleteExploration($id: Int!) {
+  deleteExploration(id: $id) {
+    ${MFExplorationFragment}
+  }
+}`;
+
+/** Delete an `Exploration Scene` */
+export const deleteExplorationSceneMutation = () => `
+mutation DeleteExplorationScene($id: Int!) {
+  deleteExplorationScene(id: $id) {
+    ${MFExplorationSceneFragment}
   }
 }`;

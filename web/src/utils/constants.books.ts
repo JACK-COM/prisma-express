@@ -8,6 +8,7 @@ const FICTION = [
   "Action",
   "Adventure",
   "Children's",
+  "Choose-Your-Own-Adventure",
   "Christian",
   "Classical",
   "Comedy/Humor",

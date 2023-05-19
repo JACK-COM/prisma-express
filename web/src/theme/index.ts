@@ -28,7 +28,7 @@ const THEME: GlobalTheme = {
   @media (prefers-color-scheme: dark) {
     :root {
       color: #213547;
-      background: ${({ theme }) => theme.colors.bgGradientDir!('350deg')};
+      background: ${({ theme }) => theme.colors.bgGradientDir!("350deg")};
     }
 
     button {
@@ -102,6 +102,9 @@ const THEME: GlobalTheme = {
     .grey--text {
       color: #9c9c9c;
     }
+    .gold--text{ 
+      color: #dcba0f;
+    }
     .primary--text{ 
       color: ${({ theme }) => theme.colors.primary}; 
     }
@@ -123,6 +126,26 @@ const THEME: GlobalTheme = {
       &:hover {
         color: #74a7ff;
       }
+    }
+
+    blockquote {
+      border-left: 0.25rem solid ${({ theme }) => theme.colors.accent};
+      font-style: italic;
+      padding-left: ${({ theme }) => theme.sizes.sm};
+      &::after,  
+      &::before {
+        color: ${({ theme }) => theme.colors.accent};
+        display: inline-block;
+        font-size: x-large;
+        margin: 0;
+        padding: 0;
+      }  
+      &::after{
+        content: close-quote;
+      }  
+      &::before {
+        content: open-quote;
+      }  
     }
 
     hr {

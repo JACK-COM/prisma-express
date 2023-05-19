@@ -1,5 +1,4 @@
 import { RoundButton } from "components/Forms/Button";
-import { ComponentPropsWithRef } from "react";
 import { Link } from "react-router-dom";
 import styled, { css } from "styled-components";
 import { lineclamp } from "theme/theme.shared";
@@ -14,7 +13,7 @@ type FlexContainerProps = {
   padded?: boolean;
 };
 
-export const Accent = styled.span.attrs({ className: "accent--text" })``;
+export const Accent = styled.span.attrs(mergeClasslist("accent--text"))``;
 
 export const ExLink = styled.a.attrs({
   target: "_blank",
@@ -25,11 +24,7 @@ export const ExLink = styled.a.attrs({
 export const BaseContainer = styled.section``;
 
 /** UI bordered section */
-export const Card = styled(BaseContainer).attrs<{ className?: string }>(
-  (props) => ({
-    className: `card ${props.className || ""}`.trim()
-  })
-)`
+export const Card = styled(BaseContainer).attrs(mergeClasslist("card"))`
   border: ${({ theme }) => `1px dotted ${theme.colors.semitransparent}`};
   border-radius: ${({ theme }) => `${theme.presets.round.sm}`};
   padding: 0 1em 1em;
@@ -59,19 +54,16 @@ export const Description = styled.p<{ lines?: number }>`
 `;
 
 /** Error message container */
-export const ErrorMessage = styled.aside.attrs({
-  role: "alert",
-  className: "error shake"
-})`
+const Alert = styled.aside.attrs({ role: "alert" })``;
+export const ErrorMessage = styled(Alert).attrs(mergeClasslist("error shake"))`
   border-radius: ${({ theme }) => theme.presets.round.sm};
   padding: 0.4rem;
 `;
 
 /** Error message container */
-export const WarningMessage = styled.aside.attrs({
-  role: "alert",
-  className: "warning bounce"
-})`
+export const WarningMessage = styled(Alert).attrs(
+  mergeClasslist("warning bounce")
+)`
   border-radius: ${({ theme }) => theme.presets.round.sm};
   padding: 0.4rem;
 `;
@@ -227,9 +219,9 @@ export const ItemGridContainer = styled(GridContainer)<ItemProps>`
   }
 `;
 // Shared ListItem link container
-export const ItemLinkContainer = styled(Link).attrs({
-  className: "list-item"
-})<ItemProps>`
+export const ItemLinkContainer = styled(Link).attrs(
+  mergeClasslist("list-item")
+)<ItemProps>`
   ${sharedListItemStyles}
   grid-template-columns: ${({ columns = "24px 10fr 3fr" }) => columns};
 
@@ -286,15 +278,9 @@ export const PageContainer = styled(FlexColumn)<PCProps>`
   }
 `;
 
-const pageTitleStyles = css`
+export const PageTitle = styled.h1.attrs(mergeClasslist("h3"))`
   margin-bottom: 0;
   margin-top: 0.25rem;
-`;
-export const PageTitle = styled.h1.attrs({ className: "h3" })`
-  ${pageTitleStyles}
-`;
-export const PageTitleVariable = styled.h1`
-  ${pageTitleStyles}
 `;
 
 export const PageDescription = styled.div`
@@ -303,71 +289,17 @@ export const PageDescription = styled.div`
   margin: 0 0 1.5rem;
   opacity: 0.7;
   padding: 0;
-  width: 100%;
 `;
 
 export const Figure = styled.figure`
   margin-bottom: ${({ theme }) => theme.sizes.md};
 
   img {
-    max-width: 448px;
     height: auto;
+    max-width: 448px;
     width: 100%;
   }
 `;
-
-export const BigValue = styled.div`
-  font-size: 1.6rem;
-  margin-bottom: 0.8rem;
-`;
-
-export const CapsLabel = styled.div`
-  color: #666;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-`;
-
-export const DataColumn = styled(FlexColumn)`
-  text-align: left;
-  width: 50%;
-`;
-
-export const Section = styled(FlexColumn)`
-  align-items: flex-start;
-  min-height: 60vh;
-  place-content: center;
-
-  hr {
-    background-color: ${({ theme }) => theme.colors.accent};
-    border: 0;
-    height: 1px;
-    margin: 2rem 0;
-    opacity: 0.7;
-  }
-`;
-
-const Icon = styled.span`
-  font-size: inherit;
-  display: inline-block;
-`;
-export type MatIconProps = { icon: string } & ComponentPropsWithRef<"span">;
-export const MatIcon = ({
-  icon,
-  className = "",
-  title = "",
-  onClick,
-  style,
-  ...rest
-}: MatIconProps) => (
-  <Icon
-    className={`material-icons ${className}`.trim()}
-    title={title}
-    onClick={onClick}
-    children={icon}
-    style={style}
-    {...{ rest }}
-  />
-);
 
 export const GridItem = styled(GridContainer)`
   background-color: inherit;
@@ -388,3 +320,12 @@ export const GridItemTitle = styled.p`
   font-size: 1rem;
   font-weight: bold;
 `;
+
+// HELPER
+
+/** Merge component classnames with a default/required class */
+function mergeClasslist(mainClass: string) {
+  return ({ className }: any) => ({
+    className: `${className || ""} ${mainClass}`.trim()
+  });
+}

@@ -1,6 +1,7 @@
 import { FocusEventHandler, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Card, MatIcon } from "components/Common/Containers";
+import { Card } from "components/Common/Containers";
+import { MatIcon } from "components/Common/MatIcon";
 import { Paths } from "routes";
 import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, Chapter, Scene, UserRole } from "utils/types";
@@ -26,7 +27,6 @@ import { useGlobalWindow } from "hooks/GlobalWindow";
 import { upsertBook, upsertScene } from "graphql/requests/books.graphql";
 import { useGlobalUser } from "hooks/GlobalUser";
 import EditorToolbar from "components/EditorToolbar";
-import PellEditor from "components/Forms/Pell";
 
 const { Library } = Paths;
 const Clickable = styled.span`
@@ -109,21 +109,14 @@ const BooksEditorRoute = () => {
     if (typeof resp === "string") updateAsError(resp, notificationId);
     else if (resp && focusedChapter) {
       setGlobalChapter(resp);
-      updateNotification("Chapter saved!", notificationId);
+      updateNotification("Chapter saved!", notificationId, false);
     }
   };
   const onEditTitle: FocusEventHandler<HTMLSpanElement> = async (e) => {
     const newTitle = e.target.innerText;
-    if (newTitle === focusedBook?.title) return;
+    if (!focusedBook || newTitle === focusedBook?.title) return;
     const notificationId = addNotification("Updating book title ...", true);
-    const resp = await upsertBook({
-      id: focusedBook?.id,
-      title: newTitle,
-      description: focusedBook?.description || "No description",
-      free: focusedBook?.free || false,
-      public: focusedBook?.public || false,
-      genre: focusedBook?.genre || "Other"
-    });
+    const resp = await upsertBook({ ...focusedBook, title: newTitle });
     if (typeof resp === "string") updateAsError(resp, notificationId);
     else if (resp) {
       const { books } = GlobalLibrary.getState();

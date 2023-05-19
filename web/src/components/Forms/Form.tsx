@@ -168,7 +168,7 @@ export const Select = styled((props: SelectProps) => {
           return (
             <optgroup key={i} label={group.groupName}>
               {group.options.map((o, j) => (
-                <option key={j} value={o.value}>
+                <option key={j} value={group.value(o)}>
                   {group.text(o)}
                 </option>
               ))}

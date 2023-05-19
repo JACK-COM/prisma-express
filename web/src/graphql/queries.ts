@@ -11,10 +11,12 @@ import {
   MFCharacterFragment,
   MFContentLinkFragment,
   MFEventFragment,
+  MFExplorationFragment,
+  MFExplorationSceneFragment,
   MFLocationFragment,
   MFRelationshipFragment,
-  MFSearchResultFragment,
   MFSceneFragment,
+  MFSearchResultFragment,
   MFSeriesFragment,
   MFTimelineEventFragment,
   MFTimelineFragment,
@@ -192,13 +194,15 @@ export const listRelationshipsQuery = () =>
 /** List `Worlds` graphql query */
 export const listWorldsQuery = () =>
   `query ListWorlds(
-    $id: Int, $authorId: Int, $description: String, $name: String, $public: Boolean
+    $id: Int, $authorId: Int, $parentWorldId: Int, $parentsOnly: Boolean, $description: String, $name: String, $public: Boolean
    ) { 
     listWorlds(
       id: $id, 
       authorId: $authorId, 
       description: $description, 
       name: $name,
+      parentWorldId: $parentWorldId,
+      parentsOnly: $parentsOnly,
       public: $public) {
       ${MFWorldFragment}
     } 
@@ -307,5 +311,48 @@ export const searchTitlesQuery = () =>
       freeOnly: $freeOnly
     ) {
       ${MFSearchResultFragment}
+    }
+  }`;
+
+/** List `Explorations` */
+export const listExplorationsQuery = () =>
+  `query ListExplorations(
+    $id: Int, $authorId: Int, $locationId: Int, $worldId: Int, $attributes: [String!], $description: String, $title: String
+    ) {
+      listExplorations(
+        id: $id,
+        authorId: $authorId,
+        worldId: $worldId,
+        locationId: $locationId,
+        attributes: $attributes,
+        description: $description,
+        title: $title
+      ) {
+        ${MFExplorationFragment}
+      }
+    }`;
+
+/** Get `Exploration` by id */
+export const getExplorationQuery = () =>
+  `query GetExploration($id: Int!) {  
+    getExploration(id: $id) {
+      ${MFExplorationFragment},
+      Scenes { ${MFExplorationSceneFragment} }
+    }
+  }`;
+
+/** Get `Exploration Scene` */
+export const getExplorationSceneQuery = () =>
+  `query GetExplorationScene($id: Int!) {  
+    getExplorationScene(id: $id) {
+      ${MFExplorationSceneFragment}
+    }
+  }`;
+
+/** Get `Exploration Scene` */
+export const listExplorationScenesQuery = () =>
+  `query ListExplorationScenes($explorationId: Int!) {  
+    listExplorationScenes(explorationId: $explorationId) {
+      ${MFExplorationSceneFragment}
     }
   }`;

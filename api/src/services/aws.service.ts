@@ -15,6 +15,8 @@ import {
   AWS_BOOK_IMGS_BUCKET,
   AWS_CHAR_IMGS_BUCKET,
   AWS_DEFAULT_REGION,
+  AWS_EXPL_IMGS_BUCKET,
+  AWS_EXPSCENES_IMGS_BUCKET,
   AWS_UPLOADS_URL,
   AWS_USER_IMGS_BUCKET,
   IMGS_BUCKET
@@ -25,7 +27,9 @@ const s3 = new S3Client({ region: AWS_DEFAULT_REGION });
 const categoryBucket = {
   users: AWS_USER_IMGS_BUCKET,
   books: AWS_BOOK_IMGS_BUCKET,
-  characters: AWS_CHAR_IMGS_BUCKET
+  characters: AWS_CHAR_IMGS_BUCKET,
+  explorations: AWS_EXPL_IMGS_BUCKET,
+  explorationScenes: AWS_EXPSCENES_IMGS_BUCKET
 };
 const BUCKETS = new Set(Object.keys(categoryBucket));
 
@@ -38,16 +42,19 @@ export async function listUserFilesHandler(req: Request, res: Response) {
 
   const userId = (req.user as CtxUser).id;
   const Prefix = `${category}/${userId}`;
-  const command = new ListObjectsCommand({ Bucket: IMGS_BUCKET, Prefix });
+  const command = new ListObjectsCommand({
+    Bucket: IMGS_BUCKET,
+    Prefix,
+    MaxKeys: 500
+  });
   const { Contents } = await s3.send(command);
   if (!Contents) return res.status(200).send({ files: [] });
 
-  const files = Contents.reduce((agg, file) => {
-    if (!file.Key) return agg;
-    const fileName = file.Key.split("/")[1];
-    agg.push(`${AWS_UPLOADS_URL}${category}/${userId}/${fileName}`);
+  const extractFileNames = (agg: string[], { Key }: any) => {
+    if (Key) agg.push(`${AWS_UPLOADS_URL}/${Key}`);
     return agg;
-  }, [] as string[]);
+  };
+  const files = Contents.reduce(extractFileNames, [] as string[]);
   return res.status(200).send({ files });
 }
 
@@ -77,13 +84,20 @@ export async function fileUploadHandler(req: any, res: Response) {
   if (!category || !BUCKETS.has(category))
     return res.status(400).send({ errors: "Invalid image category" });
 
+  let fileData: any = file;
+  if (body.fileType === "base64") {
+    const cleaned = body.imageFile.replace(/^data:image\/\w+;base64,/, "");
+    fileData = Buffer.from(cleaned, "base64");
+  } else fileData = file.buffer;
+
   const userId = req.user.id;
   const filePath = `${category}/${userId}/${body.fileName}`;
   const bucketName = IMGS_BUCKET;
   const result = await uploadFile({
     bucketName,
     filePath,
-    fileData: file.buffer
+    fileData,
+    ContentType: body.imgContentType
   });
   if (!result) return res.status(500).send({ errors: "Error uploading image" });
 
@@ -94,14 +108,20 @@ export async function fileUploadHandler(req: any, res: Response) {
 // HELPER FUNCTIONS
 
 /** HELPER | Upload a file to an AWS bucket */
-type AWSFileOpts = { bucketName: string; fileData: any; filePath: string };
+type AWSFileOpts = {
+  ContentType?: string;
+  bucketName: string;
+  fileData: any;
+  filePath: string;
+};
 async function uploadFile(opts: AWSFileOpts) {
-  const { fileData: file, filePath, bucketName } = opts;
+  const { fileData: file, filePath, ContentType, bucketName } = opts;
   const command = new PutObjectCommand({
     Bucket: bucketName,
     ACL: "public-read",
     Key: filePath,
-    Body: file
+    Body: file,
+    ContentType
   });
 
   try {

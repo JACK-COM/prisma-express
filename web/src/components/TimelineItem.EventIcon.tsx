@@ -4,7 +4,7 @@ import {
   EventPolarityColors,
   EventTargetSymbols
 } from "utils/types";
-import { MatIcon } from "components/Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import styled from "styled-components";
 
 /** A tiny icon that shows an event in a timeline */

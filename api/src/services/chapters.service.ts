@@ -23,7 +23,7 @@ const ChapterContents: Prisma.ChapterInclude = {
 export async function upsertChapter(chapter: ChapterUpsertInput) {
   const data: ChapterUpsertInput = { ...chapter };
   const now = DateTime.now().toISO();
-  data.created = chapter.created || now;
+  if (!data.id) data.created = now;
   data.lastUpdated = DateTime.now().toISO();
 
   return chapter.id

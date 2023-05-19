@@ -89,6 +89,7 @@ enum LocationType {
 enum WorldType {
   Universe
   Galaxy
+  Star
   Planet
   Realm
   Other
@@ -123,6 +124,7 @@ model User {
   PersonalLibrary       Library[]
   Notes                 Notes[]
   CharacterRelationship CharacterRelationship[]
+  Exploration           Exploration[]
 }
 
 // A Chapter is a collection of one or more Scenes. 
@@ -137,8 +139,10 @@ model Book {
   lastUpdated DateTime  @default(now()) // Item updated
   publishDate DateTime? // Item published for public access
   public      Boolean   @default(false) // ( publicly accessible )
-  free        Boolean   @default(false) // ( free to read )
+  price       Float?    @default(0.00) @db.DoublePrecision // ( price in $ )
   authorId    Int? // ( references User )
+  worldId     Int? // ( references World )
+  locationId  Int? // ( references Location )
   seriesId    Int?
   Chapters    Chapter[]
   Author      User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
@@ -183,6 +187,7 @@ model Character {
   Group                 PopulationGroup?        @relation(fields: [groupId], references: [id], onDelete: SetNull)
   Location              Location?               @relation(fields: [locationId], references: [id], onDelete: SetNull)
   World                 World                   @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  Notes                 Notes[]
 }
 
 // An Event is a significant occurrence in a World or other location that acts as a story catalyst. It may affect a World, a Location, or one or more Characters.
@@ -259,6 +264,52 @@ model Event {
   World         World            @relation(fields: [worldId], references: [id], onDelete: Cascade)
 }
 
+// An "Exploration" is a CYOA-style exploration of a `World` or `Location`, based on a `Book`
+model Exploration {
+  id             Int                @id @default(autoincrement())
+  title          String // Exploration title
+  image          String?
+  description    String? // Exploration description
+  usesAttributes String? // Comma-separated list of attributes to use in exploration (OPTIONAL)
+  authorId       Int? // ( references User )
+  worldId        Int // ( references World )
+  public         Boolean            @default(false)
+  price          Float?             @default(0.00) @db.DoublePrecision // ( price in $ )
+  locationId     Int? // ( references Location | nullable )
+  Scenes         ExplorationScene[]
+  created        DateTime           @default(now()) // Item created
+  lastUpdated    DateTime           @default(now()) // Item updated
+  publishDate    DateTime? // Date to publish exploration
+  World          World              @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  Author         User?              @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Location       Location?          @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  Library        Library[]
+}
+
+// An "Exploration Scene" links a `Book Scene` to an `Exploration` instance. It contains additional JSON data
+// that is used to render the scene in the context of the exploration.
+model ExplorationScene {
+  id            Int         @id @default(autoincrement())
+  explorationId Int // ( references Exploration )
+  authorId      Int // ( references Exploration )
+  title         String // Exploration title
+  description   String? // Exploration description
+  order         Int // ( order of scene in exploration )
+  background    String // background JSON data
+  foreground    String // foreground JSON data
+  characters    String // characters JSON data
+  Exploration   Exploration @relation(fields: [explorationId], references: [id], onDelete: Cascade)
+}
+
+// Collaborations track Exploration-related contributions from multiple users.
+model ExplorationCollaboration {
+  id             Int  @id @default(autoincrement())
+  authorId       Int // ( references User )
+  collaboratorId Int // ( references User )
+  explorationId  Int // ( references Exploration | nullable )
+  sceneId        Int? // ( references Scene | nullable )
+}
+
 // A Location is a fixed setting, or a subregion of one (e.g. a city on a planet; a house in a city region).
 model Location {
   id               Int               @id @default(autoincrement())
@@ -283,6 +334,7 @@ model Location {
   Groups           PopulationGroup[]
   Author           User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
   World            World             @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  Exploration      Exploration[]
 }
 
 // A Group is a collection of Characters in a World or other location.
@@ -333,7 +385,7 @@ model Series {
   image       String?
   genre       String
   public      Boolean   @default(false) // ( publicly accessible )
-  free        Boolean   @default(false) // ( free to read )
+  price       Float?    @default(0.00) @db.DoublePrecision // ( price in $ )
   created     DateTime  @default(now()) // Item created
   lastUpdated DateTime  @default(now()) // Item updated
   publishDate DateTime? // Item published for public access
@@ -384,35 +436,40 @@ model World {
   Groups        PopulationGroup[]
   Characters    Character[]
   Author        User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  Exploration   Exploration[]
 }
 
 // A Library associates a User with one or more Books
 model Library {
-  id             Int       @id @default(autoincrement())
+  id             Int          @id @default(autoincrement())
   order          Int
   userId         Int
   bookId         Int?
   seriesId       Int?
-  publicPurchase Boolean   @default(true)
-  purchaseDate   DateTime? @default(now())
-  User           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Book           Book?     @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  Series         Series?   @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  explorationId  Int?
+  publicPurchase Boolean      @default(true)
+  purchaseDate   DateTime?    @default(now())
+  User           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Book           Book?        @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  Series         Series?      @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  Exploration    Exploration? @relation(fields: [explorationId], references: [id], onDelete: Cascade)
 }
 
 // Notes can be created on books, chapters, and scenes
 model Notes {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   title       String
   description String
   image       String?
-  text        String   @db.Text()
+  text        String     @db.Text()
   authorId    Int // ( references User | nullable )
   bookId      Int? // ( references Book | nullable )
   chapterId   Int? // ( references Chapter | nullable )
+  characterId Int? // ( references Chapter | nullable )
   sceneId     Int? // ( references Scene | nullable )
-  Author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  Book        Book?    @relation(fields: [bookId], references: [id], onDelete: SetNull)
-  Chapter     Chapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
-  Scene       Scene?   @relation(fields: [sceneId], references: [id], onDelete: SetNull)
+  Author      User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  Book        Book?      @relation(fields: [bookId], references: [id], onDelete: SetNull)
+  Chapter     Chapter?   @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+  Character   Character? @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  Scene       Scene?     @relation(fields: [sceneId], references: [id], onDelete: SetNull)
 }

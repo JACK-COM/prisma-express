@@ -3,16 +3,9 @@ import styled from "styled-components";
 import { Card, CardTitle, PageDescription } from "components/Common/Containers";
 import ListView from "components/Common/ListView";
 import WorldItem, { CreateWorldItem } from "components/WorldItem";
-import { useGlobalModal } from "hooks/GlobalModal";
 import { APIData, World, WorldCore } from "utils/types";
 import { useGlobalUser } from "hooks/GlobalUser";
-import {
-  GlobalWorld,
-  MODAL,
-  clearGlobalModal,
-  setGlobalModal,
-  setGlobalWorld
-} from "state";
+import { MODAL, clearGlobalModal, setGlobalModal } from "state";
 import { WorldIcon } from "components/ComponentIcons";
 
 const EmptyText = styled.p`
@@ -45,19 +38,10 @@ type WorldsListProps = {
 const WorldsList = (props: WorldsListProps) => {
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
   const { className, worlds = [], showControls = false } = props;
-  const onEditWorld = (world: APIData<World>) => {
-    setGlobalWorld(world);
-    setGlobalModal(MODAL.MANAGE_WORLD);
-  };
   const controls = () =>
     authenticated &&
     showControls && (
-      <CreateWorldItem
-        onClick={() => {
-          GlobalWorld.focusedWorld(null);
-          setGlobalModal(MODAL.MANAGE_WORLD);
-        }}
-      />
+      <CreateWorldItem onClick={() => setGlobalModal(MODAL.CREATE_WORLD)} />
     );
 
   useEffect(() => {
@@ -85,8 +69,6 @@ const WorldsList = (props: WorldsListProps) => {
         </EmptyText>
       )}
 
-      {/* Add new (button - top) */}
-
       {/* List */}
       <List
         grid
@@ -96,7 +78,6 @@ const WorldsList = (props: WorldsListProps) => {
         itemText={(world: APIData<World>) => (
           <WorldItem
             world={world}
-            onEdit={onEditWorld}
             permissions={world.authorId === userId ? "Author" : "Reader"}
             showControls={showControls}
           />

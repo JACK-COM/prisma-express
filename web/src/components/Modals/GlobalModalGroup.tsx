@@ -1,36 +1,70 @@
-import { useGlobalModal } from "hooks/GlobalModal";
+import { Suspense, lazy } from "react";
 import { MODAL as M } from "state";
-import ManageBookModal from "./ManageBookModal";
-import ManageChapterModal from "./ManageChapterModal";
-import ManageSceneModal from "./ManageSceneModal";
-import ManageContentLinksModal from "./ManageLinksModal";
-import ManageWorldModal from "components/Modals/ManageWorldModal";
-import ConfirmDeleteBookModal from "./ConfirmDeleteBookModal";
-import ConfirmDeleteWorldModal from "./ConfirmDeleteWorldModal";
-import ManageLocationModal from "./ManageLocationModal";
+import { useGlobalModal } from "hooks/GlobalModal";
 import { useGlobalWorld } from "hooks/GlobalWorld";
-import ManageWorldEventsModal from "./ManageWorldEventsModal";
-import ManageTimelineModal from "./ManageTimelineModal";
+import FullScreenLoader from "components/Common/FullscreenLoader";
 
-/** Application Modals group: add all modals here for maximum efficiency */
+// All delete-confirmation modals
+const BookModal = lazy(() => import("./ManageBookModal"));
+const ExplorationModal = lazy(() => import("./ManageExplorationModal"));
+const ExplorationSceneModal = lazy(
+  () => import("components/Modals/ManageExplorationSceneModal")
+);
+const ChapterModal = lazy(() => import("./ManageChapterModal"));
+const ConfirmDeleteModal = lazy(() => import("./ConfirmDeleteModal"));
+const ContentLinksModal = lazy(() => import("./ManageLinksModal"));
+const InteractiveSlotModal = lazy(() => import("./ManageInteractiveSlotModal"));
+const LocationModal = lazy(() => import("./ManageLocationModal"));
+const SceneModal = lazy(() => import("./ManageSceneModal"));
+const SelectSceneLayer = lazy(() => import("./SelectSceneLayerModal"));
+const TimelineModal = lazy(() => import("./ManageTimelineModal"));
+const WorldEventsModal = lazy(() => import("./ManageWorldEventsModal"));
+const WorldModal = lazy(() => import("components/Modals/ManageWorldModal"));
+
+// All delete-confirmation modal states
+const deleteState = [
+  M.CONFIRM_DELETE_BOOK,
+  M.CONFIRM_DELETE_CHARACTER,
+  M.CONFIRM_DELETE_EXPLORATION,
+  M.CONFIRM_DELETE_EXPLORATION_SCENE,
+  M.CONFIRM_DELETE_LOCATION,
+  M.CONFIRM_DELETE_WORLD
+];
+
+/**
+ * Application Modals group: add all modals here for maximum efficiency, if
+ * their data can live in some global state instance. */
 export default function GlobalModalGroup() {
   const { active } = useGlobalModal();
   const WH = useGlobalWorld(["focusedWorld", "focusedLocation"]);
 
   return (
-    <>
-      {active === M.CONFIRM_DELETE_BOOK && <ConfirmDeleteBookModal open />}
-      {active === M.CONFIRM_DELETE_WORLD && <ConfirmDeleteWorldModal open />}
-      {active === M.LINK_SCENE && <ManageContentLinksModal open />}
-      {active === M.MANAGE_BOOK && <ManageBookModal open />}
-      {active === M.MANAGE_CHAPTER && <ManageChapterModal open />}
-      {active === M.MANAGE_SCENE && <ManageSceneModal open />}
-      {active === M.MANAGE_TIMELINE && <ManageTimelineModal open />}
-      {active === M.MANAGE_WORLD && <ManageWorldModal open />}
+    <Suspense fallback={<FullScreenLoader msg="Loading Modal" />}>
+      {deleteState.includes(active) && <ConfirmDeleteModal open />}
+
+      {active === M.LINK_SCENE && <ContentLinksModal open />}
+      {[M.MANAGE_BOOK, M.CREATE_BOOK].includes(active) && <BookModal open />}
+
+      {[M.CREATE_EXPLORATION, M.MANAGE_EXPLORATION].includes(active) && (
+        <ExplorationModal open />
+      )}
+
+      {[M.CREATE_EXPLORATION_SCENE, M.MANAGE_EXPLORATION_SCENE].includes(
+        active
+      ) && <ExplorationSceneModal open />}
+
+      {active === M.MANAGE_INTERACTIVE_SLOT && <InteractiveSlotModal open />}
+
+      {active === M.MANAGE_CHAPTER && <ChapterModal open />}
+      {active === M.MANAGE_SCENE && <SceneModal open />}
+      {active === M.MANAGE_TIMELINE && <TimelineModal open />}
+      {active === M.SELECT_SCENE_LAYER && <SelectSceneLayer open />}
+      {[M.CREATE_WORLD, M.MANAGE_WORLD].includes(active) && <WorldModal open />}
+
       {WH.focusedWorld && (
         <>
           {active === M.MANAGE_LOCATION && (
-            <ManageLocationModal
+            <LocationModal
               open
               data={WH.focusedLocation}
               worldId={WH.focusedWorld.id}
@@ -38,9 +72,9 @@ export default function GlobalModalGroup() {
           )}
 
           {/* World Events */}
-          {active === M.MANAGE_WORLD_EVENTS && <ManageWorldEventsModal open />}
+          {active === M.MANAGE_WORLD_EVENTS && <WorldEventsModal open />}
         </>
       )}
-    </>
+    </Suspense>
   );
 }

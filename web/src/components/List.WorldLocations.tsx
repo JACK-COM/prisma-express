@@ -62,7 +62,7 @@ const WorldLocationsList = (props: WorldLocationsListProps) => {
     if (!focusedWorld) return;
     setGlobalLocation(location);
     const url = insertId(
-      insertId(Paths.Worlds.ExploreLocation.path, location.id, "locationId"),
+      insertId(Paths.Worlds.ViewLocation.path, location.id, "locationId"),
       focusedWorld.id,
       "worldId"
     );

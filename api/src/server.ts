@@ -12,7 +12,11 @@ import { configurePassport } from "./services/passport";
 import { downloadBookHandler } from "./services/document.service";
 import { generateWritingPromptHandler } from "./services/openai.service";
 import { PORT, UIPORT, env } from "./constants";
-import { fileDeleteHandler, fileUploadHandler, listUserFilesHandler } from "./services/aws.service";
+import {
+  fileDeleteHandler,
+  fileUploadHandler,
+  listUserFilesHandler
+} from "./services/aws.service";
 import multer from "multer";
 
 /** Run server */
@@ -55,7 +59,12 @@ async function main() {
   app.post("/files/:category/delete", fileDeleteHandler);
   app.post("/files/:category/list", listUserFilesHandler);
   const upload = multer();
-  app.post("/files/:category/upload", upload.single("imageFile"), fileUploadHandler);
+  // NOTE: This expects a form-data body with a file field named `imageFile`!
+  app.post(
+    "/files/:category/upload",
+    upload.single("imageFile"),
+    fileUploadHandler
+  );
 
   // LISTEN TO APP
   app.listen(PORT, async () => {

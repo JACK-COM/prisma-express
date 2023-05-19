@@ -4,11 +4,14 @@ import { useGlobalModal } from "hooks/GlobalModal";
 import { useGlobalLibrary } from "hooks/GlobalLibrary";
 import PageLayout from "components/Common/PageLayout";
 import ChaptersList from "components/List.Books";
+import { useGlobalUser } from "hooks/GlobalUser";
+import NotAuthorized from "./NotAuthorized";
 
 const { Library } = Paths;
 
 /** ROUTE: List of worlds */
 const BooksListRoute = () => {
+  const { id: userId } = useGlobalUser(["id"]);
   const { clearGlobalModal } = useGlobalModal();
   const {
     clearGlobalBooksState,
@@ -26,7 +29,9 @@ const BooksListRoute = () => {
     return () => clearComponentData();
   }, []);
 
-  return (
+  return !userId || userId === -1 ? (
+    <NotAuthorized />
+  ) : (
     <PageLayout
       title={Library.Index.text}
       breadcrumbs={[Library.Index]}

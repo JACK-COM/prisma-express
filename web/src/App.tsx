@@ -3,18 +3,19 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import THEME from "./theme/index";
 import { GlobalUser } from "./state";
-import AppHeader from "components/AppHeader";
 import { useGlobalTheme } from "hooks/GlobalTheme";
-import { loadUser, loadUserData } from "api/loadUserData";
+import { loadUser } from "api/loadUserData";
+import AppHeader from "components/AppHeader";
 import FullScreenLoader from "components/Common/FullscreenLoader";
-import { Paths, wildcard } from "routes";
 import ActiveNotifications from "components/ActiveNotifications";
-import Home from "routes/Home";
-import BookStoreRoute from "routes/BookStore";
 import GlobalModalGroup from "components/Modals/GlobalModalGroup";
+import { Paths, wildcard } from "routes";
+import Home from "routes/Home";
 
+const BookStoreRoute = lazy(() => import("routes/BookStore"));
 const CharactersRoute = lazy(() => import("./routes/CharactersRoute"));
 const Dashboard = lazy(() => import("./routes/DashboardRoute"));
+const Explorations = lazy(() => import("./routes/ExplorationsRoute"));
 const LibraryRoute = lazy(() => import("./routes/LibraryRoute"));
 const NotFound = lazy(() => import("./routes/NotFound"));
 const TimelinesRoute = lazy(() => import("./routes/TimelinesRoute"));
@@ -22,10 +23,7 @@ const WorldsRoute = lazy(() => import("./routes/WorldsRoute"));
 
 function App() {
   const { theme } = useGlobalTheme();
-  const checkLoggedIn = async () => {
-    const user = await loadUser();
-    await loadUserData({ userId: user?.id });
-  };
+  const checkLoggedIn = async () => await loadUser();
 
   useEffect(() => {
     if (!GlobalUser.getState().email) checkLoggedIn();
@@ -107,6 +105,16 @@ function App() {
                 element={
                   <Suspense fallback={<FullScreenLoader />}>
                     <BookStoreRoute />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                // Explorations
+                path={wildcard(Paths.Explorations.Index.path)}
+                element={
+                  <Suspense fallback={<FullScreenLoader />}>
+                    <Explorations />
                   </Suspense>
                 }
               />

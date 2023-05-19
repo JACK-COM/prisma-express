@@ -1,7 +1,11 @@
+import { Container } from "@pixi/react";
+import { type } from "os";
+import { ComponentPropsWithRef } from "react";
+
 export type ContentStatus = "live" | "draft" | "hidden";
 export type ReporterType = "experiencer" | "observer" | "researcher";
 export type UserRole = "Admin" | "Moderator" | "Author" | "Reader";
-export type NullableString = string | null;
+export type NullableString = Nullable<string>;
 
 /** Saved data from server. Use when an id is expected on an object */
 export type APIData<T> = T & {
@@ -107,31 +111,39 @@ export enum Richness {
 
 /** Used to describe a type of location */
 export enum LocationType {
-  Building = "Building",
-  City = "City",
   Continent = "Continent",
-  Country = "Country",
-  Other = "Other",
   Region = "Region",
-  Ruins = "Ruins",
-  Settlement = "Settlement",
+  Country = "Country",
+  City = "City",
   Town = "Town",
-  Village = "Village"
+  Village = "Village",
+  Settlement = "Settlement",
+  Ruins = "Ruins",
+  Building = "Building",
+  Other = "Other"
 }
+
+/** List of Location types */
+export const locationTypes = Object.values(LocationType);
 
 /** The type of World (super-set of locations)  */
 export enum WorldType {
+  /** A non-dimensional space where causal events still occur */
+  Realm = "Realm",
   /** A dimensional causal space (e.g. with planets, stars, etc) */
   Universe = "Universe",
   /** A Galaxy */
   Galaxy = "Galaxy",
+  /** A star or star system */
+  Star = "Star",
   /** A planet-mass body with many sub-locations */
   Planet = "Planet",
-  /** A non-dimensional space where causal events still occur */
-  Realm = "Realm",
   /** Something other than dimensional and non-dimensional (e.g. star's orbit) */
   Other = "Other"
 }
+
+/** List of World types */
+export const worldTypes = Object.values(WorldType);
 
 /** Content created by an author */
 export type AuthorRelation = { authorId?: number; Author?: APIData<User> };
@@ -148,6 +160,120 @@ export type CharacterRelation = {
   Character?: APIData<Character>;
 };
 
+/** An `Exploration` is a CYOA-style exploration of a `World` or `Location`, based on a `Book` */
+export type Exploration = {
+  title: string;
+  description?: string;
+  image?: string;
+  usesAttributes?: string;
+  public?: boolean;
+  price?: number;
+  Scenes: APIData<ExplorationScene>[];
+} & AuthorRelation &
+  WorldRelation &
+  LocationRelation;
+
+/**
+ * An `Exploration Scene` links a `Book Scene` to an `Exploration` instance. It contains additional JSON data
+ * that is used to render the scene in the context of the exploration. */
+export type ExplorationScene = {
+  title: string;
+  description: string;
+  order: number;
+  background: string; // JSON data for rendering background layer
+  foreground: string; // JSON data for rendering foreground layer
+  characters: string; // JSON data for rendering characters layer
+  explorationId?: number; // ( references Exploration )
+  Exploration?: Exploration; // @relation(fields: [explorationId], references: [id], onDelete: Cascade)
+} & AuthorRelation;
+
+/** @client  */
+export enum SlotAction {
+  NONE = "none", // Default no-op action
+  FALLBACK = "fallback", // Alternative action triggered due to failed dice-roll
+  HIT_PLAYER = "hitPlayer", // hit player with damage
+  HIT_TARGET = "hitTarget", // hit selected target with damage
+  NAVIGATE = "navigate", // change room
+  TEXT_HIDE = "hideText", // hide some text description
+  TEXT_SHOW = "showText", // show soem text description
+  TRIGGER_CHOICE = "triggerChoice" // show choice dialog
+}
+export const explorationTemplateActions = Object.values(SlotAction);
+
+export enum ExplorationTemplateEvent {
+  CLICK = "click",
+  DRAG = "drag"
+}
+export const explorationTemplateEvents = Object.values(
+  ExplorationTemplateEvent
+);
+
+/** @client  */
+
+/**
+ * @client An `Exploration Template Scene` describes a type of scene in an `Exploration Template`.
+ * It holds multiple `Exploration Template Slots`, each which defines how a `Book Scene` should be rendered.
+ */
+export type ExplorationSceneTemplate = Omit<
+  ExplorationScene,
+  "background" | "foreground" | "characters" | "Author" | "Exploration"
+> & {
+  id?: number;
+  /* JSON data for rendering scenes */
+  /** scene background image (stringify to server; json.parse on load) */
+  background: InteractiveSlot[];
+  /** scene characters (stringify to server; json.parse on load) */
+  characters: InteractiveSlot[];
+  /** scene foreground images (stringify to server; json.parse on load) */
+  foreground: InteractiveSlot[];
+};
+export type InternalPointLike = [x: number, y: number];
+
+export type InteractiveSlotCore = {
+  name?: string;
+  xy?: InternalPointLike;
+} & Pick<ComponentPropsWithRef<typeof Container>, "scale" | "anchor">;
+
+export type InteractiveSlot = {
+  url?: string;
+  index?: number;
+  interaction?: SlotInteraction;
+} & InteractiveSlotCore;
+
+export type SlotInteraction = {
+  /** Text to show on screen */
+  text: string;
+  /** Event target scene id */
+  target?: number;
+  /** Optional choices that can be made by triggering this slot */
+  choices?: SlotInteraction[];
+} & {
+  /** Interaction Event types */
+  [ExplorationTemplateEvent.CLICK]?: SlotAction;
+  [ExplorationTemplateEvent.DRAG]?: SlotAction;
+};
+
+/**
+ * @client An `Exploration Template Scene Slot` describes a single slot in an `Exploration Template`.
+ * It defines what data is required to fill the slot, which will in turn render an asset.
+ */
+export enum ExplorationTemplateSceneSlotType {
+  /** A background image slot */
+  BACKGROUND = "Background",
+  /** A foreground image slot */
+  FOREGROUND = "Foreground",
+  /** A character image slot */
+  CHARACTER = "Character",
+  /** A text slot */
+  TEXT = "Text",
+  /** A choice slot */
+  CHOICE = "Choice"
+}
+
+export const explorationTemplateSceneSlotTypes = Object.values(
+  ExplorationTemplateSceneSlotType
+);
+
 /** Content tagged to a `PopulationGroup` */
 export type GroupRelation = {
   groupId?: number;
@@ -156,7 +282,7 @@ export type GroupRelation = {
 
 /** Content tagged to a `Location` */
 export type LocationRelation = {
-  locationId?: number;
+  locationId?: Nullable<number>;
   Location?: APIData<Location>;
 };
 
@@ -204,6 +330,9 @@ export type Book = {
   genre: string;
   public: boolean;
   free: boolean;
+  price: number;
+  worldId?: number; // partial world relation
+  locationId?: number; // partial location relation
   Chapters: APIData<Chapter>[];
 } & AuthorRelation &
   SeriesRelation;
@@ -347,7 +476,7 @@ export type WorldCore = {
 };
 export type World = WorldCore & {
   childWorldsCount: number;
-  parentWorldId?: number;
+  parentWorldId?: number | null;
   Locations: APIData<Location>[];
   Timelines: APIData<Timeline>[];
   Events: APIData<WorldEvent>[];
@@ -375,3 +504,6 @@ export type LibraryPurchase = {
 export type ArrayKeys<T> = {
   [K in keyof T]: T[K] extends Array<any> ? K : never;
 }[keyof T];
+
+// A generally nullable type
+export type Nullable<T> = T | null;

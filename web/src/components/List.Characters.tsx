@@ -58,14 +58,11 @@ const CharactersList = ({ className }: CharactersListProps) => {
     GlobalCharacter.multiple({ relationships, focusedCharacter: char });
     setGlobalModal(MODAL.MANAGE_RELATIONSHIPS);
   };
-  const onDeleteCharacter = async (char: APIData<Character>["id"]) => {
-    const noteId = addNotification("Deleting Character...", true);
-    const res = await deleteCharacter(char);
-    if (typeof res === "string") updateAsError(res, noteId);
-    else if (res) {
-      updateNotification("Character Deleted", noteId, false);
-      removeCharacterFromState(char);
-    }
+  const onDeleteCharacter = async (id: APIData<Character>["id"]) => {
+    const char = characters.find((c) => c.id === id);
+    if (!char) return;
+    GlobalCharacter.focusedCharacter(char);
+    setGlobalModal(MODAL.CONFIRM_DELETE_CHARACTER);
   };
   const onEditCharacter = (char: APIData<Character> | null) => {
     setGlobalModal(MODAL.MANAGE_CHARACTER);

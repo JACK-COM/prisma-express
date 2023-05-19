@@ -93,13 +93,19 @@ type MFBook {
   description: String!
 
   """Book is free to read"""
-  free: Boolean!
+  free: Boolean
   genre: String!
   id: Int!
   image: String
 
+  """Fictional World location of Book"""
+  locationId: Int
+
   """Book order in series"""
   order: Int
+
+  """Book price in USD"""
+  price: Float
 
   """Book is publicly visible"""
   public: Boolean!
@@ -113,6 +119,9 @@ type MFBook {
 
   """Item updated"""
   updated: CsDateTime
+
+  """Fictional World location of Book"""
+  worldId: Int
 }
 
 input MFBookUpsertInput {
@@ -120,20 +129,26 @@ input MFBookUpsertInput {
   authorId: Int
   chapters: [MFChapterUpsertInput!]
   description: String!
-  free: Boolean = false
   genre: String!
 
   """Book ID"""
   id: Int
   image: String
 
+  """Event location target (optional)"""
+  locationId: Int
+
   """Sequence in series (if part of one"""
   order: Int
+  price: Float = 0
   public: Boolean = false
 
   """Parent Series"""
   seriesId: Int
   title: String!
+
+  """Parent world ID"""
+  worldId: Int
 }
 
 """A collection of Story `Scenes`"""
@@ -305,6 +320,120 @@ input MFEventUpsertInput {
   worldId: Int!
 }
 
+"""A CYOA-style exploration of a `World` or `Location`, based on a `Book`"""
+type MFExploration {
+  """Exploration Author"""
+  Author: MFAuthor
+
+  """Linked Location"""
+  Location: MFLocation
+  Scenes: [MFExplorationScene]!
+
+  """Linked World"""
+  World: MFWorld
+
+  """Exploration Author"""
+  authorId: Int
+  created: CsDateTime
+  description: String
+
+  """Free item"""
+  free: Boolean
+  id: Int!
+  image: String
+  lastUpdated: CsDateTime
+
+  """Location target id"""
+  locationId: Int
+
+  """Book price in USD"""
+  price: Float
+
+  """Visible to public"""
+  public: Boolean
+  publishDate: CsDateTime
+  title: String!
+
+  """Character attributes required to play (OPTIONAL)"""
+  usesAttributes: String
+
+  """World target id"""
+  worldId: Int!
+}
+
+"""A single scene in a CYOA-style exploration"""
+type MFExplorationScene {
+  """Linked Scene"""
+  Exploration: MFExploration
+  authorId: Int
+
+  """Scene bg data"""
+  background: String
+
+  """Scene characters"""
+  characters: String
+  description: String
+
+  """Exploration target id"""
+  explorationId: Int!
+
+  """Scene objects"""
+  foreground: String
+  id: Int!
+
+  """Scene order in exploration"""
+  order: Int!
+  title: String!
+}
+
+input MFExplorationSceneUpsertInput {
+  """Item Author/owner"""
+  authorId: Int
+
+  """Scene bg data"""
+  background: String
+
+  """Scene characters"""
+  characters: String
+  description: String
+
+  """Exploration target id"""
+  explorationId: Int
+
+  """Scene objects"""
+  foreground: String
+  id: Int
+
+  """Scene order in exploration"""
+  order: Int!
+  title: String!
+}
+
+input MFExplorationUpsertInput {
+  Scenes: [MFExplorationSceneUpsertInput!]
+
+  """Item Author/owner"""
+  authorId: Int
+  description: String
+
+  """Exploration ID"""
+  id: Int
+  image: String
+
+  """Location ID"""
+  locationId: Int
+  price: Float = 0
+  public: Boolean = false
+  publishDate: CsDateTime
+  title: String!
+
+  """Attributes used in exploration"""
+  usesAttributes: String
+
+  """Parent world ID"""
+  worldId: Int!
+}
+
 input MFGroupUpsertInput {
   """Item Author/owner"""
   authorId: Int
@@ -319,6 +448,29 @@ input MFGroupUpsertInput {
   worldId: Int!
 }
 
+"""A user's collection of purchased books"""
+type MFLibrary {
+  Book: MFBook
+  Exploration: MFExploration
+  Series: MFSeries
+
+  """ID of Book purchase"""
+  bookId: Int
+
+  """ID of Exploration purchase"""
+  explorationId: Int
+  id: Int!
+  order: Int!
+
+  """Make this visible on user profile"""
+  publicPurchase: Boolean!
+  purchaseDate: CsDateTime
+
+  """ID of Series purchase"""
+  seriesId: Int
+  userId: Int!
+}
+
 """A fixed, recurring setting in a World. """
 type MFLocation {
   Characters: [MFCharacter]
@@ -330,6 +482,7 @@ type MFLocation {
 
   """Event Author"""
   authorId: Int
+  childLocationCount: Int
   climate: Climate
   description: String!
   fauna: Richness
@@ -505,11 +658,14 @@ type MFSeries {
   created: CsDateTime
   description: String!
 
-  """Series is free to read"""
-  free: Boolean!
+  """Book is free to read"""
+  free: Boolean
   genre: String!
   id: Int!
   image: String
+
+  """Book price in USD"""
+  price: Float
 
   """Series is publicly visible"""
   public: Boolean!
@@ -527,12 +683,12 @@ input MFSeriesUpsertInput {
   authorId: Int
   books: [MFBookUpsertInput!]
   description: String!
-  free: Boolean = false
   genre: String!
 
   """Series ID"""
   id: Int
   image: String
+  price: Float = 0
   public: Boolean = false
   title: String!
 }
@@ -676,6 +832,8 @@ type Mutation {
 
   """Delete an `Event`"""
   deleteEvent(id: Int!): MFEvent
+  deleteExploration(id: Int!): MFExploration
+  deleteExplorationScene(id: Int!): MFExplorationScene
   deleteLocation(id: Int!): MFLocation
   deleteRelationship(id: Int!): MFCharacterRelationship
   deleteScene(id: Int!): MFScene
@@ -708,6 +866,8 @@ type Mutation {
 
   """Create or update one or more `Events`"""
   upsertEvents(data: [MFEventUpsertInput]!): [MFEvent]
+  upsertExploration(data: MFExplorationUpsertInput!): MFExploration
+  upsertExplorationScene(data: MFExplorationSceneUpsertInput!): MFExplorationScene
   upsertLocation(
     """The data to create a new location"""
     data: MFLocationUpsertInput!
@@ -736,6 +896,43 @@ type Mutation {
   ): MFWorld
 }
 
+"""A note about a character, location, or event"""
+type Note {
+  """Note Author"""
+  Author: MFAuthor
+
+  """Book target"""
+  Book: MFBook
+
+  """Chapter target"""
+  Chapter: MFChapter
+
+  """Character target"""
+  Character: MFCharacter
+
+  """Scene target"""
+  Scene: MFScene
+
+  """Note Author"""
+  authorId: Int!
+
+  """Book target id"""
+  bookId: Int
+
+  """Chapter target id"""
+  chapterId: Int
+
+  """Character target id"""
+  characterId: Int
+  description: String!
+  id: Int!
+  image: String
+
+  """Scene target id"""
+  sceneId: Int
+  title: String!
+}
+
 type Query {
   """Get the currently authenticated user"""
   getAuthUser: MFAuthor
@@ -747,6 +944,8 @@ type Query {
   getCharacterById(id: Int!): MFCharacter
   getContentLink(id: Int!): MFSceneContentLink
   getEventById(id: Int!): MFEvent
+  getExploration(id: Int!): MFExploration
+  getExplorationScene(id: Int!): MFExplorationScene
   getLocationById(id: Int!): MFLocation
   getRelationshipById(id: Int!): MFCharacterRelationship
   getSceneById(id: Int!): MFScene
@@ -762,6 +961,8 @@ type Query {
   """
   listCharacters(authorId: Int, description: String, id: Int, name: String, worldId: Int): [MFCharacter]
   listContentLinks(authorId: Int, bookId: Int, chapterId: Int, sceneId: Int, seriesId: Int, text: String): [MFSceneContentLink]
+  listExplorationScenes(explorationId: Int!): [MFExplorationScene]
+  listExplorations(attributes: [String!], authorId: Int, description: String, freeOnly: Boolean, id: Int, inLibraryOnly: Boolean, locationId: Int, maxPrice: Int, minPrice: Int, publicOnly: Boolean, publishedOnly: Boolean, title: String, worldId: Int): [MFExploration]
 
   """
   List/filter multiple `Locations`. Author can view their own locations, a reader can view public locations
@@ -780,7 +981,7 @@ type Query {
   """
   List/filter multiple `Worlds`. Author can view their own worlds, a reader can view public worlds
   """
-  listWorlds(authorId: Int, description: String, id: Int, name: String, parentWorldId: Int, public: Boolean = true): [MFWorld]
+  listWorlds(authorId: Int, description: String, id: Int, name: String, parentWorldId: Int, parentsOnly: Boolean = false, public: Boolean = true): [MFWorld]
   searchPublications(authorId: Int, description: String, freeOnly: Boolean = false, genre: String, seriesId: Int, title: String): MFSearchResult
 }
 
@@ -807,5 +1008,6 @@ enum WorldType {
   Other
   Planet
   Realm
+  Star
   Universe
 }

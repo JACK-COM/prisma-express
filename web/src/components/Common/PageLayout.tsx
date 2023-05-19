@@ -1,13 +1,6 @@
 import { AppRouteDef } from "routes";
-import {
-  GridContainer,
-  PageContainer,
-  PageDescription,
-  PageTitleVariable
-} from "./Containers";
-import Breadcrumbs from "./Breadcrumbs";
+import { GridContainer, PageDescription, PageTitle } from "./Containers";
 import styled, { css } from "styled-components";
-import { FocusEventHandler, useState } from "react";
 
 type PageLayoutProps = {
   title: string | React.ReactNode;
@@ -35,6 +28,13 @@ const Page = styled(GridContainer)`
     min-height: calc(100vh - 100px);
   }
 `;
+const HeaderDesc = styled(PageDescription)`
+  ${({ theme }) => theme.mixins.ellipsis};
+  padding-bottom: 0.2rem;
+  margin: 0;
+  max-width: 70vw;
+  width: 100%;
+`;
 const PageHeader = styled.header`
   ${autoColumn}
   background: ${({ theme }) => theme.colors.bgGradient};
@@ -43,11 +43,6 @@ const PageHeader = styled.header`
   position: sticky;
   top: 0;
   z-index: 998;
-
-  ${PageDescription} {
-    padding-bottom: 0.2rem;
-    margin: 0;
-  }
 
   @media (max-width: 768px) {
     background: transparent;
@@ -69,9 +64,9 @@ const PageLayout = (props: PageLayoutProps) => {
     // Header
     <>
       <PageHeader id="page-header">
-        <PageTitleVariable className="h4">{title}</PageTitleVariable>
+        <PageTitle className="h4">{title}</PageTitle>
         {description && (
-          <PageDescription dangerouslySetInnerHTML={{ __html: description }} />
+          <HeaderDesc dangerouslySetInnerHTML={{ __html: description }} />
         )}
       </PageHeader>
 

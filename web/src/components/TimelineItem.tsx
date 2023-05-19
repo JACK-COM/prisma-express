@@ -5,9 +5,8 @@ import {
   ItemDescription,
   ItemName,
   ItemWorldName,
-  ItemLinkContainer,
-  MatIcon
-} from "components/Common/Containers";
+  ItemLinkContainer} from "components/Common/Containers";
+import { MatIcon } from "./Common/MatIcon";
 import { TallIcon } from "./ComponentIcons";
 import { Paths, insertId } from "routes";
 import { TimelineItemEventIcon } from "./TimelineItem.EventIcon";

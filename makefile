@@ -1,4 +1,6 @@
-include .env
+ifneq (,$(wildcard ./.env))
+	include .env
+endif
 SHELL := /bin/bash
 export
 

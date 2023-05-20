@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { APIData, UserRole, Exploration } from "utils/types";
-import { noOp, suppressEvent } from "utils";
+import { suppressEvent } from "utils";
 import {
   ItemLinkContainer,
   ItemName,
@@ -19,6 +19,7 @@ import defaultBG from "assets/mystic-explorer.png";
 import Tooltip from "./Tooltip";
 import { MODAL, setGlobalExploration, setGlobalModal } from "state";
 import { useNavigate } from "react-router";
+import { getExploration } from "graphql/requests/explorations.graphql";
 
 const ExplorationIcon = styled(TallIcon).attrs({ icon: "explore" })`
   font-size: 1rem;
@@ -34,7 +35,6 @@ const LinkContainer = styled(ItemLinkContainer)<{ permissions: UserRole }>`
 
 type ExplorationItemProps = {
   exploration: APIData<Exploration>;
-  onEdit?: (w: APIData<Exploration>) => void;
   onSelect?: (w: APIData<Exploration>) => void;
   permissions?: UserRole;
   showControls?: boolean;
@@ -42,15 +42,15 @@ type ExplorationItemProps = {
 const ExplorationItem = ({
   exploration,
   onSelect,
-  onEdit = noOp,
   permissions = "Reader",
   showControls = false
 }: ExplorationItemProps) => {
   const viewURL = insertId(Paths.Explorations.Run.path, exploration.id);
   const editURL = insertId(Paths.Explorations.Build.path, exploration.id);
   const navigate = useNavigate();
-  const configure = requireAuthor(() => {
-    setGlobalExploration(exploration);
+  const configure = requireAuthor(async () => {
+    const expanded = await getExploration(exploration.id);
+    setGlobalExploration(expanded);
     setGlobalModal(MODAL.MANAGE_EXPLORATION);
   }, permissions);
   const edit = requireAuthor(() => navigate(editURL), permissions);

@@ -4,6 +4,7 @@ import {
   ArrayKeys,
   ExplorationScene,
   ExplorationSceneTemplate,
+  InteractiveSlot,
   Nullable
 } from "utils/types";
 import { APIData, Exploration } from "utils/types";
@@ -25,37 +26,43 @@ export const explorationStoreKeys = Object.keys(
 export type ExplorationStore = ReturnType<typeof GlobalExploration.getState>;
 export type ExplorationStoreKey = keyof ExplorationStore;
 export type ExplorationStoreListKeys = ArrayKeys<ExplorationStore>;
-export type ExplorationSceneLayer = "all" | "background" | "foreground" | "characters";;
+export type ExplorationSceneLayer =
+  | "all"
+  | "background"
+  | "foreground"
+  | "characters";
 
 export const setGlobalLayer = (layer: ExplorationSceneLayer) =>
   GlobalExploration.multiple({ activeLayer: layer, activeSlotIndex: -1 });
 
-export const setGlobalSlotIndex = (
+export function setGlobalSlotIndex(
   activeSlotIndex = -1,
   activeLayer: ExplorationSceneLayer = "all"
-) => GlobalExploration.multiple({ activeSlotIndex, activeLayer });
+) {
+  GlobalExploration.multiple({ activeSlotIndex, activeLayer });
+}
 
 /** Update current list of `Explorations`; overwrite selected `Exploration` and `Scene` */
 export function setGlobalExploration(exploration: APIExploration | null) {
-  const state = GlobalExploration.getState();
-  const { explorations: old, explorationScene: activeScene } = state;
+  const { explorations: old } = GlobalExploration.getState();
   if (!exploration) {
     GlobalExploration.multiple({ exploration: null, explorationScene: null });
     return { exploration: null, explorations: old, explorationScene: null };
   }
 
-  const newScenes = exploration.Scenes.map(convertToSceneTemplate);
-  const fallback = newScenes[0] || null;
-  const explorations =
-    old.length === 0
-      ? [exploration]
-      : old.map((e) => (e.id === exploration.id ? exploration : e));
-  const explorationScene = activeScene
-    ? newScenes.find((s) => s.id === activeScene.id) || fallback
-    : fallback;
+  const updates = { exploration, ...updateListWithNewItems(exploration, old) };
+  GlobalExploration.multiple(updates);
+  return updates;
+}
 
-  GlobalExploration.multiple({ exploration, explorations, explorationScene });
-  return { exploration, explorations, explorationScene };
+export function addGlobalExplorations(explorations: APIExploration[]) {
+  if (!explorations.length) return;
+  const state = GlobalExploration.getState();
+  const { explorations: old, exploration } = state;
+  const newExplorations = mergeLists(old, explorations);
+  const updates = replaceItemWithNewList(exploration, newExplorations);
+  GlobalExploration.multiple(updates);
+  return updates;
 }
 
 /** Overwrite current selected `Scene` */
@@ -131,28 +138,75 @@ export function setGlobalExplorations(explorations: APIExploration[]) {
 export function convertToSceneTemplate(
   scene: APIExplorationScene
 ): ExplorationSceneTemplate {
-  const background = scene.background ? JSON.parse(scene.background) : {};
+  const background = scene.background ? JSON.parse(scene.background) : [];
   const foreground = scene.foreground ? JSON.parse(scene.foreground) : [];
   const characters = scene.characters ? JSON.parse(scene.characters) : [];
-  return {
+  const u = {
     ...scene,
-    background,
-    foreground,
-    characters
+    background: Array.isArray(background) ? background.filter(Boolean) : [],
+    foreground: foreground.filter(Boolean),
+    characters: characters.filter(Boolean)
   };
+  return u;
 }
 
 // Convert a `ExplorationSceneTemplate` to a scene for the API
 export function convertTemplateToAPIScene(
   scene: ExplorationSceneTemplate
 ): APIExplorationScene {
-  const background = scene.background ? JSON.stringify(scene.background) : "";
-  const foreground = scene.foreground ? JSON.stringify(scene.foreground) : "";
-  const characters = scene.characters ? JSON.stringify(scene.characters) : "";
+  const reindexAndStringify = (arr: InteractiveSlot[]) =>
+    arr ? JSON.stringify(arr.map((s, i) => ({ ...s, index: i + 1 }))) : "";
+  const background = reindexAndStringify(scene.background);
+  const foreground = reindexAndStringify(scene.foreground);
+  const characters = reindexAndStringify(scene.characters);
   return {
     ...scene,
     background,
     foreground,
     characters
   } as APIExplorationScene;
+}
+
+/** Update list of explorations (and selected scene) with a newly updated exploration */
+function updateListWithNewItems(
+  selected: APIExploration,
+  explorations: APIExploration[]
+) {
+  const { explorationScene: activeScene } = GlobalExploration.getState();
+  const newScenes = selected.Scenes.map(convertToSceneTemplate);
+  const fallback = newScenes[0] || null;
+  const newExplorations =
+    explorations.length === 0
+      ? [selected]
+      : explorations.map((e) => (e.id === selected.id ? selected : e));
+  const explorationScene = activeScene
+    ? newScenes.find((s) => s.id === activeScene.id) || fallback
+    : fallback;
+  return { explorations: newExplorations, explorationScene };
+}
+
+/** Replace active exploration and scene with equivalents from updated list */
+function replaceItemWithNewList(
+  selected: APIExploration | null,
+  explorations: APIExploration[]
+) {
+  const { explorationScene: activeScene } = GlobalExploration.getState();
+  const defaults: Partial<ExplorationStore> = {
+    exploration: null,
+    activeSlotIndex: -1,
+    activeLayer: "all",
+    explorationScene: null
+  };
+  if (!selected) return defaults;
+  const newSelected = explorations.find((e) => e.id === selected.id);
+  if (!newSelected) return defaults;
+  if (!activeScene || !newSelected.Scenes)
+    return { ...defaults, exploration: newSelected };
+
+  const newScenes = newSelected.Scenes.map(convertToSceneTemplate);
+  const fallback = newScenes[0] || null;
+  const explorationScene = newScenes.find((s) => s.id === activeScene.id)
+    ? activeScene
+    : fallback;
+  return { ...defaults, exploration: newSelected, explorationScene };
 }

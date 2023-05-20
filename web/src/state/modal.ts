@@ -11,6 +11,7 @@ export enum MODAL {
   CREATE_BOOK = "Create Book",
   CREATE_EXPLORATION = "Create Exploration",
   CREATE_EXPLORATION_SCENE = "Create Exploration Scene",
+  CREATE_INTERACTIVE_SLOT = "Create Interactive Slot",
   CREATE_WORLD = "Create World",
   EXPLORATION_BUILDER_HELP = "Exploration Builder Help",
   LINK_SCENE = "Link Scene",

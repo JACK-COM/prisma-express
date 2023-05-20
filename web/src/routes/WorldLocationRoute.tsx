@@ -7,17 +7,17 @@ import {
   GridContainer,
   PageDescription
 } from "components/Common/Containers";
-import { ButtonWithIcon, LinkWithIcon } from "components/Forms/Button";
+import { LinkWithIcon } from "components/Forms/Button";
 import { Paths, insertId } from "routes";
-import { useGlobalModal } from "hooks/GlobalModal";
 import { UserRole } from "utils/types";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useParams } from "react-router";
-import { WorldPublicIcon } from "components/ComponentIcons";
+import { WorldPublicIcon, iconForWorld } from "components/ComponentIcons";
 import PageLayout from "components/Common/PageLayout";
 import {
   GlobalCharacter,
+  addGlobalExplorations,
   clearGlobalCharacter,
   clearGlobalModal,
   clearGlobalWorld,
@@ -27,12 +27,13 @@ import CharactersList from "components/List.Characters";
 import LocationActions from "components/LocationActions";
 import ExplorationsList from "components/List.Explorations";
 import useGlobalExploration from "hooks/GlobalExploration";
+import { listExplorations } from "graphql/requests/explorations.graphql";
 
 const { Worlds: WorldPaths } = Paths;
 const PageGrid = styled(GridContainer)`
   grid-template-columns: 4fr 1.5fr;
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+    display: block;
   }
 `;
 const Description = styled.div`
@@ -54,15 +55,13 @@ type Params = { worldId: string; locationId: string };
 /** @route A single World `Location` */
 const WorldLocationRoute = () => {
   const { id: userId, authenticated } = useGlobalUser(["id", "authenticated"]);
-  const { explorations, exploration } = useGlobalExploration([
-    "explorations",
-    "exploration"
-  ]);
-  const { focusedLocation, focusedWorld } = useGlobalWorld([
-    "focusedWorld",
-    "focusedLocation"
-  ]);
-  const { worldId, locationId } = useParams<Params>();
+  const glExploration = useGlobalExploration(["explorations", "exploration"]);
+  const glWorld = useGlobalWorld(["focusedWorld", "focusedLocation"]);
+  const { focusedLocation, focusedWorld } = glWorld;
+  const { explorations = [], exploration } = glExploration;
+  const { worldId: wid, locationId: lid } = useParams<Params>();
+  const worldId = Number(wid);
+  const locationId = Number(lid);
   const [place, isPublic, publicClass, isAuthor, worldIcon] = useMemo(() => {
     const author = focusedLocation?.authorId === userId;
     const isPub = focusedWorld?.public;
@@ -82,9 +81,19 @@ const WorldLocationRoute = () => {
   const worldPublic = useMemo(() => {
     return `${isPublic ? "PUBLIC" : "PRIVATE"} ${focusedLocation?.type}`;
   }, [focusedWorld, focusedLocation]);
+  const localExplorations = useMemo(() => {
+    return explorations.filter((e) => e.locationId === locationId);
+  }, [explorations, locationId]);
   const clearModalData = () => {
     clearGlobalModal();
     setGlobalLocation(null);
+  };
+  const loadComponentData = async () => {
+    const params: any = {};
+    if (!isNaN(worldId)) params.worldId = worldId;
+    if (!isNaN(locationId)) params.locationId = locationId;
+    const list = await listExplorations(params);
+    addGlobalExplorations(list);
   };
   const clearComponentData = () => {
     clearModalData();
@@ -98,7 +107,10 @@ const WorldLocationRoute = () => {
     </>
   );
 
-  useEffect(() => clearComponentData, []);
+  useEffect(() => {
+    loadComponentData();
+    return clearComponentData;
+  }, []);
 
   if (!focusedLocation || !focusedWorld)
     return (
@@ -125,7 +137,7 @@ const WorldLocationRoute = () => {
       <PageGrid gap="0.6rem">
         <ExplorationsList
           showControls
-          explorations={explorations}
+          explorations={localExplorations}
           exploration={exploration}
         />
 
@@ -169,16 +181,16 @@ const WorldLocationRoute = () => {
 
           <Card>
             <CardTitle>
-              {focusedWorld.name} <Accent>({focusedWorld.type})</Accent>
+              <span className="ellipsis">{focusedWorld.name}</span>
             </CardTitle>
             <Description
               dangerouslySetInnerHTML={{ __html: focusedWorld.description }}
             />
             <GoToWorld
-              icon="public"
-              text="Back to world"
+              icon={iconForWorld(focusedWorld.type)}
               href={insertId(WorldPaths.LocationsList.path, Number(worldId))}
-              title={`Back to ${focusedWorld.name}`}
+              text={`Back to ${focusedWorld.type}`}
+              title={`Return to ${focusedWorld.type}`}
               variant="outlined"
             />
           </Card>

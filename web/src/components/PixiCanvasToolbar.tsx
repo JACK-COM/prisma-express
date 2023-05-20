@@ -3,28 +3,29 @@ import useGlobalExploration from "hooks/GlobalExploration";
 import { Toolbar, ToolbarButton } from "./Common/Toolbar";
 import { MODAL, setGlobalLayer, setGlobalModal } from "state";
 
-export const layersCSS = css`
+export const canvasLayersCSS = css`
   .background {
     color: #3d85f1;
   }
   .characters {
-    color: #902477;
+    color: #e678cc;
   }
   .foreground {
     color: #2eb72e;
   }
 `;
 const FloatingToolbar = styled(Toolbar)<{ floating?: boolean }>`
-  background: ${({ theme }) => theme.colors.semitransparent};
+  background: ${({ theme }) => theme.colors.bgColor};
   border-bottom-right-radius: 8px;
+  border-top-right-radius: 8px;
   position: ${({ floating }) => (floating ? "absolute" : "relative")};
-  top: 0;
+  top: 5%;
   left: 0;
   z-index: 10;
   width: 64px;
   overflow: hidden;
 
-  ${layersCSS}
+  ${canvasLayersCSS}
 `;
 
 type ToolbarProps = {
@@ -40,7 +41,10 @@ const LayerBtns = [
 
 export function PixiCanvasToolbar(props: ToolbarProps) {
   const { floating = false, columns = "100%" } = props;
-  const { activeLayer } = useGlobalExploration(["activeLayer"]);
+  const { activeLayer = "all", activeSlotIndex = -1 } = useGlobalExploration([
+    "activeLayer",
+    "activeSlotIndex"
+  ]);
 
   return (
     <FloatingToolbar floating={floating} columns={columns}>
@@ -49,7 +53,9 @@ export function PixiCanvasToolbar(props: ToolbarProps) {
           <ToolbarButton
             key={text}
             text={text}
-            icon="layers"
+            icon={
+              [tag, "all"].includes(activeLayer) ? "layers" : "layers_clear"
+            }
             variant="transparent"
             className={tag}
             onClick={click}
@@ -58,18 +64,27 @@ export function PixiCanvasToolbar(props: ToolbarProps) {
       ) : (
         <>
           <ToolbarButton
-            className="beacon"
+            className={`${activeLayer} expand--vertical`}
             text="Show All"
             icon="layers_clear"
             variant="transparent"
             onClick={() => setGlobalLayer("all")}
           />
+          {activeSlotIndex >= 0 && (
+            <ToolbarButton
+              className="accent--text expand--vertical"
+              text="Config"
+              icon="settings"
+              variant="transparent"
+              onClick={() => setGlobalModal(MODAL.MANAGE_INTERACTIVE_SLOT)}
+            />
+          )}
           <ToolbarButton
             text="Add Slot"
             icon="wallpaper"
             className="gold--text expand--vertical"
             variant="transparent"
-            onClick={() => setGlobalModal(MODAL.MANAGE_INTERACTIVE_SLOT)}
+            onClick={() => setGlobalModal(MODAL.CREATE_INTERACTIVE_SLOT)}
           />
         </>
       )}

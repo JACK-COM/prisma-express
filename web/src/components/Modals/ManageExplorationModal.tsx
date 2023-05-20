@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  UpsertExplorationInput,
-} from "graphql/requests/explorations.graphql";
+import { UpsertExplorationInput } from "graphql/requests/explorations.graphql";
 import { saveAndUpdateExploration, uploadFileToServer } from "api/loadUserData";
 import {
   GlobalExploration,
@@ -12,17 +10,15 @@ import {
   MODAL,
   addNotification,
   clearGlobalModal,
-  setGlobalExploration,
-  updateAsError,
-  updateNotification
+  updateAsError
 } from "state";
-import { useGlobalLibrary } from "hooks/GlobalLibrary";
 import { useGlobalUser } from "hooks/GlobalUser";
 import { useGlobalWorld } from "hooks/GlobalWorld";
 import { ErrorMessage } from "components/Common/Containers";
 import { createExplorationTemplate } from "routes/ExplorationBuilder.Helpers";
 import CreateExplorationForm from "components/Form.CreateExploration";
 import Modal from "./Modal";
+import { useGlobalModal } from "hooks/GlobalModal";
 
 /** Modal props */
 type ModalProps = {
@@ -64,7 +60,7 @@ const initialFormData = (): Partial<UpsertExplorationInput> => {
 export default function ManageExplorationModal(props: ModalProps) {
   const { open, onClose = clearGlobalModal } = props;
   const [formData, setFormData] = useState(initialFormData());
-  const { focusedBook: data } = useGlobalLibrary(["focusedBook"]);
+  const { active } = useGlobalModal();
   const { id: userId } = useGlobalUser(["id"]);
   const { focusedWorld, focusedLocation } = useGlobalWorld([
     "focusedWorld",
@@ -120,6 +116,7 @@ export default function ManageExplorationModal(props: ModalProps) {
     // exit
     close();
   };
+  const editing = active === MODAL.MANAGE_EXPLORATION;
 
   useEffect(() => {
     return () => {
@@ -132,9 +129,9 @@ export default function ManageExplorationModal(props: ModalProps) {
     <Modal
       open={open}
       onClose={close}
-      title={`${data?.id ? "Edit" : "Create"} Exploration`}
+      title={`${editing ? "Edit" : "Create"} Exploration`}
       cancelText="Cancel"
-      confirmText={data?.id ? "Update" : "Create"}
+      confirmText={editing ? "Update" : "Create"}
       onConfirm={submit}
     >
       <CreateExplorationForm

@@ -50,17 +50,15 @@ export async function loadUser() {
   });
 
   GlobalUser.multiple({ ...user, authenticated: Boolean(user) });
-  if (!user) return null;
 
   const { worlds: stateWorlds } = GlobalWorld.getState();
   const { books: stateBooks } = GlobalLibrary.getState();
-  const { explorations: stateExplorations } = GlobalExploration.getState();
-  const params = { authorId: user.id };
+  const params = user ? { authorId: user.id } : { public: true };
   const wparams = { ...params, parentWorldId: null };
   const [worlds, books, explorations] = await Promise.all([
     listOrLoad(stateWorlds, () => listWorlds(wparams)),
     listOrLoad(stateBooks, () => listBooks(params)),
-    listOrLoad(stateExplorations, () => listExplorations(params))
+    listExplorations(params)
   ]);
 
   const updates = { worlds, focusedWorld: null, worldLocations: [] };
@@ -297,13 +295,12 @@ function makeAPIParams(opts: GQLRequestOpts) {
   const { userId } = opts;
   if (userId === -1) params.public = true;
   else if ((userId || -2) > -1) params.authorId = userId;
-  else {
-    const { worldId, timelineId, explorationId, locationId } = opts;
-    if (worldId) params.worldId = Number(worldId);
-    if (locationId) params.locationId = Number(locationId);
-    if (timelineId) params.timelineId = Number(timelineId);
-    if (explorationId) params.explorationId = Number(explorationId);
-  }
+
+  const { worldId, timelineId, explorationId, locationId } = opts;
+  if (worldId) params.worldId = Number(worldId);
+  if (locationId) params.locationId = Number(locationId);
+  if (timelineId) params.timelineId = Number(timelineId);
+  if (explorationId) params.explorationId = Number(explorationId);
   return params;
 }
 

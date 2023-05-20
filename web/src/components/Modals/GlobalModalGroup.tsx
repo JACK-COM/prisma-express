@@ -53,7 +53,9 @@ export default function GlobalModalGroup() {
         active
       ) && <ExplorationSceneModal open />}
 
-      {active === M.MANAGE_INTERACTIVE_SLOT && <InteractiveSlotModal open />}
+      {[M.MANAGE_INTERACTIVE_SLOT, M.CREATE_INTERACTIVE_SLOT].includes(
+        active
+      ) && <InteractiveSlotModal open />}
 
       {active === M.MANAGE_CHAPTER && <ChapterModal open />}
       {active === M.MANAGE_SCENE && <SceneModal open />}

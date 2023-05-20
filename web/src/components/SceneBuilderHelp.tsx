@@ -1,12 +1,18 @@
 import { Accent } from "components/Common/Containers";
 import { GlobalExploration } from "state";
+import styled from "styled-components";
+import { canvasLayersCSS } from "./PixiCanvasToolbar";
+
+const HelpList = styled.ol`
+  ${canvasLayersCSS}
+`;
 
 export default function SceneBuilderHelp() {
   const { exploration, explorationScene } = GlobalExploration.getState();
   const { Scenes: scenes = [] } = exploration ?? {};
 
   return (
-    <ol>
+    <HelpList>
       {!scenes?.length ? (
         <>
           <li>
@@ -65,6 +71,6 @@ export default function SceneBuilderHelp() {
         When ready, select a <Accent as="b">Layer</Accent> from the menu, then
         use the buttons on screen to add either some text or a new image.
       </li>
-    </ol>
+    </HelpList>
   );
 }

@@ -1,5 +1,4 @@
 import { Container } from "@pixi/react";
-import { type } from "os";
 import { ComponentPropsWithRef } from "react";
 
 export type ContentStatus = "live" | "draft" | "hidden";
@@ -190,15 +189,15 @@ export type ExplorationScene = {
 /** @client  */
 export enum SlotAction {
   NONE = "none", // Default no-op action
-  FALLBACK = "fallback", // Alternative action triggered due to failed dice-roll
-  HIT_PLAYER = "hitPlayer", // hit player with damage
-  HIT_TARGET = "hitTarget", // hit selected target with damage
-  NAVIGATE = "navigate", // change room
-  TEXT_HIDE = "hideText", // hide some text description
-  TEXT_SHOW = "showText", // show soem text description
-  TRIGGER_CHOICE = "triggerChoice" // show choice dialog
+  CHOOSE = "Choose", // show choice dialog
+  HIT_PLAYER = "Hit Player", // hit player with damage
+  HIT_TARGET = "Hit Target", // hit selected target with damage
+  NAVIGATE = "Navigate", // change room
+  SHOW_TEXT = "Show Text" // show soem text description
 }
-export const explorationTemplateActions = Object.values(SlotAction);
+export const explorationTemplateActions = Object.values(SlotAction).filter(
+  (a) => a !== SlotAction.NONE
+);
 
 export enum ExplorationTemplateEvent {
   CLICK = "click",
@@ -230,27 +229,37 @@ export type ExplorationSceneTemplate = Omit<
 export type InternalPointLike = [x: number, y: number];
 
 export type InteractiveSlotCore = {
+  /** Slot name */
   name?: string;
+  /** Slot coordinates, merged  */
   xy?: InternalPointLike;
 } & Pick<ComponentPropsWithRef<typeof Container>, "scale" | "anchor">;
 
 export type InteractiveSlot = {
+  /** Slot image asset */
   url?: string;
+  /** Slot index in scene */
   index?: number;
+  /** Events and consequences triggered by this slot */
   interaction?: SlotInteraction;
+  /** Disable position and size editing */
+  lock?: { position?: boolean; size?: boolean };
 } & InteractiveSlotCore;
 
 export type SlotInteraction = {
-  /** Text to show on screen */
-  text: string;
+  /** Interaction Event data */
+  data?: SlotInteractionData;
+  /** Interaction Event types */
+  [ExplorationTemplateEvent.CLICK]?: SlotAction;
+  [ExplorationTemplateEvent.DRAG]?: SlotAction;
+};
+export type SlotInteractionData = {
+  /** Event target scene id */
+  text?: string;
   /** Event target scene id */
   target?: number;
   /** Optional choices that can be made by triggering this slot */
   choices?: SlotInteraction[];
-} & {
-  /** Interaction Event types */
-  [ExplorationTemplateEvent.CLICK]?: SlotAction;
-  [ExplorationTemplateEvent.DRAG]?: SlotAction;
 };
 
 /**

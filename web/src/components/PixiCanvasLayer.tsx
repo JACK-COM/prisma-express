@@ -1,21 +1,21 @@
 import { Container, Graphics } from "@pixi/react";
-import PixiSprite, { PixiSpriteProps } from "./PixiSprite";
+import PixiSprite from "./PixiSprite";
 import { InteractiveSlot } from "utils/types";
-import { EditorProps, CanvasLayerProps, updateLayer } from "./Pixi.Helpers";
-import { OutlineFilter } from "@pixi/filter-outline";
 import {
-  ExplorationSceneLayer,
-  setGlobalLayer,
-  setGlobalSlotIndex
-} from "state";
+  EditorProps,
+  CanvasLayerProps,
+  editableSpriteProps
+} from "./Pixi.Helpers";
+import { OutlineFilter } from "@pixi/filter-outline";
+import { ExplorationSceneLayer, setGlobalLayer } from "state";
 import { noOp } from "utils";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export const layerColors: Record<ExplorationSceneLayer, number> = {
+  all: 0, // this should NEVER render its own layer
   background: 0x3d85f1,
-  characters: 0x902477,
-  foreground: 0x2eb72e,
-  all: 0 // this should NEVER render its own layer
+  characters: 0xe678cc,
+  foreground: 0x2eb72e
 };
 const filters: Record<ExplorationSceneLayer, [OutlineFilter] | undefined> = {
   all: undefined,
@@ -33,28 +33,46 @@ export function PixiCanvasLayer(props: CanvasLayerProps) {
     height = 600,
     slots = [],
     editing,
-    label = "all"
+    onChange = noOp,
+    layer: layer = "all"
   } = props;
   const dimensions = useMemo(() => ({ x, y, width, height }), [props]);
-  const spriteFilter = editing ? filters[label] : undefined;
-  const spriteProps = generateSpriteProps(props);
+  const spriteFilter = editing ? filters[layer] : undefined;
+  const layers = Object.keys(layerColors) as ExplorationSceneLayer[];
+  const [data, setData] = useState<InteractiveSlot[]>(slots);
+  // intercept local changes for re-rendering
+  const localOnChange = (d: InteractiveSlot[]) => {
+    setData(d);
+    onChange(d);
+  };
+  const spriteProps = useCallback(
+    editableSpriteProps({ ...props, onChange: localOnChange }),
+    [data]
+  );
+  const layerIndex = layers.indexOf(layer);
+
+  // Update local data on global change
+  useEffect(() => {
+    setData(slots);
+  }, [slots]);
 
   return (
     <Container sortableChildren {...dimensions}>
-      {!slots.length ? (
+      {!data.length ? (
+        // Bunny sprite for empty layers
         <PixiSprite
-          scale={1}
-          y={width / 2}
-          x={height / 2}
+          scale={1 + layerIndex * 0.1}
+          x={width / 2 + layerIndex * 50}
+          y={height / 2}
           filters={spriteFilter}
           zIndex={100}
           containerProps={{
             movable: true,
-            onSlotSelect: () => setGlobalLayer(label || "all")
+            onSlotSelect: () => setGlobalLayer(layer || "all")
           }}
         />
       ) : (
-        slots.map((d, i) => (
+        data.map((d, i) => (
           <PixiSprite
             key={`${d.name || "bg-sprite"}-${i}`}
             filters={spriteFilter}
@@ -64,31 +82,6 @@ export function PixiCanvasLayer(props: CanvasLayerProps) {
       )}
     </Container>
   );
-}
-
-/** Convert Scene Template data into Sprite props */
-function generateSpriteProps(props: CanvasLayerProps) {
-  const { editing = false, onChange = noOp, label = "all", slots } = props;
-  return (slot: InteractiveSlot) => {
-    const { xy = [0, 0], scale = 1, anchor = 0.5 } = slot;
-    return {
-      zIndex: 10 + (slot.index || 1),
-      containerProps: {
-        xy,
-        src: slot.url,
-        scale,
-        anchor,
-        movable: props.editing,
-        // Slot got dragged/moved
-        onDisplayChanged: (p) => {
-          const newSlot = Object.assign({}, slot, p);
-          return updateLayer({ slot: newSlot, editing, onChange, src: slots });
-        },
-        // Slot got clicked
-        onSlotSelect: () => setGlobalSlotIndex((slot.index || 1) - 1, label)
-      }
-    } as PixiSpriteProps;
-  };
 }
 
 type RectFillProps = EditorProps & {
@@ -115,15 +108,15 @@ export function RectFill(props: RectFillProps) {
     [props]
   );
   const onClick: React.MouseEventHandler<typeof Container> = (e) => {
-    if (e.target === e.currentTarget) pointerdown(e);
+    if (e.target === e.currentTarget) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.nativeEvent) e.nativeEvent.stopImmediatePropagation();
+      pointerdown(e);
+    }
   };
 
   return (
-    <Graphics
-      draw={draw}
-      eventMode="dynamic"
-      pointerdown={onClick}
-      zIndex={1}
-    />
+    <Graphics draw={draw} eventMode="dynamic" pointerup={onClick} zIndex={1} />
   );
 }

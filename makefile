@@ -23,7 +23,7 @@ build:
 	cp -rf ./api/package.json ./api/lib/
 	cp -rf ./api/prisma ./api/lib/
 
-tf-init: build
+tf-init:
 	cd ./terraform && terraform init
 
 tf-upgrade:

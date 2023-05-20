@@ -22,6 +22,9 @@ variable "resource_settings" {
     }
   }
 }
+variable "bucket_name" {}
+variable "domain_name" {}
+variable "common_tags" {}
 
 variable "subnet_id_1" {
   description = "subnet id 1"

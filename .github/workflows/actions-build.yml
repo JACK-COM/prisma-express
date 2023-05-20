@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: build application
         run: make build
   deploy:
@@ -26,7 +26,7 @@ jobs:
       VITE_API_SERVER: ${{ secrets.VITE_API_SERVER }}
     steps:
       - name: checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: terraform plan
         run: make tf-plan
       - name: terraform apply

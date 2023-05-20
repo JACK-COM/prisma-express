@@ -22,14 +22,19 @@ build:
 tf-init: build
 	cd ./terraform && terraform init
 
-terraform-plan: tf-init
+tf-upgrade:
+	cd ./terraform && terraform init -upgrade
+
+tf-plan: tf-init
 	cd ./terraform && terraform plan -auto-approve -var-file="$(VARS)"
 
-terraform-deploy: tf-init
+tf-deploy: tf-init
 	cd ./terraform && terraform apply -auto-approve -var-file="$(VARS)"
+	aws s3 cp ./web/dist s3://www-mythosforge-app-bucket --recursive --acl public-read
 
-terraform-redeploy: tf-init
+tf-redeploy: tf-init
 	cd ./terraform && terraform apply -replace=$(target) -auto-approve -var-file="$(VARS)"
+	aws s3 cp ./web/dist s3://www-mythosforge-app-bucket --recursive --acl public-read
 
 hulk-smash:
 	cd ./terraform && terraform destroy -auto-approve -var-file="$(VARS)"

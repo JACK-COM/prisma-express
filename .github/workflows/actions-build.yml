@@ -13,3 +13,21 @@ jobs:
         uses: actions/checkout@v2
       - name: build application
         run: make build
+
+on:
+  push:
+    branches:
+      - 'develop'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v2
+      - name: build application
+        run: make build
+      - name: terraform plan
+        run: make tf-plan
+      - name: terraform apply
+        run: make tf-apply

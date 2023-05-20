@@ -19,7 +19,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop
+    if: github.event_name == 'push'
     env:
       VITE_TINYMCE_KEY: ${{ secrets.VITE_TINYMCE_KEY }}
       VITE_GRMLY_KEY : ${{ secrets.VITE_GRMLY_KEY }}

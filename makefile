@@ -26,7 +26,7 @@ tf-upgrade:
 	cd ./terraform && terraform init -upgrade
 
 tf-plan: tf-init
-	cd ./terraform && terraform plan -auto-approve -var-file="$(VARS)"
+	cd ./terraform && terraform plan -var-file="$(VARS)"
 
 tf-deploy: tf-init
 	cd ./terraform && terraform apply -auto-approve -var-file="$(VARS)"

@@ -21,12 +21,16 @@ jobs:
     needs: build
     if: github.event_name == 'push'
     env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       VITE_TINYMCE_KEY: ${{ secrets.VITE_TINYMCE_KEY }}
       VITE_GRMLY_KEY : ${{ secrets.VITE_GRMLY_KEY }}
       VITE_API_SERVER: ${{ secrets.VITE_API_SERVER }}
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
+      - name: AWS Config
+        run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       - name: terraform plan
         run: make tf-plan
       - name: terraform apply

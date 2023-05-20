@@ -103,6 +103,6 @@ export default function useGlobalMovable(opts = DEFAULTS) {
     startDrag,
     handleDrag,
     handleScroll,
-    endDrag
+    endDrag,
   };
 }

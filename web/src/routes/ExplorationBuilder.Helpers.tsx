@@ -36,7 +36,7 @@ export function createInteractiveSlot(): InteractiveSlot {
     scale: [1, 1],
     anchor: [0.5, 0.5],
     url: "",
-    interaction: { click: SlotAction.NONE, drag: SlotAction.NONE }
+    interaction: {}
   };
 }
 

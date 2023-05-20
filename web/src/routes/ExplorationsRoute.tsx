@@ -3,8 +3,9 @@ import { Paths, trimParent } from "routes";
 import { Suspense, lazy } from "react";
 import FullScreenLoader from "components/Common/FullscreenLoader";
 
-const ExplorationBuilderRoute = lazy(() => import("./ExplorationBuilder"));
+const ExplorationBuilderRoute = lazy(() => import("./ExplorationBuilderRoute"));
 const ExplorationsListRoute = lazy(() => import("./ExplorationsListRoute"));
+const ExplorationViewerRoute = lazy(() => import("./ExplorationViewerRoute"));
 
 /** Parent route for worlds-related content (public or user-created) */
 const Explorations = () => {
@@ -35,7 +36,7 @@ const Explorations = () => {
         path={trimParent(Paths.Explorations.Run.path, "explorations")}
         element={
           <Suspense fallback={<FullScreenLoader />}>
-            <ExplorationBuilderRoute />
+            <ExplorationViewerRoute />
           </Suspense>
         }
       />

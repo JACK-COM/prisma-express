@@ -28,7 +28,6 @@ import {
 import { RoundButton } from "components/Forms/Button";
 import ExplorationScenesList from "components/List.ExplorationScenes";
 import BuilderToolbar from "components/BuilderToolbar";
-import BuilderCanvas from "components/BuilderCanvas";
 import SceneBuilderHelp from "components/SceneBuilderHelp";
 import { PixiCanvas } from "components/PixiCanvas";
 

@@ -53,7 +53,7 @@ export const defaultButtonCSS = css`
 `;
 const ButtonBase = styled.button<AllButtonProps>`
   ${defaultButtonCSS}
-  > .material-icons {
+  &.button--icon > .material-icons {
     padding-right: ${IconPaddingRight};
   }
 `;
@@ -75,9 +75,7 @@ export const ButtonLink = styled.a<UI.SharedButtonProps>`
 /** `<Link>` component with app button styles (and some props) */
 export const StyledLink = styled(Link)<UI.SharedButtonProps>`
   ${defaultButtonCSS}
-  height: ${UI.width};
-  width: ${(props) => (props.round ? UI.width(props) : "auto")};
-  text-shadow: ${UI.textShadow} !important;
+  line-height: initial;
   > .material-icons {
     padding-right: ${IconPaddingRight};
   }
@@ -97,19 +95,34 @@ type LinkWithIconProps = Pick<
     external?: boolean;
     /** Style variant */
     variant?: AllButtonProps["variant"];
+    size?: AllButtonProps["size"];
   };
 
 /** An anchor tag with button stylings and an inline icon */
 export const LinkWithIcon = (props: LinkWithIconProps) => {
-  const { icon, text = "", external, href = "", variant, ...linkProps } = props;
+  const {
+    icon,
+    text = "",
+    external,
+    href = "",
+    variant,
+    size = "sm",
+    ...linkProps
+  } = props;
 
   return external ? (
-    <ButtonLink target="_blank" href={href} variant={variant} {...linkProps}>
+    <ButtonLink
+      size={size}
+      target="_blank"
+      href={href}
+      variant={variant}
+      {...linkProps}
+    >
       <MatIcon icon={icon} />
       <span className="text">{text}</span>
     </ButtonLink>
   ) : (
-    <StyledLink to={href} variant={variant} {...linkProps}>
+    <StyledLink size={size} to={href} variant={variant} {...linkProps}>
       <MatIcon icon={icon} />
       <span className="text">{text}</span>
     </StyledLink>
@@ -120,9 +133,10 @@ type ButtonWithIconProps = Partial<AllButtonProps> & WithIconProps;
 /** A button with an inline icon */
 export const ButtonWithIcon = (props: ButtonWithIconProps) => {
   const { icon, text, ...buttonProps } = props;
+  const classN = `button--icon ${buttonProps.className || ""}`;
 
   return (
-    <Button {...buttonProps}>
+    <Button className={classN} {...buttonProps}>
       <MatIcon icon={icon} />
       {text && <span className="text">{text}</span>}
     </Button>
@@ -139,12 +153,16 @@ type AnimationProps = {
 export const RoundButton = styled(ButtonBase).attrs({
   round: true
 })<AnimationProps>`
+  align-items: center;
+  display: flex;
   font-size: ${UI.fontSize};
   padding: ${({ theme }) => theme.sizes.sm};
   > * {
     font-size: inherit;
   }
   .material-icons {
+    font-size: larger;
+    padding: 0;
     transition: color 0.2s ease-in-out;
   }
   &:hover .material-icons {

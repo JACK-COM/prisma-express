@@ -28,6 +28,7 @@ export const PixiEditorLayers = (props: EditorProps) => {
     y = 0,
     width = 800,
     height = 600,
+    editing = false,
     onChange = noOp
   } = props;
   const scene = explorationScene || createExplorationTemplateScene();
@@ -42,7 +43,7 @@ export const PixiEditorLayers = (props: EditorProps) => {
     const update = { ...scene, [label]: slots };
     onChange(update);
   };
-  const layersShared = { width, height, editing: true };
+  const layersShared = { width, height, editing };
   const layerProps = (target: ExplorationSceneLayer): CanvasLayerProps =>
     !scene || target === "all"
       ? { slots: [] }

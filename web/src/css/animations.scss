@@ -176,6 +176,16 @@
   }
 }
 
+@keyframes slide-up {
+  from {
+    transform: translateY(10%);
+  }
+
+  to {
+    transform: translateX(0%);
+  }
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);

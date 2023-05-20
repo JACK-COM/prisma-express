@@ -40,7 +40,7 @@ const CreateInteractiveSlotDataForm = (props: SlotDataFormProps) => {
 
   return (
     <>
-      {action === SlotAction.NAVIGATE && (
+      {action === SlotAction.NAV_SCENE && (
         <Label columns="auto">
           <span className="label flex">Navigate to Scene:</span>
           <Hint>
@@ -91,12 +91,16 @@ const CreateInteractiveSlotDataForm = (props: SlotDataFormProps) => {
 
           <Label columns="auto">
             <span className="label flex">Enter choices:</span>
-            <Hint>Enter what the player can choose.</Hint>
+            <Hint>
+              Define how the player may respond, and consequences of each
+              response. A consequence is an <Accent>action</Accent> like the one
+              you are creating right now.
+            </Hint>
             <Textarea
               aria-invalid={!data.text}
               value={data?.text || ""}
               placeholder="e.g. 'The walls look old and worn.'"
-              onChange={({ target }) => updateActionText(target.value)}
+              // onChange={({ target }) => updateActionText(target.value)}
             />
           </Label>
         </>

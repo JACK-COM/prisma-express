@@ -15,6 +15,11 @@ const CenteredWrapper = styled(FlexRow)`
 type LoaderProps = { msg?: string };
 const FullScreenLoader = (props: LoaderProps) => {
   const { msg = "Loading route ..." } = props;
-  return <CenteredWrapper>{msg}</CenteredWrapper>;
+  return (
+    <CenteredWrapper>
+      <span className="spinner--before" />
+      {msg}
+    </CenteredWrapper>
+  );
 };
 export default FullScreenLoader;

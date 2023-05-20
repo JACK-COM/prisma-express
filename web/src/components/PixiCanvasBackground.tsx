@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { SCALE_MODES, BaseTexture } from "pixi.js";
 import { Container } from "@pixi/react";
 import { ExplorationSceneLayer, setGlobalLayer } from "state";
-import { RectFill, layerColors } from "./PixiCanvasLayer";
+import { layerColors } from "./Pixi.Helpers";
+import { RectFill } from "./RectFill";
 
 // Default scaling operation for the image assets in canvas
 BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;

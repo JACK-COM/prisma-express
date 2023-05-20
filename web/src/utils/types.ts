@@ -192,7 +192,8 @@ export enum SlotAction {
   CHOOSE = "Choose", // show choice dialog
   HIT_PLAYER = "Hit Player", // hit player with damage
   HIT_TARGET = "Hit Target", // hit selected target with damage
-  NAVIGATE = "Navigate", // change room
+  NAV_SCENE = "Change Scene", // change room
+  NAV_LOCATION = "Change Location", // link to another Exploration
   SHOW_TEXT = "Show Text" // show soem text description
 }
 export const explorationTemplateActions = Object.values(SlotAction).filter(
@@ -201,7 +202,8 @@ export const explorationTemplateActions = Object.values(SlotAction).filter(
 
 export enum ExplorationTemplateEvent {
   CLICK = "click",
-  DRAG = "drag"
+  DRAG_HZ = "horizontal_drag",
+  DRAG_VT = "vertical_drag"
 }
 export const explorationTemplateEvents = Object.values(
   ExplorationTemplateEvent
@@ -251,8 +253,9 @@ export type SlotInteraction = {
   data?: SlotInteractionData;
   /** Interaction Event types */
   [ExplorationTemplateEvent.CLICK]?: SlotAction;
-  [ExplorationTemplateEvent.DRAG]?: SlotAction;
-};
+} & {
+  [ExplorationTemplateEvent.DRAG_HZ]?: SlotAction;
+} & { [ExplorationTemplateEvent.DRAG_VT]?: SlotAction };
 export type SlotInteractionData = {
   /** Event target scene id */
   text?: string;

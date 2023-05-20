@@ -15,6 +15,7 @@ import {
   InteractiveSlot,
   SlotAction,
   SlotInteraction,
+  SlotInteractionData,
   explorationTemplateActions
 } from "utils/types";
 import { createInteractiveSlot } from "routes/ExplorationBuilder.Helpers";
@@ -45,11 +46,16 @@ const emptyForm = (): InteractiveSlot => {
 
   if (edit && explorationScene != null && activeSlotIndex > -1) {
     const activeSlot = activeLayer[activeSlotIndex];
-    form = { ...form, ...activeSlot };
+    if (activeSlot) form = { ...activeSlot };
   }
-
+  // @ts-ignore
+  // if (form?.click) delete form.click;
+  // @ts-ignore
+  // if (form?.drag) delete form.drag;
   return form;
 };
+
+const { CLICK, DRAG_HZ, DRAG_VT } = ExplorationTemplateEvent;
 
 /** @form Create or edit an `Interactive Slot` in an `Exploration` template */
 const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
@@ -59,16 +65,16 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
   const imageAction = editing ? "Change" : "Upload";
   const [data, setData] = useState(emptyForm());
   const [interactionData, event, action] = useMemo(() => {
-    const { click, drag } = data.interaction || {};
-    const { CLICK, DRAG } = ExplorationTemplateEvent;
+    const { click, horizontal_drag, vertical_drag } = data.interaction || {};
     const d = data.interaction?.data;
     const truthy = (v?: SlotAction) => Boolean(v) && v !== SlotAction.NONE;
     if (truthy(click)) return [d, CLICK, click];
-    if (truthy(drag)) return [d, DRAG, drag];
+    if (truthy(horizontal_drag)) return [d, DRAG_HZ, horizontal_drag];
+    if (truthy(vertical_drag)) return [d, DRAG_VT, vertical_drag];
     return [d, undefined, undefined];
   }, [data]);
   const updateData = (d: typeof data) => {
-    setData(d);
+    setData((p) => ({ ...p, ...d }));
     onChange(d);
   };
   const updateName = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -84,16 +90,27 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
       reader.readAsDataURL(file);
     }
   };
-  const updateInteraction = (i: Partial<SlotInteraction>) => {
-    updateData({ ...data, interaction: { ...data.interaction, ...i } });
+  const updateInteraction = (interaction?: SlotInteraction) => {
+    updateData({ ...data, interaction });
+  };
+  const updateInteractionData = (iData?: SlotInteractionData) => {
+    updateInteraction({ ...data.interaction, data: iData });
   };
   const changeClickAction = (click: SlotAction) => {
-    const actionData = click === data.interaction?.drag ? interactionData : {};
-    updateInteraction({ click, drag: SlotAction.NONE, data: actionData });
+    if (!click) return updateInteraction({});
+    const actionData = click === action ? interactionData : {};
+    const next = { ...data.interaction, click, data: actionData };
+    if (next.horizontal_drag) delete next.horizontal_drag;
+    if (next.vertical_drag) delete next.vertical_drag;
+    updateInteraction(next);
   };
-  const changeDragAction = (drag: SlotAction) => {
-    const actionData = drag === data.interaction?.click ? interactionData : {};
-    updateInteraction({ drag, click: SlotAction.NONE, data: actionData });
+  const changeDragAction = (horizontal_drag: SlotAction) => {
+    if (!horizontal_drag) return updateInteraction({});
+    const actionData = horizontal_drag === action ? interactionData : {};
+    const next = { ...data.interaction, horizontal_drag, data: actionData };
+    if (next.click) delete next.click;
+    if (next.vertical_drag) delete next.vertical_drag;
+    updateInteraction(next);
   };
   const updateLock = (d: Partial<InteractiveSlot["lock"]>) => {
     const { lock = {} } = data;
@@ -204,7 +221,7 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
 
               <Select
                 data={explorationTemplateActions}
-                value={data.interaction?.click}
+                value={data.interaction?.click || ""}
                 itemText={(d) => d}
                 itemValue={(d) => d}
                 emptyMessage="No actions loaded!"
@@ -224,7 +241,7 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
 
               <Select
                 data={explorationTemplateActions}
-                value={data.interaction?.drag}
+                value={data.interaction?.horizontal_drag || ""}
                 itemText={(d) => d}
                 itemValue={(d) => d}
                 emptyMessage="No actions loaded!"
@@ -240,7 +257,7 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
               event={event}
               action={action}
               value={interactionData}
-              onChange={(d) => updateInteraction({ data: d })}
+              onChange={updateInteractionData}
             />
           )}
 

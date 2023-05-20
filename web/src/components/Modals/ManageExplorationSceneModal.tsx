@@ -15,7 +15,6 @@ import {
 } from "state";
 import { ErrorMessage } from "components/Common/Containers";
 import useGlobalExploration from "hooks/GlobalExploration";
-import { createExplorationTemplateScene } from "routes/ExplorationBuilder.Helpers";
 import { ExplorationSceneTemplate } from "utils/types";
 
 /** Modal props */
@@ -23,8 +22,6 @@ type ManageExplorationSceneModalProps = {
   open: boolean;
   onClose?: () => void;
 };
-
-const emptyForm = createExplorationTemplateScene;
 
 /** Specialized Modal for creating/editing a `ExplorationScene` */
 export default function ManageExplorationSceneModal(

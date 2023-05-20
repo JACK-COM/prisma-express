@@ -1,23 +1,28 @@
 import createState from "@jackcom/raphsducks";
 import { mergeLists } from "utils";
 import {
+  APIData,
+  Exploration,
   ArrayKeys,
   ExplorationScene,
   ExplorationSceneTemplate,
   InteractiveSlot,
-  Nullable
+  Nullable,
+  SlotInteraction,
+  SlotInteractionData
 } from "utils/types";
-import { APIData, Exploration } from "utils/types";
 
 type APIExploration = APIData<Exploration>;
 type APIExplorationScene = APIData<ExplorationScene>;
+export type ActiveSceneData = { data: SlotInteractionData; name: string };
 
 export const GlobalExploration = createState({
   exploration: null as Nullable<APIExploration>,
   explorations: [] as APIExploration[],
   explorationScene: null as Nullable<ExplorationSceneTemplate>,
   activeLayer: "all" as ExplorationSceneLayer,
-  activeSlotIndex: -1
+  activeSlotIndex: -1,
+  sceneData: null as ActiveSceneData | null
 });
 
 export const explorationStoreKeys = Object.keys(
@@ -40,6 +45,10 @@ export function setGlobalSlotIndex(
   activeLayer: ExplorationSceneLayer = "all"
 ) {
   GlobalExploration.multiple({ activeSlotIndex, activeLayer });
+}
+
+export function setGlobalSceneData(data: ActiveSceneData | null) {
+  GlobalExploration.sceneData(data);
 }
 
 /** Update current list of `Explorations`; overwrite selected `Exploration` and `Scene` */
@@ -69,7 +78,12 @@ export function addGlobalExplorations(explorations: APIExploration[]) {
 export function setGlobalExplorationScene(
   explorationScene: ExplorationSceneTemplate
 ) {
-  GlobalExploration.multiple({ explorationScene });
+  GlobalExploration.multiple({
+    explorationScene,
+    activeLayer: "all",
+    activeSlotIndex: -1,
+    sceneData: null
+  });
 }
 
 export function clearGlobalExploration() {
@@ -134,7 +148,7 @@ export function setGlobalExplorations(explorations: APIExploration[]) {
   return updates;
 }
 
-// Convert a scene to a `ExplorationSceneTemplate`
+// Convert scene API data to a `ExplorationSceneTemplate`
 export function convertToSceneTemplate(
   scene: APIExplorationScene
 ): ExplorationSceneTemplate {
@@ -154,8 +168,11 @@ export function convertToSceneTemplate(
 export function convertTemplateToAPIScene(
   scene: ExplorationSceneTemplate
 ): APIExplorationScene {
-  const reindexAndStringify = (arr: InteractiveSlot[]) =>
-    arr ? JSON.stringify(arr.map((s, i) => ({ ...s, index: i + 1 }))) : "";
+  const reindexAndStringify = (arr: InteractiveSlot[]) => {
+    return arr
+      ? JSON.stringify(arr.map((s, i) => ({ ...s, index: i + 1 })))
+      : "";
+  };
   const background = reindexAndStringify(scene.background);
   const foreground = reindexAndStringify(scene.foreground);
   const characters = reindexAndStringify(scene.characters);
@@ -195,7 +212,8 @@ function replaceItemWithNewList(
     exploration: null,
     activeSlotIndex: -1,
     activeLayer: "all",
-    explorationScene: null
+    explorationScene: null,
+    sceneData: null
   };
   if (!selected) return defaults;
   const newSelected = explorations.find((e) => e.id === selected.id);

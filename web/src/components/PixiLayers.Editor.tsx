@@ -18,8 +18,6 @@ import { noOp } from "utils";
 // Default scaling operation for the image assets in canvas
 BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
 
-// Glow + Outline filters
-
 export const PixiEditorLayers = (props: EditorProps) => {
   const {
     layer = "all",

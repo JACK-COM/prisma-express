@@ -13,6 +13,7 @@ import useGlobalExploration from "hooks/GlobalExploration";
 import { PixiCanvasBackground } from "./PixiCanvasBackground";
 import FullScreenLoader from "./Common/FullscreenLoader";
 import PixiCanvasDialog from "./PixiCanvasDialog";
+import PixiSceneIntro from "./PixiSceneIntro";
 
 // Default scaling operation for the image assets in canvas
 BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
@@ -62,49 +63,56 @@ export const PixiCanvas = (props: CanvasProps) => {
     });
   }, []);
 
-  return size.width > 0 ? (
+  return (
     <Canvas>
-      <Stage
-        width={size.width}
-        height={size.height}
-        options={{
-          antialias: true,
-          eventMode: "dynamic",
-          eventFeatures: { move: true, click: true, wheel: true },
-          ...size
-        }}
-      >
-        <PixiCanvasBackground
-          {...size}
-          activeLayer={activeLayer}
-          editing={editing}
-        />
-        {activeLayer && (
-          <Container x={0} y={0} {...size} anchor={0}>
-            <RectFill
-              pointerdown={onBGClick}
-              fill={fillBG}
-              x={0}
-              y={0}
-              {...size}
-            />
-          </Container>
-        )}
-        <PixiEditorLayers
-          {...size}
-          editing={editing}
-          layer={activeLayer}
-          scene={explorationScene}
-          onChange={onChange}
-        />
-      </Stage>
+      {size.width > 0 ? (
+        <Stage
+          width={size.width}
+          height={size.height}
+          options={{
+            antialias: true,
+            eventMode: "dynamic",
+            eventFeatures: { move: true, click: true, wheel: true },
+            ...size
+          }}
+        >
+          <PixiCanvasBackground
+            {...size}
+            activeLayer={activeLayer}
+            editing={editing}
+          />
+          {activeLayer && (
+            <Container x={0} y={0} {...size} anchor={0}>
+              <RectFill
+                pointerdown={onBGClick}
+                fill={fillBG}
+                x={0}
+                y={0}
+                {...size}
+              />
+            </Container>
+          )}
+          <PixiEditorLayers
+            {...size}
+            editing={editing}
+            layer={activeLayer}
+            scene={explorationScene}
+            onChange={onChange}
+          />
 
-      {editing && <PixiCanvasToolbar floating />}
-      {sceneData && <PixiCanvasDialog {...sceneData} />}
-    </Canvas>
-  ) : (
-    <Canvas>
-      <FullScreenLoader msg="Loading Canvas..." />
+          {!editing && explorationScene && (
+            <PixiSceneIntro key={explorationScene.id} {...size} />
+          )}
+        </Stage>
+      ) : (
+        <FullScreenLoader msg="Loading Canvas..." />
+      )}
+
+      {editing ? (
+        <PixiCanvasToolbar floating />
+      ) : (
+        sceneData && <PixiCanvasDialog {...sceneData} />
+      )}
     </Canvas>
   );
 };

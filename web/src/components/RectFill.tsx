@@ -8,6 +8,7 @@ export function RectFill(props: RectFillProps) {
   const {
     x = 0,
     y = 0,
+    alpha = 0.25,
     fill = 0xff00bb,
     width,
     height,
@@ -16,7 +17,7 @@ export function RectFill(props: RectFillProps) {
   const draw = useCallback(
     (g: any) => {
       g.clear();
-      g.beginFill(fill, 0.25);
+      g.beginFill(fill, alpha);
       g.drawRect(x, y, width, height);
       g.endFill();
     },

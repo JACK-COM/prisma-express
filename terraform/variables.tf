@@ -22,10 +22,24 @@ variable "resource_settings" {
     }
   }
 }
+
+variable "ssh_key" {
+  description = "ssh key for ec2 instances"
+  type        = string
+  sensitive   = true
+}
+
 variable "bucket_name" {}
 variable "domain_name" {}
-variable "common_tags" {}
-
+variable "common_tags" {
+  description = "Common tags to be applied to all resources"
+  type        = map(any)
+  default = {
+    "Owner"       = "Mythos Forge"
+    "Project" = "mythosforge.app"
+    "Environment" = "Production"
+  }
+}
 variable "subnet_id_1" {
   description = "subnet id 1"
   default = "subnet-0de6dc771b9484008"

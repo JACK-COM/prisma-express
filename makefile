@@ -1,4 +1,8 @@
-VARS="secrets.tfvars"
+ifneq (,$(wildcard ./.env))
+	include .env
+endif
+SHELL := /bin/bash
+export
 
 # dev env spin up
 dev:
@@ -19,22 +23,22 @@ build:
 	cp -rf ./api/package.json ./api/lib/
 	cp -rf ./api/prisma ./api/lib/
 
-tf-init: build
+tf-init:
 	cd ./terraform && terraform init
 
 tf-upgrade:
 	cd ./terraform && terraform init -upgrade
 
 tf-plan: tf-init
-	cd ./terraform && terraform plan -var-file="$(VARS)"
+	cd ./terraform && terraform plan -lock=false
 
 tf-deploy: tf-init
-	cd ./terraform && terraform apply -auto-approve -var-file="$(VARS)"
+	cd ./terraform && terraform apply -auto-approve -lock=false
 	aws s3 cp ./web/dist s3://www-mythosforge-app-bucket --recursive --acl public-read
 
 tf-redeploy: tf-init
-	cd ./terraform && terraform apply -replace=$(target) -auto-approve -var-file="$(VARS)"
+	cd ./terraform && terraform apply -replace=$(target) -auto-approve -lock=false
 	aws s3 cp ./web/dist s3://www-mythosforge-app-bucket --recursive --acl public-read
 
 hulk-smash:
-	cd ./terraform && terraform destroy -auto-approve -var-file="$(VARS)"
+	cd ./terraform && terraform destroy -auto-approve

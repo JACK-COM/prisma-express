@@ -58,4 +58,4 @@ jobs:
       - name: terraform plan
         run: make tf-plan
       - name: terraform apply
-        run: make tf-apply
+        run: make tf-deploy

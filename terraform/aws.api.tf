@@ -56,6 +56,14 @@ resource "aws_instance" "mf-api-instance" {
   depends_on             = [aws_security_group.mf-api-sg, aws_db_instance.mf_database]
   key_name               = aws_key_pair.mf_main.key_name
 
+  connection {
+    type        = "ssh"
+    host        = aws_instance.mf-api-instance.public_ip
+    user        = "ubuntu"
+    private_key = file("~/.ssh/mf-main")
+    insecure    = true
+  }
+
   provisioner "remote-exec" {
     inline = [
       #!/bin/bash

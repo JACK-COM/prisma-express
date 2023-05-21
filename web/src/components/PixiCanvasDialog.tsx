@@ -15,9 +15,11 @@ const DialogContainer = styled.div`
   background: #fff9;
   border-radius: ${({ theme }) => theme.sizes.sm};
   bottom: 2rem;
-  margin: 0 5%;
+  left: 50%;
+  margin-left: -400px;
   padding: ${({ theme }) => theme.sizes.sm};
   width: 90%;
+  max-width: 800px;
 `;
 const DialogButton = styled(RoundButton)`
   ${dialogUI}

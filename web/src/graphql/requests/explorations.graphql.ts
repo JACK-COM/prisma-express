@@ -51,7 +51,7 @@ export async function listExplorations(
 ): Promise<APIData<Exploration>[]> {
   return fetchGQL<APIData<Exploration>[]>({
     query: listExplorationsQuery(),
-    variables: { data },
+    variables: { ...data },
     onResolve: (x, errors) => errors || x.listExplorations,
     fallbackResponse: []
   });

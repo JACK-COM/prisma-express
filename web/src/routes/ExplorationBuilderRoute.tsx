@@ -28,7 +28,8 @@ import {
 import { RoundButton } from "components/Forms/Button";
 import ExplorationScenesList from "components/List.ExplorationScenes";
 import BuilderToolbar from "components/BuilderToolbar";
-import BuilderCanvas from "components/BuilderCanvas";
+import SceneBuilderHelp from "components/SceneBuilderHelp";
+import { PixiCanvas } from "components/PixiCanvas";
 
 const { Library } = Paths;
 const SpanGrid = styled.span`
@@ -60,20 +61,24 @@ const ExplorationBuilderRoute = () => {
       desc
     ];
   }, [exploration, explorationScene]);
+  const modalActive = useMemo(() => {
+    const { SELECT_EXPLORATION_SCENE, EXPLORATION_BUILDER_HELP } = MODAL;
+    return [SELECT_EXPLORATION_SCENE, EXPLORATION_BUILDER_HELP].includes(
+      active
+    );
+  }, [active]);
   const [formData, setFormData] = useState<ExplorationSceneTemplate>();
   const [editorAutosave, setEditorAutosave] = useState(true);
   const err = (msg: string, noteId?: number) => {
     updateAsError(msg, noteId);
   };
-  const saveExplorationScene = async () => {
-    const { explorationScene, activeLayer: layer } =
-      GlobalExploration.getState();
-    if (!formData) return err("No data to save!");
+  const saveExplorationScene = async (sceneData?: ExplorationSceneTemplate) => {
+    const { explorationScene } = GlobalExploration.getState();
+    if (!sceneData) return err("No data to save!");
     if (!explorationScene) return err("No scene is selected!");
-    if (layer === "all") return err("No layer is selected!");
 
     err("");
-    const updatedScene = { ...explorationScene, ...formData };
+    const updatedScene = { ...explorationScene, ...sceneData };
     const noteId = addNotification("Saving Scene...");
     const forAPI = convertTemplateToAPIScene(updatedScene);
     const resp = await upsertExplorationScene(
@@ -95,9 +100,13 @@ const ExplorationBuilderRoute = () => {
     await saveAndUpdateExploration(update);
   };
   const toggleAutoSave = () => setEditorAutosave(!editorAutosave);
+  const updateAndMaybeSave = (data: ExplorationSceneTemplate) => {
+    setFormData(data);
+    if (editorAutosave) saveExplorationScene(data);
+  };
   const loadComponentData = async () => {
     if (explorationId) {
-      const res = await loadExploration({ explorationId });
+      const res = await loadExploration({ explorationId, userId });
       const { explorationScene: nsc } = res;
       if (!nsc) setGlobalModal(MODAL.SELECT_EXPLORATION_SCENE);
     } else setGlobalModal(MODAL.SELECT_EXPLORATION_SCENE);
@@ -147,24 +156,29 @@ const ExplorationBuilderRoute = () => {
         <BuilderToolbar
           explorationId={explorationId}
           role={role}
-          handleSave={saveExplorationScene}
+          handleSave={() => saveExplorationScene(formData)}
           saveOnBlur={editorAutosave}
           toggleAutoSave={toggleAutoSave}
         />
 
-        <BuilderCanvas onChange={setFormData} />
+        {explorationScene && (
+          <PixiCanvas editing onChange={updateAndMaybeSave} />
+        )}
       </section>
 
       <ModalDrawer
         title={`Build <b class="accent--text">Exploration</b>`}
         openTowards="right"
-        open={active === MODAL.SELECT_EXPLORATION_SCENE}
+        open={modalActive}
         onClose={clearGlobalModal}
       >
-        <ExplorationScenesList
-          exploration={exploration}
-          explorationScene={explorationScene}
-        />
+        {active === MODAL.SELECT_EXPLORATION_SCENE && (
+          <ExplorationScenesList
+            exploration={exploration}
+            explorationScene={explorationScene}
+          />
+        )}
+        {active === MODAL.EXPLORATION_BUILDER_HELP && <SceneBuilderHelp />}
       </ModalDrawer>
     </PageLayout>
   );

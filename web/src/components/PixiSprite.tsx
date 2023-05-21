@@ -1,41 +1,69 @@
-import { ComponentPropsWithRef, Ref, forwardRef } from "react";
-import { Sprite } from "@pixi/react";
-import useGlobalMovable, {
-  GlobalMovableOptions
-} from "hooks/GlobalPixiMovable";
+import { Ref, forwardRef } from "react";
+import { Container, Sprite } from "@pixi/react";
+import useGlobalMovable from "hooks/GlobalPixiMovable";
+import { PixiSpriteProps, layerColors } from "./Pixi.Helpers";
+import CircleFill from "./CircleFill";
+import { GlobalExploration } from "state";
+import { EventMode, TextStyle } from "pixi.js";
+import PixiText from "./PixiText";
 
-export type PixiSpriteProps = {
-  containerProps: GlobalMovableOptions & { src?: string };
-} & ComponentPropsWithRef<typeof Sprite>;
-
-/** @CanvasComponent Pixi Sprite (wrapped) with dragging functionality */
+/** @CanvasComponent Pixi Sprite (wrapped) with dragging and scroll-to-scale functionality */
 const PixiSprite = forwardRef((props: PixiSpriteProps, ref: Ref<any>) => {
-  const { containerProps = {}, x = 0, y = 0, scale, ...pixiProps } = props;
-  const { src = "https://pixijs.io/pixi-react/img/bunny.png" } = containerProps;
-  const { alpha, cursor, position, startDrag, handleDrag, endDrag } =
-    useGlobalMovable({
-      ...containerProps,
-      xy: containerProps.xy || [x, y],
-      scale,
-      anchor: containerProps.anchor
-    });
-  const { xy = [0, 0], ...anchorScale } = position;
+  const { activeLayer = "all" } = GlobalExploration.getState();
+  const fill = layerColors[activeLayer];
+  const { containerProps = {}, x = 0, y = 0, editing, ...spriteProps } = props;
+  const { scale: pScale, src = "https://pixijs.io/pixi-react/img/bunny.png" } =
+    containerProps;
+  const {
+    position,
+    startDrag,
+    handleDrag,
+    handleScroll,
+    endDrag,
+    ...fromMovable
+  } = useGlobalMovable({
+    ...containerProps,
+    xy: containerProps.xy || [x, y],
+    scale: pScale,
+    anchor: props.anchor || [0.5, 0.5]
+  });
+  const { xy = [0, 0], ...fromPosition } = position;
+  const movableProps = {
+    ...fromMovable, // alpha, cursor,
+    ...fromPosition, // anchor, scale,
+    eventMode: "dynamic" as EventMode,
+    x: xy[0],
+    y: xy[1],
+    pointerdown: startDrag,
+    onglobalpointermove: handleDrag,
+    onwheel: handleScroll,
+    pointerup: endDrag,
+    pointerupoutside: endDrag
+  };
+  const textStyle = new TextStyle({
+    fill,
+    fontSize: 22,
+    strokeThickness: 2,
+    stroke: "white"
+  });
 
-  return (
-    <Sprite
+  return src ? (
+    <Container>
+      <Sprite ref={ref} image={src} {...movableProps} {...spriteProps} />
+      {editing && (
+        <CircleFill eventMode="none" x={xy[0]} y={xy[1]} fill={fill} />
+      )}
+    </Container>
+  ) : (
+    <PixiText
       ref={ref}
-      image={src}
-      cursor={cursor}
-      alpha={alpha}
-      eventMode="static"
-      pointerdown={startDrag}
-      onglobalpointermove={handleDrag}
-      pointerup={endDrag}
-      pointerupoutside={endDrag}
+      text={containerProps.name || "EMPTY SLOT"}
+      style={textStyle}
       x={xy[0]}
       y={xy[1]}
-      {...anchorScale}
-      {...pixiProps}
+      scale={movableProps.scale}
+      containerProps={containerProps}
+      // {...spriteProps}
     />
   );
 });

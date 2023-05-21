@@ -59,13 +59,18 @@ export const Textarea = styled.textarea`
   ${sharedInputStyles};
   height: 120px;
 `;
-type LabelProps = { direction?: "row" | "column"; columns?: string };
+type LabelProps = {
+  direction?: "row" | "column";
+  columns?: string;
+  gap?: string;
+};
 export const Label = styled.label<LabelProps>`
   align-items: ${({ direction = "row" }) =>
     direction === "row" ? "center" : undefined};
   display: grid;
   grid-template-columns: ${({ direction = "row", columns }) =>
     columns || (direction === "column" ? "auto" : "max-content auto")};
+  grid-column-gap: ${({ gap = "0" }) => gap};
 
   .label {
     color: ${({ theme }) => theme.colors.secondary};

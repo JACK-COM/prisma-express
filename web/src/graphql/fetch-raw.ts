@@ -1,4 +1,5 @@
 import axios, { AxiosHeaders, AxiosRequestConfig } from "axios";
+import { API_BASE } from "utils";
 
 type ResponseError = { message: string };
 
@@ -22,7 +23,7 @@ type RawFetchOpts<T> = {
 export async function fetchRaw<T>(opts: RawFetchOpts<T>) {
   const {
     contentType = "application/json",
-    url = "http://localhost:4001",
+    url = API_BASE,
     onResolve,
     additionalOpts = {},
     timeout = 3500,

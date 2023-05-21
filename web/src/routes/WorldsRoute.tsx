@@ -6,7 +6,6 @@ import FullScreenLoader from "components/Common/FullscreenLoader";
 
 const WorldLocations = lazy(() => import("./WorldLocationsListRoute"));
 const WorldLocationRoute = lazy(() => import("./WorldLocationRoute"));
-const ExplorationBuilderRoute = lazy(() => import("./ExplorationBuilder"));
 
 /** Parent route for worlds-related content (public or user-created) */
 const Worlds = () => {

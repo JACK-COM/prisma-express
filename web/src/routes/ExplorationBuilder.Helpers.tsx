@@ -2,7 +2,6 @@ import { UpsertExplorationInput } from "graphql/requests/explorations.graphql";
 import {
   ExplorationSceneTemplate,
   SlotAction,
-  ExplorationTemplateEvent,
   InteractiveSlot,
   SlotInteraction
 } from "utils/types";
@@ -33,11 +32,11 @@ export function createExplorationTemplateScene(
 /** Create an `on-screen item` for an `Exploration Template` layer */
 export function createInteractiveSlot(): InteractiveSlot {
   return {
-    xy: [0, 0],
+    xy: [250, 250], // offset to prevent hiding under the toolbar
     scale: [1, 1],
     anchor: [0.5, 0.5],
     url: "",
-    interaction: { text: "", click: SlotAction.NONE, drag: SlotAction.NONE }
+    interaction: {}
   };
 }
 
@@ -45,6 +44,6 @@ export function createInteractiveSlot(): InteractiveSlot {
 export function createInteraction(): SlotInteraction {
   return {
     click: SlotAction.NONE,
-    text: "Add some Text"
+    data: {}
   };
 }

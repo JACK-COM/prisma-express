@@ -195,6 +195,7 @@ const BookPreviewRoute = () => {
                   icon="edit"
                   variant="transparent"
                   href={editUrl}
+                  text="Edit"
                 />
               )}
             </PreviewTitle>

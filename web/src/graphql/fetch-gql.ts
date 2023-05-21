@@ -1,8 +1,9 @@
 import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { withTimeout } from "./fetch-raw";
+import { GRAPHQL_URL } from "utils";
 
 export const apolloClient = new ApolloClient({
-  uri: "http://localhost:4001/graphql",
+  uri: GRAPHQL_URL,
   cache: new InMemoryCache({ addTypename: false }),
   credentials: "include",
   queryDeduplication: true,
@@ -35,7 +36,6 @@ export type FetchGQLOpts<T> = {
 export async function fetchGQL<T>(opts: FetchGQLOpts<T>) {
   type GQLResponse = ChildProperty<T>;
   const {
-    // url = "http://localhost:4001/graphql",
     query,
     variables,
     refetchQueries,

@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import {
+  MODAL,
+  GlobalModal,
   GlobalUser,
   addNotification,
   clearGlobalModal,
@@ -10,7 +12,7 @@ import {
 } from "state";
 import { ErrorMessage } from "components/Common/Containers";
 import useGlobalExploration from "hooks/GlobalExploration";
-import { ExplorationSceneTemplate, InteractiveSlot } from "utils/types";
+import { InteractiveSlot } from "utils/types";
 import CreateInteractiveSlotForm from "components/Form.CreateInteractiveSlot";
 import ModalDrawer from "./ModalDrawer";
 import { uploadFileToServer } from "api/loadUserData";
@@ -18,6 +20,9 @@ import {
   pruneExplorationSceneData,
   upsertExplorationScene
 } from "graphql/requests/explorations.graphql";
+import { ButtonWithIcon } from "components/Forms/Button";
+import { Form } from "components/Forms/Form";
+import { suppressEvent } from "utils";
 
 /** Modal props */
 type ManageInteractiveSlotModalProps = {
@@ -30,26 +35,27 @@ export default function ManageInteractiveSlotModal(
   props: ManageInteractiveSlotModalProps
 ) {
   const { open, onClose = clearGlobalModal } = props;
+  const { active } = GlobalModal.getState();
+  const editing = active === MODAL.MANAGE_INTERACTIVE_SLOT;
+  const action = editing ? "Manage" : "Create";
   const {
     activeLayer: layer = "all",
     explorationScene,
-    activeSlotIndex
+    activeSlotIndex = -1
   } = useGlobalExploration([
     "activeLayer",
     "explorationScene",
     "activeSlotIndex"
   ]);
-  const activeLayer = useMemo<InteractiveSlot[]>(() => {
+  const activeSlots = useMemo<InteractiveSlot[]>(() => {
     if (!explorationScene) return [];
     return layer === "all" ? [] : explorationScene[layer];
   }, [layer]);
   const activeSlot = useMemo(() => {
-    if (!activeLayer.length || activeSlotIndex === undefined) return undefined;
-    return activeLayer[activeSlotIndex] || undefined;
-  }, [activeSlotIndex, activeLayer]);
-  const activeInteraction = useMemo(() => {
-    return activeSlot?.interaction || undefined;
-  }, [activeSlot]);
+    if (!activeSlots.length) return undefined;
+    return activeSlots[activeSlotIndex] || undefined;
+  }, [activeSlotIndex, activeSlots]);
+  const name = useMemo(() => activeSlot?.name || layer, [activeSlot]);
   const [formData, setFormData] = useState<InteractiveSlot>();
   const [error, setError] = useState("");
   const err = (msg: string, noteId?: number) => {
@@ -72,37 +78,44 @@ export default function ManageInteractiveSlotModal(
     });
     if (typeof imageRes === "string") {
       updateAsError(imageRes, noteId);
-      return "";
+    } else if (imageRes?.fileURL) {
+      updateNotification("Slot image uploaded!", noteId);
+      return imageRes.fileURL;
     }
-    if (imageRes?.fileURL) return imageRes.fileURL;
 
     updateAsError("Image upload failed", noteId);
     return "";
   };
+  // Remove a slot from the scene
+  const deleteSlot = async () => {
+    if (!editing || !activeSlot || activeSlotIndex < -1) return;
+    const newSlots = activeSlots.filter((_, i) => i !== activeSlotIndex);
+    return sendToAPI(newSlots);
+  };
+
   // Save the entire `Exploration Scene`
   const submit = async () => {
     if (!explorationScene) return err("No scene is selected!");
     if (layer === "all") return err("No layer is selected!");
     if (!formData) return err("No data to submit.");
-    const slotIndex = (
-      (activeSlotIndex || 0) > 0 ? activeSlotIndex : 0
-    ) as number;
+    const slotIndex = editing ? activeSlotIndex : formData.index!;
 
     err("");
-    const updatedLayer = [...(Array.isArray(activeLayer) ? activeLayer : [])];
-    const slot = { ...activeInteraction, ...formData };
+    const newSlots = [...activeSlots];
+    const slot = { ...activeSlot?.interaction, ...formData };
     if (slot.url?.startsWith("data:image")) {
       const name = (slot.name || "").toLowerCase().replace(/[^a-z0-9]/g, "-");
       slot.url = await uploadSprite(name, slot.url);
     }
-    updatedLayer[slotIndex] = slot;
+    newSlots[slotIndex] = slot;
+    return sendToAPI(newSlots);
+  };
 
-    const updatedScene = {
-      ...explorationScene,
-      [layer]: updatedLayer
-    } as ExplorationSceneTemplate;
+  const sendToAPI = async (slots: InteractiveSlot[]) => {
+    if (!explorationScene) return err("No scene is selected!");
+    const newScene = { ...explorationScene, [layer]: slots };
     const noteId = addNotification("Saving Scene...");
-    const forAPI = convertTemplateToAPIScene(updatedScene);
+    const forAPI = convertTemplateToAPIScene(newScene);
     const resp = await upsertExplorationScene(
       pruneExplorationSceneData(forAPI)
     );
@@ -121,13 +134,27 @@ export default function ManageInteractiveSlotModal(
       open={open}
       openTowards="right"
       onClose={onClose}
-      title={`Manage <b class="accent--text">${layer}</b> slot`}
+      title={`${action} <b class="accent--text">${name}</b>`}
       cancelText="Cancel"
       confirmText={"Confirm"}
       onConfirm={submit}
     >
       <CreateInteractiveSlotForm onChange={setFormData} />
       {error && <ErrorMessage>{error}</ErrorMessage>}
+
+      {editing && (
+        <Form onSubmit={suppressEvent}>
+          <ButtonWithIcon
+            type="button"
+            text="Delete Slot"
+            variant="outlined"
+            size="lg"
+            icon="delete"
+            onClick={deleteSlot}
+            className="error--text"
+          />
+        </Form>
+      )}
     </ModalDrawer>
   );
 }

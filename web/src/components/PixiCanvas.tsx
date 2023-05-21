@@ -1,19 +1,27 @@
-import { ComponentPropsWithRef, useEffect, useMemo, useState } from "react";
+import {
+  ComponentPropsWithRef,
+  Suspense,
+  lazy,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 import styled from "styled-components";
 import { SCALE_MODES, BaseTexture } from "pixi.js";
 import { Container, Stage } from "@pixi/react";
-import PixiEditorLayers from "./PixiLayers.Editor";
-import PixiCanvasToolbar from "./PixiCanvasToolbar";
 import { ExplorationStoreKey, setGlobalSlotIndex } from "state";
 import { ExplorationSceneTemplate } from "utils/types";
 import { noOp } from "utils";
+import useGlobalExploration from "hooks/GlobalExploration";
 import { layerColors } from "./Pixi.Helpers";
 import { RectFill } from "./RectFill";
-import useGlobalExploration from "hooks/GlobalExploration";
-import { PixiCanvasBackground } from "./PixiCanvasBackground";
 import FullScreenLoader from "./Common/FullscreenLoader";
-import PixiCanvasDialog from "./PixiCanvasDialog";
+import PixiEditorLayers from "./PixiLayers.Editor";
 import PixiSceneIntro from "./PixiSceneIntro";
+import PixiCanvasBackground from "./PixiCanvasBackground";
+
+const PixiCanvasDialog = lazy(() => import("./PixiCanvasDialog"));
+const PixiCanvasToolbar = lazy(() => import("./PixiCanvasToolbar"));
 
 // Default scaling operation for the image assets in canvas
 BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
@@ -51,6 +59,7 @@ export const PixiCanvas = (props: CanvasProps) => {
     () => activeLayer && layerColors[activeLayer],
     [activeLayer]
   );
+  const compFallback = <FullScreenLoader msg="Loading ..." />;
 
   useEffect(() => {
     const $parent = document.querySelector("#builder-canvas");
@@ -109,9 +118,15 @@ export const PixiCanvas = (props: CanvasProps) => {
       )}
 
       {editing ? (
-        <PixiCanvasToolbar floating />
+        <Suspense fallback={compFallback}>
+          <PixiCanvasToolbar floating />
+        </Suspense>
       ) : (
-        sceneData && <PixiCanvasDialog {...sceneData} />
+        sceneData && (
+          <Suspense fallback={compFallback}>
+            <PixiCanvasDialog {...sceneData} />
+          </Suspense>
+        )
       )}
     </Canvas>
   );

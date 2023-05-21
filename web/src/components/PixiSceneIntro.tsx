@@ -1,21 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Container, useTick } from "@pixi/react";
-import PixiSprite from "./PixiSprite";
-import { InteractiveSlot } from "utils/types";
-import {
-  CanvasLayerProps,
-  editableSpriteProps,
-  layerFilters,
-  layerColors,
-  previewSpriteProps,
-  EditorProps
-} from "./Pixi.Helpers";
-import {
-  ExplorationSceneLayer,
-  GlobalExploration,
-  setGlobalLayer
-} from "state";
-import { noOp } from "utils";
+import { EditorProps } from "./Pixi.Helpers";
+import { GlobalExploration } from "state";
 import { RectFill } from "./RectFill";
 import { BlurFilter, TextStyle } from "pixi.js";
 import PixiText from "./PixiText";

@@ -18,7 +18,7 @@ import { noOp } from "utils";
 // Default scaling operation for the image assets in canvas
 BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
 
-export const PixiEditorLayers = (props: EditorProps) => {
+const PixiEditorLayers = (props: EditorProps) => {
   const {
     layer = "all",
     scene: explorationScene,

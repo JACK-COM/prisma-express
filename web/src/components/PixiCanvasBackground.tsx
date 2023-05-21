@@ -16,7 +16,7 @@ type Props = {
 };
 
 /** @component PixiCanvas (create/manage Pixi component layers) */
-export const PixiCanvasBackground = (props: Props) => {
+const PixiCanvasBackground = (props: Props) => {
   const { editing, width = 0, height = 0, activeLayer = "all" } = props;
   const size = { width, height };
   const onBGClick = () => editing && setGlobalLayer("all");
@@ -28,3 +28,5 @@ export const PixiCanvasBackground = (props: Props) => {
     </Container>
   );
 };
+
+export default PixiCanvasBackground;

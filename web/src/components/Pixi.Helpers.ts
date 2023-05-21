@@ -123,7 +123,7 @@ export function editableSpriteProps(props: CanvasLayerProps) {
 
 /** Convert Scene Template data into preview-Sprite props (scene is NOT in `editing` mode) */
 export function previewSpriteProps(props: CanvasLayerProps) {
-  const { layer = "all" } = props;
+  const { layer = "all", slots } = props;
   const { NONE } = SlotAction;
   const isAssigned = (d: SlotAction) => d && d !== SlotAction.NONE;
 
@@ -133,7 +133,6 @@ export function previewSpriteProps(props: CanvasLayerProps) {
     const hasClick = isAssigned(click);
     const hasDrag = isAssigned(drag);
     const hasEvent = hasClick || hasDrag;
-    const event = hasClick ? click : drag;
     const onSlotSelect = () => {
       if (!interaction?.data || !hasEvent) return;
       handleSlotInteraction({
@@ -163,15 +162,19 @@ export function previewSpriteProps(props: CanvasLayerProps) {
         src: slot.url,
         scale,
         anchor,
-        movable: props.editing && !slot.lock?.position,
+        movable: props.editing ? !slot.lock?.position : hasDrag,
         resizable: props.editing && !slot.lock?.size,
+        interactiveDrag: hasDrag,
 
         // Slot got dragged/moved
         onDisplayChanged: (p: InteractiveSlotCore) => {
-          console.log("onSlotSelect", slot);
-          // const newSlot = Object.assign({}, slot, p);
-          //     updateLayer({ slot: newSlot, editing, onChange, src: slots });
-          //     onSlotSelect();
+          updateLayer({
+            slot,
+            editing: true,
+            onChange: props.onChange || noOp,
+            src: slots
+          });
+          onSlotSelect();
         },
 
         // Slot got clicked

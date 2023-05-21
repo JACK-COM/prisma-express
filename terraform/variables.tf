@@ -23,12 +23,6 @@ variable "resource_settings" {
   }
 }
 
-variable "ssh_key" {
-  description = "ssh key for ec2 instances"
-  type        = string
-  sensitive   = true
-}
-
 variable "bucket_name" {}
 variable "domain_name" {}
 variable "common_tags" {

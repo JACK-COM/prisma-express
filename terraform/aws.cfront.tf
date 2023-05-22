@@ -54,8 +54,8 @@ resource "aws_cloudfront_distribution" "www_s3_distribution" {
     ssl_support_method       = "sni-only"
   }
 
-  depends_on = [ aws_s3_bucket.www_bucket, aws_route53_record.non-www, aws_route53_record.www ]
-  aliases = [aws_route53_record.www.fqdn, aws_route53_record.non-www.fqdn]
+  depends_on = [ aws_s3_bucket.www_bucket ]
+  aliases = [var.domain_name, var.domain_name_www]
 
   tags = var.common_tags
   wait_for_deployment = true

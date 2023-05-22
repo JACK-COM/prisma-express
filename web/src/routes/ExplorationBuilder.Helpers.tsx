@@ -51,8 +51,5 @@ export function createExplorationSceneConfig(): ExplorationSceneTemplate["config
 
 /** Create an `Interaction` for an on-screen item  */
 export function createInteraction(): SlotInteraction {
-  return {
-    click: SlotAction.NONE,
-    data: {}
-  };
+  return { data: {} };
 }

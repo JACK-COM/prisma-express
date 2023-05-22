@@ -12,6 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
+      APP_UI: ${{ secrets.APP_UI }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       VITE_TINYMCE_KEY: ${{ secrets.VITE_TINYMCE_KEY }}
@@ -37,6 +38,7 @@ jobs:
     if: github.event_name == 'push'
     environment: Development
     env:
+      APP_UI: ${{ secrets.APP_UI }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       VITE_TINYMCE_KEY: ${{ secrets.VITE_TINYMCE_KEY }}

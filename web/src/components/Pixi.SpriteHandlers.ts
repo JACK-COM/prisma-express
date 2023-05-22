@@ -42,6 +42,7 @@ export function handleSlotInteraction(opts: SlotHandlerOpts) {
       if (!next) return updateAsError("Scene not found");
       return setGlobalExplorationScene(convertAPISceneToTemplate(next));
     }
+    case SlotAction.CHOOSE:
     case SlotAction.SHOW_TEXT: {
       return setGlobalSceneData({ name, data });
     }

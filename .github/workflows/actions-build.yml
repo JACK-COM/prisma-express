@@ -57,7 +57,7 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v3
       - name: AWS Config
-        run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set default.region us-east-1
       - name: terraform plan
         run: make tf-plan
       - name: terraform apply

@@ -36,6 +36,10 @@ tf-deploy: tf-init
 	cd ./terraform && terraform apply -auto-approve -lock=false
 	aws s3 cp ./web/dist s3://www-mythosforge-app-bucket --recursive --acl public-read
 
+tf-deploy-local: build tf-init
+	cd ./terraform && terraform apply -auto-approve -lock=false
+	aws s3 cp ./web/dist s3://www-mythosforge-app-bucket --recursive --acl public-read
+
 tf-redeploy: tf-init
 	cd ./terraform && terraform apply -replace=$(target) -auto-approve -lock=false
 	aws s3 cp ./web/dist s3://www-mythosforge-app-bucket --recursive --acl public-read

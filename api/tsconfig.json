@@ -18,6 +18,7 @@
     "skipLibCheck": true,
     "sourceMap": false,
     "strict": true,
+    "target": "ES6",
     "useDefineForClassFields": true
   },
   "include": ["./src/", "./prisma"],

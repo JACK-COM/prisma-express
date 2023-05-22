@@ -82,7 +82,7 @@ export const MFSearchResultFragment = `
 `;
 /** Exploration Scene Fragment */
 export const MFExplorationSceneFragment = `
-id, title, description, order, authorId, background, foreground, characters, explorationId
+    id, title, config, description, order, authorId, background, foreground, characters, explorationId
 `;
 
 /** Exploration Fragment */

@@ -26,6 +26,7 @@
     "graphql": "^16.6.0",
     "lodash.groupby": "^4.6.0",
     "lodash.sortby": "^4.7.0",
+    "pixi-viewport": "^5.0.1",
     "pixi.js": "^7.2.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

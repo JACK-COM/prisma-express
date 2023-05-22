@@ -24,10 +24,12 @@ import { RoundButton } from "./Forms/Button";
 import MatIcon from "./Common/MatIcon";
 import { Accent } from "./Common/Containers";
 import CreateInteractiveSlotDataForm from "./Form.CreateInteractiveSlotData";
+import AWSImagesList from "./AWSImagesList";
 
 export type CreateInteractiveSlotProps = {
   value?: InteractiveSlot;
   onChange?: (data: InteractiveSlot) => void;
+  onSlotImageFile?: (data: File) => void;
 };
 
 const emptyForm = (): InteractiveSlot => {
@@ -48,10 +50,7 @@ const emptyForm = (): InteractiveSlot => {
     const activeSlot = activeLayer[activeSlotIndex];
     if (activeSlot) form = { ...activeSlot };
   }
-  // @ts-ignore
-  // if (form?.click) delete form.click;
-  // @ts-ignore
-  // if (form?.drag) delete form.drag;
+
   return form;
 };
 
@@ -59,7 +58,7 @@ const { CLICK, DRAG_HZ, DRAG_VT } = ExplorationTemplateEvent;
 
 /** @form Create or edit an `Interactive Slot` in an `Exploration` template */
 const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
-  const { onChange = noOp } = props;
+  const { onChange = noOp, onSlotImageFile = noOp } = props;
   const { active } = GlobalModal.getState();
   const editing = active === MODAL.MANAGE_INTERACTIVE_SLOT;
   const imageAction = editing ? "Change" : "Upload";
@@ -81,14 +80,14 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
     updateData({ ...data, name: e.target.value });
   const updateImageUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const image = e.target?.result as string;
-        updateData({ ...data, url: image });
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const image = e.target?.result as string;
+      onSlotImageFile(file);
+      updateData({ ...data, url: image });
+    };
+    reader.readAsDataURL(file);
   };
   const updateInteraction = (interaction?: SlotInteraction) => {
     updateData({ ...data, interaction });
@@ -161,7 +160,15 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
         Modify the slot's size and position in the canvas after saving your
         changes here!
       </Hint>
-      <hr className="transparent" />
+
+      <hr />
+
+      {!editing && (
+        <AWSImagesList
+          category="worlds"
+          listDescription="Replace the slot's image with a previously-uploaded asset"
+        />
+      )}
 
       {/* CHOICES, ETC */}
       {editing && (

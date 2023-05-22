@@ -56,6 +56,7 @@ export default function ManageInteractiveSlotModal(
     return activeSlots[activeSlotIndex] || undefined;
   }, [activeSlotIndex, activeSlots]);
   const name = useMemo(() => activeSlot?.name || layer, [activeSlot]);
+  const [slotImage, setSlotImage] = useState<File>();
   const [formData, setFormData] = useState<InteractiveSlot>();
   const [error, setError] = useState("");
   const err = (msg: string, noteId?: number) => {
@@ -63,19 +64,10 @@ export default function ManageInteractiveSlotModal(
     if (noteId) updateAsError(msg, noteId);
   };
   // Upload sprite image
-  const uploadSprite = async (fileName: string, b64Img: string) => {
+  const uploadSprite = async (noteId: number) => {
     const { id: userId } = GlobalUser.getState();
-    if (!userId || userId === -1 || !b64Img) return "";
-
-    const noteId = addNotification("Uploading Slot image...", true);
-    const splitDataURI = b64Img.split(",");
-    const dataType = splitDataURI[0].split(":")[1].split(";")[0];
-    const ext = dataType.split("/")[1];
-    const imageRes = await uploadFileToServer(null, "explorationScenes", {
-      file: b64Img,
-      name: `${fileName}.${ext}`,
-      imgContentType: dataType
-    });
+    if (!userId || userId === -1 || !slotImage) return "";
+    const imageRes = await uploadFileToServer(slotImage, "worlds");
     if (typeof imageRes === "string") {
       updateAsError(imageRes, noteId);
     } else if (imageRes?.fileURL) {
@@ -102,19 +94,20 @@ export default function ManageInteractiveSlotModal(
 
     err("");
     const newSlots = [...activeSlots];
+    let noteId = 0;
     const slot = { ...activeSlot?.interaction, ...formData };
-    if (slot.url?.startsWith("data:image")) {
-      const name = (slot.name || "").toLowerCase().replace(/[^a-z0-9]/g, "-");
-      slot.url = await uploadSprite(name, slot.url);
+    if (slotImage) {
+      noteId = addNotification("Uploading Slot image...", true);
+      slot.url = await uploadSprite(noteId);
     }
     newSlots[slotIndex] = slot;
-    return sendToAPI(newSlots);
+    return sendToAPI(newSlots, noteId);
   };
 
-  const sendToAPI = async (slots: InteractiveSlot[]) => {
+  const sendToAPI = async (slots: InteractiveSlot[], noteId = -1) => {
     if (!explorationScene) return err("No scene is selected!");
     const newScene = { ...explorationScene, [layer]: slots };
-    const noteId = addNotification("Saving Scene...");
+    updateNotification("Saving Scene...", noteId);
     const forAPI = convertTemplateToAPIScene(newScene);
     const resp = await upsertExplorationScene(
       pruneExplorationSceneData(forAPI)
@@ -139,7 +132,10 @@ export default function ManageInteractiveSlotModal(
       confirmText={"Confirm"}
       onConfirm={submit}
     >
-      <CreateInteractiveSlotForm onChange={setFormData} />
+      <CreateInteractiveSlotForm
+        onChange={setFormData}
+        onSlotImageFile={setSlotImage}
+      />
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
       {editing && (

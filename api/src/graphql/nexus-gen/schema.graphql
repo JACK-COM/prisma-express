@@ -334,6 +334,9 @@ type MFExploration {
 
   """Exploration Author"""
   authorId: Int
+
+  """Exploration config data (JSON string)"""
+  config: String
   created: CsDateTime
   description: String
 
@@ -372,6 +375,9 @@ type MFExplorationScene {
 
   """Scene characters"""
   characters: String
+
+  """Scene config data (JSON string)"""
+  config: String
   description: String
 
   """Exploration target id"""
@@ -395,6 +401,9 @@ input MFExplorationSceneUpsertInput {
 
   """Scene characters"""
   characters: String
+
+  """Scene config data (JSON string)"""
+  config: String
   description: String
 
   """Exploration target id"""
@@ -414,6 +423,9 @@ input MFExplorationUpsertInput {
 
   """Item Author/owner"""
   authorId: Int
+
+  """Exploration config data (JSON string)"""
+  config: String
   description: String
 
   """Exploration ID"""
@@ -976,6 +988,9 @@ type Query {
   listSeriesPublications(authorId: Int, description: String, genre: String, title: String): [MFSeries]
   listTimelineEvents(timelineId: Int!): [MFTimelineEvent]
   listTimelines(authorId: Int, name: String, worldId: Int): [MFTimeline]
+
+  """List a user's AWS files in a category"""
+  listUserFiles(category: String!): [String]!
   listWorldEvents(authorId: Int, characterId: Int, description: String, groupId: Int, locationId: Int, name: String, polarity: EventPolarity, target: EventTarget, worldId: Int): [MFEvent]
 
   """

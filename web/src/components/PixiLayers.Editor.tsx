@@ -30,8 +30,10 @@ const PixiEditorLayers = (props: EditorProps) => {
     onChange = noOp
   } = props;
   const scene = explorationScene || createExplorationTemplateScene();
-  const blurFilter = useMemo(() => new BlurFilter(4), []);
+  const { background, characters, foreground } = scene;
   const textStyle = new TextStyle({ fill: "white", fontSize: 48 });
+  const empty = [background, characters, foreground].every((d) => !d.length);
+  const blurFilter = new BlurFilter(!editing && empty ? 2 : 4);
   const dimensions = { x, y, width, height };
   const onLayerChanged = (
     label: ExplorationSceneLayer,
@@ -51,28 +53,24 @@ const PixiEditorLayers = (props: EditorProps) => {
           slots: scene[target] || [],
           onChange: (d) => onLayerChanged(target, d)
         };
-  const ref = useRef<Sprite>(null);
-  const label = useMemo(() => (layer === "all" ? "" : layer), [layer]);
 
   return (
     <Container sortableChildren {...dimensions} anchor={0}>
-      {label && (
+      {!editing && empty && (
         <PixiText
-          ref={ref}
-          text={label.toUpperCase()}
-          alpha={0.2}
-          anchor={{ x: 1, y: 0.5 }}
+          text="No Scene Content"
+          eventMode="none"
+          anchor={0.5}
+          alpha={0.1}
           filters={[blurFilter]}
           style={textStyle}
-          x={width - 10}
+          x={width / 2}
           y={height / 2}
-          zIndex={0}
         />
       )}
 
-      {["background", "all"].includes(layer) && (
-        <PixiCanvasLayer {...layerProps("background")} />
-      )}
+      <PixiCanvasLayer {...layerProps("background")} />
+
       {["characters", "all"].includes(layer) && (
         <PixiCanvasLayer {...layerProps("characters")} />
       )}

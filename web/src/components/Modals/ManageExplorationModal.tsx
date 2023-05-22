@@ -43,6 +43,7 @@ const initialFormData = (): Partial<UpsertExplorationInput> => {
 
   if (active === MODAL.MANAGE_EXPLORATION && exploration) {
     $form.id = exploration.id;
+    $form.config = exploration.config;
     $form.title = exploration.title;
     $form.description = exploration.description;
     $form.public = exploration.public;
@@ -117,6 +118,7 @@ export default function ManageExplorationModal(props: ModalProps) {
     close();
   };
   const editing = active === MODAL.MANAGE_EXPLORATION;
+  const action = editing ? "Edit" : "Create";
 
   useEffect(() => {
     return () => {
@@ -129,7 +131,7 @@ export default function ManageExplorationModal(props: ModalProps) {
     <Modal
       open={open}
       onClose={close}
-      title={`${editing ? "Edit" : "Create"} Exploration`}
+      title={`${action} <b class="accent--text">Exploration</b>`}
       cancelText="Cancel"
       confirmText={editing ? "Update" : "Create"}
       onConfirm={submit}

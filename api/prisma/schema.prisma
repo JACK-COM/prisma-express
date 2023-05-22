@@ -269,6 +269,7 @@ model Exploration {
   id             Int                @id @default(autoincrement())
   title          String // Exploration title
   image          String?
+  config         String? // "{ type: "story" | "map", width: 0, height: 0, ... }"
   description    String? // Exploration description
   usesAttributes String? // Comma-separated list of attributes to use in exploration (OPTIONAL)
   authorId       Int? // ( references User )
@@ -290,6 +291,7 @@ model Exploration {
 // that is used to render the scene in the context of the exploration.
 model ExplorationScene {
   id            Int         @id @default(autoincrement())
+  config         String? // "{ type: "story" | "map", width: 0, height: 0, ... }"
   explorationId Int // ( references Exploration )
   authorId      Int // ( references Exploration )
   title         String // Exploration title

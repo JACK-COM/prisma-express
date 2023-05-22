@@ -24,19 +24,21 @@ const UnorderedList = styled.ul<StyledListProps>`
 `;
 /** Grid-style list container */
 const GridList = styled(UnorderedList)<{ itemWidth?: string }>`
-  align-content: center;
   align-items: center;
   display: grid;
   grid-auto-rows: minmax(100px, auto);
   grid-gap: ${({ theme }) => theme.sizes.sm};
   grid-template-columns: ${({ itemWidth = "150px" }) =>
     `repeat(auto-fill, ${itemWidth})`};
-  justify-content: center;
-  justify-items: center;
+  place-content: flex-start;
   margin: 0 auto;
   max-width: 100%;
   padding: ${({ theme }) => theme.sizes.sm};
   width: 100%;
+
+  > li {
+    border: 0;
+  }
 `;
 /** Single item in a `ListView` */
 const ListViewItem = styled.li`

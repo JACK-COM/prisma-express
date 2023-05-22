@@ -1,18 +1,24 @@
+import { LocationType, WorldType } from "./types";
+
 export type Describable = {
   name?: string;
   title?: string;
   description?: string;
-  type:
-    | "adventure"
-    | "place"
-    | "character"
-    | "character group"
-    | "item"
-    | "event"
-    | "chapter"
-    | "book"
-    | "scene";
+  type: DescribableType;
 };
+
+export type DescribableType =
+  | WorldType
+  | LocationType
+  | "adventure"
+  | "place"
+  | "character"
+  | "character group"
+  | "item"
+  | "event"
+  | "chapter"
+  | "book"
+  | "scene";
 
 /** Generate ideas for describing a new thing */
 export function buildDescriptionPrompt(o: Describable) {

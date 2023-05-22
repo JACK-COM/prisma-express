@@ -62,7 +62,12 @@ const Modal = (p: ModalProps) => {
   return (
     <ModalContainer className={rootClass} onClick={onBGClick}>
       <ModalTitle>
-        {title && <h1 className="title h4">{title}</h1>}
+        {title && (
+          <h1
+            className="title h4"
+            dangerouslySetInnerHTML={{ __html: title }}
+          />
+        )}
         <RoundButton variant="transparent" onClick={onClose}>
           <MatIcon icon="close" />
         </RoundButton>

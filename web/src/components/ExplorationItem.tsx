@@ -96,11 +96,11 @@ const ExplorationItem = ({
           </GridContainer>
 
           <GridItemControl variant="outlined">
-            <DeleteItemIcon
+            <TallIcon
+              icon="delete"
               className="delete"
               permissions={permissions}
-              data={exploration}
-              onItemClick={onDelete}
+              onClick={onDelete}
             />
           </GridItemControl>
         </GridItemControls>

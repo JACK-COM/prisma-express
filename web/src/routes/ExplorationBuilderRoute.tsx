@@ -79,7 +79,7 @@ const ExplorationBuilderRoute = () => {
 
     err("");
     const updatedScene = { ...explorationScene, ...sceneData };
-    const noteId = addNotification("Saving Scene...");
+    const noteId = addNotification("Saving Scene...", true);
     const forAPI = convertTemplateToAPIScene(updatedScene);
     const resp = await upsertExplorationScene(
       pruneExplorationSceneData(forAPI)

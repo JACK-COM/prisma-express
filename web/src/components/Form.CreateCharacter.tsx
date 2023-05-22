@@ -60,7 +60,8 @@ const CreateCharacterForm = (props: CreateCharacterProps) => {
     onChange(updates);
   };
   const onDescription = (d: string) => update({ ...formData, description: d });
-  const onOrigin = (worldId?: number) => update({ ...formData, worldId });
+  const onOrigin = (worldId?: number | null) =>
+    update({ ...formData, worldId: worldId || undefined });
   const onName = (e: ChangeEvent<HTMLInputElement>) => {
     update({ ...formData, name: e.target.value });
   };

@@ -43,7 +43,7 @@ export default function ManageExplorationSceneModal(
     if (!formData.description) formData.description = "";
     if (!formData.explorationId) formData.explorationId = exploration?.id;
 
-    const noteId = addNotification("Saving Scene...");
+    const noteId = addNotification("Saving Scene...", true);
     const forAPI = convertTemplateToAPIScene(formData);
     const resp = await upsertExplorationScene(
       pruneExplorationSceneData(forAPI)

@@ -10,14 +10,14 @@ import {
   updateNotification,
   updateAsError,
   GlobalExploration,
-  convertToSceneTemplate,
+  convertAPISceneToTemplate,
   setGlobalExploration
 } from "state";
 import { listTimelines } from "graphql/requests/timelines.graphql";
 import { getBook, getChapter, listBooks } from "graphql/requests/books.graphql";
-import { API_FILE_UPLOAD_ROUTE, API_PROMPT } from "utils";
+import { API_FILES_LIST_ROUTE, API_FILE_UPLOAD_ROUTE, API_PROMPT } from "utils";
 import { listCharacters } from "graphql/requests/characters.graphql";
-import { APIData, Chapter, Scene, Timeline } from "utils/types";
+import { APIData, Chapter, Scene, Timeline, FileUploadCategory } from "utils/types";
 import { MicroUser } from "graphql/requests/users.graphql";
 import { insertCategory } from "routes";
 import fetchRaw from "../graphql/fetch-raw";
@@ -80,6 +80,7 @@ export async function getWritingPrompt(input: string | null = null) {
     onResolve: (x, errors) => (errors ? new Error(errors) : x)
   });
   if (resp instanceof Error) throw resp;
+  if (typeof resp === "string") throw new Error(resp);
   return resp.prompt as string;
 }
 
@@ -216,30 +217,32 @@ export async function loadExploration(opts: GQLRequestOpts) {
   return setGlobalExploration(exploration);
 }
 
+/** List AWS files in a specified category */
+export async function listFiles(category: FileUploadCategory) {
+  const url = insertCategory(API_FILES_LIST_ROUTE, category);
+  const res = await fetchRaw<{ files: string[] }>({
+    url,
+    onResolve(x, errors) {
+      return errors || x.files;
+    }
+  });
+  if (typeof res === "string") return res;
+  return res.files;
+}
+
 /** Save and update an Exploration in state */
 export async function saveAndUpdateExploration(
   update: Partial<UpsertExplorationInput>
 ) {
-  const noteId = addNotification("Updating title ...", true);
+  const noteId = addNotification("Saving Exploration ...", true);
   const resp = await upsertExploration(pruneExplorationData(update));
   if (typeof resp === "string") updateAsError(resp, noteId);
   else if (resp) {
     setGlobalExploration(resp);
-    updateNotification("Title updated!", noteId, false);
+    updateNotification("Exploration updated!", noteId, false);
   }
   return resp;
 }
-
-/** File Upload category */
-export type FileUploadCategory =
-  | "users"
-  | "characters"
-  | "books"
-  | "worlds"
-  | "chapters"
-  | "explorations"
-  | "explorationScenes"
-  | "scenes";
 
 type B64ImageOpts = {
   /** File type */

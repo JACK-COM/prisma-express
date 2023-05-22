@@ -167,6 +167,7 @@ export function pruneExplorationSceneData(data: UpsertExplorationSceneInput) {
     authorId: data.authorId,
     order: data.order,
     title: data.title,
+    config: data.config,
     description: safeString(data.description),
     explorationId: data.explorationId,
     background: safeString(data.background),

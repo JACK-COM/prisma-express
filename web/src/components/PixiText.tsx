@@ -14,7 +14,7 @@ const PixiText = forwardRef((props: PixiTextProps, ref: Ref<any>) => {
   const { containerProps = {}, x = 0, y = 0, scale, ...pixiTextProps } = props;
   const { alpha, cursor, position, startDrag, handleDrag, endDrag } =
     useGlobalMovable({ ...containerProps, xy: [x, y], scale });
-    const { xy = [0, 0], ...anchorScale } = position;
+  const { xy = [0, 0], ...anchorScale } = position;
 
   return (
     <Text
@@ -26,10 +26,11 @@ const PixiText = forwardRef((props: PixiTextProps, ref: Ref<any>) => {
       onglobalpointermove={handleDrag || undefined}
       pointerup={endDrag || undefined}
       pointerupoutside={endDrag || undefined}
-      x={xy[0]}
-      y={xy[1]}
       {...anchorScale}
       {...pixiTextProps}
+      x={xy[0]}
+      y={xy[1]}
+      scale={1}
     />
   );
 });

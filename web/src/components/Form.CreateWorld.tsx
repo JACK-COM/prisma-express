@@ -17,7 +17,7 @@ import { CreateWorldData } from "graphql/requests/worlds.graphql";
 import { Accent } from "./Common/Containers";
 import { ButtonWithIcon } from "./Forms/Button";
 import { getAndShowPrompt } from "api/loadUserData";
-import { buildDescriptionPrompt } from "utils/prompt-builder";
+import { DescribableType, buildDescriptionPrompt } from "utils/prompt-builder";
 import SelectParentWorld from "./SelectParentWorld";
 import { GlobalModal, GlobalWorld, MODAL } from "state";
 
@@ -59,9 +59,11 @@ const CreateWorldForm = (props: CreateWorldProps) => {
   const updateType = (type: WorldType) => onUpdate({ ...data, type });
   const updateDesc = (d: string) => onUpdate({ ...data, description: d });
   const updateTitle = (name: string) => onUpdate({ ...data, name });
-  const updateParent = (p: number) => onUpdate({ ...data, parentWorldId: p });
+  const updateParent = (parentWorldId: number | null) =>
+    onUpdate({ ...data, parentWorldId });
   const getDescriptionIdea = async () => {
-    const ideaPrompt = buildDescriptionPrompt({ ...data, type: "place" });
+    const dt = data.type || "place";
+    const ideaPrompt = buildDescriptionPrompt({ ...data, type: dt });
     if (!ideaPrompt) return;
     const idea = await getAndShowPrompt(ideaPrompt);
     if (idea) updateDesc(idea);

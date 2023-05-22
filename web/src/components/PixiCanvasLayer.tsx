@@ -15,6 +15,8 @@ import {
 } from "state";
 import { noOp } from "utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { TextStyle } from "pixi.js";
+import PixiText from "./PixiText";
 
 /** @PixiComponent Canvas group of sprites + interactions  */
 export function PixiCanvasLayer(props: CanvasLayerProps) {
@@ -45,6 +47,7 @@ export function PixiCanvasLayer(props: CanvasLayerProps) {
   );
   const layerIndex = layers.indexOf(layer);
   const onBunnySelect = () => editing && setGlobalLayer(layer || "all");
+  const textStyle = new TextStyle({ fill: "white", fontSize: 32 });
 
   // Update local data on global change
   useEffect(() => {
@@ -53,7 +56,7 @@ export function PixiCanvasLayer(props: CanvasLayerProps) {
 
   return (
     <Container sortableChildren {...dimensions}>
-      {!data.length ? (
+      {!data.length && editing && (
         // Bunny sprite for empty layers
         <PixiSprite
           scale={1 + layerIndex * 0.1}
@@ -66,16 +69,15 @@ export function PixiCanvasLayer(props: CanvasLayerProps) {
             onSlotSelect: onBunnySelect
           }}
         />
-      ) : (
-        data.map((d, i) => (
-          <PixiSprite
-            key={`${d.name || "bg-sprite"}-${i}`}
-            filters={spriteFilter}
-            editing={editing && activeLayer === layer}
-            {...spriteProps(d)}
-          />
-        ))
       )}
+      {data.map((d, i) => (
+        <PixiSprite
+          key={`${d.name || "bg-sprite"}-${i}`}
+          filters={spriteFilter}
+          editing={editing && activeLayer === layer}
+          {...spriteProps(d)}
+        />
+      ))}
     </Container>
   );
 }

@@ -1,7 +1,7 @@
 import { Container, Graphics } from "@pixi/react";
 import { EditorProps } from "./Pixi.Helpers";
 import { noOp } from "utils";
-import { useCallback } from "react";
+import { ComponentPropsWithRef, useCallback } from "react";
 
 /** Clickable rectangle fill */
 export function RectFill(props: RectFillProps) {
@@ -12,7 +12,7 @@ export function RectFill(props: RectFillProps) {
     fill = 0xff00bb,
     width,
     height,
-    pointerdown = noOp
+    ...rest
   } = props;
   const draw = useCallback(
     (g: any) => {
@@ -23,20 +23,9 @@ export function RectFill(props: RectFillProps) {
     },
     [props]
   );
-  const onClick: React.MouseEventHandler<typeof Container> = (e) => {
-    if (e.target === e.currentTarget) {
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.nativeEvent) e.nativeEvent.stopImmediatePropagation();
-      pointerdown(e);
-    }
-  };
 
-  return (
-    <Graphics draw={draw} eventMode="dynamic" pointerup={onClick} zIndex={1} />
-  );
+  return <Graphics draw={draw} eventMode="dynamic" zIndex={1} {...rest} />;
 }
 type RectFillProps = EditorProps & {
-  pointerdown?: React.MouseEventHandler<typeof Container>;
   fill?: number;
-};
+} & ComponentPropsWithRef<typeof Graphics>;

@@ -90,6 +90,7 @@ export interface NexusGenInputs {
     authorId?: number | null; // Int
     background?: string | null; // String
     characters?: string | null; // String
+    config?: string | null; // String
     description?: string | null; // String
     explorationId?: number | null; // Int
     foreground?: string | null; // String
@@ -100,6 +101,7 @@ export interface NexusGenInputs {
   MFExplorationUpsertInput: { // input type
     Scenes?: NexusGenInputs['MFExplorationSceneUpsertInput'][] | null; // [MFExplorationSceneUpsertInput!]
     authorId?: number | null; // Int
+    config?: string | null; // String
     description?: string | null; // String
     id?: number | null; // Int
     image?: string | null; // String
@@ -309,6 +311,7 @@ export interface NexusGenObjects {
     Scenes: Array<NexusGenRootTypes['MFExplorationScene'] | null>; // [MFExplorationScene]!
     World?: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId?: number | null; // Int
+    config?: string | null; // String
     created?: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     description?: string | null; // String
     id: number; // Int!
@@ -327,6 +330,7 @@ export interface NexusGenObjects {
     authorId?: number | null; // Int
     background?: string | null; // String
     characters?: string | null; // String
+    config?: string | null; // String
     description?: string | null; // String
     explorationId: number; // Int!
     foreground?: string | null; // String
@@ -586,6 +590,7 @@ export interface NexusGenFieldTypes {
     Scenes: Array<NexusGenRootTypes['MFExplorationScene'] | null>; // [MFExplorationScene]!
     World: NexusGenRootTypes['MFWorld'] | null; // MFWorld
     authorId: number | null; // Int
+    config: string | null; // String
     created: NexusGenScalars['CsDateTime'] | null; // CsDateTime
     description: string | null; // String
     free: boolean | null; // Boolean
@@ -605,6 +610,7 @@ export interface NexusGenFieldTypes {
     authorId: number | null; // Int
     background: string | null; // String
     characters: string | null; // String
+    config: string | null; // String
     description: string | null; // String
     explorationId: number; // Int!
     foreground: string | null; // String
@@ -832,6 +838,7 @@ export interface NexusGenFieldTypes {
     listSeriesPublications: Array<NexusGenRootTypes['MFSeries'] | null> | null; // [MFSeries]
     listTimelineEvents: Array<NexusGenRootTypes['MFTimelineEvent'] | null> | null; // [MFTimelineEvent]
     listTimelines: Array<NexusGenRootTypes['MFTimeline'] | null> | null; // [MFTimeline]
+    listUserFiles: Array<string | null>; // [String]!
     listWorldEvents: Array<NexusGenRootTypes['MFEvent'] | null> | null; // [MFEvent]
     listWorlds: Array<NexusGenRootTypes['MFWorld'] | null> | null; // [MFWorld]
     searchPublications: NexusGenRootTypes['MFSearchResult'] | null; // MFSearchResult
@@ -925,6 +932,7 @@ export interface NexusGenFieldTypeNames {
     Scenes: 'MFExplorationScene'
     World: 'MFWorld'
     authorId: 'Int'
+    config: 'String'
     created: 'CsDateTime'
     description: 'String'
     free: 'Boolean'
@@ -944,6 +952,7 @@ export interface NexusGenFieldTypeNames {
     authorId: 'Int'
     background: 'String'
     characters: 'String'
+    config: 'String'
     description: 'String'
     explorationId: 'Int'
     foreground: 'String'
@@ -1171,6 +1180,7 @@ export interface NexusGenFieldTypeNames {
     listSeriesPublications: 'MFSeries'
     listTimelineEvents: 'MFTimelineEvent'
     listTimelines: 'MFTimeline'
+    listUserFiles: 'String'
     listWorldEvents: 'MFEvent'
     listWorlds: 'MFWorld'
     searchPublications: 'MFSearchResult'
@@ -1412,6 +1422,9 @@ export interface NexusGenArgTypes {
       authorId?: number | null; // Int
       name?: string | null; // String
       worldId?: number | null; // Int
+    }
+    listUserFiles: { // args
+      category: string; // String!
     }
     listWorldEvents: { // args
       authorId?: number | null; // Int

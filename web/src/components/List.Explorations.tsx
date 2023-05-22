@@ -46,7 +46,6 @@ type ExplorationsListProps = {
   showControls?: boolean;
   className?: string;
   explorations?: APIData<Exploration>[];
-  exploration?: APIData<Exploration> | null;
 };
 
 /** @component List of explorations */

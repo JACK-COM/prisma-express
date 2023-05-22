@@ -9,7 +9,7 @@ import {
   GlobalExploration,
   clearGlobalModal,
   convertTemplateToAPIScene,
-  convertToSceneTemplate,
+  convertAPISceneToTemplate,
   setGlobalExplorationScene,
   setGlobalSceneData,
   setGlobalSlotIndex,
@@ -42,6 +42,7 @@ export const layerFilters: Record<
 };
 
 export type PixiSpriteProps = {
+  name?: string;
   editing?: boolean;
   containerProps: GlobalMovableOptions & {
     src?: string;
@@ -100,6 +101,7 @@ export function editableSpriteProps(props: CanvasLayerProps) {
       zIndex: 10 + (slot.index || 1),
       scrollToScale: !slot.lock?.size && (props.editing || false),
       containerProps: {
+        name: slot.name,
         xy,
         src: slot.url,
         scale,
@@ -158,6 +160,7 @@ export function previewSpriteProps(props: CanvasLayerProps) {
         e.target.filters = [];
       },
       containerProps: {
+        name: slot.name,
         xy,
         src: slot.url,
         scale,
@@ -199,7 +202,7 @@ function handleSlotInteraction(opts: SlotHandlerOpts) {
     case SlotAction.NAV_SCENE: {
       const next = Scenes.find((d) => d.id === data.target);
       if (!next) return updateAsError("Scene not found");
-      return setGlobalExplorationScene(convertToSceneTemplate(next));
+      return setGlobalExplorationScene(convertAPISceneToTemplate(next));
     }
     case SlotAction.SHOW_TEXT: {
       return setGlobalSceneData({ name, data });

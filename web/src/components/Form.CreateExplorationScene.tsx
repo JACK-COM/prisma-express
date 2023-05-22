@@ -1,20 +1,31 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { noOp } from "../utils";
 import {
+  Fieldset,
   Form,
   FormRow,
   Hint,
   Input,
   Label,
   Legend,
+  RadioInput,
+  RadioLabel,
   Textarea
 } from "components/Forms/Form";
 import useGlobalExploration from "hooks/GlobalExploration";
 import { Accent } from "./Common/Containers";
 import { WritingPrompt } from "./WritingPrompt";
-import { createExplorationTemplateScene } from "routes/ExplorationBuilder.Helpers";
+import {
+  createExplorationSceneConfig,
+  createExplorationTemplateScene
+} from "routes/ExplorationBuilder.Helpers";
 import { GlobalExploration, GlobalModal, GlobalUser, MODAL } from "state";
-import { ExplorationSceneTemplate } from "utils/types";
+import {
+  ExplorationCanvasConfig,
+  ExplorationCanvasType,
+  ExplorationSceneTemplate,
+  explorationCanvasTypes
+} from "utils/types";
 
 export type CreateExplorationSceneProps = {
   onChange?: (data: ExplorationSceneTemplate) => void;
@@ -24,15 +35,11 @@ const emptyForm = (): ExplorationSceneTemplate => {
   const { explorationScene, exploration } = GlobalExploration.getState();
   const { active } = GlobalModal.getState();
   const { id: authorId } = GlobalUser.getState();
-  const $form = createExplorationTemplateScene();
+  let $form = createExplorationTemplateScene();
   $form.authorId = authorId;
   $form.order = (exploration?.Scenes ?? []).length + 1;
-
   if (active === MODAL.MANAGE_EXPLORATION_SCENE && explorationScene) {
-    $form.id = explorationScene.id;
-    $form.order = explorationScene.order;
-    $form.title = explorationScene.title;
-    $form.description = explorationScene.description;
+    $form = { ...explorationScene };
   }
   if (exploration && !$form.explorationId) $form.explorationId = exploration.id;
   return $form;
@@ -44,6 +51,12 @@ const CreateExplorationSceneForm = (props: CreateExplorationSceneProps) => {
   const { explorationScene } = useGlobalExploration(["explorationScene"]);
   const initialFormData = emptyForm();
   const [data, setData] = useState(initialFormData);
+  const config = useMemo(
+    () =>
+      (data.config ||
+        createExplorationSceneConfig()) as ExplorationCanvasConfig,
+    [data]
+  );
   const update = (data: ExplorationSceneTemplate) => {
     setData(data);
     onChange(data);
@@ -56,6 +69,18 @@ const CreateExplorationSceneForm = (props: CreateExplorationSceneProps) => {
   };
   const updateDescription = (description: string) =>
     update({ ...data, description });
+  const updateConfigWidth = (v: number) =>
+    onChange({ ...data, config: { ...config, width: v } });
+  const updateConfigHeight = (v: number) =>
+    onChange({ ...data, config: { ...config, height: v } });
+  const updateConfigType = (type: ExplorationCanvasType) => {
+    const next: ExplorationCanvasConfig = { type };
+    if (type === ExplorationCanvasType.MAP) {
+      next.width = 2000;
+      next.height = 2000;
+    }
+    update({ ...data, config: next });
+  };
 
   useEffect(() => {
     update(initialFormData);
@@ -100,6 +125,66 @@ const CreateExplorationSceneForm = (props: CreateExplorationSceneProps) => {
           <Hint>Enter your scene title.</Hint>
         </Label>
       </FormRow>
+
+      <hr className="transparent" />
+
+      <Fieldset>
+        <Legend>Canvas Settings</Legend>
+        <FormRow columns="repeat(3, 1fr)">
+          <Label direction="column">
+            <span className="label">
+              Scene <b className="accent--text">type</b>?
+            </span>
+
+            <FormRow>
+              {explorationCanvasTypes.map((ct, i) => (
+                <RadioLabel key={i}>
+                  <span>{ct}</span>
+                  <RadioInput
+                    checked={config.type === ct}
+                    name="canvasType"
+                    onChange={() => updateConfigType(ct)}
+                  />
+                </RadioLabel>
+              ))}
+            </FormRow>
+          </Label>
+
+          {config.type === ExplorationCanvasType.MAP && (
+            <>
+              {/* Width */}
+              <Label direction="column">
+                <span className="label">
+                  Canvas <b className="accent--text">width</b>?
+                </span>
+                <Input
+                  placeholder="2000"
+                  type="text"
+                  value={config.width || ""}
+                  onChange={({ target }) =>
+                    updateConfigWidth(Number(target.value))
+                  }
+                />
+              </Label>
+
+              {/* height */}
+              <Label direction="column">
+                <span className="label">
+                  Canvas <b className="accent--text">height</b>?
+                </span>
+                <Input
+                  placeholder="2000"
+                  type="text"
+                  value={config.height || ""}
+                  onChange={({ target }) =>
+                    updateConfigHeight(Number(target.value))
+                  }
+                />
+              </Label>
+            </>
+          )}
+        </FormRow>
+      </Fieldset>
 
       {/* Description */}
       <Label direction="column">

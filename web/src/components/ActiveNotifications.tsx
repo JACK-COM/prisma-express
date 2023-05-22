@@ -41,9 +41,9 @@ const ActiveNotifications = styled(() => {
     m.error ? 30000 : m.msg.split(" ").length * 1000 + 1500;
   return (
     <NotificationGroup className="slide-in-right">
-      {msgs.map((m) => (
+      {msgs.map((m, i) => (
         <AutoDismissNotification
-          key={m.time}
+          key={`${i}-${m.time}`}
           notification={m}
           timeout={timeout(m)}
         />

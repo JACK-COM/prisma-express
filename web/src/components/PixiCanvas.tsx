@@ -4,24 +4,20 @@ import {
   lazy,
   useEffect,
   useMemo,
-  useRef,
   useState
 } from "react";
 import styled from "styled-components";
-import { SCALE_MODES, BaseTexture, TextStyle, BlurFilter } from "pixi.js";
-import { Container, Stage } from "@pixi/react";
+import { SCALE_MODES, BaseTexture } from "pixi.js";
+import { Stage } from "@pixi/react";
 import { ExplorationStoreKey, setGlobalSlotIndex } from "state";
 import { ExplorationCanvasType, ExplorationSceneTemplate } from "utils/types";
 import { noOp } from "utils";
 import useGlobalExploration from "hooks/GlobalExploration";
-import { layerColors } from "./Pixi.Helpers";
-import { RectFill } from "./RectFill";
 import FullScreenLoader from "./Common/FullscreenLoader";
 import PixiEditorLayers from "./PixiLayers.Editor";
 import PixiSceneIntro from "./PixiSceneIntro";
 import PixiCanvasBackground from "./PixiCanvasBackground";
 import PixiViewport, { ViewportPlugins } from "./PixiViewport";
-import PixiText from "./PixiText";
 
 const PixiCanvasDialog = lazy(() => import("./PixiCanvasDialog"));
 const PixiCanvasToolbar = lazy(() => import("./PixiCanvasToolbar"));

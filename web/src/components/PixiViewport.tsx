@@ -1,7 +1,7 @@
-import { ReactNode, Ref, forwardRef, useRef } from "react";
+import { ReactNode, Ref, forwardRef } from "react";
 import { AppConsumer, PixiComponent, applyDefaultProps } from "@pixi/react";
 import { Viewport, IViewportOptions } from "pixi-viewport";
-import { EventSystem, Application, ICanvas, Graphics } from "pixi.js";
+import { Application, ICanvas, Graphics } from "pixi.js";
 
 export type ViewportPlugins =
   | "drag"

@@ -1,7 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { listFiles } from "api/loadUserData";
-import { useMemo, useState } from "react";
-import { addNotification, updateAsError } from "state";
+import { useMemo } from "react";
 import { FileUploadCategory } from "utils/types";
 import ListView from "./Common/ListView";
 import ImageLoader from "./Common/ImageLoader";

@@ -3,7 +3,6 @@ import { Text } from "@pixi/react";
 import useGlobalMovable, {
   GlobalMovableOptions
 } from "hooks/GlobalPixiMovable";
-import { TextStyle } from "pixi.js";
 
 type ContainerOpts = {
   containerProps?: Pick<GlobalMovableOptions, "movable" | "onDisplayChanged">;

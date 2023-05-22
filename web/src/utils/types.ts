@@ -283,17 +283,21 @@ export type SlotInteraction = {
   /** Interaction Event data */
   data?: SlotInteractionData;
   /** Interaction Event types */
-  [ExplorationTemplateEvent.CLICK]?: SlotAction;
-} & {
-  [ExplorationTemplateEvent.DRAG_HZ]?: SlotAction;
-} & { [ExplorationTemplateEvent.DRAG_VT]?: SlotAction };
+  event?: ExplorationTemplateEvent;
+  action?: SlotAction;
+};
+export type SlotInteractionChoice = {
+  text: string;
+  action: SlotAction;
+  data?: SlotInteractionData;
+};
 export type SlotInteractionData = {
-  /** Event target scene id */
+  /** Any text to show when interaction begins (attributed to slot-origin) */
   text?: string;
   /** Event target scene id */
   target?: number;
   /** Optional choices that can be made by triggering this slot */
-  choices?: SlotInteraction[];
+  choices?: SlotInteractionChoice[];
 };
 
 /**

@@ -61,7 +61,12 @@ const ModalDrawer = (p: ModalDrawerProps) => {
   if (!open) return <></>;
 
   return (
-    <DrawerContainer style={style} className={rootClass} onClick={onBGClick}>
+    <DrawerContainer
+      id="modal-drawer"
+      style={style}
+      className={rootClass}
+      onClick={onBGClick}
+    >
       <ModalDrawerTitle>
         {title && (
           <h1

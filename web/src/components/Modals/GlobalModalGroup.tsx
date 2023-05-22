@@ -16,7 +16,6 @@ const ContentLinksModal = lazy(() => import("./ManageLinksModal"));
 const InteractiveSlotModal = lazy(() => import("./ManageInteractiveSlotModal"));
 const LocationModal = lazy(() => import("./ManageLocationModal"));
 const SceneModal = lazy(() => import("./ManageSceneModal"));
-const SelectSceneLayer = lazy(() => import("./SelectSceneLayerModal"));
 const TimelineModal = lazy(() => import("./ManageTimelineModal"));
 const WorldEventsModal = lazy(() => import("./ManageWorldEventsModal"));
 const WorldModal = lazy(() => import("components/Modals/ManageWorldModal"));
@@ -60,7 +59,6 @@ export default function GlobalModalGroup() {
       {active === M.MANAGE_CHAPTER && <ChapterModal open />}
       {active === M.MANAGE_SCENE && <SceneModal open />}
       {active === M.MANAGE_TIMELINE && <TimelineModal open />}
-      {active === M.SELECT_SCENE_LAYER && <SelectSceneLayer open />}
       {[M.CREATE_WORLD, M.MANAGE_WORLD].includes(active) && <WorldModal open />}
 
       {WH.focusedWorld && (

@@ -55,7 +55,7 @@ export default function ManageInteractiveSlotModal(
     if (!activeSlots.length) return undefined;
     return activeSlots[activeSlotIndex] || undefined;
   }, [activeSlotIndex, activeSlots]);
-  const name = useMemo(() => activeSlot?.name || layer, [activeSlot]);
+  const name = useMemo(() => activeSlot?.name || `${layer} slot`, [activeSlot]);
   const [slotImage, setSlotImage] = useState<File>();
   const [formData, setFormData] = useState<InteractiveSlot>();
   const [error, setError] = useState("");

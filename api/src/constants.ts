@@ -2,6 +2,7 @@ export const {
   PORT = 4001,
   UIPORT = 5173,
   NODE_ENV: env = "development",
+  APP_UI = "http://localhost:5173", // NOTE: APP_UI must use same port as UIPORT!
 
   //   AWS
   AWS_DEFAULT_REGION = "us-west-2",

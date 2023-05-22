@@ -6,24 +6,18 @@ import { OutlineFilter } from "@pixi/filter-outline";
 import { ComponentPropsWithRef } from "react";
 import {
   ExplorationSceneLayer,
-  GlobalExploration,
   clearGlobalModal,
-  convertTemplateToAPIScene,
-  convertAPISceneToTemplate,
-  setGlobalExplorationScene,
-  setGlobalSceneData,
-  setGlobalSlotIndex,
-  updateAsError
+  setGlobalSlotIndex
 } from "state";
 import { noOp } from "utils";
 import {
   ExplorationSceneTemplate,
+  ExplorationTemplateEvent,
   InteractiveSlot,
   InteractiveSlotCore,
-  SlotAction,
-  SlotInteraction,
-  SlotInteractionData
+  SlotAction
 } from "utils/types";
+import { handleSlotInteraction, updateLayer } from "./Pixi.SpriteHandlers";
 
 export const layerColors: Record<ExplorationSceneLayer, number> = {
   all: 0, // this should NEVER render its own layer
@@ -64,22 +58,6 @@ export type EditorProps = {
 export type CanvasLayerProps = Omit<EditorProps, "onChange" | "scene"> & {
   onChange?: (d: InteractiveSlot[]) => void;
   slots: InteractiveSlot[];
-};
-
-type UpdateLayerOpts = {
-  slot: InteractiveSlot;
-  src: InteractiveSlot[];
-  editing: boolean;
-  onChange: (slot: InteractiveSlot[]) => void;
-};
-
-/** Notify a parent of updates to a Canvas Layer  */
-export const updateLayer = (opts: UpdateLayerOpts) => {
-  const { slot, src, editing = false, onChange = noOp } = opts;
-  if (!editing) return;
-  const { index = 1 } = slot;
-  const updates = src.map((d) => (d.index === index ? slot : d));
-  onChange(updates);
 };
 
 /**
@@ -127,19 +105,20 @@ export function editableSpriteProps(props: CanvasLayerProps) {
 export function previewSpriteProps(props: CanvasLayerProps) {
   const { layer = "all", slots } = props;
   const { NONE } = SlotAction;
+  const { CLICK, DRAG_HZ, DRAG_VT } = ExplorationTemplateEvent;
   const isAssigned = (d: SlotAction) => d && d !== SlotAction.NONE;
 
   return (slot: InteractiveSlot) => {
     const { xy = [0, 0], scale = 1, anchor = 0.5, interaction } = slot;
-    const { horizontal_drag: drag = NONE, click = NONE } = interaction || {};
-    const hasClick = isAssigned(click);
-    const hasDrag = isAssigned(drag);
+    const { event, action = NONE } = interaction || {};
+    const hasClick = event === CLICK;
+    const hasDrag = [DRAG_HZ, DRAG_VT].includes(event as any);
     const hasEvent = hasClick || hasDrag;
     const onSlotSelect = () => {
       if (!interaction?.data || !hasEvent) return;
       handleSlotInteraction({
         name: slot.name || "",
-        action: hasClick ? click : drag,
+        action,
         data: interaction.data
       });
     };
@@ -185,30 +164,4 @@ export function previewSpriteProps(props: CanvasLayerProps) {
       }
     } as PixiSpriteProps;
   };
-}
-
-// HELPERS
-type SlotHandlerOpts = {
-  action: SlotAction;
-  data: SlotInteractionData;
-  name: string;
-};
-function handleSlotInteraction(opts: SlotHandlerOpts) {
-  const { action, data, name } = opts;
-  const { exploration } = GlobalExploration.getState();
-  const { Scenes } = exploration || { Scenes: [] };
-
-  switch (action) {
-    case SlotAction.NAV_SCENE: {
-      const next = Scenes.find((d) => d.id === data.target);
-      if (!next) return updateAsError("Scene not found");
-      return setGlobalExplorationScene(convertAPISceneToTemplate(next));
-    }
-    case SlotAction.SHOW_TEXT: {
-      return setGlobalSceneData({ name, data });
-    }
-    default:
-      console.log("Unhandled slot action", opts);
-      break;
-  }
 }

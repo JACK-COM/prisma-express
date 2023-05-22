@@ -1,5 +1,5 @@
 import { Container, Graphics } from "@pixi/react";
-import { EditorProps } from "./Pixi.Helpers";
+import { EditorProps } from "./Pixi.SceneProps";
 import { noOp } from "utils";
 import { ComponentPropsWithRef, useCallback } from "react";
 

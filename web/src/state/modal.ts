@@ -31,7 +31,6 @@ export enum MODAL {
   MANAGE_WORLD_EVENTS = "Manage World Events",
   SELECT_CHAPTER = "Select Chapter",
   SELECT_EXPLORATION_SCENE = "Select Exploration Scene",
-  SELECT_SCENE_LAYER = "Select Exploration Scene Layer"
 }
 
 /** Modals */

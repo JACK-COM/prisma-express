@@ -1,7 +1,7 @@
 import { Ref, forwardRef } from "react";
 import { Container, Sprite } from "@pixi/react";
 import useGlobalMovable from "hooks/GlobalPixiMovable";
-import { PixiSpriteProps, layerColors } from "./Pixi.Helpers";
+import { PixiSpriteProps, layerColors } from "./Pixi.SceneProps";
 import CircleFill from "./CircleFill";
 import { GlobalExploration } from "state";
 import { EventMode, TextStyle } from "pixi.js";
@@ -70,8 +70,8 @@ const PixiSprite = forwardRef((props: PixiSpriteProps, ref: Ref<any>) => {
           ) : (
             <RectFill
               fill={0x000000}
-              width={160}
-              height={160}
+              width={120}
+              height={120}
               {...{
                 ...movableProps,
                 alpha: 0.1,

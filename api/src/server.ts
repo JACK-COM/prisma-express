@@ -11,7 +11,7 @@ import logger from "./logger";
 import { configurePassport } from "./services/passport";
 import { downloadBookHandler } from "./services/document.service";
 import { generateWritingPromptHandler } from "./services/openai.service";
-import { PORT, UIPORT, env } from "./constants";
+import { APP_UI, PORT, env } from "./constants";
 import {
   fileDeleteHandler,
   fileUploadHandler,
@@ -29,14 +29,12 @@ async function main() {
   app.use(express.urlencoded({ extended: false }));
 
   // CORS
-  const origin = [
-    `http://localhost:${UIPORT}`,
-    "https://studio.apollographql.com"
-  ];
+  const origin = [APP_UI];
+  if (env !== "production") origin.push("https://studio.apollographql.com");
   app.use("*", cors({ credentials: true, origin }), json());
 
   configureRateLimiter(app); // rate Limiter
-  configurePassport(app); // passportjs
+  configurePassport(app); // passportjs authentication
 
   // APOLLO SERVER
   const apolloServer = new ApolloServer({

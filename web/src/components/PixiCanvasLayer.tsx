@@ -7,7 +7,7 @@ import {
   layerFilters,
   layerColors,
   previewSpriteProps
-} from "./Pixi.Helpers";
+} from "./Pixi.SceneProps";
 import {
   ExplorationSceneLayer,
   GlobalExploration,

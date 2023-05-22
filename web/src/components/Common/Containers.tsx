@@ -316,9 +316,18 @@ export const GridItem = styled(GridContainer)`
     padding: 0.4rem;
   }
 `;
+
 export const GridItemTitle = styled.p`
   font-size: 1rem;
   font-weight: bold;
+`;
+
+export const Selectable = styled.span`
+  cursor: pointer;
+  padding: 0.2rem;
+  &:hover {
+    background: ${({ theme }) => theme.colors.semitransparent};
+  }
 `;
 
 // HELPER

@@ -78,18 +78,25 @@ export const DrawerContainer = styled(FlexColumn)`
   align-items: start;
   ${container}
 `;
-export const ModalDrawerControls = styled(GridContainer)`
+export const ModalDrawerControls = styled(GridContainer).attrs({
+  id: "modal-drawer--controls"
+})`
   ${drawerContentBoundary}
   ${controlsContainer}
 `;
-export const ModalDrawerContents = styled(FlexColumn).attrs({
-  padded: true
-})<ContentProps>`
+export const ModalDrawerContents = styled(FlexColumn).attrs(
+  ({ className = "" }) => ({
+    padded: true,
+    id: "modal-drawer--contents",
+    className: `${className} hide-scrollbar`.trim()
+  })
+)<ContentProps>`
   ${drawerContentBoundary}
   ${contentContainer}
   height: 100vh;
 `;
 export const ModalDrawerTitle = styled(GridContainer).attrs({
+  id: "modal-drawer--title",
   columns: "auto 32px"
 })`
   ${drawerContentBoundary}
@@ -102,17 +109,21 @@ export const ModalContainer = styled(FlexColumn)`
   width: 100vw;
   ${container}
 `;
-export const ModalControls = styled(GridContainer)`
+export const ModalControls = styled(GridContainer).attrs({
+  id: "modal--controls"
+})`
   ${defaultContentBoundary}
   ${controlsContainer}
 `;
 export const ModalTitle = styled(GridContainer).attrs({
+  id: "modal--title",
   columns: "auto min-content"
 })`
   ${defaultContentBoundary}
   ${titleContainer}
 `;
 export const ModalContents = styled(FlexColumn).attrs({
+  id: "modal--contents",
   padded: true
 })<ContentProps>`
   ${defaultContentBoundary}

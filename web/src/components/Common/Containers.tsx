@@ -23,6 +23,10 @@ export const ExLink = styled.a.attrs({
 /** General-purpose default container */
 export const BaseContainer = styled.section``;
 
+export const Blockquote = styled.blockquote`
+  margin: 0;
+`;
+
 /** UI bordered section */
 export const Card = styled(BaseContainer).attrs(mergeClasslist("card"))`
   border: ${({ theme }) => `1px dotted ${theme.colors.semitransparent}`};

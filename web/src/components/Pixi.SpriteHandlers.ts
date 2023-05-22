@@ -26,13 +26,13 @@ export function updateLayer(opts: UpdateLayerOpts) {
 
 type SlotHandlerOpts = {
   action: SlotAction;
-  data: SlotInteractionData;
+  data?: SlotInteractionData;
   name: string;
 };
 
 /** Handle a click- or drag-event on a sprite  */
 export function handleSlotInteraction(opts: SlotHandlerOpts) {
-  const { action, data, name } = opts;
+  const { action, data = {}, name } = opts;
   const { exploration } = GlobalExploration.getState();
   const { Scenes } = exploration || { Scenes: [] };
 

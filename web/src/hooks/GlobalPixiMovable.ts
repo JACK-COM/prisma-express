@@ -5,7 +5,6 @@ import { InteractiveSlotCore } from "utils/types";
 
 export type GlobalMovableOptions = {
   movable?: boolean;
-  interactiveDrag?: boolean;
   resizable?: boolean;
   onDisplayChanged?: (pos: InteractiveSlotCore) => void;
   onSlotSelect?: () => void;
@@ -18,7 +17,6 @@ const DEFAULTS: GlobalMovableOptions = {
   anchor: 0.5,
   scale: 1.5,
   movable: false,
-  interactiveDrag: false,
   resizable: false
 };
 
@@ -29,7 +27,6 @@ export default function useGlobalMovable(opts = DEFAULTS) {
     anchor = DEFAULTS.anchor,
     scale = DEFAULTS.scale,
     movable = DEFAULTS.movable,
-    interactiveDrag = DEFAULTS.interactiveDrag,
     resizable = DEFAULTS.resizable,
     onDisplayChanged = noOp,
     onSlotSelect = noOp
@@ -71,7 +68,7 @@ export default function useGlobalMovable(opts = DEFAULTS) {
     setClicked(false);
     setDragging(false);
     setDragTarget(undefined);
-    if (moved && !interactiveDrag) onDisplayChanged(updatePosition(e));
+    if (moved) onDisplayChanged(updatePosition(e));
     else {
       setPosition(init); // reset position and notify parent
       onSlotSelect();

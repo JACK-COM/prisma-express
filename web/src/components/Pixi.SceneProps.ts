@@ -103,31 +103,26 @@ export function editableSpriteProps(props: CanvasLayerProps) {
 
 /** Convert Scene Template data into preview-Sprite props (scene is NOT in `editing` mode) */
 export function previewSpriteProps(props: CanvasLayerProps) {
-  const { layer = "all", slots } = props;
+  const { layer = "all" } = props;
   const { NONE } = SlotAction;
   const { CLICK, DRAG_HZ, DRAG_VT } = ExplorationTemplateEvent;
-  const isAssigned = (d: SlotAction) => d && d !== SlotAction.NONE;
 
   return (slot: InteractiveSlot) => {
     const { xy = [0, 0], scale = 1, anchor = 0.5, interaction } = slot;
-    const { event, action = NONE } = interaction || {};
+    const { event, action = NONE, data = {} } = interaction || {};
     const hasClick = event === CLICK;
-    const hasDrag = [DRAG_HZ, DRAG_VT].includes(event as any);
+    const hasDrag = event === DRAG_HZ || event === DRAG_VT;
     const hasEvent = hasClick || hasDrag;
-    const onSlotSelect = () => {
-      if (!interaction?.data || !hasEvent) return;
-      handleSlotInteraction({
-        name: slot.name || "",
-        action,
-        data: interaction.data
-      });
+    const onSlotEvent = (ev: ExplorationTemplateEvent) => {
+      if (ev !== event) return;
+      handleSlotInteraction({ name: slot.name || "", action, data });
     };
 
     return {
       filters: [],
       eventMode: hasEvent ? "dynamic" : "none",
       zIndex: 10 + (slot.index || 1),
-      scrollToScale: !slot.lock?.size && (props.editing || false),
+      scrollToScale: false,
       // Apply filter on hover
       pointerover: (e) => {
         if (!hasEvent) return;
@@ -144,23 +139,14 @@ export function previewSpriteProps(props: CanvasLayerProps) {
         src: slot.url,
         scale,
         anchor,
-        movable: props.editing ? !slot.lock?.position : hasDrag,
-        resizable: props.editing && !slot.lock?.size,
-        interactiveDrag: hasDrag,
+        movable: hasDrag,
+        resizable: false,
 
-        // Slot got dragged/moved
-        onDisplayChanged: (p: InteractiveSlotCore) => {
-          updateLayer({
-            slot,
-            editing: true,
-            onChange: props.onChange || noOp,
-            src: slots
-          });
-          onSlotSelect();
-        },
+        // Slot got dragged: ignore coordinates in "preview" mode
+        onDisplayChanged: () => onSlotEvent(DRAG_HZ),
 
         // Slot got clicked
-        onSlotSelect
+        onSlotSelect: () => onSlotEvent(CLICK)
       }
     } as PixiSpriteProps;
   };

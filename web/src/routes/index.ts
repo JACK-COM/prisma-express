@@ -49,7 +49,7 @@ export const Paths = {
   Explorations: {
     Index: {
       path: "/explorations",
-      text: "Explorations"
+      text: "Explore Locations"
     },
     Build: {
       path: "/explorations/:explorationId/build",

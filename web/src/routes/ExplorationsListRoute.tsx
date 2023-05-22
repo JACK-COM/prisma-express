@@ -14,10 +14,7 @@ import useGlobalExploration from "hooks/GlobalExploration";
 type Params = { worldId: string; locationId: string };
 /** @route A single World `Location` */
 const ExplorationsListRoute = () => {
-  const { explorations, exploration } = useGlobalExploration([
-    "explorations",
-    "exploration"
-  ]);
+  const { explorations } = useGlobalExploration(["explorations"]);
   const clearModalData = () => {
     clearGlobalModal();
     setGlobalLocation(null);
@@ -42,7 +39,6 @@ const ExplorationsListRoute = () => {
         className="fill"
         showControls
         explorations={explorations}
-        exploration={exploration}
       />
     </PageLayout>
   );

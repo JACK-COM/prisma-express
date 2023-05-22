@@ -48,6 +48,7 @@ const routes = [
   Paths.BookStore,
   Paths.Characters,
   Paths.Worlds,
+  Paths.Explorations,
   Paths.Timelines
 ];
 

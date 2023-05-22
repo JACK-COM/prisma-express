@@ -83,7 +83,7 @@ const CreateLocationForm = (props: CreateLocationProps) => {
   const onTitle = ({ target }: ChangeEvent<HTMLInputElement>) =>
     update({ ...data, name: target.value });
 
-  const onParent = (plid?: number) => {
+  const onParent = (plid?: number | null) => {
     const pl = worldLocations.find((w) => w.id === plid);
     if (!pl) return update({ ...data, parentLocationId: undefined });
     const { climate, flora, fauna, id } = pl;

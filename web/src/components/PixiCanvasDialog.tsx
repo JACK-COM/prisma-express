@@ -1,10 +1,11 @@
 import styled, { css } from "styled-components";
 import { ActiveSceneData, setGlobalSceneData } from "state";
 import ListView from "./Common/ListView";
-import { SlotInteraction, SlotInteractionChoice } from "utils/types";
+import { SlotInteractionChoice } from "utils/types";
 import MatIcon from "./Common/MatIcon";
 import { RoundButton } from "./Forms/Button";
-import { Selectable } from "./Common/Containers";
+import { Blockquote, Selectable } from "./Common/Containers";
+import { handleSlotInteraction } from "./Pixi.SpriteHandlers";
 
 const dialogUI = css`
   border: 0.2rem solid ${({ theme }) => theme.colors.bgColor};
@@ -29,25 +30,50 @@ const DialogButton = styled(RoundButton)`
   right: -12.5px;
 `;
 const DialogChoice = styled(Selectable)`
+  background-color: ${({ theme }) => theme.colors.semitransparent};
+  color: #0009;
+  font-size: 0.9rem;
   width: 100%;
+  &:hover {
+    background-color: #0009;
+    color: ${({ theme }) => theme.colors.accent};
+  }
+`;
+const DialogSpeech = styled(Blockquote)`
+  border: 0;
+  padding-left: 0.1rem;
+  padding-bottom: 0.6rem;
+  &::after,
+  &::before {
+    color: ${({ theme }) => theme.colors.bgColor};
+  }
 `;
 
 /** @PixiComponent Display text or dialogue for the selected on-canvas item */
-const PixiCanvasDialog = ({ data, name }: ActiveSceneData) => {
+const PixiCanvasDialog = ({ data, name = "" }: ActiveSceneData) => {
   const { choices, text } = data;
   const clearGlobalSceneData = () => setGlobalSceneData(null);
+  const choose = (choice: SlotInteractionChoice) => {
+    handleSlotInteraction({ name, action: choice.action, data: choice.data });
+  };
+
   if (!data) return null;
 
   return (
     <DialogContainer id="canvas--dialog" className="slide-in-up">
       {name && <h6>{name}</h6>}
-      {text && <p>{text}</p>}
+      {text && <DialogSpeech>{text}</DialogSpeech>}
+
       {choices && (
         <ListView
           data={choices}
           itemText={(choice: SlotInteractionChoice) => (
-            <DialogChoice>{choice.text}</DialogChoice>
+            <DialogChoice className="flex">
+              <MatIcon icon="filter_vintage" />
+              &nbsp;<span>{choice.text}</span>
+            </DialogChoice>
           )}
+          onItemClick={choose}
         />
       )}
       <DialogButton size="lg" className="flex" onClick={clearGlobalSceneData}>

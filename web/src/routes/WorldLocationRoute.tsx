@@ -135,11 +135,7 @@ const WorldLocationRoute = () => {
       description={`(<b class="${publicClass}">${worldPublic}</b>) ${description}`}
     >
       <PageGrid gap="0.6rem">
-        <ExplorationsList
-          showControls
-          explorations={localExplorations}
-          exploration={exploration}
-        />
+        <ExplorationsList showControls explorations={localExplorations} />
 
         <Card>
           <CardTitle>

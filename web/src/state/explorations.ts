@@ -16,12 +16,19 @@ type APIExploration = APIData<Exploration>;
 type APIExplorationScene = APIData<ExplorationScene>;
 export type ActiveSceneData = { data: SlotInteractionData; name: string };
 
+/** Global `Exploration` and exploration canvas state */
 export const GlobalExploration = createState({
+  /** Selected `Exploration` */
   exploration: null as Nullable<APIExploration>,
+  /** List of user or available `Explorations` */
   explorations: [] as APIExploration[],
+  /** Selected `Exploration Scene` */
   explorationScene: null as Nullable<ExplorationSceneTemplate>,
+  /** Selected canvas layer */
   activeLayer: "all" as ExplorationSceneLayer,
+  /** Selected `slot` (canvas item) */
   activeSlotIndex: -1,
+  /** Dialogue or text description of a selected on-canvas item */
   sceneData: null as ActiveSceneData | null
 });
 
@@ -120,7 +127,7 @@ function __updateOrGetScenes() {
   const { exploration, explorationScene } = GlobalExploration.getState();
   const { Scenes: scenes } = exploration || { Scenes: [] };
   if (!exploration || !scenes.length) return { updated: false, sceneTemps: [] };
-  const sceneTemps = scenes.map(convertToSceneTemplate);
+  const sceneTemps = scenes.map(convertAPISceneToTemplate);
   const first = sceneTemps[0];
   if (!explorationScene) {
     GlobalExploration.explorationScene(first);
@@ -137,7 +144,7 @@ export function setGlobalExplorations(explorations: APIExploration[]) {
   const exploration = active
     ? explorations.find((e) => e.id === active.id) || null
     : null;
-  const scenes = (exploration?.Scenes || []).map(convertToSceneTemplate);
+  const scenes = (exploration?.Scenes || []).map(convertAPISceneToTemplate);
   const fallback = scenes[0] || null;
   const explorationScene =
     activeScene && scenes.length
@@ -149,7 +156,7 @@ export function setGlobalExplorations(explorations: APIExploration[]) {
 }
 
 // Convert scene API data to a `ExplorationSceneTemplate`
-export function convertToSceneTemplate(
+export function convertAPISceneToTemplate(
   scene: APIExplorationScene
 ): ExplorationSceneTemplate {
   const background = scene.background ? JSON.parse(scene.background) : [];
@@ -157,6 +164,7 @@ export function convertToSceneTemplate(
   const characters = scene.characters ? JSON.parse(scene.characters) : [];
   const u = {
     ...scene,
+    config: scene.config ? JSON.parse(scene.config) : {},
     background: Array.isArray(background) ? background.filter(Boolean) : [],
     foreground: foreground.filter(Boolean),
     characters: characters.filter(Boolean)
@@ -168,16 +176,18 @@ export function convertToSceneTemplate(
 export function convertTemplateToAPIScene(
   scene: ExplorationSceneTemplate
 ): APIExplorationScene {
-  const reindexAndStringify = (arr: InteractiveSlot[]) => {
-    return arr
-      ? JSON.stringify(arr.map((s, i) => ({ ...s, index: i + 1 })))
+  const reindexAndStringify = (arr: InteractiveSlot[]) =>
+    arr
+      ? JSON.stringify(
+          arr.filter(Boolean).map((s, i) => ({ ...s, index: i + 1 }))
+        )
       : "";
-  };
   const background = reindexAndStringify(scene.background);
   const foreground = reindexAndStringify(scene.foreground);
   const characters = reindexAndStringify(scene.characters);
   return {
     ...scene,
+    config: JSON.stringify(scene.config),
     background,
     foreground,
     characters
@@ -190,7 +200,7 @@ function updateListWithNewItems(
   explorations: APIExploration[]
 ) {
   const { explorationScene: activeScene } = GlobalExploration.getState();
-  const newScenes = selected.Scenes.map(convertToSceneTemplate);
+  const newScenes = selected.Scenes.map(convertAPISceneToTemplate);
   const fallback = newScenes[0] || null;
   const newExplorations =
     explorations.length === 0
@@ -221,7 +231,7 @@ function replaceItemWithNewList(
   if (!activeScene || !newSelected.Scenes)
     return { ...defaults, exploration: newSelected };
 
-  const newScenes = newSelected.Scenes.map(convertToSceneTemplate);
+  const newScenes = newSelected.Scenes.map(convertAPISceneToTemplate);
   const fallback = newScenes[0] || null;
   const explorationScene = newScenes.find((s) => s.id === activeScene.id)
     ? activeScene

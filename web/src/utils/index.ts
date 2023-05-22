@@ -53,7 +53,8 @@ export function requireAuthor(
  * Stop propagation and prevent default on a mouse event
  * @param e React mouse event
  */
-export function suppressEvent(e: React.MouseEvent | React.FormEvent) {
+export function suppressEvent(e?: React.MouseEvent | React.FormEvent) {
+  if (!e?.preventDefault) return;
   e.preventDefault();
   e.stopPropagation();
   if (e.nativeEvent) e.nativeEvent.stopImmediatePropagation();

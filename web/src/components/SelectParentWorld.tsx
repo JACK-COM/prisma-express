@@ -28,7 +28,7 @@ type SelectParentWorldProps = {
   /** Current value */
   value?: string | number;
   placeholder?: string;
-  onChange?: (parentId: number) => void;
+  onChange?: (parentId: number | null) => void;
 };
 
 /** Select a Parent `World` from a list */
@@ -58,7 +58,7 @@ export default function SelectParentWorld(props: SelectParentWorldProps) {
       itemText={(d) => `${d.name} (${d.type})`}
       itemValue={(d) => d.id}
       placeholder={placeholder}
-      onChange={(pid) => onChange(Number(pid))}
+      onChange={(pid) => onChange(pid ? Number(pid) : null)}
     />
   );
 }

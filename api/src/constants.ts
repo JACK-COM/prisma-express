@@ -13,6 +13,8 @@ export const {
 export const IMGS_BUCKET = process.env.AWS_IMGS_BUCKET || "";
 export const AWS_USER_IMGS_BUCKET = `${IMGS_BUCKET}/users`;
 export const AWS_BOOK_IMGS_BUCKET = `${IMGS_BUCKET}/books`;
+export const AWS_WORLDS_IMGS_BUCKET = `${IMGS_BUCKET}/worlds`;
+export const AWS_LOCTNS_IMGS_BUCKET = `${IMGS_BUCKET}/locations`;
 export const AWS_CHAR_IMGS_BUCKET = `${IMGS_BUCKET}/characters`;
 export const AWS_EXPL_IMGS_BUCKET = `${IMGS_BUCKET}/explorations`;
 export const AWS_EXPSCENES_IMGS_BUCKET = `${AWS_EXPL_IMGS_BUCKET}/scenes`;

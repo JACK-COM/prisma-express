@@ -53,7 +53,7 @@ export async function fetchRaw<T>(opts: RawFetchOpts<T>) {
     controller
   };
 
-  return withTimeout(withTimeoutOpts).catch((e) =>
+  return withTimeout(withTimeoutOpts).catch<string>((e) =>
     onResolve({} as T, e.message || e)
   );
 }

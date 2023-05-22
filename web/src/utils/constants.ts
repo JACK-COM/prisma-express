@@ -9,6 +9,7 @@ export const API_AUTH_ROUTE = `${API_BASE}/authenticated`;
 export const API_DL_BOOK_ROUTE = `${API_BASE}/books/:bookId/download`;
 export const API_FILE_DELETE_ROUTE = `${API_BASE}/files/:category/delete`;
 export const API_FILE_UPLOAD_ROUTE = `${API_BASE}/files/:category/upload`;
+export const API_FILES_LIST_ROUTE = `${API_BASE}/files/:category/list`;
 export const API_PROMPT = `${API_BASE}/books/writing-prompt`;
 export const GRAPHQL_URL = `${API_BASE}/graphql`;
 export const USER_ROLES: UserRole[] = ["Author", "Reader"];

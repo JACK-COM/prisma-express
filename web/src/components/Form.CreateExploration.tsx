@@ -1,6 +1,7 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, useMemo } from "react";
 import { noOp } from "../utils";
 import {
+  Fieldset,
   Form,
   FormRow,
   Hint,
@@ -9,12 +10,18 @@ import {
   Legend,
   RadioInput,
   RadioLabel,
+  Select,
   Textarea
 } from "components/Forms/Form";
 import { UpsertExplorationInput } from "graphql/requests/explorations.graphql";
 import SelectParentWorld from "./SelectParentWorld";
 import SelectParentLocation from "./SelectParentLocation";
 import { WritingPrompt } from "./WritingPrompt";
+import {
+  ExplorationCanvasConfig,
+  ExplorationCanvasType,
+  explorationCanvasTypes
+} from "utils/types";
 
 export type CreateExplorationProps = {
   data?: Partial<UpsertExplorationInput>;
@@ -27,8 +34,11 @@ const CreateExplorationForm = (props: CreateExplorationProps) => {
   const { data, onChange = noOp, onCoverImage = noOp } = props;
   const updatePublic = (e: boolean) =>
     onChange({ ...data, public: e || false });
-  const updatePrice = (price: number = 0.0) => onChange({ ...data, price });
   const updateDescr = (d: string) => onChange({ ...data, description: d });
+  const updateLocation = (i: number) => onChange({ ...data, locationId: i });
+  const updatePrice = (price: number = 0.0) => onChange({ ...data, price });
+  const updateWorld = (i: number | null) =>
+    onChange({ ...data, worldId: i || undefined });
   const updateTitle = (e: ChangeEvent<HTMLInputElement>) => {
     onChange({ ...data, title: e.target.value });
   };
@@ -36,8 +46,6 @@ const CreateExplorationForm = (props: CreateExplorationProps) => {
     const [file] = e.target.files || [];
     if (file) onCoverImage(file);
   };
-  const updateWorld = (i: number) => onChange({ ...data, worldId: i });
-  const updateLocation = (i: number) => onChange({ ...data, locationId: i });
 
   return (
     <Form>
@@ -82,8 +90,6 @@ const CreateExplorationForm = (props: CreateExplorationProps) => {
       <Hint>Enter your exciting (or working) title here.</Hint>
       <hr />
 
-      {/* Genre */}
-
       <FormRow columns="repeat(2,1fr)">
         {/* World */}
         <Label direction="column">
@@ -111,6 +117,9 @@ const CreateExplorationForm = (props: CreateExplorationProps) => {
           </Label>
         )}
       </FormRow>
+
+      <hr className="transparent" />
+
       {/* Public/Private | Free/Paid */}
       <FormRow columns="repeat(2, 1fr)">
         <Label direction="column">

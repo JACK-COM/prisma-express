@@ -10,6 +10,7 @@ export const MFExplorationScene = objectType({
     t.nonNull.string("title");
     t.int("authorId");
     t.string("description");
+    t.string("config", { description: "Scene config data (JSON string)" });
     t.nonNull.int("order", { description: "Scene order in exploration" });
     t.string("background", { description: "Scene bg data" });
     t.string("foreground", { description: "Scene objects" });

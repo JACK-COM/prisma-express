@@ -6,6 +6,16 @@ export type ReporterType = "experiencer" | "observer" | "researcher";
 export type UserRole = "Admin" | "Moderator" | "Author" | "Reader";
 export type NullableString = Nullable<string>;
 
+/** File Upload category */
+export type FileUploadCategory =
+  | "users"
+  | "characters"
+  | "books"
+  | "worlds"
+  | "chapters"
+  | "explorations"
+  | "scenes";
+
 /** Saved data from server. Use when an id is expected on an object */
 export type APIData<T> = T & {
   id: number; //  @id @default(autoincrement())
@@ -164,6 +174,7 @@ export type Exploration = {
   title: string;
   description?: string;
   image?: string;
+  config?: string; // stringified JSON config data (`ExplorationCanvasConfig`)
   usesAttributes?: string;
   public?: boolean;
   price?: number;
@@ -178,6 +189,7 @@ export type Exploration = {
 export type ExplorationScene = {
   title: string;
   description: string;
+  config?: string; // stringified JSON config data (`ExplorationCanvasConfig`)
   order: number;
   background: string; // JSON data for rendering background layer
   foreground: string; // JSON data for rendering foreground layer
@@ -185,6 +197,19 @@ export type ExplorationScene = {
   explorationId?: number; // ( references Exploration )
   Exploration?: Exploration; // @relation(fields: [explorationId], references: [id], onDelete: Cascade)
 } & AuthorRelation;
+
+export enum ExplorationCanvasType {
+  STORY = "story",
+  MAP = "map"
+}
+export const explorationCanvasTypes = Object.values(ExplorationCanvasType);
+
+/** Configuration settings for the `Exploration` canvas */
+export type ExplorationCanvasConfig = {
+  type: ExplorationCanvasType;
+  width?: number; // default 2000; required if creating map
+  height?: number; // default 2000; required if creating map
+};
 
 /** @client  */
 export enum SlotAction {
@@ -217,10 +242,16 @@ export const explorationTemplateEvents = Object.values(
  */
 export type ExplorationSceneTemplate = Omit<
   ExplorationScene,
-  "background" | "foreground" | "characters" | "Author" | "Exploration"
+  | "background"
+  | "config"
+  | "foreground"
+  | "characters"
+  | "Author"
+  | "Exploration"
 > & {
   id?: number;
   /* JSON data for rendering scenes */
+  config?: ExplorationCanvasConfig;
   /** scene background image (stringify to server; json.parse on load) */
   background: InteractiveSlot[];
   /** scene characters (stringify to server; json.parse on load) */

@@ -6,7 +6,7 @@
 import fetchGQL from "graphql/fetch-gql";
 import { upsertUserMutation } from "graphql/mutations";
 import { getUserQuery } from "graphql/queries";
-import { APIData, User } from "utils/types";
+import { APIData, User, FileUploadCategory } from "utils/types";
 
 export type MicroUser = Pick<
   APIData<User>,
@@ -29,6 +29,21 @@ export async function upsertUser(id: number, data: UpsertUserData) {
     refetchQueries: [{ query: getUserQuery() }],
     fallbackResponse: null,
     onResolve: (x, errors) => errors || x.updateUser
+  });
+  return res;
+}
+
+/**
+ * List user's AWS image files
+ * @param category Image category
+ * @returns List of image files
+ */
+export async function listUserFiles(category: FileUploadCategory) {
+  const res = await fetchGQL<string[]>({
+    query: `query { listUserFiles } `,
+    variables: { category },
+    fallbackResponse: [],
+    onResolve: (x, errors) => errors || x.listUserFiles
   });
   return res;
 }

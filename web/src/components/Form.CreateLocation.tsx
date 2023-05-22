@@ -91,21 +91,12 @@ const CreateLocationForm = (props: CreateLocationProps) => {
   };
 
   const getDescriptionIdea = async () => {
-    const ideaPrompt = buildDescriptionPrompt({ ...data, type: "place" });
+    const dt = data.type || "place";
+    const ideaPrompt = buildDescriptionPrompt({ ...data, type: dt });
     if (!ideaPrompt) return;
     const idea = await getAndShowPrompt(ideaPrompt);
     if (idea) onDescription(idea);
   };
-
-  const validParents = useMemo(() => {
-    if (!data?.type) return worldLocations;
-    const valid = worldLocations.filter((w) => w.id !== data.id);
-    if (data.type === LocationType.Other) return valid;
-    const index = locationTypes.findIndex((w) => w === data.type);
-    const validParentTypesList = locationTypes.slice(0, index);
-    const validParentTypes = new Set(validParentTypesList);
-    return valid.filter((w) => validParentTypes.has(w.type));
-  }, [props]);
 
   useEffect(() => {
     if (!data.type) update({ ...data, type: LocationType.Building });

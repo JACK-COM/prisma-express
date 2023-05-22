@@ -7,7 +7,7 @@ import {
   GlobalUser,
   MODAL,
   clearGlobalModal,
-  convertToSceneTemplate,
+  convertAPISceneToTemplate,
   setGlobalExploration,
   setGlobalExplorationScene,
   setGlobalLayer,
@@ -67,16 +67,16 @@ const ExplorationSceneItem = ({
   const [showScenes, setShowScenes] = useState(false);
   const { activeLayer } = useGlobalExploration(["activeLayer"]);
   const edit = requireAuthor(() => {
-    setGlobalExplorationScene(convertToSceneTemplate(scene));
+    setGlobalExplorationScene(convertAPISceneToTemplate(scene));
     setGlobalModal(MODAL.MANAGE_EXPLORATION_SCENE);
   }, permissions);
   const remove = () => {
-    setGlobalExplorationScene(convertToSceneTemplate(scene));
+    setGlobalExplorationScene(convertAPISceneToTemplate(scene));
     setGlobalModal(MODAL.CONFIRM_DELETE_EXPLORATION_SCENE);
   };
   const select: React.MouseEventHandler = (e) => {
     suppressEvent(e);
-    setGlobalExplorationScene(convertToSceneTemplate(scene));
+    setGlobalExplorationScene(convertAPISceneToTemplate(scene));
     clearGlobalModal();
   };
   const toggleScenes = (e: React.MouseEvent) => {
@@ -175,7 +175,7 @@ function SceneReadiness(props: SceneReadinessProps) {
   const isActiveLayer = (t: string) =>
     explorationScene?.id === scene.id && activeLayer === t.toLowerCase();
   const changeGlobalLayer = (layer: ExplorationSceneLayer) => {
-    setGlobalExplorationScene(convertToSceneTemplate(scene));
+    setGlobalExplorationScene(convertAPISceneToTemplate(scene));
     setGlobalLayer(layer);
     clearGlobalModal();
   };

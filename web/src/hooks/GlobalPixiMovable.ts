@@ -51,20 +51,6 @@ export default function useGlobalMovable(opts = DEFAULTS) {
     (fn: (a: any) => void) => (resizable ? (e?: any) => fn(e) : noOp),
     [opts.resizable]
   );
-  /** End-drag action */
-  const endDrag = ifMovable((e?: FederatedPointerEvent) => {
-    const moved = dragging;
-    setClicked(false);
-    setDragging(false);
-    setDragTarget(undefined);
-    if (moved && !interactiveDrag) {
-      const updates = updatePosition(e);
-      onDisplayChanged(updates);
-    } else {
-      setPosition(init); // reset position and notify parent
-      onSlotSelect();
-    }
-  });
   /** Update sprite position */
   const updatePosition = (e?: FederatedPointerEvent) => {
     if (!(clicked && dragTarget && e)) return position;
@@ -79,10 +65,23 @@ export default function useGlobalMovable(opts = DEFAULTS) {
     setPosition(updates);
     return updates;
   };
+  /** End-drag action */
+  const endDrag = ifMovable((e?: FederatedPointerEvent) => {
+    const moved = dragging;
+    setClicked(false);
+    setDragging(false);
+    setDragTarget(undefined);
+    if (moved && !interactiveDrag) onDisplayChanged(updatePosition(e));
+    else {
+      setPosition(init); // reset position and notify parent
+      onSlotSelect();
+    }
+  });
   const handleDrag = ifMovable(updatePosition);
   const startDrag = (e?: FederatedPointerEvent) => {
     if (!movable || !e || dragging) return onSlotSelect();
     const { target } = e;
+    e.stopImmediatePropagation();
     setClicked(true);
     setDragTarget(target as Sprite);
   };
@@ -91,6 +90,7 @@ export default function useGlobalMovable(opts = DEFAULTS) {
     if (!e) return;
 
     e.preventDefault();
+    e.stopPropagation();
     e.stopImmediatePropagation();
     const scale = position.scale as [number, number];
     const increment = e.deltaY > 0 ? 0.1 : -0.1; // scale up or down

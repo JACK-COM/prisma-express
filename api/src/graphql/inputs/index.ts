@@ -238,6 +238,7 @@ export const MFExplorationSceneUpsertInput = inputObjectType({
     t.int("explorationId", { description: "Exploration target id" });
     t.nonNull.string("title");
     t.string("description");
+    t.string("config", { description: "Scene config data (JSON string)" });
     t.int("authorId", { description: "Item Author/owner" });
     t.nonNull.int("order", { description: "Scene order in exploration" });
     t.string("background", { description: "Scene bg data" });
@@ -254,6 +255,9 @@ export const MFExplorationUpsertInput = inputObjectType({
     t.nonNull.string("title");
     t.string("image");
     t.string("description");
+    t.string("config", {
+      description: "Exploration config data (JSON string)"
+    });
     t.string("usesAttributes", {
       description: "Attributes used in exploration"
     });

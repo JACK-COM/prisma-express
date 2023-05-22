@@ -4,13 +4,14 @@ import {
   lazy,
   useEffect,
   useMemo,
+  useRef,
   useState
 } from "react";
 import styled from "styled-components";
-import { SCALE_MODES, BaseTexture } from "pixi.js";
+import { SCALE_MODES, BaseTexture, TextStyle, BlurFilter } from "pixi.js";
 import { Container, Stage } from "@pixi/react";
 import { ExplorationStoreKey, setGlobalSlotIndex } from "state";
-import { ExplorationSceneTemplate } from "utils/types";
+import { ExplorationCanvasType, ExplorationSceneTemplate } from "utils/types";
 import { noOp } from "utils";
 import useGlobalExploration from "hooks/GlobalExploration";
 import { layerColors } from "./Pixi.Helpers";
@@ -19,12 +20,15 @@ import FullScreenLoader from "./Common/FullscreenLoader";
 import PixiEditorLayers from "./PixiLayers.Editor";
 import PixiSceneIntro from "./PixiSceneIntro";
 import PixiCanvasBackground from "./PixiCanvasBackground";
+import PixiViewport, { ViewportPlugins } from "./PixiViewport";
+import PixiText from "./PixiText";
 
 const PixiCanvasDialog = lazy(() => import("./PixiCanvasDialog"));
 const PixiCanvasToolbar = lazy(() => import("./PixiCanvasToolbar"));
 
 // Default scaling operation for the image assets in canvas
 BaseTexture.defaultOptions.scaleMode = SCALE_MODES.NEAREST;
+BaseTexture.defaultOptions.resolution = 2;
 
 const Canvas = styled.div.attrs({ id: "builder-canvas" })`
   background: #000;
@@ -51,15 +55,32 @@ const xkeys: ExplorationStoreKey[] = [
 /** @component PixiCanvas (create/manage Pixi component layers) */
 export const PixiCanvas = (props: CanvasProps) => {
   const { editing, width = 0, height = 0, onChange = noOp } = props;
-  const { activeLayer, explorationScene, sceneData } =
-    useGlobalExploration(xkeys);
+  const {
+    activeLayer = "all",
+    explorationScene,
+    sceneData
+  } = useGlobalExploration(xkeys);
   const [size, setSize] = useState({ width, height });
   const onBGClick = () => setGlobalSlotIndex(-1, activeLayer);
-  const fillBG = useMemo(
-    () => activeLayer && layerColors[activeLayer],
-    [activeLayer]
-  );
   const compFallback = <FullScreenLoader msg="Loading ..." />;
+  const enlargeViewport = useMemo(() => {
+    const configType = explorationScene?.config?.type;
+    const showMap = configType === ExplorationCanvasType.MAP;
+    return showMap || (editing === true && activeLayer === "all");
+  }, [explorationScene, activeLayer, editing]);
+
+  const { config } = explorationScene || { config: size };
+  const vProps = {
+    worldWidth: size.width,
+    worldHeight: size.height,
+    plugins: [] as ViewportPlugins[],
+    editing
+  };
+  if (config && enlargeViewport) {
+    vProps.worldWidth = config.width || size.width;
+    vProps.worldHeight = config.height || size.height;
+    vProps.plugins.push("drag", "pinch", "decelerate", "wheel");
+  }
 
   useEffect(() => {
     const $parent = document.querySelector("#builder-canvas");
@@ -80,6 +101,7 @@ export const PixiCanvas = (props: CanvasProps) => {
           height={size.height}
           options={{
             antialias: true,
+            autoDensity: true,
             eventMode: "dynamic",
             eventFeatures: { move: true, click: true, wheel: true },
             ...size
@@ -89,25 +111,23 @@ export const PixiCanvas = (props: CanvasProps) => {
             {...size}
             activeLayer={activeLayer}
             editing={editing}
+            onBGClick={onBGClick}
           />
-          {activeLayer && (
-            <Container x={0} y={0} {...size} anchor={0}>
-              <RectFill
-                pointerdown={onBGClick}
-                fill={fillBG}
-                x={0}
-                y={0}
-                {...size}
-              />
-            </Container>
-          )}
-          <PixiEditorLayers
-            {...size}
-            editing={editing}
-            layer={activeLayer}
-            scene={explorationScene}
-            onChange={onChange}
-          />
+
+          <PixiViewport
+            key={`v-${explorationScene?.id}`}
+            screenWidth={size.width}
+            screenHeight={size.height}
+            {...vProps}
+          >
+            <PixiEditorLayers
+              {...size}
+              editing={editing}
+              layer={activeLayer}
+              scene={explorationScene}
+              onChange={onChange}
+            />
+          </PixiViewport>
 
           {!editing && explorationScene && (
             <PixiSceneIntro key={explorationScene.id} {...size} />

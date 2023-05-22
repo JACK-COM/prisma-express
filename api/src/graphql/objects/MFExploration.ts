@@ -8,6 +8,9 @@ export const MFExploration = objectType({
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.string("title");
+    t.string("config", {
+      description: "Exploration config data (JSON string)"
+    });
     t.string("description");
     t.string("usesAttributes", {
       description: "Character attributes required to play (OPTIONAL)"

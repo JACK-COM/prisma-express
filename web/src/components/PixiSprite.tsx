@@ -6,6 +6,7 @@ import CircleFill from "./CircleFill";
 import { GlobalExploration } from "state";
 import { EventMode, TextStyle } from "pixi.js";
 import PixiText from "./PixiText";
+import { RectFill } from "./RectFill";
 
 /** @CanvasComponent Pixi Sprite (wrapped) with dragging and scroll-to-scale functionality */
 const PixiSprite = forwardRef((props: PixiSpriteProps, ref: Ref<any>) => {
@@ -46,25 +47,43 @@ const PixiSprite = forwardRef((props: PixiSpriteProps, ref: Ref<any>) => {
     strokeThickness: 2,
     stroke: "white"
   });
+  const pos = { x: xy[0], y: xy[1] };
 
-  return src ? (
+  return (
     <Container>
-      <Sprite ref={ref} image={src} {...movableProps} {...spriteProps} />
-      {editing && (
-        <CircleFill eventMode="none" x={xy[0]} y={xy[1]} fill={fill} />
+      {src ? (
+        <>
+          <Sprite ref={ref} image={src} {...movableProps} {...spriteProps} />
+          {editing && <CircleFill eventMode="none" {...pos} fill={fill} />}
+        </>
+      ) : (
+        <>
+          {editing ? (
+            <PixiText
+              ref={ref}
+              text={containerProps.name || "EMPTY SLOT"}
+              style={textStyle}
+              {...pos}
+              scale={movableProps.scale}
+              containerProps={containerProps}
+            />
+          ) : (
+            <RectFill
+              fill={0x000000}
+              width={160}
+              height={160}
+              {...{
+                ...movableProps,
+                alpha: 0.1,
+                pointerdown: (e: any) => movableProps.pointerdown(e),
+                x: pos.x - 80,
+                y: pos.y - 80
+              }}
+            />
+          )}
+        </>
       )}
     </Container>
-  ) : (
-    <PixiText
-      ref={ref}
-      text={containerProps.name || "EMPTY SLOT"}
-      style={textStyle}
-      x={xy[0]}
-      y={xy[1]}
-      scale={movableProps.scale}
-      containerProps={containerProps}
-      // {...spriteProps}
-    />
   );
 });
 

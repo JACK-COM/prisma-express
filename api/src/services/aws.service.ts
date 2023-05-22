@@ -17,8 +17,10 @@ import {
   AWS_DEFAULT_REGION,
   AWS_EXPL_IMGS_BUCKET,
   AWS_EXPSCENES_IMGS_BUCKET,
+  AWS_LOCTNS_IMGS_BUCKET,
   AWS_UPLOADS_URL,
   AWS_USER_IMGS_BUCKET,
+  AWS_WORLDS_IMGS_BUCKET,
   IMGS_BUCKET
 } from "../constants";
 import { CtxUser } from "../graphql/context";
@@ -29,18 +31,36 @@ const categoryBucket = {
   books: AWS_BOOK_IMGS_BUCKET,
   characters: AWS_CHAR_IMGS_BUCKET,
   explorations: AWS_EXPL_IMGS_BUCKET,
-  explorationScenes: AWS_EXPSCENES_IMGS_BUCKET
+  explorationScenes: AWS_EXPSCENES_IMGS_BUCKET,
+  worlds: AWS_WORLDS_IMGS_BUCKET,
+  locations: AWS_LOCTNS_IMGS_BUCKET
 };
+export type ImageCategory = keyof typeof categoryBucket;
 const BUCKETS = new Set(Object.keys(categoryBucket));
 
 /** List a user's files in S3 */
 export async function listUserFilesHandler(req: Request, res: Response) {
   if (!req.user) return res.status(401).send("Unauthenticated user");
   const { category } = req.params;
-  if (!category || !BUCKETS.has(category))
+  if (!BUCKETS.has(category))
     return res.status(400).send({ errors: "Invalid image category" });
 
   const userId = (req.user as CtxUser).id;
+  const files = await listUserAWSFiles(userId, category as ImageCategory);
+  return res.status(200).send({ files });
+}
+
+/** @helper Extract image file names from AWS response */
+const extractFileNames = (agg: string[], { Key }: any) => {
+  if (Key) agg.push(`${AWS_UPLOADS_URL}/${Key}`);
+  return agg;
+};
+
+/** List images for a specific user in a specific image category */
+export async function listUserAWSFiles(
+  userId: string | number,
+  category: ImageCategory = "worlds"
+) {
   const Prefix = `${category}/${userId}`;
   const command = new ListObjectsCommand({
     Bucket: IMGS_BUCKET,
@@ -48,14 +68,8 @@ export async function listUserFilesHandler(req: Request, res: Response) {
     MaxKeys: 500
   });
   const { Contents } = await s3.send(command);
-  if (!Contents) return res.status(200).send({ files: [] });
-
-  const extractFileNames = (agg: string[], { Key }: any) => {
-    if (Key) agg.push(`${AWS_UPLOADS_URL}/${Key}`);
-    return agg;
-  };
-  const files = Contents.reduce(extractFileNames, [] as string[]);
-  return res.status(200).send({ files });
+  if (!Contents) return { files: [] };
+  return { files: Contents.reduce(extractFileNames, [] as string[]) };
 }
 
 /** Delete an image */

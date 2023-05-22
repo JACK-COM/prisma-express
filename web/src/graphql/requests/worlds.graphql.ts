@@ -59,7 +59,7 @@ export async function upsertWorld(raw: Partial<CreateWorldData>) {
     public: raw.public,
     type: raw.type,
     authorId: raw.authorId,
-    parentWorldId: raw.parentWorldId || undefined
+    parentWorldId: raw.parentWorldId || null
   };
   const refetchQueries: any[] = [{ query: listWorldsQuery() }];
   if (raw.id)

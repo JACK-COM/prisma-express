@@ -25,6 +25,7 @@ jobs:
       TF_VAR_subnet_id_1: ${{ secrets.TF_VAR_subnet_id_1 }}
       TF_VAR_subnet_id_2: ${{ secrets.TF_VAR_subnet_id_2 }}
       TF_VAR_domain_name: ${{ secrets.TF_VAR_domain_name }}
+      TF_VAR_domain_name_www: ${{ secrets.TF_VAR_domain_name_www }}
       TF_VAR_bucket_name: ${{ secrets.TF_VAR_bucket_name }}
     steps:
       - name: checkout repo
@@ -50,6 +51,7 @@ jobs:
       TF_VAR_subnet_id_1: ${{ secrets.TF_VAR_subnet_id_1 }}
       TF_VAR_subnet_id_2: ${{ secrets.TF_VAR_subnet_id_2 }}
       TF_VAR_domain_name: ${{ secrets.TF_VAR_domain_name }}
+      TF_VAR_domain_name_www: ${{ secrets.TF_VAR_domain_name_www }}
       TF_VAR_bucket_name: ${{ secrets.TF_VAR_bucket_name }}
     steps:
       - name: checkout repo

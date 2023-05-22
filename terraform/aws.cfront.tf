@@ -55,7 +55,7 @@ resource "aws_cloudfront_distribution" "www_s3_distribution" {
   }
 
   depends_on = [ aws_s3_bucket.www_bucket ]
-  aliases = ["${var.domain_name}", "www.${var.domain_name}"]
+  aliases = [aws_route53_record.www.fqdn, aws_route53_record.non-www.fqdn]
 
   tags = var.common_tags
   wait_for_deployment = true

@@ -2,7 +2,7 @@
   "name": "mythos-forge-api",
   "version": "0.0.1",
   "description": "Server for MythosForge",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
     "start": "dotenv -e .env.development -- ts-node-dev --transpile-only --no-notify src/server.ts",
     "generate-keys": "ts-node-dev first-run.ts",

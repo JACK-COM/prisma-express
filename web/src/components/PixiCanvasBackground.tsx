@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { SCALE_MODES, BaseTexture, BlurFilter, TextStyle } from "pixi.js";
 import { Container } from "@pixi/react";
 import { ExplorationSceneLayer, setGlobalLayer } from "state";
-import { layerColors } from "./Pixi.Helpers";
+import { layerColors } from "./Pixi.SceneProps";
 import { RectFill } from "./RectFill";
 import { noOp } from "utils";
 import PixiText from "./PixiText";

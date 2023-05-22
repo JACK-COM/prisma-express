@@ -20,7 +20,7 @@ import {
   deleteRelationship
 } from "graphql/requests/characters.graphql";
 import { useGlobalCharacter } from "hooks/GlobalCharacter";
-import { ButtonWithIcon, WideButton } from "./Forms/Button";
+import { ButtonWithIcon } from "./Forms/Button";
 import { DeleteItemIcon } from "./ComponentIcons";
 import styled from "styled-components";
 import { useGlobalUser } from "hooks/GlobalUser";

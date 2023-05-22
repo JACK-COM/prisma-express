@@ -22,16 +22,17 @@ import { createInteractiveSlot } from "routes/ExplorationBuilder.Helpers";
 import { GlobalExploration, GlobalModal, MODAL } from "state";
 import { RoundButton } from "./Forms/Button";
 import MatIcon from "./Common/MatIcon";
-import { Accent } from "./Common/Containers";
+import { Accent, Selectable } from "./Common/Containers";
 import CreateInteractiveSlotDataForm from "./Form.CreateInteractiveSlotData";
 import AWSImagesList from "./AWSImagesList";
 
 export type CreateInteractiveSlotProps = {
   value?: InteractiveSlot;
   onChange?: (data: InteractiveSlot) => void;
-  onSlotImageFile?: (data: File) => void;
+  onSlotImageFile?: (data?: File) => void;
 };
 
+const { CLICK, DRAG_HZ, DRAG_VT } = ExplorationTemplateEvent;
 const emptyForm = (): InteractiveSlot => {
   const {
     activeLayer: lbl,
@@ -54,8 +55,6 @@ const emptyForm = (): InteractiveSlot => {
   return form;
 };
 
-const { CLICK, DRAG_HZ, DRAG_VT } = ExplorationTemplateEvent;
-
 /** @form Create or edit an `Interactive Slot` in an `Exploration` template */
 const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
   const { onChange = noOp, onSlotImageFile = noOp } = props;
@@ -64,23 +63,26 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
   const imageAction = editing ? "Change" : "Upload";
   const [data, setData] = useState(emptyForm());
   const [interactionData, event, action] = useMemo(() => {
-    const { click, horizontal_drag, vertical_drag } = data.interaction || {};
-    const d = data.interaction?.data;
-    const truthy = (v?: SlotAction) => Boolean(v) && v !== SlotAction.NONE;
-    if (truthy(click)) return [d, CLICK, click];
-    if (truthy(horizontal_drag)) return [d, DRAG_HZ, horizontal_drag];
-    if (truthy(vertical_drag)) return [d, DRAG_VT, vertical_drag];
+    const { event, action: a, data: d } = data.interaction || {};
+    if (event === CLICK) return [d, CLICK, a];
+    if (event === DRAG_HZ) return [d, DRAG_HZ, a];
+    if (event === DRAG_VT) return [d, DRAG_VT, a];
     return [d, undefined, undefined];
   }, [data]);
   const updateData = (d: typeof data) => {
     setData((p) => ({ ...p, ...d }));
     onChange(d);
   };
+  const clearImage = () => {
+    onSlotImageFile(undefined);
+    return updateData({ ...data, url: undefined });
+  };
   const updateName = (e: React.ChangeEvent<HTMLInputElement>) =>
     updateData({ ...data, name: e.target.value });
   const updateImageUrl = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) return clearImage();
+
     const reader = new FileReader();
     reader.onload = (e) => {
       const image = e.target?.result as string;
@@ -95,21 +97,21 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
   const updateInteractionData = (iData?: SlotInteractionData) => {
     updateInteraction({ ...data.interaction, data: iData });
   };
-  const changeClickAction = (click: SlotAction) => {
-    if (!click) return updateInteraction({});
-    const actionData = click === action ? interactionData : {};
-    const next = { ...data.interaction, click, data: actionData };
-    if (next.horizontal_drag) delete next.horizontal_drag;
-    if (next.vertical_drag) delete next.vertical_drag;
-    updateInteraction(next);
+  const changeClickAction = (clickAction: SlotAction) => {
+    if (!clickAction) return updateInteraction({});
+    updateInteraction({
+      action: clickAction,
+      event: CLICK,
+      data: clickAction === action ? interactionData : {}
+    });
   };
-  const changeDragAction = (horizontal_drag: SlotAction) => {
-    if (!horizontal_drag) return updateInteraction({});
-    const actionData = horizontal_drag === action ? interactionData : {};
-    const next = { ...data.interaction, horizontal_drag, data: actionData };
-    if (next.click) delete next.click;
-    if (next.vertical_drag) delete next.vertical_drag;
-    updateInteraction(next);
+  const changeDragAction = (dragAction: SlotAction) => {
+    if (!dragAction) return updateInteraction({});
+    updateInteraction({
+      action: dragAction,
+      event: DRAG_HZ,
+      data: dragAction === action ? interactionData : {}
+    });
   };
   const updateLock = (d: Partial<InteractiveSlot["lock"]>) => {
     const { lock = {} } = data;
@@ -129,6 +131,13 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
 
   return (
     <Form onSubmit={suppressEvent}>
+      <Hint>
+        You can change the slot's size and position in the canvas after saving
+        your changes here. If you want to just create a clickable area, you can
+        leave the image blank.
+      </Hint>
+      <hr />
+
       <FormRow columns="repeat(2, 1fr)">
         {/* Name */}
         <Label direction="column">
@@ -146,27 +155,37 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
         {/* Slot Image */}
         <Label direction="column">
           <span className="label">
-            {imageAction} Slot's <span className="accent--text">Image</span>
+            {imageAction} Slot <span className="accent--text">Image</span>
           </span>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={updateImageUrl}
-            style={{ padding: "0 0.5rem" }}
-          />
+          {data.url ? (
+            <Hint>
+              <Selectable className="flex" onPointerUp={clearImage}>
+                <MatIcon icon="clear" className="error--text" />
+                <Accent as="b">Clear selected image</Accent>
+              </Selectable>
+            </Hint>
+          ) : (
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={updateImageUrl}
+              style={{ padding: "0 0.5rem" }}
+            />
+          )}
         </Label>
       </FormRow>
-      <Hint>
-        Modify the slot's size and position in the canvas after saving your
-        changes here!
-      </Hint>
+
+      <FormRow columns="repeat(2, 1fr)">
+        <Hint>Name of character or slot-purpose</Hint>
+      </FormRow>
 
       <hr />
 
-      {!editing && (
+      {!data.url && (
         <AWSImagesList
           category="worlds"
-          listDescription="Replace the slot's image with a previously-uploaded asset"
+          listDescription="Choose a previously-uploaded asset for the slot's image"
+          onImageSelect={(url) => updateData({ ...data, url })}
         />
       )}
 
@@ -228,7 +247,7 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
 
               <Select
                 data={explorationTemplateActions}
-                value={data.interaction?.click || ""}
+                value={event === CLICK ? data.interaction?.action : ""}
                 itemText={(d) => d}
                 itemValue={(d) => d}
                 emptyMessage="No actions loaded!"
@@ -248,7 +267,7 @@ const CreateInteractiveSlotForm = (props: CreateInteractiveSlotProps) => {
 
               <Select
                 data={explorationTemplateActions}
-                value={data.interaction?.horizontal_drag || ""}
+                value={event === DRAG_HZ ? data.interaction?.action : ""}
                 itemText={(d) => d}
                 itemValue={(d) => d}
                 emptyMessage="No actions loaded!"

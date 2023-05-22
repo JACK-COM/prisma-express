@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Container, useTick } from "@pixi/react";
-import { EditorProps } from "./Pixi.Helpers";
+import { EditorProps } from "./Pixi.SceneProps";
 import { GlobalExploration } from "state";
 import { BlurFilter, EventMode, TextStyle } from "pixi.js";
 import { suppressEvent } from "utils";

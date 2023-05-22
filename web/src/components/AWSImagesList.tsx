@@ -5,18 +5,11 @@ import ListView from "./Common/ListView";
 import ImageLoader from "./Common/ImageLoader";
 import styled from "styled-components";
 import { noOp } from "utils";
-import { Accent } from "./Common/Containers";
+import { Accent, Selectable } from "./Common/Containers";
 import { Hint } from "./Forms/Form";
 
 const ListTitle = styled.h4.attrs({ className: "h5" })`
   text-transform: capitalize;
-`;
-const Selectable = styled.span`
-  cursor: pointer;
-  padding: 0.2rem;
-  &:hover {
-    background: ${({ theme }) => theme.colors.semitransparent};
-  }
 `;
 
 type ImageListProps = {
@@ -25,18 +18,21 @@ type ImageListProps = {
   onImageSelect?: (src: string) => void;
 };
 
+const LIST_USER_FILES = gql`
+  query ($category: String!) {
+    listUserFiles(category: $category)
+  }
+`;
+
 /** A self-loading list of images from AWS */
 export const AWSImagesList = (props: ImageListProps) => {
   const { category = "worlds", onImageSelect = noOp, listDescription } = props;
-  const { loading, data, error } = useQuery(
-    gql`
-      query ($category: String!) {
-        listUserFiles(category: $category)
-      }
-    `,
-    { variables: { category }, fetchPolicy: "network-only" }
-  );
+  const { loading, data, error } = useQuery(LIST_USER_FILES, {
+    variables: { category },
+    fetchPolicy: "cache-first"
+  });
   const images = useMemo<string[]>(() => data?.listUserFiles || [], [data]);
+
   if (loading)
     return (
       <div>
@@ -61,6 +57,7 @@ export const AWSImagesList = (props: ImageListProps) => {
       {listDescription && <Hint>{listDescription}</Hint>}
 
       <ListView
+        className="slide-in-down"
         grid
         data={images}
         itemText={(src) => (

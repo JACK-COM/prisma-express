@@ -36,8 +36,8 @@ export default passport;
 
 const clientID = process.env.GOOGLE_CLIENT_ID;
 const clientSecret = process.env.GOOGLE_CLIENT_SK;
-const PORT = process.env.PORT;
-const callbackURL = `http://localhost:${PORT}/oauth2/redirect/google`;
+const APP_UI = process.env.APP_UI;
+const callbackURL = `${APP_UI}/oauth2/redirect/google`;
 const maxAge = 86400000; // 24 hours
 const toCtxUser = (u: User): CtxUser => ({
   id: u.id,

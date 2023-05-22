@@ -11,7 +11,7 @@ import { createExplorationTemplateScene } from "routes/ExplorationBuilder.Helper
 import { InteractiveSlot } from "utils/types";
 import { ExplorationSceneLayer } from "state";
 import PixiText from "./PixiText";
-import { EditorProps, CanvasLayerProps } from "./Pixi.Helpers";
+import { EditorProps, CanvasLayerProps } from "./Pixi.SceneProps";
 import { PixiCanvasLayer } from "./PixiCanvasLayer";
 import { noOp } from "utils";
 

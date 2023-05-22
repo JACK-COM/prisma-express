@@ -1,9 +1,10 @@
 import styled, { css } from "styled-components";
 import { ActiveSceneData, setGlobalSceneData } from "state";
 import ListView from "./Common/ListView";
-import { SlotInteraction } from "utils/types";
+import { SlotInteraction, SlotInteractionChoice } from "utils/types";
 import MatIcon from "./Common/MatIcon";
 import { RoundButton } from "./Forms/Button";
+import { Selectable } from "./Common/Containers";
 
 const dialogUI = css`
   border: 0.2rem solid ${({ theme }) => theme.colors.bgColor};
@@ -27,6 +28,9 @@ const DialogButton = styled(RoundButton)`
   top: -12.5px;
   right: -12.5px;
 `;
+const DialogChoice = styled(Selectable)`
+  width: 100%;
+`;
 
 /** @PixiComponent Display text or dialogue for the selected on-canvas item */
 const PixiCanvasDialog = ({ data, name }: ActiveSceneData) => {
@@ -35,16 +39,18 @@ const PixiCanvasDialog = ({ data, name }: ActiveSceneData) => {
   if (!data) return null;
 
   return (
-    <DialogContainer className="slide-in-up">
+    <DialogContainer id="canvas--dialog" className="slide-in-up">
       {name && <h6>{name}</h6>}
       {text && <p>{text}</p>}
       {choices && (
         <ListView
           data={choices}
-          itemText={(choice: SlotInteraction) => choice.data?.text}
+          itemText={(choice: SlotInteractionChoice) => (
+            <DialogChoice>{choice.text}</DialogChoice>
+          )}
         />
       )}
-      <DialogButton className="flex" onClick={clearGlobalSceneData}>
+      <DialogButton size="lg" className="flex" onClick={clearGlobalSceneData}>
         <MatIcon icon="close" />
       </DialogButton>
     </DialogContainer>

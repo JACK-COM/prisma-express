@@ -93,6 +93,7 @@ export const PixiCanvas = (props: CanvasProps) => {
     <Canvas>
       {size.width > 0 ? (
         <Stage
+          id="canvas--scene"
           width={size.width}
           height={size.height}
           options={{

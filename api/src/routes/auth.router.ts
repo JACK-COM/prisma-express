@@ -1,13 +1,12 @@
 import express, { Express } from "express";
 import { AuthenticateOptions, PassportStatic } from "passport";
-import { UIPORT } from "../constants";
+import { APP_UI } from "../constants";
 
 // AUTH ROUTES
 const GOOGLE_LOGIN = "/login/google";
 const GOOGLE_LOGOUT = "/logout/google";
 const LOGGED_IN = "/authenticated";
 const GOOGLE_LOGIN_REDIRECT = "/oauth2/redirect/google";
-const UI_REDIRECT = `http://localhost:${UIPORT}/`;
 
 export default function configureAuthRoutes(
   app: Express,
@@ -25,7 +24,7 @@ export default function configureAuthRoutes(
     failureRedirect: GOOGLE_LOGIN,
     failureMessage: true,
     session: true,
-    successRedirect: UI_REDIRECT
+    successRedirect: APP_UI
   };
 
   AuthRouter.get(GOOGLE_LOGIN_REDIRECT, passport.authenticate("google", opts));
@@ -40,7 +39,7 @@ export default function configureAuthRoutes(
     req.logout(function (err) {
       if (err) return next(err);
       // req.session.destroy(() => res.redirect(UI_REDIRECT));
-      req.logout(() => res.redirect(UI_REDIRECT));
+      req.logout(() => res.redirect(APP_UI));
     });
   });
 

@@ -102,7 +102,7 @@ export async function generateDocx(id: Book["id"]): Promise<DocxData> {
             // Break scene text into paragraphs/html tags. filter empty strings, line-breaks, and allowed tags
             const $p: Paragraph[] = [];
             splitByTag(scene.text, "p").forEach((t) => {
-              const clean = t.replaceAll(/(&nbsp;)/gm, " ");
+              const clean = t.replace(/(&nbsp;)/gm, " ");
               let children: any[] = splitByTag(clean, "strong");
               if (children.length === 1) return $p.push(new Paragraph(clean));
 

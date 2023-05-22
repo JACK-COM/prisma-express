@@ -24,5 +24,9 @@ export const schema = makeSchema({
   contextType: {
     export: "DBContext",
     module: join(dirname(__filename), "context.ts")
-  }
+  },
+
+  shouldExitAfterGenerateArtifacts: Boolean(
+    process.env.EXIT_NEXUS_AFTER_REFLECTION
+  )
 });

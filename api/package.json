@@ -7,7 +7,7 @@
     "start": "dotenv -e .env.development -- ts-node-dev --transpile-only --no-notify src/server.ts",
     "generate-keys": "ts-node-dev first-run.ts",
     "clean": "rm -rf ./lib",
-    "reflect": "NODE_ENV='production' ts-node-dev -r tsconfig-paths/register --transpile-only ./src/graphql",
+    "reflect": "NODE_ENV='production' EXIT_NEXUS_AFTER_REFLECTION=true ts-node ./src/server",
     "build:pre": "npm run clean && npm run reflect",
     "build": "npm run build:pre && NODE_ENV=production tsc",
     "prisma-sync": "prisma db push && npx prisma generate",

@@ -22,7 +22,7 @@ jobs:
         uses: beaconbrigade/package-json-version@v0.3
         with:
           path: .
-      - name: Execute
+      - name: execute print-version
         run: echo ${{ steps.get-version.outputs.version }} >> "$GITHUB_OUTPUT"
   build:
     runs-on: ubuntu-latest

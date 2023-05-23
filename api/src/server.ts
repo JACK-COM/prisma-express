@@ -1,6 +1,7 @@
 import "graphql-import-node";
 import { ApolloServer } from "apollo-server-express";
-import { json } from "body-parser";
+import pkg from 'body-parser';
+const { json } = pkg;
 import express, { Express } from "express";
 import cors from "cors";
 import morgan from "morgan";

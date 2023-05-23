@@ -5,12 +5,18 @@
  */
 
 import { readdirSync } from "fs";
+import path from 'path';
+import {fileURLToPath} from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
 
 // export everything from the `queries` directory using fs
-const files = readdirSync(__dirname);
+const files = readdirSync(path.dirname(__filename));
+const exports = {};
 files.forEach((file) => {
   if (file === "index.ts") return;
-  const name = file.split(".")[0];
-  const query = require(`./${file}`);
-  exports[name] = query;
+  let query = import(`./${file}`);
+  exports[file.split(".")[0]] = query;
 });
+
+export default exports;

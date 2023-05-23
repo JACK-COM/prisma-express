@@ -9,24 +9,8 @@ on:
       - "develop"
 
 jobs:
-  print-version:
-    runs-on: ubuntu-latest
-    name: A job to print the version
-    outputs:
-      version: ${{ steps.get-version.outputs.version }}
-    steps:
-      - name: checkout repository
-        uses: actions/checkout@v3
-      - name: test action
-        id: get-version
-        uses: beaconbrigade/package-json-version@v0.3
-        with:
-          path: .
-      - name: execute print-version
-        run: echo ${{ steps.get-version.outputs.version }} >> "$GITHUB_OUTPUT"
   build:
     runs-on: ubuntu-latest
-    needs: print-version
     if: github.event_name == 'pull_request'
     env:
       APP_UI: ${{ secrets.APP_UI }}
@@ -45,10 +29,17 @@ jobs:
       TF_VAR_domain_name: ${{ secrets.TF_VAR_domain_name }}
       TF_VAR_domain_name_www: ${{ secrets.TF_VAR_domain_name_www }}
       TF_VAR_bucket_name: ${{ secrets.TF_VAR_bucket_name }}
-      TF_VAR_app_version: ${{ jobs.print-version.outputs.version }}
+      TF_VAR_app_version: ${{ steps.get-version.outputs.version }}
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
+      - name: get version
+        id: get-version
+        uses: beaconbrigade/package-json-version@v0.3
+        with:
+          path: .
+      - name: execute print-version
+        run: echo ${{ steps.get-version.outputs.version }} 
       - name: build application
         run: make build
   deploy-dev:
@@ -72,7 +63,7 @@ jobs:
       TF_VAR_domain_name: ${{ secrets.TF_VAR_domain_name }}
       TF_VAR_domain_name_www: ${{ secrets.TF_VAR_domain_name_www }}
       TF_VAR_bucket_name: ${{ secrets.TF_VAR_bucket_name }}
-      TF_VAR_app_version: ${{ jobs.print-version.outputs.version }}
+      TF_VAR_app_version: ${{ steps.get-version.outputs.version }}
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
@@ -80,6 +71,13 @@ jobs:
         run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set default.region us-east-1
       - name: terraform plan
         run: make tf-plan
+      - name: get version
+        id: get-version
+        uses: beaconbrigade/package-json-version@v0.3
+        with:
+          path: .
+      - name: execute print-version
+        run: echo ${{ steps.get-version.outputs.version }} 
       - name: build application
         run: make build
       - name: terraform apply

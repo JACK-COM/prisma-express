@@ -12,7 +12,7 @@ export * from "./MFBook";
 export * from "./MFChapter";
 export * from "./MFCharacter";
 export * from "./MFCharacterRelationship";
-export * from ".//MFEvent";
+export * from "./MFEvent";
 export * from "./MFExploration";
 export * from "./MFExplorationScene";
 export * from "./MFLibrary";

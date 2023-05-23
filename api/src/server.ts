@@ -1,8 +1,7 @@
 import "graphql-import-node";
 import { ApolloServer } from "apollo-server-express";
-import { json } from "body-parser";
+import { json } from 'body-parser';
 import express, { Express } from "express";
-import { rateLimit } from "express-rate-limit";
 import cors from "cors";
 import morgan from "morgan";
 import { schema } from "./graphql/index";
@@ -11,6 +10,7 @@ import logger from "./logger";
 import { configurePassport } from "./services/passport";
 import { downloadBookHandler } from "./services/document.service";
 import { generateWritingPromptHandler } from "./services/openai.service";
+import { rateLimit } from "express-rate-limit";
 import { APP_UI, PORT, env } from "./constants";
 import {
   fileDeleteHandler,

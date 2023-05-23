@@ -72,7 +72,7 @@ jobs:
       TF_VAR_domain_name: ${{ secrets.TF_VAR_domain_name }}
       TF_VAR_domain_name_www: ${{ secrets.TF_VAR_domain_name_www }}
       TF_VAR_bucket_name: ${{ secrets.TF_VAR_bucket_name }}
-      TF_VAR_app_version: ${{ secrets.TF_VAR_app_version }}
+      TF_VAR_app_version: ${{ jobs.print-version.outputs.version }}
     steps:
       - name: checkout repo
         uses: actions/checkout@v3

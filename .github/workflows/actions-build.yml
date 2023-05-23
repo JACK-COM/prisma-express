@@ -1,13 +1,13 @@
-name: 'Terraform Build Actions'
+name: "Terraform Build Actions"
 
 on:
   pull_request:
     branches:
-      - 'develop'
+      - "develop"
   push:
     branches:
-      - 'develop'
-  
+      - "develop"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,11 +17,11 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       VITE_TINYMCE_KEY: ${{ secrets.VITE_TINYMCE_KEY }}
-      VITE_GRMLY_KEY : ${{ secrets.VITE_GRMLY_KEY }}
+      VITE_GRMLY_KEY: ${{ secrets.VITE_GRMLY_KEY }}
       VITE_API_SERVER: ${{ secrets.VITE_API_SERVER }}
       TF_VAR_ssh_key: ${{ secrets.TF_VAR_ssh_key }}
       TF_VAR_GOOGLE_CLIENT_ID: ${{ secrets.TF_VAR_GOOGLE_CLIENT_ID }}
-      TF_VAR_GOOGLE_CLIENT_SK:  ${{ secrets.TF_VAR_GOOGLE_CLIENT_SK }}
+      TF_VAR_GOOGLE_CLIENT_SK: ${{ secrets.TF_VAR_GOOGLE_CLIENT_SK }}
       TF_VAR_db_username: ${{ secrets.TF_VAR_db_username }}
       TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
       TF_VAR_subnet_id_1: ${{ secrets.TF_VAR_subnet_id_1 }}
@@ -29,9 +29,15 @@ jobs:
       TF_VAR_domain_name: ${{ secrets.TF_VAR_domain_name }}
       TF_VAR_domain_name_www: ${{ secrets.TF_VAR_domain_name_www }}
       TF_VAR_bucket_name: ${{ secrets.TF_VAR_bucket_name }}
+      TF_VAR_app_version: ${{ steps.get-version.outputs.version }}
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
+      - name: get version
+        id: get-version
+        uses: beaconbrigade/package-json-version@v0.3
+        with:
+          path: .
       - name: build application
         run: make build
   deploy-dev:
@@ -43,11 +49,11 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       VITE_TINYMCE_KEY: ${{ secrets.VITE_TINYMCE_KEY }}
-      VITE_GRMLY_KEY : ${{ secrets.VITE_GRMLY_KEY }}
+      VITE_GRMLY_KEY: ${{ secrets.VITE_GRMLY_KEY }}
       VITE_API_SERVER: ${{ secrets.VITE_API_SERVER }}
       TF_VAR_ssh_key: ${{ secrets.TF_VAR_ssh_key }}
       TF_VAR_GOOGLE_CLIENT_ID: ${{ secrets.TF_VAR_GOOGLE_CLIENT_ID }}
-      TF_VAR_GOOGLE_CLIENT_SK:  ${{ secrets.TF_VAR_GOOGLE_CLIENT_SK }}
+      TF_VAR_GOOGLE_CLIENT_SK: ${{ secrets.TF_VAR_GOOGLE_CLIENT_SK }}
       TF_VAR_db_username: ${{ secrets.TF_VAR_db_username }}
       TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
       TF_VAR_subnet_id_1: ${{ secrets.TF_VAR_subnet_id_1 }}
@@ -55,9 +61,15 @@ jobs:
       TF_VAR_domain_name: ${{ secrets.TF_VAR_domain_name }}
       TF_VAR_domain_name_www: ${{ secrets.TF_VAR_domain_name_www }}
       TF_VAR_bucket_name: ${{ secrets.TF_VAR_bucket_name }}
+      TF_VAR_app_version: ${{ steps.get-version.outputs.version }}
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
+      - name: get version
+        id: get-version
+        uses: beaconbrigade/package-json-version@v0.3
+        with:
+          path: .
       - name: AWS Config
         run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set default.region us-east-1
       - name: terraform plan

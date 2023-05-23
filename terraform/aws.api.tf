@@ -97,6 +97,7 @@ resource "aws_instance" "mf-api-instance" {
 
   tags = {
     Name = "mf-api-instance"
+    version = var.app_version
   }
 }
 

@@ -42,7 +42,6 @@ async function main() {
     schema,
     cache: "bounded",
     persistedQueries: false,
-    plugins: [],
     logger
   });
   await apolloServer.start();

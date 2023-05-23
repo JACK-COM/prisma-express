@@ -4,7 +4,7 @@
     "downlevelIteration": true,
     "esModuleInterop": true,
     "lib": ["es2022"],
-    "module": "commonjs",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "noEmit": false,
     "noImplicitAny": false,
@@ -13,7 +13,7 @@
     "noUnusedParameters": true,
     "outDir": "./lib",
     "resolveJsonModule": true,
-    "rootDir": ".",
+    "rootDir": "./src",
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022"

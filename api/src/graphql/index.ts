@@ -8,8 +8,6 @@ import * as Inputs from "./inputs/index";
 
 const types = { ...Objects, ...Queries, ...Mutations, ...Inputs };
 
-// Patch: replaced `__dirname` with `process.cwd()` to fix missing 'context.ts' error
-// see: https://stackoverflow.com/questions/68658139/nexus-graphql-root-typing-path-for-the-type-context-does-not-exist
 export const schema = makeSchema({
   // Data classes (used to generate SDL types)
   types,
@@ -24,9 +22,5 @@ export const schema = makeSchema({
   contextType: {
     export: "DBContext",
     module: join(dirname(__filename), "context.ts")
-  },
-
-  shouldExitAfterGenerateArtifacts: Boolean(
-    process.env.EXIT_NEXUS_AFTER_REFLECTION
-  )
+  }
 });

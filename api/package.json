@@ -2,14 +2,13 @@
   "name": "mythos-forge-api",
   "version": "0.0.1",
   "description": "Server for MythosForge",
-  "main": "src/server.js",
+  "main": "server.js",
   "scripts": {
     "start": "dotenv -e .env.development -- ts-node-dev --transpile-only --no-notify src/server.ts",
     "generate-keys": "ts-node-dev first-run.ts",
     "clean": "rm -rf ./lib",
-    "reflect": "NODE_ENV='production' EXIT_NEXUS_AFTER_REFLECTION=true ts-node ./src/server",
-    "build:pre": "npm run clean && npm run reflect",
-    "build": "npm run build:pre && NODE_ENV=production tsc",
+    "nexus:reflect": "NODE_ENV=\"production\" ts-node-dev --transpile-only ./src/graphql",
+    "build": "npm run clean && npm run nexus:reflect && NODE_ENV=\"production\" tsc",
     "prisma-sync": "prisma db push && npx prisma generate",
     "db-migrate": "npx prisma migrate dev",
     "db-deploy": "dotenv -e .env.production prisma migrate deploy"
@@ -23,7 +22,7 @@
   "homepage": "https://github.com/Brokenwire-Apps/mythos-forge#readme",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.321.1",
-    "@prisma/client": "^4.14.0",
+    "@prisma/client": "^4.14.1",
     "apollo-server": "^3.11.1",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
@@ -58,7 +57,7 @@
     "@types/multer": "^1.4.7",
     "@types/node": "^17.0.21",
     "@types/passport": "^1.0.12",
-    "prisma": "^4.14.0",
+    "prisma": "^4.14.1",
     "ts-node": "^10.7.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.4"

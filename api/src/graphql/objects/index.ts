@@ -4,19 +4,26 @@
  * Export all `enums` and custom graphql objects from this directory
  */
 
-import { readdirSync } from "fs";
-import path from 'path';
-import {fileURLToPath} from 'url';
+export * from "./enums";
 
-const __filename = fileURLToPath(import.meta.url);
-
-// export everything from the `queries` directory using fs
-const files = readdirSync(path.dirname(__filename));
-const exports = {};
-files.forEach((file) => {
-  if (file === "index.ts") return;
-  let query = import(`./${file}`);
-  exports[file.split(".")[0]] = query;
-});
-
-export default exports;
+export * from "./CDateTime";
+export * from "./MFAuthor";
+export * from "./MFBook";
+export * from "./MFChapter";
+export * from "./MFCharacter";
+export * from "./MFCharacterRelationship";
+export * from ".//MFEvent";
+export * from "./MFExploration";
+export * from "./MFExplorationScene";
+export * from "./MFLibrary";
+export * from "./MFLocation";
+export * from "./MFNote";
+export * from "./MFPopulationGroup";
+export * from "./MFScene";
+export * from "./MFSceneContentLink";
+export * from "./MFSearchResult";
+export * from "./MFSeries";
+export * from "./MFTimeline";
+export * from "./MFTimelineEvent";
+export * from "./MFUser";
+export * from "./MFWorld";

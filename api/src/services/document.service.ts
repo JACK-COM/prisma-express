@@ -1,7 +1,13 @@
 import { Book } from "@prisma/client";
 import { context } from "../graphql/context";
-import pkg from 'docx';
-const { Document, HeadingLevel, Packer, Paragraph, SectionType, TextRun } = pkg;
+import {
+  Document,
+  HeadingLevel,
+  Packer,
+  Paragraph,
+  SectionType,
+  TextRun
+} from "docx";
 import { Readable } from "stream";
 import { Request } from "express";
 

@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "Server for MythosForge",
   "main": "server.js",
-  "type": "module",
   "scripts": {
     "start": "dotenv -e .env.development -- ts-node-dev --transpile-only --no-notify src/server.ts",
     "generate-keys": "ts-node-dev first-run.ts",

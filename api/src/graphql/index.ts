@@ -1,8 +1,4 @@
 import path from 'path';
-import {fileURLToPath} from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-
 import { makeSchema } from "nexus";
 // Types
 import * as Objects from "./objects/index";

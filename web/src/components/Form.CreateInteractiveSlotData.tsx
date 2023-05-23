@@ -17,8 +17,9 @@ import {
 import { GlobalExploration } from "state";
 import { Accent } from "./Common/Containers";
 import MatIcon from "./Common/MatIcon";
-import { WideButton } from "./Forms/Button";
-import { Fragment } from "react";
+import Button, { RoundButton, WideButton } from "./Forms/Button";
+import { Fragment, useMemo, useState } from "react";
+import styled from "styled-components";
 
 export type SlotDataFormProps = {
   /** User-event (click or drag) */
@@ -31,6 +32,22 @@ export type SlotDataFormProps = {
   onChange?: (data: SlotInteractionData) => void;
 };
 
+const Container = styled(FormRow)`
+  .form--interactive-slot-data {
+    .form--interactive-slot-data {
+      border-left: 1px dashed ${({ theme }) => theme.colors.accent};
+      margin-bottom: 0.4rem;
+      padding-bottom: 0.4rem;
+      padding-left: 0.4rem;
+    }
+
+    &.slide-out-up {
+      position: absolute;
+      pointer-events: none;
+    }
+  }
+`;
+
 /** @form Create or edit data for an `Interactive Slot` in an `Exploration` template */
 const CreateInteractiveSlotDataForm = (props: SlotDataFormProps) => {
   const { value: data = {}, onChange = noOp, event, action } = props;
@@ -38,6 +55,7 @@ const CreateInteractiveSlotDataForm = (props: SlotDataFormProps) => {
   const { Scenes = [] } = exploration || {};
   const { choices = [] } = data;
   const otherScenes = Scenes.filter((s) => s.id !== explorationScene?.id);
+  const [expanded, expand] = useState(true);
   const clearNavTarget = () => {
     onChange({ ...data, target: undefined, text: undefined });
   };
@@ -72,122 +90,138 @@ const CreateInteractiveSlotDataForm = (props: SlotDataFormProps) => {
     };
     onChange({ ...data, choices: [...choices, choice] });
   };
+  const className = useMemo(() => {
+    const anim = expanded ? "slide-in-down" : "slide-out-up";
+    return `form--interactive-slot-data ${anim}`;
+  }, [expanded]);
 
   return (
-    <span id="form--interactive-slot-data">
-      {action === SlotAction.NAV_SCENE && (
-        <Label columns="auto">
-          <span className="label flex">Navigate to Scene:</span>
-          <Hint>
-            Navigate to a new scene when you <Accent as="b">{event}</Accent>{" "}
-            this slot.
-          </Hint>
-          <Select
-            aria-invalid={!data.target}
-            data={otherScenes}
-            value={data?.target || ""}
-            itemText={(s) => s.title}
-            itemValue={(s) => s.id}
-            emptyMessage="No scenes loaded!"
-            placeholder="Select target scene:"
-            onChange={(s) => updateNavTarget(Number(s))}
-          />
-        </Label>
-      )}
+    <Container columns="24px 1fr" gap="0.4rem">
+      <RoundButton type="button" size="sm" onClick={() => expand(!expanded)}>
+        <MatIcon icon="expand_more" />
+      </RoundButton>
 
-      {action === SlotAction.SHOW_TEXT && (
-        <Label columns="auto">
-          <span className="label flex">Enter text to show:</span>
-          <Hint>
-            Show character dialogue or an item description when you{" "}
-            <Accent as="b">{event}</Accent> this slot..
-          </Hint>
-          <Textarea
-            aria-invalid={!data.text}
-            value={data?.text || ""}
-            placeholder="e.g. 'The walls look old and worn.'"
-            onChange={({ target }) => updateActionText(target.value)}
-          />
-        </Label>
-      )}
-
-      {action === SlotAction.CHOOSE && (
-        <>
+      <span className={className}>
+        {action === SlotAction.NAV_SCENE && (
           <Label columns="auto">
-            <span className="label flex">
-              Enter&nbsp;<Accent>Question</Accent>:
-            </span>
-            <Hint>What will the player be asked?</Hint>
-            <Input
+            <span className="label flex">Navigate to Scene:</span>
+            <Hint>
+              Navigate to a new scene when you <Accent as="b">{event}</Accent>{" "}
+              this slot.
+            </Hint>
+            <Select
+              aria-invalid={!data.target}
+              data={otherScenes}
+              value={data?.target || ""}
+              itemText={(s) => s.title}
+              itemValue={(s) => s.id}
+              emptyMessage="No scenes loaded!"
+              placeholder="Select target scene:"
+              onChange={(s) => updateNavTarget(Number(s))}
+            />
+          </Label>
+        )}
+
+        {action === SlotAction.SHOW_TEXT && (
+          <Label columns="auto">
+            <span className="label flex">Enter text to show:</span>
+            <Hint>
+              Show character dialogue or an item description when you{" "}
+              <Accent as="b">{event}</Accent> this slot..
+            </Hint>
+            <Textarea
               aria-invalid={!data.text}
               value={data?.text || ""}
-              placeholder="e.g. 'What is red and blue and green all over?'"
+              placeholder="e.g. 'The walls look old and worn.'"
               onChange={({ target }) => updateActionText(target.value)}
             />
           </Label>
+        )}
 
-          <Hint>
-            Give the player options to respond, and{" "}
-            <Accent>consequences</Accent> for each response.
-          </Hint>
-
-          {choices.length > 0 && (
+        {action === SlotAction.CHOOSE && (
+          <>
             <Label columns="auto">
               <span className="label flex">
-                Player&nbsp;<Accent>response</Accent>:
+                Enter&nbsp;<Accent>Question</Accent>:
               </span>
-            </Label>
-          )}
-
-          {choices.map((choice, i) => (
-            <Fragment key={i}>
-              <FormRow columns="repeat(2, 1fr)" gap="0.6rem">
-                <Label columns="auto">
-                  <span className="label flex">
-                    Enter&nbsp;<Accent>choices</Accent>:
-                  </span>
-                  <Input
-                    aria-invalid={!choice.text}
-                    value={choice.text || ""}
-                    placeholder="e.g. 'A worried cat'"
-                    onChange={({ target }) => updateChoiceText(target.value, i)}
-                  />
-                </Label>
-
-                <Label columns="auto">
-                  <span className="label flex">
-                    <MatIcon icon="filter_vintage" />
-                    &nbsp;<Accent>Consequence</Accent>:
-                  </span>
-
-                  <Select
-                    data={explorationTemplateActions}
-                    value={choice.action || ""}
-                    itemText={(d) => d}
-                    itemValue={(d) => d}
-                    emptyMessage="No actions loaded!"
-                    placeholder="Select action:"
-                    onChange={(a) => updateChoiceAction(a, i)}
-                  />
-                </Label>
-              </FormRow>
-
-              <CreateInteractiveSlotDataForm
-                event={ExplorationTemplateEvent.CLICK}
-                action={choice.action}
-                value={choice.data}
-                onChange={(d) => updateChoiceData(d, i)}
+              <Hint>What will the player be asked?</Hint>
+              <Input
+                aria-invalid={!data.text}
+                value={data?.text || ""}
+                placeholder="e.g. 'What is red and blue and green all over?'"
+                onChange={({ target }) => updateActionText(target.value)}
               />
-            </Fragment>
-          ))}
+            </Label>
 
-          <WideButton type="button" variant="outlined" onClick={addDummyChoice}>
-            <MatIcon icon="filter_vintage" />
-            Add choice
-          </WideButton>
-        </>
-      )}
-    </span>
+            <Hint>
+              Give the player options to respond, and{" "}
+              <Accent>consequences</Accent> for each response.
+            </Hint>
+
+            {choices.length > 0 && (
+              <Label columns="auto">
+                <span className="label flex">
+                  Player&nbsp;<Accent>response</Accent>:
+                </span>
+              </Label>
+            )}
+
+            {choices.map((choice, i) => (
+              <Fragment key={i}>
+                <FormRow columns="repeat(2, 1fr)" gap="0.6rem">
+                  <Label columns="auto">
+                    <span className="label flex">
+                      Enter&nbsp;<Accent>choices</Accent>:
+                    </span>
+                    <Input
+                      aria-invalid={!choice.text}
+                      value={choice.text || ""}
+                      placeholder="e.g. 'A worried cat'"
+                      onChange={({ target }) =>
+                        updateChoiceText(target.value, i)
+                      }
+                    />
+                  </Label>
+
+                  <Label columns="auto">
+                    <span className="label flex">
+                      <MatIcon icon="filter_vintage" />
+                      &nbsp;<Accent>Consequence</Accent>:
+                    </span>
+
+                    <Select
+                      data={explorationTemplateActions}
+                      value={choice.action || ""}
+                      itemText={(d) => d}
+                      itemValue={(d) => d}
+                      emptyMessage="No actions loaded!"
+                      placeholder="Select action:"
+                      onChange={(a) => updateChoiceAction(a, i)}
+                    />
+                  </Label>
+                </FormRow>
+
+                <CreateInteractiveSlotDataForm
+                  event={ExplorationTemplateEvent.CLICK}
+                  action={choice.action}
+                  value={choice.data}
+                  onChange={(d) => updateChoiceData(d, i)}
+                />
+              </Fragment>
+            ))}
+
+            <WideButton
+              type="button"
+              variant="outlined"
+              onClick={addDummyChoice}
+            >
+              <MatIcon icon="filter_vintage" />
+              Add choice
+            </WideButton>
+          </>
+        )}
+      </span>
+    </Container>
   );
 };
 

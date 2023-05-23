@@ -82,3 +82,9 @@ variable "GOOGLE_CLIENT_SK" {
   type        = string
   sensitive   = false
 }
+
+variable "app_version" {
+  description = "A shared app-version value for both API and UI"
+  type        = string 
+  sensitive   = false
+}

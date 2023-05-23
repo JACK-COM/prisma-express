@@ -1,0 +1,19 @@
+{
+  "name": "mythos-forge",
+  "version": "0.0.1",
+  "description": "MythosForge api and UI",
+  "main": "none",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Brokenwire-Apps/mythos-forge.git"
+  },
+  "author": "brokenwire-apps",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Brokenwire-Apps/mythos-forge/issues"
+  },
+  "homepage": "https://github.com/Brokenwire-Apps/mythos-forge#readme"
+}

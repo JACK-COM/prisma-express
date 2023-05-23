@@ -38,8 +38,6 @@ jobs:
         uses: beaconbrigade/package-json-version@v0.3
         with:
           path: .
-      - name: execute print-version
-        run: echo ${{ steps.get-version.outputs.version }} 
       - name: build application
         run: make build
   deploy-dev:
@@ -72,8 +70,6 @@ jobs:
         uses: beaconbrigade/package-json-version@v0.3
         with:
           path: .
-      - name: execute print-version
-        run: echo ${{ steps.get-version.outputs.version }} 
       - name: AWS Config
         run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set default.region us-east-1
       - name: terraform plan

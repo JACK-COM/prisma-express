@@ -33,7 +33,14 @@ resource "aws_security_group" "mf-api-sg" {
     from_port   = 80
     protocol    = "tcp"
     to_port     = 80
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks      = ["${data.aws_vpc.default.cidr_block}"]
+  }
+
+  ingress {
+    from_port   = 443
+    protocol    = "tcp"
+    to_port     = 443
+    cidr_blocks      = ["${data.aws_vpc.default.cidr_block}"]
   }
 
   egress {
@@ -55,11 +62,15 @@ resource "aws_instance" "mf-api-instance" {
   vpc_security_group_ids = [aws_security_group.mf-api-sg.id]
   depends_on             = [aws_security_group.mf-api-sg, aws_db_instance.mf_database]
   key_name               = aws_key_pair.mf_main.key_name
+  lifecycle {
+    create_before_destroy = true
+  }
 
   connection {
     type        = "ssh"
     host        = aws_instance.mf-api-instance.public_ip
     user        = "ubuntu"
+    private_key = file("~/.ssh/mf-main.key")
   }
 
   provisioner "remote-exec" {

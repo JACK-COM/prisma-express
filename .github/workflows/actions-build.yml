@@ -9,19 +9,6 @@ on:
       - "develop"
 
 jobs:
-  get_version:
-    runs-on: ubuntu-latest
-    name: A job to print the version
-    outputs:
-      version: ${{ steps.get-version.outputs.version }}
-    steps:
-      - name: checkout repository
-        uses: actions/checkout@v3
-      - name: get package version
-        id: get-version
-        uses: beaconbrigade/package-json-version@v0.3
-        with:
-          path: .
   build:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
@@ -83,7 +70,5 @@ jobs:
         run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && aws configure set default.region us-east-1
       - name: terraform plan
         run: make tf-plan
-      - name: build application
-        run: make build
       - name: terraform apply
         run: make tf-deploy

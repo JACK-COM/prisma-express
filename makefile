@@ -23,7 +23,7 @@ build:
 	cp -rf ./api/package.json ./api/lib/
 	cp -rf ./api/prisma ./api/lib/
 
-tf-init:
+tf-init: build
 	cd ./terraform && terraform init
 
 tf-upgrade:
@@ -33,7 +33,7 @@ tf-plan: tf-init
 	cd ./terraform && terraform plan -lock=false
 
 tf-deploy: tf-init
-	cd ./terraform && terraform apply -auto-approve -lock=false
+	cd ./terraform && terraform taint aws_instance.mf-api-instance && terraform apply -auto-approve -lock=false
 	aws s3 cp ./web/dist s3://www-mythosforge-app-bucket --recursive --acl public-read
 
 tf-deploy-local: build tf-init

@@ -11,19 +11,25 @@ enum Authenticator {
   facebook
   google
   twitter
+  magiclink
+  local
   other
 }
 
 // A user
 model User {
-  id         Int           @id @default(autoincrement())
-  email      String        @unique @db.VarChar(255)
+  id          Int            @id @default(autoincrement())
+  email       String         @unique @db.VarChar(255)
+  displayName String?        @unique @db.VarChar(255)
+  firstName   String?        @db.VarChar(255)
+  lastName    String?        @db.VarChar(255)
   // Authentication source (facebook, google, twitter, other)
-  authSource Authenticator
-  // Account creation date
-  created    DateTime      @default(now())
+  authSource  Authenticator? @default(local)
   // Last login date
-  lastSeen   DateTime      @default(now())
-  // Account password
-  password   String        @db.VarChar(255)
+  lastSeen    DateTime       @default(now())
+  // Account creation and change dates
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @default(now()) @updatedAt
+  // Account password (optional if using external auth)
+  password    String?        @db.VarChar(255)
 }

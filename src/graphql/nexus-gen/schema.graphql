@@ -5,8 +5,26 @@
 """UTC Date-time"""
 scalar CsDateTime
 
+"""Custom User object"""
+type CsUser {
+  createdAt: CsDateTime!
+  displayName: String
+  email: String!
+  firstName: String
+  id: Int!
+  lastName: String
+  updatedAt: CsDateTime!
+}
+
 type Query {
-  ok: Boolean!
+  """Get the currently authenticated user"""
+  getAuthUser: CsUser
+
+  """Get a user by id"""
+  getUser(id: Int!): CsUser
+
+  """(TEMP): current percentage of user capacity in use."""
+  userCapacityInUse: Int
 }
 
 """Vague measure of pressure in system"""

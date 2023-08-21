@@ -45,6 +45,15 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenObjects {
+  CsUser: { // root type
+    createdAt: NexusGenScalars['CsDateTime']; // CsDateTime!
+    displayName?: string | null; // String
+    email: string; // String!
+    firstName?: string | null; // String
+    id: number; // Int!
+    lastName?: string | null; // String
+    updatedAt: NexusGenScalars['CsDateTime']; // CsDateTime!
+  }
   Query: {};
 }
 
@@ -59,18 +68,45 @@ export type NexusGenRootTypes = NexusGenObjects
 export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars & NexusGenEnums
 
 export interface NexusGenFieldTypes {
+  CsUser: { // field return type
+    createdAt: NexusGenScalars['CsDateTime']; // CsDateTime!
+    displayName: string | null; // String
+    email: string; // String!
+    firstName: string | null; // String
+    id: number; // Int!
+    lastName: string | null; // String
+    updatedAt: NexusGenScalars['CsDateTime']; // CsDateTime!
+  }
   Query: { // field return type
-    ok: boolean; // Boolean!
+    getAuthUser: NexusGenRootTypes['CsUser'] | null; // CsUser
+    getUser: NexusGenRootTypes['CsUser'] | null; // CsUser
+    userCapacityInUse: number | null; // Int
   }
 }
 
 export interface NexusGenFieldTypeNames {
+  CsUser: { // field return type name
+    createdAt: 'CsDateTime'
+    displayName: 'String'
+    email: 'String'
+    firstName: 'String'
+    id: 'Int'
+    lastName: 'String'
+    updatedAt: 'CsDateTime'
+  }
   Query: { // field return type name
-    ok: 'Boolean'
+    getAuthUser: 'CsUser'
+    getUser: 'CsUser'
+    userCapacityInUse: 'Int'
   }
 }
 
 export interface NexusGenArgTypes {
+  Query: {
+    getUser: { // args
+      id: number; // Int!
+    }
+  }
 }
 
 export interface NexusGenAbstractTypeMembers {

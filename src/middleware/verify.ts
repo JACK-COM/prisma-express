@@ -167,8 +167,7 @@ export async function createUserLocal(
   const strongPwd = checkPasswordStrength(pwd);
   if (!strongPwd) return cb(new Error("New Password is not strong enough"));
 
-  const password = await encrypt(pwd);
-  const opts: CreateOpts = { email, password, authSource: "other" };
+  const opts: CreateOpts = { email, password: pwd, authSource: "other" };
   const [err, user] = await getOrCreateUser(opts);
   return cb(err, user);
 }

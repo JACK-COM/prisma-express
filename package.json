@@ -1,12 +1,12 @@
 {
   "name": "prisma-express",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "BoilerPlate Node TS+Express+Authentication App (with Prisma)",
   "main": "index.js",
   "scripts": {
     "prestart": "dotenv -- ts-node-dev ./scripts/db-migrate.ts",
     "start": "dotenv -- ts-node-dev --transpile-only --no-notify src/server.ts",
-    "generate-keys": "ts-node-dev first-run.ts",
+    "generate-keys": "ts-node-dev srcipts/first-run.ts",
     "build": "npm run clean && npm run nexus:reflect && NODE_ENV=\"production\" tsc",
     "clean": "rm -rf ./lib",
     "nexus:reflect": "NODE_ENV=\"production\" ts-node-dev --transpile-only ./src/graphql",

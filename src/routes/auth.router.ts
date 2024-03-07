@@ -1,7 +1,8 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import { AuthenticateOptions, PassportStatic } from "passport";
 import { FRONTEND_URL } from "../constants";
-import { createUserLocal } from "../middleware/verify";
+import { createUserLocal } from "../middleware/auth.verify";
+import { slugify } from "../utils";
 
 // AUTH ROUTES
 const GOOGLE_LOGIN_REDIRECT = "/oauth2/redirect/google";
@@ -56,18 +57,23 @@ export default function configureAuthRoutes(
       return void res.status(400).send("email and password required");
     }
 
-    createUserLocal(email, password, function (err, user) {
-      if (err) {
-        const e = typeof err === "string" ? new Error(err) : err;
-        return void res.status(400).send(e.message);
+    createUserLocal({
+      displayName: slugify(email.split("@")[0]),
+      email,
+      pwd: password,
+      cb: function (err, user) {
+        if (err) {
+          const e = typeof err === "string" ? new Error(err) : err;
+          return void res.status(400).send(e.message);
+        }
+
+        if (!user) return void res.status(400).send("Error creating user");
+
+        return req.logIn(user, function (err) {
+          if (err) return next(err);
+          return res.json({ user: req.user });
+        });
       }
-
-      if (!user) return void res.status(400).send("Error creating user");
-
-      return req.logIn(user, function (err) {
-        if (err) return next(err);
-        return res.json({ user: req.user });
-      });
     });
   });
 

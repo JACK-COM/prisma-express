@@ -5,13 +5,13 @@ import { PrismaClient, User } from "@prisma/client";
  * graphql context. It is attached in `server.ts` and can be accessed
  * in any resolver via `ctx.user`
  */
-export type CtxUser = Pick<User, "id" | "displayName" | "email">;
+export type CtxUser = Pick<User, "id" | "displayName" | "image" | "lastSeen" | "email">;
 
 /**
  * `PrismaClient` instance with all tables. Contents will be determined
  * by what you put in the `schema.prisma` file
  */
-const db = new PrismaClient();
+export const db = new PrismaClient();
 
 /**
  * This interface defines a global context object. It is a good place

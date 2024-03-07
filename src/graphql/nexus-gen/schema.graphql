@@ -22,9 +22,6 @@ type Query {
 
   """Get a user by id"""
   getUser(id: Int!): CsUser
-
-  """(TEMP): current percentage of user capacity in use."""
-  userCapacityInUse: Int
 }
 
 """Vague measure of pressure in system"""

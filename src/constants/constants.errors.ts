@@ -7,6 +7,7 @@ export const NO_NAME = "Name not found";
 export const NO_PASSWORD = "Password not found";
 export const NO_USER = "User not found";
 export const USER_EMAIL_EXISTS = "Email already exists";
+export const USER_SCREENNAME_EXISTS = "Screenname already exists";
 export const PASSPORT_CONFIG_ERROR = `PassportJS Configuration Error: 
 env JWT_SEC not set. Please run "npm run generate-keys" and transfer contents to .env file.
 

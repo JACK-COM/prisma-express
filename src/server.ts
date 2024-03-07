@@ -1,113 +1,110 @@
-// import "graphql-import-node";
-import { ApolloServer } from "apollo-server-express";
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { json } from "body-parser";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import { schema } from "./graphql/index";
-import { context } from "./graphql/context";
+import { CtxUser, DBContext, context } from "./graphql/context";
+import http from "http";
 import logger from "./logger";
 import { configurePassport } from "./services/passport";
-import {
-  FRONTEND_URL,
-  PORT,
-  GOOGLE_CLIENT_ID as clientID,
-  GOOGLE_CLIENT_SK as clientSecret,
-  env
-} from "./constants";
-import {
-  fileDeleteHandler,
-  fileUploadHandler,
-  listUserFilesHandler
-} from "./services/aws.service";
+import { BaseUrl, PORT, IS_PROD, ENV } from "./constants";
 import multer from "multer";
-import GoogleStrategy from "passport-google-oidc";
-import LocalStrategy from "passport-local";
 import configureAuthRoutes from "./routes/auth.router";
-import { verifyFederated, verifyLocal } from "./middleware/verify";
-import { rateLimit } from "express-rate-limit";
+import { fileUploadHandler } from "./services/aws.service";
+import { configureRateLimiter } from "./middleware/auth.guards";
+
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 /** Run server */
 async function main() {
   const app = express();
-  app.set("trust proxy", env !== "production");
-  app.use(morgan("dev"));
+  app.set("trust proxy", Number(!IS_PROD));
+  app.use(
+    morgan(
+      '{"method": ":method","url": ":url","status": ":status","content-length": ":res[content-length]","response-time": ":response-time"}'
+    )
+  );
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
+
   // CORS
-  const origin = [FRONTEND_URL];
-  if (env !== "production") origin.push("https://studio.apollographql.com");
-  app.use("*", cors({ credentials: true, origin }), json());
+  // Splice www subdomain into allowed origins
+  const APP_UI = BaseUrl();
+  const origins = new Set([APP_UI]);
+  if (!IS_PROD) {
+    origins.add("https://studio.apollographql.com");
+  } else origins.add(APP_UI.replace("://", "://www."));
+  const origin = Array.from(origins);
+  logger.info(`CORS allowed origins: ${origin.join(", ")}`);
+  const CORS_MIDDLEWARE = cors({ credentials: true, origin });
+  app.use("*", CORS_MIDDLEWARE, json());
+
+  // RATE LIMITER
   configureRateLimiter(app); // rate Limiter
 
+  // HEALTH CHECK
+  app.get("/", (_req, res) => res.status(200).send("OK"));
+
+  // PASSPORTJS
   // PassportJS authentication
   const passport = configurePassport(app);
-  const callbackURL = `/oauth2/redirect/google`;
-  // PassportJS | Enable Google sign-in strategy
-  passport.use(
-    new GoogleStrategy({ clientID, clientSecret, callbackURL }, verifyFederated)
-  );
-  // PassportJS | Enable "local" (username/password) sign-in strategy
-  passport.use(
-    new LocalStrategy.Strategy({ usernameField: "email" }, verifyLocal)
-  );
-
   // Register Express authentication routes (auth.router.ts)
   configureAuthRoutes(app, passport);
 
-  // APOLLO SERVER
-  const apolloServer = new ApolloServer({
-    context: ({ req }) => ({ ...context, user: req.user }),
-    schema,
-    cache: "bounded",
-    persistedQueries: false,
-    logger
-  });
-  await apolloServer.start();
-  apolloServer.applyMiddleware({ app, cors: { credentials: true, origin } });
-
   // ADDITIONAL NON-GRAPHQL ROUTES
-  app.get("/health", (_req, res) => res.status(200).send("OK"));
 
-  // AWS File Uploads
-  app.post("/files/:category/delete", fileDeleteHandler);
-  app.post("/files/:category/list", listUserFilesHandler);
-  const upload = multer();
-  // NOTE: This expects a form-data body with a file field named
-  // `imageFile`! Change the parameter of upload.single to match your
-  // form field name
+  // File Uploads
+  const upload = multer({
+    limits: {
+      fieldSize: MAX_FILE_SIZE_BYTES, // 10MB
+      fileSize: MAX_FILE_SIZE_BYTES, // 10MB
+      files: 1
+    }
+  });
+
+  // NOTE: This expects a form-data body with a file field named `imageFile`!
   app.post(
     "/files/:category/upload",
     upload.single("imageFile"),
     fileUploadHandler
   );
 
-  // RUN APP
-  app.listen(PORT, async () => {
-    let live = "LIVE";
-    if (env !== "production") {
-      logger.warn(`${env} mode active`);
-      live = `${live} (${env}) @${PORT}/graphql`;
-    } else live = `${live} @${PORT}`;
-    logger.info(live);
-  });
-}
-main();
+  // GLOBAL ROUTE GUARDS
 
-/** (Optional) Set up rate-limits for accessing your server app */
-function configureRateLimiter(app: any) {
-  if (env !== "production") return;
-  const message = "Too many requests; please try again later";
-  const data = { __typename: "ResponseErrorMessage", message };
-  const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message,
-    handler(opts) {
-      opts.res?.status(429).send({ data });
-    }
+  // Create HTTP server
+  const httpServer = http.createServer(app);
+  // ATTACH APOLLO SERVER
+  const apolloServer = new ApolloServer<DBContext>({
+    schema,
+    cache: "bounded",
+    persistedQueries: false,
+    logger,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
   });
-  app.use(limiter);
+  await apolloServer.start();
+
+  app.use(
+    "/graphql",
+    CORS_MIDDLEWARE,
+    express.json(),
+    expressMiddleware(apolloServer, {
+      context: async ({ req }) => ({ ...context, user: req.user as CtxUser })
+    })
+  );
+
+  // LISTEN TO APP START
+  httpServer.listen(PORT, () => {
+    let live = "LIVE";
+    if (!IS_PROD) {
+      logger.warn(`${ENV} mode active`);
+      live = `${live} (${ENV}) @${PORT}/graphql`;
+    } else live = `${live} @${PORT}`;
+    logger.info(`🚀 ${live}`);
+  });
 }
+
+// RUN SERVER
+main();

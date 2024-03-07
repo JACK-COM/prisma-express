@@ -1,3 +1,5 @@
+import * as encrypt from "bcryptjs";
+
 /** strip all characters from a filename */
 export function stripSpecialCharacters(st: string) {
   const strip = /[^a-zA-Z0-9_.]/g;
@@ -28,4 +30,21 @@ export function safeNum(v: any) {
 /** Convert a possibly undefined string into an empty string */
 export function safeStr(v: any) {
   return falsy(v) ? "" : String(v);
+}
+
+/**
+ * Generate a unique slug from a string. Idempotent (same string in = same slug out).
+ * Pass an `optionalSource` if `str` is a substring of a larger value, so that the slug
+ * will always represent the full string.
+ */
+export function slugify(str: string, optionalSource?: string) {
+  const slugged = str
+    .toLowerCase()
+    .replace(/[^\w ]+/g, "")
+    .replace(/ +/g, "-");
+  const enc = encrypt.hash(optionalSource || str);
+  let hex = Buffer.from(enc).toString("hex");
+  const randlength = hex.length;
+  hex = hex.slice(randlength - 12, randlength);
+  return `${slugged.slice(0, 12)}-${hex}`;
 }

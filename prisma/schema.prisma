@@ -18,18 +18,21 @@ enum Authenticator {
 
 // A user
 model User {
-  id          Int            @id @default(autoincrement())
-  email       String         @unique @db.VarChar(255)
-  displayName String?        @unique @db.VarChar(255)
-  firstName   String?        @db.VarChar(255)
-  lastName    String?        @db.VarChar(255)
+  id                  Int            @id @default(autoincrement())
+  email               String         @unique @db.VarChar(255)
+  displayName         String?        @unique @db.VarChar(255)
+  firstName           String?        @db.VarChar(255)
+  lastName            String?        @db.VarChar(255)
+  image               String?        @db.VarChar(255)
+  resetToken          String?        @db.VarChar(255)
+  resetTokenRequested DateTime?
   // Authentication source (facebook, google, twitter, other)
-  authSource  Authenticator? @default(local)
+  authSource          Authenticator? @default(local)
   // Last login date
-  lastSeen    DateTime       @default(now())
+  lastSeen            DateTime       @default(now())
   // Account creation and change dates
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @default(now()) @updatedAt
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @default(now()) @updatedAt
   // Account password (optional if using external auth)
-  password    String?        @db.VarChar(255)
+  password            String?        @db.VarChar(255)
 }

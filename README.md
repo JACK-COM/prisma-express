@@ -3,9 +3,14 @@
 A lightweight `Node`-`Typescript`-`Express`-`Prisma` quick-starter with semi-advanced user authentication (see dependencies).\
 Forked from [**AWallace's version**](https://github.com/vawallace/base-node-express).
 
+## ⚠️ Warning
+This is designed for scaffolding and hacking pretty quickly. It assumes a relational database (and NOT a single table) architecture.\
+Although it doesn't inherently cut any corners, please keep future scaling concerns in mind as you proceed.
+
 ---
 
 - [🚄 *Prisma-Express*](#-prisma-express)
+  - [⚠️ Warning](#️-warning)
   - [Getting Started](#getting-started)
     - [Setup Environment Variables](#setup-environment-variables)
     - [Setup Database](#setup-database)
@@ -75,8 +80,16 @@ Outputs to `/lib`
 #### Table Changes and Database Migrations 
 To add (or change) your database: 
 1. Modify the `schema.prisma` file (add tables/columns/etc) and save your changes
-2. In the project root, run `npm run db-migrate` to have Prisma generate migration files
+2. Restart the app. Migrations will be automatically applied.
 
+> ### ⚠️ Careful when adding Enums
+> Database enums should not be created and applied as a default value in the same migration. This might
+> result in silently failed migrations.
+> 
+> To avoid this:
+> 1. Add a new enum and trigger migrations (including in production), 
+> 2. As a separate step, apply the new enum (or enum value) as a default column value. 
+> 
 
 ---
 
@@ -88,7 +101,7 @@ This repository comes with the following (in no particular order):
 3. [Apollo server](https://www.apollographql.com/docs/apollo-server) 
 4. [GraphQL Nexus](https://nexusjs.org/) (Code-first schema generation for graphql)
 5. [Express Server](https://expressjs.com/)
-6. [Typescript 5.1](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-1.html)
+6. [Typescript 5.x](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-3.html)
 7. [Luxon](https://moment.github.io/luxon/#/?id=luxon) (for datetime management)
 8. [@aws-sdk/client-s3](https://www.npmjs.com/package/@aws-sdk/client-s3) (new AWS sdk for image uploading -- also optional)
 9. [**Express Rate Limit**](https://www.npmjs.com/package/express-rate-limit) (for rate-limiting | see `server.ts`)

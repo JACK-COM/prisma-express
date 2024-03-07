@@ -6,17 +6,6 @@
 import { intArg, nonNull, queryField } from "nexus";
 import * as UsersService from "../../services/users.service";
 
-/** (ALPHA): Current percentage of user capacity in use. Remove after launch */
-export const userCapacityInUse = queryField("userCapacityInUse", {
-  type: "Int",
-  description: "(TEMP): current percentage of user capacity in use.",
-  resolve: async (_, _args, _ctx) => {
-    const userCount = await UsersService.countUsers();
-    if (userCount >= UsersService.USER_CAP) return 100;
-    return Math.round((userCount / UsersService.USER_CAP) * 100);
-  }
-});
-
 /** Get authenticated user */
 export const getAuthUser = queryField("getAuthUser", {
   type: "CsUser",

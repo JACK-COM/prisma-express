@@ -12,7 +12,6 @@ type SearchUserInput = Partial<
   Pick<User, "displayName" | "firstName" | "lastName" | "email">
 >;
 const { Users } = context;
-export const USER_CAP = 99;
 
 /** count `User` records */
 export async function countUsers() {

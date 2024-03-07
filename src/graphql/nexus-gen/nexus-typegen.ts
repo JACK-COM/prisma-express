@@ -80,7 +80,6 @@ export interface NexusGenFieldTypes {
   Query: { // field return type
     getAuthUser: NexusGenRootTypes['CsUser'] | null; // CsUser
     getUser: NexusGenRootTypes['CsUser'] | null; // CsUser
-    userCapacityInUse: number | null; // Int
   }
 }
 
@@ -97,7 +96,6 @@ export interface NexusGenFieldTypeNames {
   Query: { // field return type name
     getAuthUser: 'CsUser'
     getUser: 'CsUser'
-    userCapacityInUse: 'Int'
   }
 }
 

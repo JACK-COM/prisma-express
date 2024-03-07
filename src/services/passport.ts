@@ -2,7 +2,7 @@ import { Express } from "express";
 import cookieParser from "cookie-parser";
 import session from "cookie-session";
 import passport from "passport";
-import { PASSPORT_CONFIG_ERROR, env } from "../constants";
+import { PASSPORT_CONFIG_ERROR, ENV } from "../constants";
 import logger from "../logger";
 
 export default passport;
@@ -19,7 +19,7 @@ export function configurePassport(app: Express) {
     logger.error(PASSPORT_CONFIG_ERROR);
     throw new Error(PASSPORT_CONFIG_ERROR);
   }
-  const secure = env === "production";
+  const secure = ENV === "production";
   const sessionCookie = { maxAge, httpOnly: true, secure };
   const sessionOpts = {
     cookie: sessionCookie,

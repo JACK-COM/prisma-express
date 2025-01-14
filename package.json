@@ -6,7 +6,7 @@
   "scripts": {
     "prestart": "dotenv -- ts-node-dev ./scripts/db-migrate.ts",
     "start": "dotenv -- ts-node-dev --transpile-only --no-notify src/server.ts",
-    "generate-keys": "ts-node-dev ./scripts/first-run.ts",
+    "generate-keys": "ts-node-dev ./scripts/generate-keys.ts",
     "build": "npm run clean && npm run nexus:reflect && NODE_ENV=\"production\" tsc",
     "clean": "rm -rf ./lib",
     "nexus:reflect": "NODE_ENV=\"production\" ts-node-dev --transpile-only ./src/graphql",

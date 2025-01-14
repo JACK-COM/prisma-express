@@ -9,14 +9,13 @@ generateKey("aes", { length: 256 }, (err, key) => {
   const ENCRYPT = key.export().toString("hex");
 
   console.clear();
-  console.log("Move these values to your .env file");
-  console.log();
-  console.log(`
+  const output = `Update (or add) these values in your .env file:
+  
     JWT_SEC="${JWT_SEC}"
     ENCRYPT="${ENCRYPT}"
-  `);
-  console.log();
-  console.log("Kill the terminal process when done [ Ctrl + c ]");
+  `;
+  console.log(output);
+  process.exit();
 });
 
 export {};

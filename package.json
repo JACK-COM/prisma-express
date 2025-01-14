@@ -1,6 +1,6 @@
 {
   "name": "prisma-express",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "BoilerPlate Node TS+Express+Authentication App (with Prisma)",
   "main": "index.js",
   "scripts": {

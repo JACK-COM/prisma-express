@@ -13,9 +13,9 @@ Forked from [**AWallace's version**](https://github.com/vawallace/base-node-expr
   - [Running](#running)
   - [Build](#build)
   - [Table Changes and Database Migrations](#table-changes-and-database-migrations)
-  - [Dependencies](#dependencies)
   - [PLEASE NOTE](#please-note)
   - [Code Helpers](#code-helpers)
+  - [Dependencies](#dependencies)
   - [Contributing](#contributing)
 
 ---
@@ -74,8 +74,7 @@ When you run `start`,
 
    1. A prisma migration script will compare the connected database to the `schema.prisma` file
    2. If differences are found, relevant migrations will be created and applied.
-
-If you are not using a database (or don't want this behavior), remove the "prestart" script from `package.json`
+   3. This will COMPRESS your migration history (i.e. there will only ever be your "creation" SQL, and the latest migration-from-diff file). If you are not using a database or don't want this behavior, change/remove the "prestart" script from `package.json`.
 
 ## Build
 
@@ -101,10 +100,36 @@ To add (or change) your database:
 > To avoid this:
 >
 > 1. Add your new enum (or enum property) and trigger migrations.
-> 2. Deploy the new enum/enum property to your production environment.
-> 3. Apply the new enum (or enum value) as a default column value, and trigger migrations again.
+> 2. Apply the new enum (or enum value) as a default column value, and trigger migrations again.
 >
 > This helps to prevent one source of silent migration failures.
+
+## PLEASE NOTE
+
+- You can update individual dependencies without breaking anything.
+  - If something *does* break after an update, it might be an interdependency issue (e.g. ***Apollo Server X.0.0** needs **Express Y.0.0***). Check the documentation of your dependencies if this happens.
+- ⚠️ This is designed for scaffolding and hacking pretty quickly. It assumes a relational database (and NOT a single table) architecture.
+  - Although it doesn't inherently cut any corners, please keep future scaling concerns in mind as you proceed.
+
+## Code Helpers
+
+Functional helpers: you can (and may likely need to) tweak these for your own use.
+
+- AWS Image and file uploading defined in (`./src/services/aws.service.ts`)
+  - Available Handlers:
+    - `listUserFilesHandler()`
+    - `fileDeleteHandler()`
+    - `fileUploadHandler()`
+    - `handleUploadToAWS()`
+    - `uploadFile()`
+    - `removeFile()`
+  - Routes: (`/server.ts`)
+- User authentication and registration
+  - ExpressJS Routes defined in `./src/routes/passport.router.ts`
+  - Available Handlers:
+    - `configurePassport()` (creates passport-related routes)
+
+This should be enough to get you started quickly.
 
 ---
 
@@ -112,43 +137,18 @@ To add (or change) your database:
 
 This repository comes with the following (in no particular order):
 
-1. [Prisma](https://pris.ly/d/getting-started)\
-  (Code-first database ORM)
-2. [PassportJS](http://www.passportjs.org/docs/)\
-  (authentication via google and username/password only; you can implement more)
-3. [Apollo server](https://www.apollographql.com/docs/apollo-server)
-4. [NexusJS (for GraphQL)](https://nexusjs.org/)\
-  (Code-first schema generation for graphql)
-5. [Express Server](https://expressjs.com/)
-6. [Luxon](https://moment.github.io/luxon/#/?id=luxon)\
-  (Datetime management)
-7. [@aws-sdk/client-s3](https://www.npmjs.com/package/@aws-sdk/client-s3)\
-  (new AWS sdk for image uploading -- also optional)
-8. [**Express Rate Limit**](https://www.npmjs.com/package/express-rate-limit)\
-  (for rate-limiting | see `src/middleware/auth.guards.ts`)
-9. [**Argon2**](https://www.npmjs.com/package/argon2)\
-  (password encryption)
+1. [**@aws-sdk/client-s3**](https://www.npmjs.com/package/@aws-sdk/client-s3) (new AWS sdk for image uploading -- also optional)
+2. [**Prisma**](https://pris.ly/d/getting-started) (Code-first database ORM)
+3. [**PassportJS**](http://www.passportjs.org/docs/) (authentication via google and username/password only; you can implement more)
+4. [**Apollo server**](https://www.apollographql.com/docs/apollo-server)
+5. [**NexusJS (for GraphQL)**](https://nexusjs.org/) (Code-first schema generation for graphql)
+6. [**Express Server**](https://expressjs.com/)
+7. [**Luxon**](https://moment.github.io/luxon/#/?id=luxon) (Datetime management)
+8. [**Express Rate Limit**](https://www.npmjs.com/package/express-rate-limit) (rate-limiting | see `src/middleware/auth.guards.ts`)
+9. [**Argon2**](https://www.npmjs.com/package/argon2) (password encryption)
 
 The app is written in [Typescript 5.x](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-3.html).
 
-## PLEASE NOTE
-
-⚠️ This is designed for scaffolding and hacking pretty quickly. It assumes a relational database (and NOT a single table) architecture.\
-Although it doesn't inherently cut any corners, please keep future scaling concerns in mind as you proceed.
-
-## Code Helpers
-
-Functional helpers exist for
-
-- Image uploading
-  - Routes in (`/server.ts`)
-  - Upload handlers in (`services/aws.service.ts`)
-- User authentication and registration
-  - Routes in (`/server.ts` via `configurePassport`)
-  - Handlers in (`services/passport.ts`, `middleware/verify.ts`)
-
-This should be enough to get you started quickly.
-
 ## Contributing
 
-💡Any and all suggestions and pull requests are welcome!
+💡 Any and all suggestions and pull requests are welcome!

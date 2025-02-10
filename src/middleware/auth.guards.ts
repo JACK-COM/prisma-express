@@ -1,12 +1,13 @@
-import { Express, NextFunction, Request, Response } from "express";
-import logger from "../logger";
-import { getUserById } from "../services/users.service";
-import { CtxUser } from "../graphql/context";
+import { NextFunction, Request, Response } from "express";
 import { DateTime } from "luxon";
-import { UNAUTHENTICATED } from "../constants";
-import rateLimit from "express-rate-limit";
+import logger from "../logger";
+import { UNAUTHENTICATED, USER_LOGGED_OUT } from "../constants";
+import { CtxUser } from "../graphql/context";
+import { fromCtxUser } from "./auth.ctx-user";
 
-/** @Middleware ensure that the authenticated user matches the db user, and update their last-seen date */
+/**
+ * @Middleware Match the authenticated user to db data, or log requester out
+ */
 export async function matchDBUserGuardian(
   req: Request,
   res: Response,
@@ -20,56 +21,39 @@ export async function matchDBUserGuardian(
   const user = req.user as CtxUser;
   if (!req.isAuthenticated() || !(req.user as CtxUser)) return next();
   // We need to ensure that the authenticated user matches the db user: if not, log them out
-  const userMatch = await matchDBUserToAuth(req.user as CtxUser);
-  if (!userMatch) {
-    logger.warn(`User (${user.id}, ${user.email}) email mismatch; logging out`);
+  const { error, data } = await fromCtxUser(user);
+  if (error || !data) {
+    logger.warn(`User ${user.id} does not match ${user.email}: logging out`);
     return handleLogout(req, res, next);
   }
-  // Log the user out if they've been inactive for 14 days
-  const lastSeen = DateTime.fromJSDate(new Date(userMatch.lastSeen));
-  const now = DateTime.now();
-  const inactive = now.diff(lastSeen, "days").days > 14;
-  if (inactive) {
-    logger.warn(`User (${user.id}, ${user.email}) inactive; logging out`);
-    return handleLogout(req, res, next);
-  }
+  // Log the user out if last-seen is greater than 14 days
+  const lastSeen = DateTime.fromJSDate(new Date(data.lastSeen));
+  const inactive = DateTime.now().diff(lastSeen, "days").days > 14;
+  if (!inactive) return next();
 
-  return next();
+  logger.warn(`User (${user.id}, ${user.email}) inactive; logging out`);
+  return handleLogout(req, res, next);
 }
 
-/** @Middleware ensure that the authenticated user matches the db user */
-async function matchDBUserToAuth(user: CtxUser) {
-  const dbUser = await getUserById(user.id);
-  if (!dbUser || dbUser.email !== user.email) return null;
-  return dbUser;
-}
-
-/** shared logout handler */
+/**
+ * shared logout handler
+ */
 export function handleLogout(req: Request, res: Response, next: NextFunction) {
   req.logout((err) => {
     if (err) return next(err);
-    req.logout(() => res.status(200).send());
+    const loggedOut = { data: { message: USER_LOGGED_OUT } };
+    req.logout(() => res.status(200).json(loggedOut));
   });
 }
 
-/** Rate-limiter for routes */
-export function configureRateLimiter(app: Express) {
-  const limiter = rateLimit({
-    windowMs: 1000,
-    limit: 12,
-    standardHeaders: "draft-7",
-    legacyHeaders: false
-  });
-  app.use(limiter);
-}
-
-/** Simple authentication guard */
+/** Authentication guard: require authenticated request or fail */
 export function authenticatedUserGuardian(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
+  const err = { error: UNAUTHENTICATED };
   if (!req.user || !req.isAuthenticated())
-    return res.status(401).send(UNAUTHENTICATED);
+    return void res.status(401).json(err);
   return next();
 }

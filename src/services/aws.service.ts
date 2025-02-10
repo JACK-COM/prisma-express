@@ -29,14 +29,14 @@ const BUCKETS = new Set(Object.keys(categoryBucket));
 
 /** List a user's files in S3 */
 export async function listUserFilesHandler(req: Request, res: Response) {
-  if (!req.user) return res.status(401).send("Unauthenticated user");
+  if (!req.user) return void res.status(401).send("Unauthenticated user");
   const { category } = req.params;
   if (!BUCKETS.has(category))
-    return res.status(400).send({ errors: "Invalid image category" });
+    return void res.status(400).send({ errors: "Invalid image category" });
 
   const userId = (req.user as CtxUser).id;
   const files = await listUserAWSFiles(userId, category as ImageCategory);
-  return res.status(200).send({ files });
+  return void res.status(200).send({ files });
 }
 
 /** @helper Extract image file names from AWS response */
@@ -63,15 +63,15 @@ export async function listUserAWSFiles(
 
 /** Delete an image */
 export async function fileDeleteHandler(req: any, res: Response) {
-  if (!req.user) return res.status(401).send("Unauthenticated user");
+  if (!req.user) return void res.status(401).send("Unauthenticated user");
   const { category } = req.params;
   if (!category || !BUCKETS.has(category))
-    return res.status(400).send({ errors: "Invalid image category" });
+    return void res.status(400).send({ errors: "Invalid image category" });
 
   const userId = req.user.id;
   const filePath = `${userId}/${req.body.fileName}`;
   await removeFile(IMGS_BUCKET, filePath);
-  return res.status(200).send({ message: "File deleted" });
+  return void res.status(200).send({ message: "File deleted" });
 }
 
 /**
@@ -81,11 +81,13 @@ export async function fileDeleteHandler(req: any, res: Response) {
  * @param {Buffer} req.files.file - The file to upload
  */
 export async function fileUploadHandler(req: any, res: Response) {
-  if (!req.user) return res.status(401).send("Unauthenticated user");
+  if (!req.user)
+    return void res.status(401).send({ error: "Unauthenticated user" });
+  
   const { file, body, params } = req;
   const { category } = params;
   if (!category || !BUCKETS.has(category))
-    return res.status(400).send({ errors: "Invalid image category" });
+    return void res.status(400).send({ error: "Invalid image category" });
 
   let fileData: any = file;
   if (body.fileType === "base64") {
@@ -100,10 +102,11 @@ export async function fileUploadHandler(req: any, res: Response) {
     category,
     imgContentType: body.imgContentType
   });
-  if (!result) return res.status(500).send({ errors: "Error uploading image" });
+  if (!result)
+    return void res.status(500).json({ error: "Error uploading image" });
 
   // return new file URL
-  return res.status(200).send(result);
+  return void res.status(200).json({ data: result });
 }
 
 // HELPER FUNCTIONS
@@ -135,7 +138,7 @@ export async function handleUploadToAWS(opts: HandleUploadOpts) {
     fileData,
     ContentType: imgContentType
   });
-  return result;
+  return void result;
 }
 
 export async function uploadFile(opts: AWSFileOpts) {

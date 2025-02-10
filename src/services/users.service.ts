@@ -6,12 +6,21 @@ import { Prisma, User } from "@prisma/client";
 import { DateTime } from "luxon";
 import { context } from "../graphql/context";
 
-export type UpsertUserInput = Prisma.UserUpsertArgs["create"] &
-  Prisma.UserUpsertArgs["update"];
-type SearchUserInput = Partial<
-  Pick<User, "displayName" | "firstName" | "lastName" | "email">
->;
+export type UpsertUserInput =
+  | Prisma.UserUpsertArgs["create"]
+  | Prisma.UserUpsertArgs["update"];
+type UserSearchInput = Partial<Pick<User, "displayName" | "email" | "id">>;
+type UserQueryOpts = Prisma.UserWhereInput & Prisma.UserWhereUniqueInput;
+
 const { Users } = context;
+const now = () => DateTime.now().toJSDate();
+
+/** shared fields when selecting a user */
+const userSelect: Prisma.UserSelect = {
+  id: true,
+  displayName: true,
+  lastSeen: true
+};
 
 /** count `User` records */
 export async function countUsers() {
@@ -20,41 +29,38 @@ export async function countUsers() {
 
 /** create `User` record */
 export async function upsertUser(user: UpsertUserInput) {
-  const now = DateTime.now().toJSDate();
   const data: UpsertUserInput = { ...user };
-  data.updatedAt = now;
+  if (user.id) return Users.update({ data, where: { id: user.id as number } });
 
-  if (!data.id) {
-    data.createdAt = now;
-    return Users.create({ data });
-  }
-
-  return Users.update({ data, where: { id: data.id } });
+  data.createdAt = now();
+  return Users.create({ data: data as Prisma.UserUpsertArgs["create"] });
 }
 
-/** find ALL `User` records matching params */
-export async function findAllUser(filters: SearchUserInput) {
-  const where = constructWhereInput(filters);
+/** @internal find ALL `User` records matching params */
+export async function findAllUser(filters: UserSearchInput) {
+  const where = buildQuery(filters);
   return Users.findMany({ where });
 }
 
 /** find FIRST `User` records matching params */
-export async function findFirstUser(
-  filters: SearchUserInput & { id?: number }
-) {
-  return Users.findUnique({ where: constructWhereInput(filters) });
+export async function findFirstUser(filters: UserSearchInput) {
+  return Users.findUnique({ where: buildQuery(filters) });
 }
 
 /** find ONE `User` record matching params (returns more stuff) */
-export async function getExpandedUser(filters: SearchUserInput) {
-  return Users.findUnique({
-    where: constructWhereInput(filters)
-  });
+export async function getExpandedUser(filters: UserSearchInput) {
+  return Users.findUnique({ where: buildQuery(filters) });
 }
 
+/** default fields for selecting a user */
 /** find one `User` record matching params */
-export async function getUserById(id: User["id"]) {
-  return Users.findUnique({ where: { id } });
+export async function getUser<T extends Prisma.UserSelect>(
+  queryOpts: UserSearchInput,
+  fields = userSelect as T,
+  mergeFields = false
+) {
+  const select = (mergeFields ? { ...userSelect, ...fields } : fields) as T;
+  return Users.findUnique({ select, where: buildQuery(queryOpts) });
 }
 
 /** delete `User` record matching params */
@@ -64,14 +70,9 @@ export async function deleteUser(id: number) {
 
 // HELPERS
 
-function constructWhereInput(filters: SearchUserInput) {
-  const where: any = {};
-  if (filters.email) where.email = filters.email;
-
-  where.OR = [];
-  if (filters.displayName) where.OR.push({ displayName: filters.displayName });
-  if (filters.firstName) where.OR.push({ firstName: filters.firstName });
-  if (filters.lastName) where.OR.push({ lastName: filters.lastName });
-  if (where.OR.length === 0) delete where.OR;
-  return where as Prisma.UserWhereInput & Prisma.UserWhereUniqueInput;
+function buildQuery(filters: UserSearchInput) {
+  const where = {} as UserQueryOpts;
+  if (filters.displayName) where.displayName = filters.displayName;
+  if (filters.id) where.id = filters.id;
+  return where;
 }

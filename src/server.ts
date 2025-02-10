@@ -5,16 +5,17 @@ import { json } from "body-parser";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import multer from "multer";
+import http from "http";
+import { BaseUrl, PORT, IS_PROD, ENV } from "./constants";
+import logger from "./logger";
 import { schema } from "./graphql/index";
 import { CtxUser, DBContext, context } from "./graphql/context";
-import http from "http";
-import logger from "./logger";
-import { configurePassport } from "./services/passport";
-import { BaseUrl, PORT, IS_PROD, ENV } from "./constants";
-import multer from "multer";
+import { configurePassport } from "./routes/passport.router";
 import configureAuthRoutes from "./routes/auth.router";
 import { fileUploadHandler } from "./services/aws.service";
-import { configureRateLimiter } from "./middleware/auth.guards";
+import configureRateLimiter from "./middleware/rate-limiter";
+import { authenticatedUserGuardian } from "./middleware/auth.guards";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
@@ -46,7 +47,7 @@ async function main() {
   configureRateLimiter(app); // rate Limiter
 
   // HEALTH CHECK
-  app.get("/", (_req, res) => res.status(200).send("OK"));
+  app.get("/", (_req, res) => void res.status(200).send("OK"));
 
   // PASSPORTJS
   // PassportJS authentication
@@ -69,6 +70,7 @@ async function main() {
   app.post(
     "/files/:category/upload",
     upload.single("imageFile"),
+    authenticatedUserGuardian, // remove if you are just working locally
     fileUploadHandler
   );
 
@@ -90,6 +92,7 @@ async function main() {
     "/graphql",
     CORS_MIDDLEWARE,
     express.json(),
+    // @ts-ignore
     expressMiddleware(apolloServer, {
       context: async ({ req }) => ({ ...context, user: req.user as CtxUser })
     })

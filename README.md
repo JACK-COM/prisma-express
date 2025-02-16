@@ -3,6 +3,8 @@
 A lightweight `Node`-`Typescript`-`Express`-`Prisma` quick-starter with semi-advanced user authentication (see dependencies).\
 Forked from [**AWallace's version**](https://github.com/vawallace/base-node-express).
 
+If you prefer Python, there is now a [Prisma-Python](https://github.com/JACK-COM/prisma-python) starter template that is functionally similar.
+
 ---
 
 - [🚄 *Prisma-Express*](#-prisma-express)

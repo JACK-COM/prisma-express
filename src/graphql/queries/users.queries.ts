@@ -12,7 +12,9 @@ export const getAuthUser = queryField("getAuthUser", {
   description: "Get the currently authenticated user",
   resolve: async (_, _args, { user }) => {
     if (!user) return null;
-    const [userData] = await Promise.all([UsersService.getUserById(user.id)]);
+    const [userData] = await Promise.all([
+      UsersService.getUser({ id: user.id })
+    ]);
     if (!userData) return null;
     return userData;
   }
@@ -24,6 +26,6 @@ export const getUser = queryField("getUser", {
   description: "Get a user by id",
   args: { id: nonNull(intArg()) },
   resolve: async (_, { id }) => {
-    return await UsersService.getUserById(id);
+    return await UsersService.getUser({ id });
   }
 });

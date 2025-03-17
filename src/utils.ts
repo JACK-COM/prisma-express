@@ -1,4 +1,5 @@
 import * as encrypt from "bcryptjs";
+import { ENCRYPT_SECRET } from "./constants";
 
 /** strip all characters from a filename */
 export function stripSpecialCharacters(st: string) {
@@ -42,7 +43,7 @@ export function slugify(str: string, optionalSource?: string) {
     .toLowerCase()
     .replace(/[^\w ]+/g, "")
     .replace(/ +/g, "-");
-  const enc = encrypt.hash(optionalSource || str);
+  const enc = encrypt.hashSync(optionalSource || str, ENCRYPT_SECRET);
   let hex = Buffer.from(enc).toString("hex");
   const randlength = hex.length;
   hex = hex.slice(randlength - 12, randlength);
